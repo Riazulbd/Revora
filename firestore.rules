@@ -1,0 +1,531 @@
+rules_version = '2';
+
+// Moto Companion — Firestore security rules.
+//
+// Posture: default deny. Nothing is readable or writable unless a rule below
+// says so, and every rule states the owner check explicitly rather than
+// relying on a broader match higher up.
+//
+// The model is flat, single-owner collections. Every rider-owned document
+// carries `userId`, and the only documents a rider can touch are ones where
+// that field already equals their uid — and, on create, where the field they
+// are writing equals their uid. Without the second half, anyone could create a
+// document belonging to somebody else.
+//
+// Three things are deliberately impossible from a client:
+//   - granting yourself Premium (`entitlements` is server-write-only);
+//   - editing shared reference data (`bikeModels`, `fuelGaugeProfiles`);
+//   - reading the spend, quota and purchase-token collections at all.
+//
+// NOT ENFORCEABLE HERE: the free tier's one-bike limit. Rules cannot count
+// documents in a collection, so that limit is enforced in the app for a good
+// error message and again in the `onBikeCreated` server trigger, which is the
+// copy a modified client cannot skip.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /* -------------------------------------------------------------- */
+    /* Helpers                                                        */
+    /* -------------------------------------------------------------- */
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    // Ownership of a document that already exists.
+    function ownsExisting() {
+      return signedIn()
+        && resource.data.userId is string
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // Ownership claimed by a document being written. A client cannot create a
+    // record on somebody else's behalf, whatever the rest of the payload says.
+    function claimsOwn() {
+      return signedIn()
+        && incoming().userId is string
+        && incoming().userId == request.auth.uid;
+    }
+
+    // `userId` and `createdAt` are set once and never move. Allowing either to
+    // change would let a document be handed to another account, or its history
+    // rewritten, after the fact.
+    function keepsImmutableFields() {
+      return incoming().userId == resource.data.userId
+        && incoming().createdAt == resource.data.createdAt;
+    }
+
+    function isNumber(value) {
+      return value is number;
+    }
+
+    function optionalNumber(field) {
+      return !(field in incoming()) || incoming()[field] == null
+        || incoming()[field] is number;
+    }
+
+    function optionalNonNegativeNumber(field) {
+      return !(field in incoming()) || incoming()[field] == null
+        || (incoming()[field] is number && incoming()[field] >= 0);
+    }
+
+    // Free text is capped so a single document cannot be used as bulk storage
+    // and so an export or an AI context window cannot be flooded.
+    function optionalText(field, maxLength) {
+      return !(field in incoming()) || incoming()[field] == null
+        || (incoming()[field] is string && incoming()[field].size() <= maxLength);
+    }
+
+    function requiredText(field, maxLength) {
+      return incoming()[field] is string
+        && incoming()[field].size() > 0
+        && incoming()[field].size() <= maxLength;
+    }
+
+    // Dates cross the wire as ISO-8601 strings and are written as timestamps
+    // by the server, so both are acceptable shapes.
+    function isDateLike(value) {
+      return value is timestamp || (value is string && value.size() <= 40);
+    }
+
+    function hasOwnerTimestamps() {
+      return 'createdAt' in incoming() && 'updatedAt' in incoming();
+    }
+
+    /* -------------------------------------------------------------- */
+    /* Rider profile                                                  */
+    /* -------------------------------------------------------------- */
+
+    match /users/{userId} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && claimsOwn()
+        && optionalText('displayName', 120)
+        && optionalText('email', 320)
+        && requiredText('currency', 8);
+      allow update: if signedIn()
+        && request.auth.uid == userId
+        && ownsExisting()
+        && keepsImmutableFields()
+        && optionalText('displayName', 120);
+      allow delete: if false; // Deletion goes through deleteMyAccount.
+    }
+
+    /* -------------------------------------------------------------- */
+    /* Motorcycles                                                    */
+    /* -------------------------------------------------------------- */
+
+    match /bikes/{bikeId} {
+      function validBike() {
+        return requiredText('nickname', 60)
+          && requiredText('manufacturer', 60)
+          && requiredText('model', 80)
+          && isNumber(incoming().initialOdometer)
+          && incoming().initialOdometer >= 0
+          && isNumber(incoming().currentOdometer)
+          && incoming().currentOdometer >= 0
+          && incoming().archived is bool
+          && optionalNonNegativeNumber('tankCapacityLiters')
+          && optionalNonNegativeNumber('reserveCapacityLiters')
+          && optionalNumber('engineCc')
+          // Registration plates identify a vehicle and therefore a person;
+          // they are stored, never exported to analytics or the AI gateway.
+          && optionalText('registrationNumber', 32);
+      }
+
+      allow read: if ownsExisting();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validBike();
+      allow update: if ownsExisting() && keepsImmutableFields() && validBike();
+      allow delete: if ownsExisting();
+    }
+
+    /* -------------------------------------------------------------- */
+    /* Fuel                                                           */
+    /* -------------------------------------------------------------- */
+
+    match /fuelEntries/{entryId} {
+      function validFuelEntry() {
+        return requiredText('bikeId', 128)
+          && isDateLike(incoming().date)
+          // An odometer cannot be negative, and a fill of zero litres is not a
+          // fill. Both would corrupt every interval derived from this entry.
+          && isNumber(incoming().odometer)
+          && incoming().odometer >= 0
+          && isNumber(incoming().liters)
+          && incoming().liters > 0
+          && incoming().tankStatus in ['full', 'partial', 'unknown']
+          && incoming().missedPreviousFill is bool
+          && optionalNonNegativeNumber('pricePerLiter')
+          && optionalNonNegativeNumber('totalCost')
+          && optionalText('notes', 2000)
+          && optionalText('stationName', 120)
+          && optionalText('receiptPath', 512);
+      }
+
+      allow read: if ownsExisting();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validFuelEntry();
+      allow update: if ownsExisting()
+        && keepsImmutableFields()
+        && validFuelEntry();
+      allow delete: if ownsExisting();
+    }
+
+    match /fuelAdjustments/{adjustmentId} {
+      function validAdjustment() {
+        return requiredText('bikeId', 128)
+          && isDateLike(incoming().date)
+          // Signed: negative is fuel that left the tank without covering
+          // distance. Zero is meaningless and is rejected.
+          && isNumber(incoming().liters)
+          && incoming().liters != 0
+          && incoming().reason in [
+            'maintenance_loss', 'leak', 'drained', 'theft',
+            'transferred', 'added_unlogged', 'other'
+          ]
+          && incoming().approximate is bool
+          && optionalText('note', 2000);
+      }
+
+      allow read: if ownsExisting();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validAdjustment();
+      allow update: if ownsExisting()
+        && keepsImmutableFields()
+        && validAdjustment();
+      allow delete: if ownsExisting();
+    }
+
+    match /odometerEntries/{readingId} {
+      function validReading() {
+        return requiredText('bikeId', 128)
+          && isDateLike(incoming().date)
+          && isNumber(incoming().odometer)
+          && incoming().odometer >= 0
+          && incoming().source in ['manual', 'fuel', 'service', 'expense'];
+      }
+
+      allow read: if ownsExisting();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validReading();
+      allow update: if ownsExisting()
+        && keepsImmutableFields()
+        && validReading();
+      allow delete: if ownsExisting();
+    }
+
+    match /gaugeSamples/{sampleId} {
+      allow read: if ownsExisting();
+      allow create: if claimsOwn()
+        && hasOwnerTimestamps()
+        && requiredText('bikeId', 128)
+        && isNumber(incoming().bars)
+        && incoming().bars >= 0
+        && isNumber(incoming().totalBars)
+        && incoming().totalBars >= 2
+        && isNumber(incoming().litersToFill)
+        && incoming().litersToFill >= 0
+        && incoming().filledToFull is bool;
+      allow update: if ownsExisting() && keepsImmutableFields();
+      allow delete: if ownsExisting();
+    }
+
+    /* -------------------------------------------------------------- */
+    /* Servicing, parts and money                                     */
+    /* -------------------------------------------------------------- */
+
+    match /services/{serviceId} {
+      function validService() {
+        return requiredText('bikeId', 128)
+          && requiredText('title', 120)
+          && isDateLike(incoming().date)
+          && isNumber(incoming().odometer)
+          && incoming().odometer >= 0
+          && optionalNonNegativeNumber('totalCost')
+          && optionalNonNegativeNumber('laborCost')
+          && optionalText('notes', 4000)
+          && optionalText('performedBy', 120);
+      }
+
+      allow read: if ownsExisting();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validService();
+      allow update: if ownsExisting()
+        && keepsImmutableFields()
+        && validService();
+      allow delete: if ownsExisting();
+    }
+
+    match /serviceItems/{itemId} {
+      allow read: if ownsExisting();
+      allow create: if claimsOwn()
+        && hasOwnerTimestamps()
+        && requiredText('bikeId', 128)
+        && requiredText('serviceId', 128)
+        && requiredText('name', 120)
+        && isNumber(incoming().quantity)
+        && incoming().quantity > 0
+        && optionalNonNegativeNumber('unitCost')
+        && optionalNonNegativeNumber('totalCost');
+      allow update: if ownsExisting() && keepsImmutableFields();
+      allow delete: if ownsExisting();
+    }
+
+    match /maintenanceRules/{ruleId} {
+      function validRule() {
+        return requiredText('bikeId', 128)
+          && requiredText('name', 120)
+          && incoming().intervalType in ['distance', 'time', 'both']
+          && optionalNonNegativeNumber('intervalKm')
+          && optionalNonNegativeNumber('intervalDays')
+          && isNumber(incoming().warnAheadKm)
+          && isNumber(incoming().warnAheadDays)
+          && incoming().enabled is bool
+          && optionalText('notes', 2000);
+      }
+
+      allow read: if ownsExisting();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validRule();
+      allow update: if ownsExisting() && keepsImmutableFields() && validRule();
+      allow delete: if ownsExisting();
+    }
+
+    match /parts/{partId} {
+      allow read: if ownsExisting();
+      allow create: if claimsOwn()
+        && hasOwnerTimestamps()
+        && requiredText('bikeId', 128)
+        && requiredText('name', 120)
+        && optionalNonNegativeNumber('installedOdometer')
+        && optionalNonNegativeNumber('expectedLifeKm')
+        && optionalNonNegativeNumber('cost')
+        && optionalText('notes', 2000);
+      allow update: if ownsExisting() && keepsImmutableFields();
+      allow delete: if ownsExisting();
+    }
+
+    match /accessories/{accessoryId} {
+      allow read: if ownsExisting();
+      allow create: if claimsOwn()
+        && hasOwnerTimestamps()
+        && requiredText('bikeId', 128)
+        && requiredText('name', 120)
+        && optionalNonNegativeNumber('cost')
+        && optionalText('notes', 2000);
+      allow update: if ownsExisting() && keepsImmutableFields();
+      allow delete: if ownsExisting();
+    }
+
+    match /expenses/{expenseId} {
+      function validExpense() {
+        return requiredText('bikeId', 128)
+          && requiredText('title', 120)
+          && isDateLike(incoming().date)
+          && isNumber(incoming().amount)
+          && incoming().amount >= 0
+          && incoming().category in [
+            'fuel', 'maintenance', 'parts', 'accessories', 'insurance',
+            'registration', 'wash', 'parking', 'fine', 'other'
+          ]
+          && optionalNonNegativeNumber('odometer')
+          && optionalText('notes', 2000)
+          && optionalText('receiptPath', 512);
+      }
+
+      allow read: if ownsExisting();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validExpense();
+      allow update: if ownsExisting()
+        && keepsImmutableFields()
+        && validExpense();
+      allow delete: if ownsExisting();
+    }
+
+    match /reminders/{reminderId} {
+      allow read: if ownsExisting();
+      allow create: if claimsOwn()
+        && hasOwnerTimestamps()
+        && requiredText('bikeId', 128)
+        && requiredText('title', 120)
+        && isDateLike(incoming().dueAt)
+        && optionalText('body', 1000);
+      allow update: if ownsExisting() && keepsImmutableFields();
+      allow delete: if ownsExisting();
+    }
+
+    /* -------------------------------------------------------------- */
+    /* Entitlement — the Premium-escalation surface                   */
+    /* -------------------------------------------------------------- */
+
+    // A rider may look at their own entitlement and nothing more. Every write
+    // path is closed: this document is written only by the billing functions,
+    // after Google Play has confirmed the purchase. If a client could create
+    // or edit it, Premium would be free for anyone willing to open a debugger.
+    match /entitlements/{userId} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow create, update, delete: if false;
+    }
+
+    /* -------------------------------------------------------------- */
+    /* AI audit and reports                                           */
+    /* -------------------------------------------------------------- */
+
+    // Written by the gateway only. Riders can see their own history — it is
+    // the record of what their allowance was spent on — but cannot forge,
+    // amend or delete an entry, which is what makes it an audit trail.
+    match /aiRequests/{requestId} {
+      allow read: if ownsExisting();
+      allow create, update, delete: if false;
+    }
+
+    // Riders may file a report and read their own. They may not edit one after
+    // filing, and may not read anybody else's.
+    match /aiReports/{reportId} {
+      allow read: if ownsExisting();
+      allow create: if claimsOwn()
+        && requiredText('aiRequestId', 128)
+        && incoming().reason in ['incorrect', 'unsafe', 'offensive', 'other']
+        && optionalText('description', 1000)
+        && incoming().status == 'open';
+      allow update, delete: if false;
+    }
+
+    /* -------------------------------------------------------------- */
+    /* Shared reference data                                          */
+    /* -------------------------------------------------------------- */
+
+    // Readable by any signed-in rider, writable by nobody. These rows feed
+    // every fuel estimate in the product, so an editable one would let one
+    // account change what every other account is told about their motorcycle.
+    match /bikeModels/{modelId} {
+      allow read: if signedIn();
+      allow create, update, delete: if false;
+    }
+
+    match /fuelGaugeProfiles/{profileId} {
+      allow read: if signedIn();
+      allow create, update, delete: if false;
+    }
+
+    /* -------------------------------------------------------------- */
+    /* Server-only collections                                        */
+    /* -------------------------------------------------------------- */
+
+    // No client access of any kind. The Admin SDK bypasses these rules, which
+    // is the only way this data is ever touched.
+    //
+    //  aiCache        — other riders' answers, keyed by content.
+    //  aiUsage        — quota counters; readable would be writable-adjacent.
+    //  budget         — global spend; discloses commercial information.
+    //  purchaseTokens — hash-to-account map; the anti-sharing control itself.
+    //  deletionRequests — retained accounting records for closed accounts.
+    match /aiCache/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /aiUsage/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /budget/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /purchaseTokens/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /deletionRequests/{document=**} {
+      allow read, write: if false;
+    }
+
+
+    /* -------------------------------------------------------------- */
+    /* Mobile record set — ADDITIVE, appended by the Revora mobile     */
+    /* app. Four collections the mobile design needs that the web      */
+    /* product does not use yet. Same posture as everything above:     */
+    /* single-owner, userId frozen, validated on write.                */
+    /* -------------------------------------------------------------- */
+
+    match /documents/{documentId} {
+      function validDocument() {
+        return requiredText('bikeId', 128)
+          && requiredText('title', 120)
+          && incoming().kind in ['registration', 'insurance', 'tax_token', 'fitness', 'licence', 'custom']
+          && incoming().keepOfflineCopy is bool
+          && optionalText('customKindLabel', 60)
+          && optionalText('reference', 80)
+          && optionalText('expiresOn', 40)
+          && optionalText('filePath', 512)
+          && optionalText('notes', 2000);
+      }
+
+      allow read: if ownsExisting();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validDocument();
+      allow update: if ownsExisting() && keepsImmutableFields() && validDocument();
+      allow delete: if ownsExisting();
+    }
+
+    match /warranties/{warrantyId} {
+      function validWarranty() {
+        return requiredText('bikeId', 128)
+          && requiredText('title', 120)
+          && incoming().claimStatus in ['none', 'open', 'settled', 'rejected']
+          && optionalText('provider', 80)
+          && optionalText('purchasedFrom', 80)
+          && optionalText('coverage', 200)
+          && optionalText('validUntil', 40)
+          && optionalNonNegativeNumber('reminderDaysBefore');
+      }
+
+      allow read: if ownsExisting();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validWarranty();
+      allow update: if ownsExisting() && keepsImmutableFields() && validWarranty();
+      allow delete: if ownsExisting();
+    }
+
+    match /safetyChecks/{checkId} {
+      function validCheck() {
+        return requiredText('bikeId', 128)
+          && requiredText('summary', 120)
+          && incoming().area in ['tyres', 'chain', 'brakes', 'battery', 'lights']
+          && incoming().status in ['ok', 'watch', 'action']
+          && isDateLike(incoming().date)
+          && optionalText('note', 2000)
+          && optionalText('photoPath', 512);
+      }
+
+      allow read: if ownsExisting();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validCheck();
+      allow update: if ownsExisting() && keepsImmutableFields() && validCheck();
+      allow delete: if ownsExisting();
+    }
+
+    match /captures/{captureId} {
+      function validCapture() {
+        return requiredText('bikeId', 128)
+          && requiredText('label', 120)
+          && incoming().kind in ['fuel', 'receipt', 'odometer', 'note']
+          && incoming().status in ['queued', 'completed']
+          && optionalText('detail', 500)
+          && optionalText('photoPath', 512);
+      }
+
+      allow read: if ownsExisting();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validCapture();
+      allow update: if ownsExisting() && keepsImmutableFields() && validCapture();
+      allow delete: if ownsExisting();
+    }
+
+    /* -------------------------------------------------------------- */
+    /* Default deny                                                   */
+    /* -------------------------------------------------------------- */
+
+    // Anything not named above is denied. A new collection is inaccessible
+    // until someone deliberately writes a rule for it, which is the correct
+    // direction for that mistake to fail in.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

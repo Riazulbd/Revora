@@ -1,0 +1,30 @@
+appId: app.revora.android.dev
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "screen-dashboard"
+    timeout: 30000
+- tapOn:
+    id: "tab-more"
+- scrollUntilVisible:
+    element:
+      id: "row-settings"
+    direction: DOWN
+- tapOn:
+    id: "row-settings"
+- extendedWaitUntil:
+    visible: "APPEARANCE"
+    timeout: 15000
+- takeScreenshot: shots/35-settings
+- back
+- scrollUntilVisible:
+    element:
+      id: "row-plan"
+    direction: DOWN
+- tapOn:
+    id: "row-plan"
+- extendedWaitUntil:
+    visible: "Free / Pro"
+    timeout: 15000
+- takeScreenshot: shots/36-plan

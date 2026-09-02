@@ -1,0 +1,40 @@
+# Dark mode across the key screens, then back to light.
+appId: app.revora.android.dev
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "screen-dashboard"
+    timeout: 30000
+- tapOn:
+    id: "open-settings"
+- extendedWaitUntil:
+    visible: "APPEARANCE"
+    timeout: 15000
+- tapOn: "Dark"
+- takeScreenshot: shots/50-settings-dark
+- back
+- extendedWaitUntil:
+    visible:
+      id: "screen-dashboard"
+    timeout: 15000
+- takeScreenshot: shots/51-dashboard-dark
+- tapOn:
+    id: "tab-fuel"
+- takeScreenshot: shots/52-fuel-dark
+- tapOn:
+    id: "tab-expenses"
+- takeScreenshot: shots/53-expenses-dark
+- tapOn:
+    id: "tab-more"
+- tapOn:
+    id: "row-analytics"
+- extendedWaitUntil:
+    visible: "LATEST FUEL CALCULATION"
+    timeout: 15000
+- takeScreenshot: shots/54-analytics-dark
+- back
+- tapOn:
+    id: "row-settings"
+- tapOn: "Light"
+- back

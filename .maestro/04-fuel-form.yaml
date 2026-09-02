@@ -1,0 +1,74 @@
+# The fuel form's live calculator and double-save guard, on the real backend.
+appId: app.revora.android.dev
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "screen-dashboard"
+    timeout: 30000
+- tapOn:
+    id: "tab-fuel"
+- tapOn:
+    id: "cta-add-fuel"
+- extendedWaitUntil:
+    visible:
+      id: "input-litres"
+    timeout: 15000
+- takeScreenshot: shots/40-fuel-add-empty
+- tapOn:
+    id: "input-odometer"
+- inputText: "5210"
+- tapOn:
+    id: "input-litres"
+- inputText: "5"
+- hideKeyboard
+# price was pre-seeded at 145 from the last fill → total must derive to 725
+- extendedWaitUntil:
+    visible: "725"
+    timeout: 5000
+- takeScreenshot: shots/41-fuel-add-derived
+- tapOn:
+    id: "adjust-leak"
+- tapOn:
+    id: "adjust-amount-leak"
+- inputText: "1"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "banner-adjusted"
+    timeout: 5000
+- takeScreenshot: shots/42-fuel-add-adjustment
+- scrollUntilVisible:
+    element:
+      id: "cta-save-fuel"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-fuel"
+- extendedWaitUntil:
+    visible: "Fuel"
+    timeout: 20000
+- extendedWaitUntil:
+    visible: "5,210 km"
+    timeout: 20000
+- takeScreenshot: shots/43-fuel-list-after-save
+# open it, verify the adjustment survived, then delete to restore the CSV state
+- tapOn: "5,210 km"
+- extendedWaitUntil:
+    visible: "ADJUSTMENT DETAIL"
+    timeout: 15000
+- takeScreenshot: shots/44-fuel-detail-adjusted
+- scrollUntilVisible:
+    element:
+      id: "cta-delete"
+    direction: DOWN
+- tapOn:
+    id: "cta-delete"
+- extendedWaitUntil:
+    visible: "Delete"
+    timeout: 5000
+- takeScreenshot: shots/45-delete-dialog
+- tapOn: "Delete"
+- extendedWaitUntil:
+    notVisible: "5,210 km"
+    timeout: 20000
+- takeScreenshot: shots/46-fuel-list-after-delete

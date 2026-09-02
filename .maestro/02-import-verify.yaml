@@ -1,0 +1,56 @@
+# After the CSV import: every figure on the dashboard must match the CSV.
+appId: app.revora.android.dev
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "screen-dashboard"
+    timeout: 30000
+# 4,845 → 5,180 on 9 L = 37.2 km/L; odometer 5,180; services BDT 21,760
+- extendedWaitUntil:
+    visible: "5,180"
+    timeout: 30000
+- assertVisible: "37.2"
+- takeScreenshot: shots/10-dashboard-data
+- scrollUntilVisible:
+    element: "SPENDING · ALL TIME"
+    direction: DOWN
+- takeScreenshot: shots/11-dashboard-spending
+- tapOn:
+    id: "tab-fuel"
+- extendedWaitUntil:
+    visible: "30 Aug 2026"
+    timeout: 15000
+- takeScreenshot: shots/12-fuel-list
+- tapOn: "30 Aug 2026"
+- extendedWaitUntil:
+    visible: "BDT 1,305"
+    timeout: 15000
+- assertVisible: "335 km"
+- takeScreenshot: shots/13-fuel-detail
+- back
+- tapOn:
+    id: "tab-garage"
+- extendedWaitUntil:
+    visible: "Honda Hornet"
+    timeout: 15000
+- takeScreenshot: shots/14-garage
+- tapOn:
+    id: "cta-odometer"
+- extendedWaitUntil:
+    visible: "Odometer history"
+    timeout: 15000
+- takeScreenshot: shots/15-odometer-history
+- back
+- tapOn:
+    id: "tab-expenses"
+- extendedWaitUntil:
+    visible:
+      id: "screen-expenses"
+    timeout: 15000
+- takeScreenshot: shots/16-expenses
+- tapOn: "All time"
+- takeScreenshot: shots/17-expenses-all
+- tapOn:
+    id: "tab-more"
+- takeScreenshot: shots/18-more

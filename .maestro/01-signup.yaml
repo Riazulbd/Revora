@@ -1,0 +1,73 @@
+# Sign in with an existing account, then complete onboarding.
+#
+# Credentials come from the environment so they never live in the repo:
+#   maestro test -e MAESTRO_EMAIL=you@example.com -e MAESTRO_PASSWORD=... .maestro/01-signup.yaml
+appId: app.revora.android.dev
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "cta-signin"
+    timeout: 30000
+- takeScreenshot: shots/01-welcome
+- tapOn:
+    id: "cta-signin"
+- extendedWaitUntil:
+    visible:
+      id: "input-email"
+    timeout: 10000
+- tapOn:
+    id: "input-email"
+- inputText: "${MAESTRO_EMAIL}"
+- tapOn:
+    id: "input-password"
+- inputText: "${MAESTRO_PASSWORD}"
+- hideKeyboard
+- takeScreenshot: shots/02-signin-filled
+- tapOn:
+    id: "cta-submit"
+- extendedWaitUntil:
+    visible:
+      id: "input-manufacturer"
+    timeout: 60000
+- takeScreenshot: shots/03-onboarding
+- tapOn:
+    id: "input-manufacturer"
+- inputText: "Honda"
+- tapOn:
+    id: "input-model"
+- inputText: "Hornet 2.0"
+- tapOn:
+    id: "input-nickname"
+- inputText: "Honda Hornet"
+- tapOn:
+    id: "input-year"
+- inputText: "2025"
+- tapOn:
+    id: "input-odometer"
+- inputText: "4800"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "input-tank"
+    direction: DOWN
+- tapOn:
+    id: "input-tank"
+- inputText: "12"
+- tapOn:
+    id: "input-price"
+- inputText: "285000"
+- hideKeyboard
+- takeScreenshot: shots/04-onboarding-filled
+- scrollUntilVisible:
+    element:
+      id: "cta-add-bike"
+    direction: DOWN
+- tapOn:
+    id: "cta-add-bike"
+- extendedWaitUntil:
+    visible:
+      id: "screen-dashboard"
+    timeout: 90000
+- takeScreenshot: shots/05-dashboard-empty

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "623196607074",
+    "project_id": "ai-fuel-assistant",
+    "storage_bucket": "ai-fuel-assistant.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:623196607074:android:25c56118c69322887bb73b",
+        "android_client_info": {
+          "package_name": "app.revora.android.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "623196607074-pl7nv8prhm77cut27ik7ngsb3lfo3ja4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1CSVdbARHnY0VYkGmXIrICCnIZ-xPqmE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "623196607074-pl7nv8prhm77cut27ik7ngsb3lfo3ja4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

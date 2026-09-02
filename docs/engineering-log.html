@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revora Engineering Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F6F8; --sur:#FFFFFF; --sur2:#F1F2F5; --ink:#14171B; --mut:#878E98;
+    --brd:#E9EBEF; --acc:#F4511E; --accS:#FDEAE3;
+    --good:#0FA968; --goodS:#E5F6EE; --warn:#B7791F; --warnS:#FBF0DA; --bad:#D92D20; --badS:#FBE9E7;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#101214; --sur:#191C20; --sur2:#23272C; --ink:#F2F4F6; --mut:#9AA1AA;
+      --brd:#2C3138; --acc:#FF6B3D; --accS:#3A2118;
+      --good:#4CC38A; --goodS:#17342A; --warn:#E0A33C; --warnS:#3A301A; --bad:#E5695A; --badS:#3B211D;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#101214; --sur:#191C20; --sur2:#23272C; --ink:#F2F4F6; --mut:#9AA1AA;
+    --brd:#2C3138; --acc:#FF6B3D; --accS:#3A2118;
+    --good:#4CC38A; --goodS:#17342A; --warn:#E0A33C; --warnS:#3A301A; --bad:#E5695A; --badS:#3B211D;
+  }
+  body{background:var(--bg);color:var(--ink);font:500 15px/1.65 Manrope,system-ui,sans-serif;margin:0}
+  main{max-width:720px;margin:0 auto;padding:44px 20px 90px}
+  a{color:var(--acc);text-decoration:none;font-weight:700}
+  a:hover{text-decoration:underline}
+  .eyebrow{font:700 11px Manrope;letter-spacing:.09em;text-transform:uppercase;color:var(--mut)}
+  .eyebrow.acc{color:var(--acc)}
+  h1{font:800 30px/1.15 Manrope;margin:6px 0 8px;text-wrap:balance}
+  .lede{color:var(--mut);font-size:14.5px;max-width:58ch;margin:0 0 18px}
+  h2{font:800 19px Manrope;margin:44px 0 4px;text-wrap:balance}
+  h2 .eyebrow{display:block;margin-bottom:4px}
+  .h2sub{color:var(--mut);font-size:13px;margin:0 0 16px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
+  .chip{font:700 11px Manrope;letter-spacing:.02em;border-radius:8px;padding:6px 10px;background:var(--sur2);color:var(--mut)}
+  .chip.good{background:var(--goodS);color:var(--good)}
+  .chip.warn{background:var(--warnS);color:var(--warn)}
+  .chip.accs{background:var(--accS);color:var(--acc)}
+  .index{background:var(--sur);border:1px solid var(--brd);border-radius:16px;padding:16px 18px;margin:26px 0 0;
+         display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:4px 18px;font-size:13px}
+  .index a{font-weight:700}
+  /* problem entries */
+  .entry{background:var(--sur);border:1px solid var(--brd);border-radius:16px;padding:18px 18px 16px;margin:14px 0}
+  .entry header{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .num{font:800 12px 'JetBrains Mono',monospace;color:var(--mut);flex:none}
+  .entry h3{font:700 15.5px Manrope;margin:0;flex:1 1 12ch;min-width:0;text-wrap:balance}
+  .status{flex:none;font:700 10px Manrope;letter-spacing:.06em;border-radius:7px;padding:4px 8px}
+  .status.fixed{background:var(--goodS);color:var(--good)}
+  .status.owner{background:var(--warnS);color:var(--warn)}
+  .row{display:grid;grid-template-columns:76px 1fr;gap:12px;padding:7px 0;border-top:1px solid var(--brd);font-size:13.8px}
+  .row .k{font:700 10px Manrope;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);padding-top:3px}
+  .row.fix .k{color:var(--good)}
+  .row p{margin:0}
+  code{font:600 12.4px/1.6 'JetBrains Mono',monospace;background:var(--sur2);border-radius:5px;padding:1px 5px}
+  pre{background:var(--sur2);border:1px solid var(--brd);border-radius:12px;padding:13px 15px;overflow-x:auto;margin:8px 0 0}
+  pre code{background:none;padding:0;font-size:12.2px;display:block;min-width:max-content}
+  /* tables */
+  table{width:100%;border-collapse:collapse;background:var(--sur);border:1px solid var(--brd);border-radius:16px;
+        overflow:hidden;font-size:13.5px;margin:14px 0}
+  .tablewrap{overflow-x:auto}
+  th{font:700 10.5px Manrope;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);text-align:left;
+     padding:11px 14px;border-bottom:1px solid var(--brd);background:var(--sur)}
+  td{padding:10px 14px;border-bottom:1px solid var(--brd);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .keep li{margin:7px 0}
+  .keep{padding-left:20px;font-size:14px}
+  .figures{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+  .fig{background:var(--sur);border:1px solid var(--brd);border-radius:14px;padding:12px 14px}
+  .fig .k{font:700 9.5px Manrope;letter-spacing:.07em;text-transform:uppercase;color:var(--mut)}
+  .fig .v{font:800 19px Manrope;font-variant-numeric:tabular-nums;margin-top:2px}
+  .fig .v small{font:600 11px Manrope;color:var(--mut)}
+  .rule-note{background:var(--accS);border:1px solid var(--brd);border-radius:12px;padding:11px 14px;font-size:13.3px;margin-top:10px}
+  .rule-note b{color:var(--acc)}
+  :focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:4px}
+  @media (prefers-reduced-motion:no-preference){ html{scroll-behavior:smooth} }
+</style>
+</head>
+<body>
+<main>
+  <span class="eyebrow acc">Revora · Know your bike</span>
+  <h1>Engineering Log</h1>
+  <p class="lede">What broke, why, and how it was fixed while taking Revora from an approved design to a live app on the shared production backend — kept so no working session rediscovers any of it. Written 1 Sep 2026, covering v1.0 → v1.1. The versioned copy lives at <code>docs/ENGINEERING-LOG.md</code>.</p>
+  <div class="chips">
+    <span class="chip accs">22 problems logged</span>
+    <span class="chip good">168 unit tests green</span>
+    <span class="chip good">20 rules tests vs production ruleset</span>
+    <span class="chip">v1.1 · versionCode 2</span>
+  </div>
+
+  <nav class="index" aria-label="Sections">
+    <a href="#system">The system &amp; invariants</a>
+    <a href="#log">Problem log (22)</a>
+    <a href="#keep">What worked — keep doing it</a>
+    <a href="#runbook">Runbook</a>
+    <a href="#open">Open items</a>
+  </nav>
+
+  <h2 id="system"><span class="eyebrow">Reference</span>The system in one paragraph</h2>
+  <p>Expo SDK 57 / React Native 0.86 with native Firebase, sharing the <strong>web product's live database</strong> on project <code>ai-fuel-assistant</code>. Screens in <code>src/app</code>, every derived number in <code>src/calculations</code> (pure, tested), Firestore only inside <code>src/repositories</code>. Storage is canonical integers — metres, millilitres, minor currency units — converted to the web's km / litres / taka in exactly one file, <code>src/repositories/wire.ts</code>. Nothing derived is stored; mileage, odometer, maintenance status and the ledger are recomputed on every read, which is why editing an old record corrects everything downstream.</p>
+
+  <div class="tablewrap"><table>
+    <thead><tr><th>Invariant — must not regress</th><th>Enforced by</th></tr></thead>
+    <tbody>
+      <tr><td>Every cost appears exactly once in the ledger</td><td><code>buildLedger()</code> · <code>expenses.test.ts</code>, <code>journey.test.ts</code></td></tr>
+      <tr><td>Mileage is measured full tank → full tank only</td><td><code>mileage.test.ts</code></td></tr>
+      <tr><td>No floats in the money path</td><td>integer minor units · <code>money.test.ts</code></td></tr>
+      <tr><td>Calendar dates never pass through UTC</td><td><code>src/utils/date.ts</code> · <code>date.test.ts</code></td></tr>
+      <tr><td>NaN / Infinity never reach a screen</td><td><code>src/utils/format.ts</code> · <code>format.test.ts</code></td></tr>
+      <tr><td>Rider A can never read rider B</td><td><code>firestore.rules</code> · <code>tests/firestore.rules.test.ts</code></td></tr>
+      <tr><td>No client can grant itself Pro</td><td><code>entitlements/{uid}</code> is server-write-only</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="log"><span class="eyebrow">Chronological</span>Problem log</h2>
+  <p class="h2sub">Symptom → cause → fix. Chips: <span class="status fixed">FIXED</span> shipped · <span class="status owner">OWNER</span> needs an action only the account owner can take.</p>
+
+  <article class="entry"><header><span class="num">01</span><h3>Jest refused to run</h3><span class="status fixed">FIXED</span></header>
+    <div class="row"><span class="k">Symptom</span><p>“The React Native Jest preset that jest-expo relies on has moved to a separate package”, then <code>Could not locate module react-native/setup-env</code>.</p></div>
+    <div class="row"><span class="k">Cause</span><p>jest-expo on SDK 57 peer-depends on <code>@react-native/jest-preset</code>; npm resolved one that didn't match RN 0.86.3. Jest 30 was also ahead of the expected ~29.7.</p></div>
+    <div class="row fix"><span class="k">Fix</span><p>Pin <code>@react-native/jest-preset@0.86.3</code> — always the exact RN version — plus <code>jest@~29.7.0</code>, <code>babel-preset-expo@~57.0.0</code>.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">02</span><h3>ESLint 10 crash</h3><span class="status fixed">FIXED</span></header>
+    <div class="row"><span class="k">Symptom</span><p><code>contextOrFilename.getFilename is not a function</code> from eslint-plugin-react.</p></div>
+    <div class="row fix"><span class="k">Fix</span><p><code>eslint-config-expo</code> isn't ESLint-10-ready — pin <code>eslint@^9.36.0</code>.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">03</span><h3>TypeScript 6 deprecated <code>baseUrl</code></h3><span class="status fixed">FIXED</span></header>
+    <div class="row fix"><span class="k">Fix</span><p>Drop <code>baseUrl</code>; alias with <code>"paths": {"@/*": ["./src/*"]}</code> — the leading <code>./</code> matters.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">04</span><h3>Custom <code>role</code> prop fought React Native's</h3><span class="status fixed">FIXED</span></header>
+    <div class="row"><span class="k">Cause</span><p>RN's <code>TextProps</code> has its own accessibility <code>role</code>; the intersection narrowed our type-scale roles to <code>"figure" | "button" | "link"</code> everywhere.</p></div>
+    <div class="row fix"><span class="k">Fix</span><p><code>Omit&lt;RNTextProps, 'role'&gt;</code> in the <code>Txt</code> primitive.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">05</span><h3>Gauge arc: no <code>pathLength</code> in react-native-svg</h3><span class="status fixed">FIXED</span></header>
+    <div class="row fix"><span class="k">Fix</span><p>The design's arc is a half-circle of r = 90, so dash against its true length: <code>Math.PI * 90</code>.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">06</span><h3>Hydration effects in nine editor forms</h3><span class="status fixed">FIXED</span></header>
+    <div class="row"><span class="k">Symptom</span><p>React 19 lint errors — “Calling setState synchronously within an effect” — plus a visible flash of empty form before values arrived.</p></div>
+    <div class="row fix"><span class="k">Fix</span><p>House pattern now: a <em>route</em> that waits for data, and a <em>form keyed on the record id</em> (<code>&lt;Form key=&#123;existing?.id ?? 'new'&#125;&gt;</code>) whose <code>useState</code> initialisers read the record directly. Zero hydration effects remain. Reference implementation: <code>src/app/fuel/add.tsx</code>.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">07</span><h3>Ref reads during render</h3><span class="status fixed">FIXED</span></header>
+    <div class="row fix"><span class="k">Fix</span><p><code>useStableId</code> became <code>useState(factory)</code> — the lazy initialiser runs exactly once, which is precisely the idempotent-id guarantee. <code>useRecordMutation</code> returns an explicit <code>{submit, isPending, isError, error}</code> instead of mutating the mutation object.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">08</span><h3>Two real bugs in the live-query layer</h3><span class="status fixed">FIXED</span></header>
+    <div class="row"><span class="k">Bug A</span><p>A listener that errored <em>synchronously</em> leaked — cleanup ran before the registry entry existed. Register the entry <strong>before</strong> subscribing.</p></div>
+    <div class="row"><span class="k">Bug B</span><p>Pull-to-refresh resolved the listener's <em>first</em> snapshot (an already-settled promise), not current data. Cache <code>latest</code> on the entry; refresh now issues <code>getDocsFromServer</code> so it genuinely bypasses the cache — and rejects offline instead of spinning forever.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">09</span><h3>Release build: “Keystore file not found”</h3><span class="status fixed">FIXED</span></header>
+    <div class="row"><span class="k">Cause</span><p>The keystore lived under <code>android/app/</code> — and <code>expo prebuild --clean</code> deletes <code>android/</code> wholesale.</p></div>
+    <div class="row fix"><span class="k">Fix</span><p>Keystore at <code>credentials/revora-release.keystore</code> (gitignored), wired by <code>plugins/withReleaseSigning.js</code> with an absolute path. Rule: nothing precious lives under <code>android/</code> — it is generated output.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">10</span><h3>The APK was 112 MB</h3><span class="status fixed">FIXED</span></header>
+    <div class="row"><span class="k">Cause</span><p>Four ABIs including emulator-only x86, plus eight installed-but-unused dependencies.</p></div>
+    <div class="row fix"><span class="k">Fix</span><p>Build with <code>-PreactNativeArchitectures=arm64-v8a,armeabi-v7a</code>; remove the dead deps; R8 on. 112 → 58 MB.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">11</span><h3>Dev-menu permission in the release manifest</h3><span class="status fixed">FIXED</span></header>
+    <div class="row fix"><span class="k">Fix</span><p><code>SYSTEM_ALERT_WINDOW</code> (React Native's dev overlay) blocked via <code>android.blockedPermissions</code> — Play flags it otherwise.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">12</span><h3>The big one — production sign-up denied every write</h3><span class="status fixed">FIXED</span></header>
+    <div class="row"><span class="k">Symptom</span><p>“You don't have access to this record” the moment a rider signed up.</p></div>
+    <div class="row"><span class="k">Cause</span><p>The app was built against <code>users/&#123;uid&#125;/fuel/…</code> subcollections. The Firebase project already runs the web product's <strong>“Moto Companion” ruleset</strong>: flat top-level collections (<code>bikes</code>, <code>fuelEntries</code>, <code>fuelAdjustments</code>, <code>odometerEntries</code>, <code>maintenanceRules</code>, <code>services</code>, <code>parts</code>, <code>accessories</code>, <code>expenses</code>, <code>reminders</code>, <code>users</code>, <code>entitlements</code>) keyed by a <code>userId</code> field, field-validated, <code>userId</code>/<code>createdAt</code> frozen after create, and <em>default-deny</em> for anything unlisted. The live database already held real data.</p></div>
+    <div class="row fix"><span class="k">Fix</span><p>Rewrote the repository layer to the live schema. <code>wire.ts</code> is the single unit boundary (km↔metres, litres↔ml, major↔minor). Fuel adjustments became dated timeline records with signed litres — a better model, netted into whichever full-to-full interval their date falls in. <code>bikes.currentOdometer</code> is written back on every save while the app keeps deriving it. All writes merge; updates never send the frozen fields; web-only fields survive. Proof: <code>tests/signup-sequence.test.ts</code> replays every serialised write against the <em>downloaded production ruleset</em> in the emulator.</p></div>
+    <div class="rule-note"><b>Rule for next time:</b> before writing one repository line against an existing backend, download the live rules — <code>GET firebaserules.googleapis.com/v1/projects/&lt;p&gt;/releases</code>, then <code>GET /v1/&lt;rulesetName&gt;</code> for the source.</div>
+  </article>
+
+  <article class="entry"><header><span class="num">13</span><h3>The project had zero composite indexes</h3><span class="status fixed">FIXED</span></header>
+    <div class="row fix"><span class="k">Fix</span><p>Queries shaped <code>where(userId) + where(bikeId) + orderBy(…)</code> need composites. Fourteen created <em>additively</em> via the REST API — never <code>deploy --only firestore:indexes</code> against a shared project, it may offer to delete unlisted ones. <code>firestore.indexes.json</code> is the inventory.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">14</span><h3>Four design screens had no rules at all</h3><span class="status fixed">FIXED</span></header>
+    <div class="row"><span class="k">Cause</span><p>Document vault, Warranties, Safety log and Fast Capture don't exist in the web schema — and the ruleset default-denies.</p></div>
+    <div class="row fix"><span class="k">Fix</span><p>Additive rules block in the house style for <code>documents</code> / <code>warranties</code> / <code>safetyChecks</code> / <code>captures</code>. Deployed only after: diff vs live showed <strong>0 deletions</strong>, the isolation matrix passed in the emulator, and the owner approved. Prior ruleset backed up first.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">15</span><h3>Toolchain bootstrap from a bare machine</h3><span class="status fixed">FIXED</span></header>
+    <div class="row"><span class="k">Gotchas</span><p><code>brew install --cask temurin@17</code> needs sudo and fails headless; the formula <code>openjdk@17</code> doesn't. <strong>Two JAVA_HOMEs:</strong> gradle wants 17, firebase-tools requires 21. No AVD existed: cmdline-tools zip → <code>sdkmanager "system-images;android-35;google_apis;arm64-v8a"</code> → headless boot with <code>-no-window -gpu swiftshader_indirect</code>. Maestro drives the app through the <code>testID</code>s already on every control. Emulators automatically get AdMob <em>test</em> ads, keeping automation inside policy.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">16</span><h3>Sign-up said email-already-in-use</h3><span class="status fixed">FIXED</span></header>
+    <div class="row"><span class="k">Cause</span><p>The auth user was created during the owner's earlier on-phone attempt — auth had succeeded, only Firestore had failed.</p></div>
+    <div class="row fix"><span class="k">Fix</span><p>Test flows sign <em>in</em> instead. The account's records now hold the imported CSV history.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">17</span><h3>AdMob broke the Kotlin build</h3><span class="status fixed">FIXED</span></header>
+    <div class="row"><span class="k">Symptom</span><p><code>Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 2.3.0, expected version is 2.1.0</code> — from play-services-ads.</p></div>
+    <div class="row"><span class="k">Dead ends</span><p>Pin ads SDK 24.6.0 → the RN library needs 25.x APIs. Pin 25.3.0 → same 2.3 metadata. Set <code>android.kotlinVersion</code> → ignored; RN's gradle plugin substitutes the classpath version.</p></div>
+    <div class="row fix"><span class="k">Fix</span><p>Kotlin <strong>2.2.20</strong> (a compiler reads metadata one minor ahead) forced on the <em>buildscript classpath</em> by <code>plugins/withKotlin22.js</code>. Remove when RN's toolchain reaches Kotlin 2.3.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">18</span><h3>Play Console showed three release errors at once</h3><span class="status fixed">FIXED</span></header>
+    <div class="row"><span class="k">Cause</span><p>One cause behind all three messages: the release contained no <em>new</em> <code>versionCode</code>.</p></div>
+    <div class="row fix"><span class="k">Fix</span><p>Every upload increments <code>android.versionCode</code> in <code>app.config.ts</code> — v1.1 is versionCode 2, same signing key, accepted as an upgrade.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">19</span><h3>Advertising-ID warning</h3><span class="status fixed">FIXED</span></header>
+    <div class="row fix"><span class="k">Fix</span><p><code>AD_ID</code> permission is auto-merged by the ads SDK (verify with <code>aapt2 dump badging … | grep AD_ID</code>). The console half: App content → Advertising ID → Yes → purpose “Advertising or marketing”.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">20</span><h3>“The file is no longer available” on photos</h3><span class="status owner">OWNER</span></header>
+    <div class="row"><span class="k">Cause</span><p>Firebase <strong>Storage was never set up</strong> — the bucket doesn't exist, and the provisioning API refuses non-console credentials.</p></div>
+    <div class="row fix"><span class="k">Fix</span><p>App side (shipped in v1.1): <code>uploadImageOrKeepLocal()</code> keeps every photo on-device when upload fails; the record always saves; the toast says so plainly. Project side, owner-only: Firebase console → Storage → <strong>Get started</strong>, then <code>firebase deploy --only storage</code> — the rules are already written.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">21</span><h3>Google Sign-In — working, with one future trap</h3><span class="status owner">OWNER</span></header>
+    <div class="row fix"><span class="k">Fix</span><p>Registered the release keystore's SHA-1/256 on the Firebase Android app via API; <code>webClientId</code> is the <code>client_type: 3</code> entry in google-services.json.</p></div>
+    <div class="row"><span class="k">Trap</span><p>Enrolling <strong>Play App Signing</strong> re-signs with Google's key — add its SHA-1 to Firebase too, or Google Sign-In breaks only in production.</p></div>
+  </article>
+
+  <article class="entry"><header><span class="num">22</span><h3>Play data-safety form and listing pages</h3><span class="status fixed">FIXED</span></header>
+    <div class="row fix"><span class="k">Fix</span><p>Hosted on the project's Firebase Hosting: <a href="https://ai-fuel-assistant.web.app/delete-account">/delete-account</a> and <a href="https://ai-fuel-assistant.web.app/privacy">/privacy</a>. Form answers on record: encrypted in transit — yes; account methods — username+password and OAuth only; device/other IDs — collected and <em>shared</em>, purpose Advertising (AdMob).</p></div>
+  </article>
+
+  <h2 id="keep"><span class="eyebrow">Lessons</span>What worked — keep doing it</h2>
+  <ul class="keep">
+    <li><strong>Pure calculation layer, tests first.</strong> All 168 unit tests survived the full schema rewrite with only fixture edits — the arithmetic (335 km ÷ 8 L → “41.9”, BDT 2,400 counted once) never broke.</li>
+    <li><strong>Firestore isolated to <code>src/repositories/</code>.</strong> Discovering the real production schema — normally a project-killer — was a contained rewrite. No screen changed.</li>
+    <li><strong>Emulator tests against the downloaded production ruleset</strong> before touching production: <code>npm run test:rules</code>.</li>
+    <li><strong><code>testID</code> on every control from day one</strong> made Maestro automation trivial.</li>
+    <li><strong>Ids minted before first save</strong> plus in-flight guards: a double-tap cannot create duplicates.</li>
+    <li><strong>Merge-writes only</strong>, so the web product's fields survive mobile edits.</li>
+  </ul>
+
+  <p class="h2sub" style="margin-top:18px">Live figures verified on-device against the imported CSV — if these drift, something regressed:</p>
+  <div class="figures">
+    <div class="fig"><span class="k">Odometer</span><div class="v">5,180 <small>km</small></div></div>
+    <div class="fig"><span class="k">Mileage</span><div class="v">37.2 <small>km/L</small></div></div>
+    <div class="fig"><span class="k">Services</span><div class="v">21,760 <small>BDT</small></div></div>
+    <div class="fig"><span class="k">August total</span><div class="v">24,660 <small>BDT</small></div></div>
+  </div>
+
+  <h2 id="runbook"><span class="eyebrow">Operations</span>Runbook</h2>
+  <p class="h2sub">JAVA_HOME 17 for gradle, 21 for anything firebase-tools. Both installed via Homebrew formulas.</p>
+<pre><code># Verify — always before building
+npm run verify                                  # tsc + eslint(0 warnings) + 168 tests
+JAVA_HOME=/opt/homebrew/opt/openjdk@21 npm run test:rules
+
+# Build
+export JAVA_HOME=/opt/homebrew/opt/openjdk@17
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+npx expo prebuild --platform android            # --clean wipes android/; keystore is safe in credentials/
+echo "sdk.dir=$HOME/Library/Android/sdk" &gt; android/local.properties
+./android/gradlew -p android bundleRelease assembleRelease \
+  -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+# outputs: android/app/build/outputs/{bundle,apk}/release/  + mapping/release/mapping.txt
+
+# Emulator + UI flows
+"$ANDROID_HOME/emulator/emulator" -avd revora -no-window -no-audio \
+  -no-boot-anim -gpu swiftshader_indirect -no-snapshot &amp;
+"$ANDROID_HOME/platform-tools/adb" install -r android/app/build/outputs/apk/release/app-release.apk
+JAVA_HOME=/opt/homebrew/opt/openjdk@21 PATH="$HOME/.maestro/bin:$PATH" maestro test .maestro/
+
+# Deploy
+npx firebase deploy --only firestore:rules --project ai-fuel-assistant
+npx firebase deploy --only hosting        --project ai-fuel-assistant
+npx firebase deploy --only storage        --project ai-fuel-assistant   # after console Get Started
+
+# Assets
+node scripts/generate-assets.js        # launcher icons, splash, dark logo
+node scripts/generate-play-assets.js   # Play listing: icon-512, feature graphic, framed screenshots</code></pre>
+  <p style="font-size:13.5px">Release checklist: bump <code>version</code> + <code>versionCode</code> in <code>app.config.ts</code> → verify → prebuild → build → confirm signer SHA-256 <code>e78f5718…f16b</code> unchanged → upload AAB → release note.</p>
+
+  <h2 id="open"><span class="eyebrow">Outstanding</span>Open items</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th style="width:30px">#</th><th>Item</th><th>Who</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Firebase Storage “Get started”, then deploy <code>storage.rules</code> — unlocks cloud photo sync</td><td>Owner, then one command</td></tr>
+      <tr><td>2</td><td>Package id <code>app.revora.android.dev</code> is now permanent on this Play listing (fixed by first upload)</td><td>Decided</td></tr>
+      <tr><td>3</td><td>On Play App Signing enrolment: add Google's app-signing SHA-1 to Firebase</td><td>Owner</td></tr>
+      <tr><td>4</td><td><code>app-ads.txt</code> on the developer site once the listing is live (AdMob)</td><td>Owner</td></tr>
+      <tr><td>5</td><td>Billing not connected; Plan screen says so honestly. Entitlement is server-write-only and ready for Google Play Billing</td><td>Future work</td></tr>
+      <tr><td>6</td><td>Real (non-test) ads appear only after AdMob approves the app and ad unit</td><td>Google</td></tr>
+      <tr><td>7</td><td>Web team heads-up: 4 new collections + extra fields on shared ones — see <code>docs/data-model.md</code></td><td>Web team</td></tr>
+    </tbody>
+  </table></div>
+</main>
+</body>
+</html>

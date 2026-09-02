@@ -1,0 +1,60 @@
+{
+  "indexes": [
+    { "collectionGroup": "bikes", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "userId", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "fuelEntries", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "userId", "order": "ASCENDING" },
+      { "fieldPath": "bikeId", "order": "ASCENDING" },
+      { "fieldPath": "date", "order": "DESCENDING" } ] },
+    { "collectionGroup": "fuelAdjustments", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "userId", "order": "ASCENDING" },
+      { "fieldPath": "bikeId", "order": "ASCENDING" },
+      { "fieldPath": "date", "order": "DESCENDING" } ] },
+    { "collectionGroup": "odometerEntries", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "userId", "order": "ASCENDING" },
+      { "fieldPath": "bikeId", "order": "ASCENDING" },
+      { "fieldPath": "odometer", "order": "DESCENDING" } ] },
+    { "collectionGroup": "maintenanceRules", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "userId", "order": "ASCENDING" },
+      { "fieldPath": "bikeId", "order": "ASCENDING" },
+      { "fieldPath": "name", "order": "ASCENDING" } ] },
+    { "collectionGroup": "services", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "userId", "order": "ASCENDING" },
+      { "fieldPath": "bikeId", "order": "ASCENDING" },
+      { "fieldPath": "date", "order": "DESCENDING" } ] },
+    { "collectionGroup": "parts", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "userId", "order": "ASCENDING" },
+      { "fieldPath": "bikeId", "order": "ASCENDING" },
+      { "fieldPath": "installedDate", "order": "DESCENDING" } ] },
+    { "collectionGroup": "accessories", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "userId", "order": "ASCENDING" },
+      { "fieldPath": "bikeId", "order": "ASCENDING" },
+      { "fieldPath": "date", "order": "DESCENDING" } ] },
+    { "collectionGroup": "expenses", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "userId", "order": "ASCENDING" },
+      { "fieldPath": "bikeId", "order": "ASCENDING" },
+      { "fieldPath": "date", "order": "DESCENDING" } ] },
+    { "collectionGroup": "reminders", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "userId", "order": "ASCENDING" },
+      { "fieldPath": "bikeId", "order": "ASCENDING" },
+      { "fieldPath": "dueAt", "order": "DESCENDING" } ] },
+    { "collectionGroup": "documents", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "userId", "order": "ASCENDING" },
+      { "fieldPath": "bikeId", "order": "ASCENDING" },
+      { "fieldPath": "title", "order": "ASCENDING" } ] },
+    { "collectionGroup": "warranties", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "userId", "order": "ASCENDING" },
+      { "fieldPath": "bikeId", "order": "ASCENDING" },
+      { "fieldPath": "title", "order": "ASCENDING" } ] },
+    { "collectionGroup": "safetyChecks", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "userId", "order": "ASCENDING" },
+      { "fieldPath": "bikeId", "order": "ASCENDING" },
+      { "fieldPath": "date", "order": "DESCENDING" } ] },
+    { "collectionGroup": "captures", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "userId", "order": "ASCENDING" },
+      { "fieldPath": "bikeId", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" } ] }
+  ],
+  "fieldOverrides": []
+}

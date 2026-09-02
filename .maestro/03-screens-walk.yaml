@@ -1,0 +1,86 @@
+# Walks every remaining screen from the More tab.
+appId: app.revora.android.dev
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "screen-dashboard"
+    timeout: 30000
+- tapOn:
+    id: "tab-more"
+- tapOn:
+    id: "row-maintenance"
+- extendedWaitUntil:
+    visible: "Maintenance"
+    timeout: 15000
+- takeScreenshot: shots/20-maintenance
+- tapOn: "Engine oil & filter"
+- extendedWaitUntil:
+    visible: "Maintenance rule"
+    timeout: 15000
+- takeScreenshot: shots/21-rule-edit
+- back
+- back
+- tapOn:
+    id: "row-service-plan"
+- takeScreenshot: shots/22-service-plan
+- back
+- tapOn:
+    id: "row-services"
+- extendedWaitUntil:
+    visible: "Service history"
+    timeout: 15000
+- assertVisible: "BDT 21,760"
+- takeScreenshot: shots/23-services
+- tapOn: "Amsoil"
+- takeScreenshot: shots/24-service-edit
+- back
+- tapOn:
+    id: "row-workshop"
+- takeScreenshot: shots/25-workshop
+- back
+- tapOn:
+    id: "row-parts"
+- takeScreenshot: shots/26-parts
+- back
+- tapOn:
+    id: "row-safety"
+- takeScreenshot: shots/27-safety
+- back
+- tapOn:
+    id: "row-vault"
+- takeScreenshot: shots/28-vault
+- back
+- tapOn:
+    id: "row-warranties"
+- takeScreenshot: shots/29-warranties
+- back
+- tapOn:
+    id: "row-proof"
+- takeScreenshot: shots/30-proof-pack
+- back
+- tapOn:
+    id: "row-analytics"
+- extendedWaitUntil:
+    visible: "LATEST FUEL CALCULATION"
+    timeout: 15000
+- takeScreenshot: shots/31-analytics
+- scrollUntilVisible:
+    element: "OWNERSHIP COST"
+    direction: DOWN
+- takeScreenshot: shots/32-analytics-ownership
+- back
+- tapOn:
+    id: "row-notifications"
+- takeScreenshot: shots/33-notifications
+- back
+- tapOn:
+    id: "row-capture"
+- takeScreenshot: shots/34-capture
+- back
+- tapOn:
+    id: "row-settings"
+- takeScreenshot: shots/35-settings
+- back
+- tapOn:
+    id: "row-plan"
