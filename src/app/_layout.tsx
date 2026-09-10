@@ -19,6 +19,7 @@ import {
 import { ToastProvider } from '@/components';
 import { AuthProvider } from '@/features/auth/AuthProvider';
 import { GarageProvider } from '@/features/bikes/GarageProvider';
+import { BillingProvider } from '@/features/billing/BillingProvider';
 import { createQueryClient } from '@/services/queryClient';
 import { ThemeProvider, useTheme } from '@/theme';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -56,9 +57,11 @@ export default function RootLayout() {
             <ErrorBoundary>
               <AuthProvider>
                 <GarageProvider>
-                  <ToastProvider>
-                    <AppChrome />
-                  </ToastProvider>
+                  <BillingProvider>
+                    <ToastProvider>
+                      <AppChrome />
+                    </ToastProvider>
+                  </BillingProvider>
                 </GarageProvider>
               </AuthProvider>
             </ErrorBoundary>

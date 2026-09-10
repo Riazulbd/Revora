@@ -57,7 +57,8 @@ export type CollectionName =
   | 'documents'
   | 'warranties'
   | 'safetyChecks'
-  | 'captures';
+  | 'captures'
+  | 'feedback';
 
 export function userDoc(uid: string) {
   return doc(db(), 'users', uid);

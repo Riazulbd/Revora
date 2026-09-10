@@ -20,3 +20,4 @@ export {
   type RecordRepository,
 } from './records';
 export type { CollectionName, ListOptions } from './base';
+export { feedbackRepository, type FeedbackDraft } from './feedback';

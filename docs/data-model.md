@@ -77,6 +77,17 @@ reading implied by a fuel log, a service or a part fitting is derived from that
 record at read time (`buildOdometerHistory`). Deleting a fuel log therefore takes
 its odometer reading with it, and the two can never disagree.
 
+Only a stored reading carries a `readingId`, and only those can be corrected on
+the history screen — a rider who typed 6,000 instead of 5,588 fixes it there and
+every derived figure follows. A derived point is corrected by editing the record
+it came from, which is what keeps the two in step.
+
+The bike's `currentOdometer` is the one stored copy of a derived figure, and it
+exists because the web product reads it. It is written forward on every save
+(`syncCurrentOdometer`) and recomputed in either direction by a correction
+(`resyncCurrentOdometer`) — the only path allowed to move it down. A correction
+must never be derived from it, or the mistake would keep confirming itself.
+
 ## The one rule the ledger enforces
 
 **Every cost appears exactly once.** A record whose cost is already carried by
@@ -97,21 +108,39 @@ again end to end in `src/calculations/journey.test.ts`.
 
 ## Entitlement
 
-`users/{uid}.entitlement` is the single source of truth for Free vs. Pro:
+`entitlements/{uid}` is the single source of truth for Free vs. Pro. It lives in
+its own document, not on the profile, because the profile is client-writable and
+this must not be:
 
 ```ts
 {
   tier: 'free' | 'pro',
   source: 'none' | 'google_play' | 'apple_iap' | 'web' | 'promo' | 'grant',
-  expiresAt: number | null,   // epoch ms; null = perpetual
+  expiresAt: number | null,   // epoch ms; null = perpetual (grants only)
   updatedAt: number,
+  // Google Play subscriptions also carry:
+  provider: string,           // 'google_play'
+  productId: string | null,   // 'revora_pro'
+  subscriptionStatus: string, // Google's SUBSCRIPTION_STATE_* verbatim
+  basePlanId: string | null,  // whichever base plan Google says was bought
+  autoRenewing: boolean,
+  orderId: string | null,
 }
 ```
 
-`firestore.rules` **rejects any client write that changes it**, so the app can
-read the tier but can never grant itself Pro. Whichever billing source is
-connected later — Google Play, Apple, or web checkout — writes this one field
-from a trusted server, and every platform reflects it immediately.
+`firestore.rules` **rejects every client write to it**, so the app can read the
+tier but can never grant itself Pro. `parseUserProfile` deliberately defaults
+`entitlement` to Free and `GarageProvider` overlays this document on top, so a
+profile that a client has tampered with cannot upgrade anybody.
+
+Pro requires *both* an access-granting state and an unexpired `expiresAt` —
+`entitlementIsActive()` on the client, `isPro()` on the server, which are the
+same rule written twice deliberately. `ON_HOLD` and `PAUSED` never grant access
+however far away their expiry is; `CANCELED` keeps access until it expires.
+
+The purchase token itself is **never** in this document. It lives in
+`purchaseTokens/{sha256(token)}`, which no client can read. See
+[billing.md](billing.md).
 
 ## Web compatibility notes
 

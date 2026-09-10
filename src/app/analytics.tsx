@@ -96,12 +96,12 @@ export default function Analytics() {
 
       <Stack>
         <LatestCalculationCard analytics={analytics} />
-        <MileageStatsCard analytics={analytics} />
-        <TrendPanel analytics={analytics} />
+        {proGate.isPro ? <MileageStatsCard analytics={analytics} /> : null}
+        {proGate.isPro ? <TrendPanel analytics={analytics} /> : null}
         <MonthlySpendingCard analytics={analytics} />
         <BreakdownCard analytics={analytics} />
         <OwnershipCard analytics={analytics} />
-        <FuelPriceCard analytics={analytics} />
+        {proGate.isPro ? <FuelPriceCard analytics={analytics} /> : null}
 
         {proGate.isPro ? null : (
           <Pressable

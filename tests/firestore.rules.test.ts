@@ -71,6 +71,7 @@ beforeEach(async () => {
 });
 
 const asA = () => env.authenticatedContext(A).firestore();
+const asB = () => env.authenticatedContext(B).firestore();
 const asAnon = () => env.unauthenticatedContext().firestore();
 
 describe('a rider reaches only their own records', () => {
@@ -150,13 +151,85 @@ describe('signed-out clients and closed collections', () => {
   });
 
   it('server-only collections stay dark', async () => {
-    for (const name of ['aiCache', 'aiUsage', 'budget', 'purchaseTokens']) {
+    for (const name of ['aiCache', 'aiUsage', 'budget', 'purchaseTokens', 'playAccounts', 'billingLocks', 'playNotifications', 'garageLocks']) {
       await assertFails(getDoc(doc(asA(), name, 'anything')));
+      await assertFails(setDoc(doc(asA(), name, 'anything'), { userId: A }));
     }
   });
 
   it('an unknown collection is denied by default', async () => {
     await assertFails(setDoc(doc(asA(), 'randomCollection', 'x'), { userId: A }));
+  });
+});
+
+describe('feedback is write-once and private to its author', () => {
+  const message = {
+    userId: A, kind: 'problem', message: 'The odometer will not save.', contactEmail: 'a@example.com',
+    tier: 'free', appVersion: '1.3', platform: 'android', osVersion: '15', deviceModel: 'Pixel 8',
+    notifiedAt: null, ...stamp,
+  };
+
+  it('accepts a rider’s own message and lets them read it back', async () => {
+    await assertSucceeds(setDoc(doc(asA(), 'feedback', 'fb-1'), message));
+    await assertSucceeds(getDoc(doc(asA(), 'feedback', 'fb-1')));
+  });
+
+  it('refuses to let it be edited or deleted afterwards', async () => {
+    await assertSucceeds(setDoc(doc(asA(), 'feedback', 'fb-2'), message));
+    await assertFails(setDoc(doc(asA(), 'feedback', 'fb-2'), { message: 'rewritten' }, { merge: true }));
+    await assertFails(deleteDoc(doc(asA(), 'feedback', 'fb-2')));
+  });
+
+  it('refuses another rider’s message, a forged author and a self-claimed relay', async () => {
+    await assertSucceeds(setDoc(doc(asA(), 'feedback', 'fb-3'), message));
+    await assertFails(getDoc(doc(asB(), 'feedback', 'fb-3')));
+    await assertFails(setDoc(doc(asB(), 'feedback', 'fb-4'), { ...message, userId: A }));
+    // notifiedAt is the relay's to set; a client claiming it is refused.
+    await assertFails(setDoc(doc(asA(), 'feedback', 'fb-5'), { ...message, notifiedAt: now }));
+  });
+
+  it('refuses an empty message, an overlong one and an unknown kind', async () => {
+    await assertFails(setDoc(doc(asA(), 'feedback', 'fb-6'), { ...message, message: '' }));
+    await assertFails(setDoc(doc(asA(), 'feedback', 'fb-7'), { ...message, message: 'x'.repeat(4001) }));
+    await assertFails(setDoc(doc(asA(), 'feedback', 'fb-8'), { ...message, kind: 'rant' }));
+  });
+});
+
+describe('a motorcycle stored before the archived flag existed', () => {
+  // The web product, and Revora before the Free-plan limit, wrote bikes with no
+  // `archived` field. Every odometer update patches the bike document, so if the
+  // unarchive guard cannot read that field the rider simply cannot save.
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'bikes', `${A}-legacy`), {
+        userId: A, nickname: 'Legacy', manufacturer: 'Honda', model: 'Hornet',
+        initialOdometer: 0, currentOdometer: 4700, ...stamp,
+      });
+    });
+  });
+
+  it('still accepts an odometer update', async () => {
+    await assertSucceeds(setDoc(doc(asA(), 'bikes', `${A}-legacy`), {
+      nickname: 'Legacy', manufacturer: 'Honda', model: 'Hornet',
+      initialOdometer: 0, currentOdometer: 5588, archived: false, updatedAt: now,
+    }, { merge: true }));
+  });
+});
+
+describe('motorcycle plan enforcement cannot be bypassed by direct writes', () => {
+  it('rejects direct bike creation, including when a client claims Pro on its profile', async () => {
+    const db = asA();
+    await assertSucceeds(setDoc(doc(db, 'users', A), { entitlement: { tier: 'pro' } }, { merge: true }));
+    await assertFails(setDoc(doc(db, 'bikes', 'extra-bike'), {
+      userId: A, nickname: 'Extra bike', manufacturer: 'Honda', model: 'Hornet',
+      initialOdometer: 0, currentOdometer: 0, archived: false, ...stamp,
+    }));
+  });
+  it('permits existing bike edits and archival but cannot reactivate archived extras', async () => {
+    const db = asA();
+    await assertSucceeds(setDoc(doc(db, 'bikes', `${A}-bike`), { nickname: 'Edited' }, { merge: true }));
+    await assertSucceeds(setDoc(doc(db, 'bikes', `${A}-bike`), { archived: true }, { merge: true }));
+    await assertFails(setDoc(doc(db, 'bikes', `${A}-bike`), { archived: false }, { merge: true }));
   });
 });
 

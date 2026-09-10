@@ -1,4 +1,5 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { AppState } from 'react-native';
 
 import { useAuth } from '@/features/auth/AuthProvider';
 import { bikeRepository, profileRepository } from '@/repositories';
@@ -6,6 +7,7 @@ import { useLiveQuery } from '@/services/liveQuery';
 import { log } from '@/services/logger';
 import type { AppError } from '@/services/errors';
 import type { Bike, UnitPreferences, UserProfile } from '@/types';
+import { entitlementIsActive } from '@/features/premium/entitlement';
 
 /**
  * Profile + garage + which motorcycle is selected.
@@ -39,13 +41,6 @@ const DEFAULT_UNITS: UnitPreferences = {
 
 const GarageContext = createContext<GarageContextValue | null>(null);
 
-function entitlementIsActive(profile: UserProfile | null): boolean {
-  if (!profile) return false;
-  if (profile.entitlement.tier !== 'pro') return false;
-  const { expiresAt } = profile.entitlement;
-  return expiresAt === null || expiresAt > Date.now();
-}
-
 export function GarageProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const uid = user?.uid ?? null;
@@ -64,7 +59,28 @@ export function GarageProvider({ children }: { children: React.ReactNode }) {
       uid === null ? () => undefined : bikeRepository.subscribe(uid)(onData, onError),
   });
 
-  const profile = profileQuery.data ?? null;
+  const entitlementQuery = useLiveQuery<UserProfile['entitlement'] | null>({
+    queryKey: ['entitlement', uid],
+    enabled: uid !== null,
+    subscribe: (onData, onError) => uid === null ? () => undefined
+      : profileRepository.subscribeEntitlement(uid)(onData, onError),
+  });
+  const profile = useMemo(() => profileQuery.data ? {
+    ...profileQuery.data,
+    entitlement: entitlementQuery.data ?? { tier: 'free' as const, source: 'none' as const, expiresAt: null, updatedAt: 0 },
+  } : null, [profileQuery.data, entitlementQuery.data]);
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    const refresh = () => setNow(Date.now());
+    refresh();
+    // Expiration also takes effect offline or while a screen stays mounted.
+    const expiresAt = profile?.entitlement.expiresAt;
+    const delay = expiresAt ? expiresAt - Date.now() + 1 : 0;
+    const timer = delay > 0 && delay < 2147483647 ? setTimeout(refresh, delay) : undefined;
+    const interval = setInterval(refresh, 60000);
+    const subscription = AppState.addEventListener('change', state => { if (state === 'active') refresh(); });
+    return () => { clearTimeout(timer); clearInterval(interval); subscription.remove(); };
+  }, [profile?.entitlement.expiresAt]);
   const allBikes = useMemo(() => bikesQuery.data ?? [], [bikesQuery.data]);
   const bikes = useMemo(() => allBikes.filter((b) => b.archivedAt === null), [allBikes]);
 
@@ -93,8 +109,8 @@ export function GarageProvider({ children }: { children: React.ReactNode }) {
   );
 
   const refetch = useCallback(async () => {
-    await Promise.all([profileQuery.refetch(), bikesQuery.refetch()]);
-  }, [profileQuery, bikesQuery]);
+    await Promise.all([profileQuery.refetch(), bikesQuery.refetch(), entitlementQuery.refetch()]);
+  }, [profileQuery, bikesQuery, entitlementQuery]);
 
   const value = useMemo<GarageContextValue>(
     () => ({
@@ -103,14 +119,17 @@ export function GarageProvider({ children }: { children: React.ReactNode }) {
       activeBike,
       activeBikeId: activeBike?.id ?? null,
       units: profile?.units ?? DEFAULT_UNITS,
-      isPro: entitlementIsActive(profile),
-      isPending: uid !== null && (profileQuery.isPending || bikesQuery.isPending),
-      error: profileQuery.error ?? bikesQuery.error ?? null,
+      isPro: entitlementIsActive(profile?.entitlement, now),
+      isPending: uid !== null && (profileQuery.isPending || bikesQuery.isPending || entitlementQuery.isPending),
+      error: profileQuery.error ?? bikesQuery.error ?? entitlementQuery.error ?? null,
       setActiveBike,
       refetch,
     }),
     [
       profile,
+      now,
+      entitlementQuery.isPending,
+      entitlementQuery.error,
       bikes,
       activeBike,
       uid,

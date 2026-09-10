@@ -45,7 +45,10 @@ export function useProGate(): ProGate {
     feature,
     open,
     close: () => setVisible(false),
-    exportFuelCsv,
+    exportFuelCsv: async (...args) => {
+      if (!isPro) { open('CSV fuel-history export'); return; }
+      await exportFuelCsv(...args);
+    },
   };
 }
 

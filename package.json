@@ -13,7 +13,9 @@
     "test:watch": "jest --watch",
     "prebuild": "expo prebuild --clean",
     "verify": "npm run typecheck && npm run lint && npm run test",
-    "test:rules": "firebase emulators:exec --only firestore --project revora-rules-test \"jest --config jest.rules.config.js\""
+    "test:rules": "firebase emulators:exec --only firestore --project revora-rules-test \"jest --config jest.rules.config.js\"",
+    "test:functions": "npm --prefix functions test",
+    "test:billing": "firebase emulators:exec --only firestore --project revora-rules-test \"npm --prefix functions run test:integration\""
   },
   "dependencies": {
     "@expo-google-fonts/manrope": "^0.4.2",

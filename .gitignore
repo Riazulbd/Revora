@@ -1,4 +1,7 @@
 node_modules/
+functions/lib/
+functions/.env*
+!functions/.env.example
 .expo/
 dist/
 web-build/
@@ -23,3 +26,7 @@ shots/
 firestore-debug.log
 *.log
 play-assets/raw/
+
+# Release artefacts — rebuilt from source, far too large to track.
+*.aab
+*.apk

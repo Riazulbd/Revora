@@ -171,6 +171,47 @@ function garage(overrides: Partial<GarageData> = {}): GarageData {
   };
 }
 
+describe('correcting a mistyped odometer', () => {
+  // The rider meant 5,588 km and typed 6,000, and the app synced that mistake
+  // onto the bike. Every figure below is wrong until the reading is corrected.
+  const typo: OdometerReading = { ...owned, id: 'odo-typo', metres: 6_000_000,
+    date: '2026-09-01', source: 'manual', sourceId: null, note: null };
+  const mistaken = garage({
+    bike: { ...bike, initialOdometerMetres: 3_900_000, storedOdometerMetres: 6_000_000 },
+    odometerReadings: [openingReading, typo],
+    services: [service],
+  });
+
+  it('carries the mistake into every derived figure', () => {
+    const a = analyseBike(mistaken);
+    expect(a.odometer.currentMetres).toBe(6_000_000);
+    expect(a.odometer.totalDistanceMetres).toBe(2_100_000);
+  });
+
+  it('follows the correction down, once the bike is resynced with it', () => {
+    // What useCorrectOdometerReading writes: the reading itself, and the bike's
+    // stored copy recomputed from the survivors.
+    const corrected = analyseBike({
+      ...mistaken,
+      bike: { ...bike, initialOdometerMetres: 3_900_000, storedOdometerMetres: 5_588_000 },
+      odometerReadings: [openingReading, { ...typo, metres: 5_588_000 }],
+    });
+    expect(corrected.odometer.currentMetres).toBe(5_588_000);
+    expect(corrected.odometer.totalDistanceMetres).toBe(1_688_000);
+    expect(corrected.odometer.latest?.metres).toBe(5_588_000);
+  });
+
+  it('leaves a stale stored copy able to hold the old figure up', () => {
+    // The reason the correction has to rewrite the bike document too: without
+    // that, the echo of the mistake keeps the odometer at 6,000 km.
+    const halfDone = analyseBike({
+      ...mistaken,
+      odometerReadings: [openingReading, { ...typo, metres: 5_588_000 }],
+    });
+    expect(halfDone.odometer.currentMetres).toBe(6_000_000);
+  });
+});
+
 describe('the rider journey', () => {
   it('step 5 — a new garage knows its opening odometer and nothing else', () => {
     const a = analyseBike(garage());

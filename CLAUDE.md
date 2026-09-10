@@ -20,6 +20,10 @@ type, spacing, radii and copy come from it; do not substitute a lookalike.
    Use `src/utils/date.ts`; `new Date('2026-09-01')` is a bug.
 6. **A figure that cannot be computed renders as `—`, not `0`.**
    `src/utils/format.ts` guarantees `NaN`/`Infinity`/`null` never reach a screen.
+7. **Pro comes from `entitlements/{uid}`, which only the backend can write.**
+   No local Pro flag, ever. The client reports a purchase token; Google's
+   Developer API decides. Prices are always Play's `formattedPrice` — never
+   hardcoded, never formatted by us.
 
 ## Where things live
 
@@ -31,6 +35,9 @@ type, spacing, radii and copy come from it; do not substitute a lookalike.
 | Reading or writing data     | `src/repositories/`                      |
 | A form or a mutation        | `src/features/<domain>/`                 |
 | A screen                    | `src/app/` (expo-router; routes only)    |
+| Subscriptions and Pro       | `src/features/billing/`, `functions/` — see `docs/billing.md` |
+| A currency, symbol or its ISO exponent | `src/calculations/currencies.ts` |
+| Rider feedback and its Slack relay | `src/features/feedback/`, `functions/src/feedback.ts` — see `docs/slack.md` |
 
 ## Patterns to follow
 
@@ -50,12 +57,18 @@ including offline — with no invalidation to remember.
 ## Commands
 
 ```bash
-npm run verify      # typecheck + lint (0 warnings) + 163 unit tests
-npm run test:rules  # firestore.rules against the emulator (needs JDK 21)
+npm run verify         # typecheck + lint (0 warnings) + 187 unit tests
+npm run test:functions # the grant rule, no emulator needed
+npm run test:rules     # firestore.rules against the emulator (needs JDK 21)
+npm run test:billing   # the billing backend end to end (needs JDK 21)
 ```
 
 The rules suite is the only thing that can prove rider A cannot reach rider B's
 data — the app cannot enforce that for itself. Run it after any rules change.
+
+`test:billing` is the equivalent for money: it is the only thing that proves a
+purchase cannot be replayed onto a second account and that a pending payment
+never grants Pro. Run it after any change under `functions/`.
 
 Native build (needs JDK 17 + Android SDK — see `SIGNING.md`):
 

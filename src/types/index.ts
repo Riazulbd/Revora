@@ -1,3 +1,5 @@
+import type { CurrencyCode } from '@/calculations/currencies';
+
 /**
  * Revora domain model.
  *
@@ -18,7 +20,11 @@
 export type IsoDate = string; // 'YYYY-MM-DD'
 export type Millis = number;
 
-export type CurrencyCode = 'BDT' | 'INR' | 'USD' | 'EUR' | 'GBP' | 'PKR' | 'LKR' | 'NPR';
+/**
+ * Currency codes come from the currency table, which also carries each one's
+ * ISO 4217 exponent — the thing the integer money path depends on.
+ */
+export type { CurrencyCode };
 export type DistanceUnit = 'km' | 'mi';
 export type VolumeUnit = 'L' | 'gal_us' | 'gal_uk';
 export type MileageUnit = 'km_per_l' | 'l_per_100km' | 'mpg_us' | 'mpg_uk';
@@ -57,6 +63,12 @@ export type Entitlement = {
   /** Epoch ms; null means perpetual (grants) or not applicable. */
   expiresAt: Millis | null;
   updatedAt: Millis;
+  provider?: string;
+  productId?: string | null;
+  subscriptionStatus?: string | null;
+  basePlanId?: string | null;
+  autoRenewing?: boolean;
+  orderId?: string | null;
 };
 
 export type UserProfile = BaseRecord & {
@@ -447,4 +459,32 @@ export type AppNotification = OwnedRecord & {
   readAt: Millis | null;
   /** Router href the row opens, when it has a destination. */
   href: string | null;
+};
+
+// ---------------------------------------------------------------------------
+// Feedback
+// ---------------------------------------------------------------------------
+
+export type FeedbackKind = 'idea' | 'problem' | 'question';
+
+/**
+ * A message from a rider.
+ *
+ * Write-once and read-only afterwards: it is a record of what somebody actually
+ * said, so nothing in the app may edit it after the fact. The plan and the
+ * device details are captured at submission because "it crashes on my phone" is
+ * unanswerable without them, and asking later rarely works.
+ */
+export type Feedback = BaseRecord & {
+  kind: FeedbackKind;
+  message: string;
+  /** Where to reply. Blank is allowed — plenty of feedback needs no answer. */
+  contactEmail: string | null;
+  tier: PlanTier;
+  appVersion: string;
+  platform: string;
+  osVersion: string;
+  deviceModel: string;
+  /** Set by the backend once it has been relayed; never written by a client. */
+  notifiedAt: Millis | null;
 };

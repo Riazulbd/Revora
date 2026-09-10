@@ -32,8 +32,16 @@ const SECTIONS: readonly { title: string; body: string }[] = [
     body: 'Revora keeps a full copy of your records on your device so it works with no connection. Anything you log offline is saved locally and uploaded automatically when a connection returns.',
   },
   {
+    title: 'Ads on the free plan',
+    body: 'The free plan shows ads supplied by Google AdMob. To do that, Google receives your device’s advertising ID and standard ad-request information such as your device model, language and approximate region derived from your connection. It never receives your motorcycles, fuel logs, documents or photos. You can reset or delete the advertising ID in Android Settings → Privacy → Ads, and Revora Pro removes ads entirely.',
+  },
+  {
+    title: 'Feedback and support',
+    body: 'If you send a message from More → Feedback & support, that message is relayed to Revora’s support workspace on Slack so it reaches a person. What is sent is the message itself, the email address you chose to include, your plan, your app version, your device model and your account identifier. Your motorcycles, fuel logs, documents and photos are never attached.',
+  },
+  {
     title: 'Deleting your data',
-    body: 'Settings → Delete account permanently removes every motorcycle, log, service, part, expense, document and photo in your account, along with the account itself. There is no recovery afterwards. You can also export your fuel history at any time.',
+    body: 'Settings → Delete account permanently removes every motorcycle, log, service, part, expense, document and photo in your account, along with the account itself. There is no recovery afterwards. You can also export your fuel history at any time. Two things are deliberately kept: support messages you have already sent, because they have been delivered and cannot be recalled, and the record of any subscription payment, which Google and applicable accounting law require to be retained.',
   },
   {
     title: 'Contact',

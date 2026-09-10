@@ -1,3 +1,4 @@
+import { CURRENCY_CODES } from '@/calculations/currencies';
 import type { DocumentData } from '@react-native-firebase/firestore';
 
 import type {
@@ -46,7 +47,8 @@ import { kmToMetres, litresToMl, majorToMinor, readIsoDate, readNullableIsoDate 
  * litres become millilitres, major currency becomes minor units.
  */
 
-const CURRENCIES: readonly CurrencyCode[] = ['BDT', 'INR', 'USD', 'EUR', 'GBP', 'PKR', 'LKR', 'NPR'];
+/** Every code the currency table knows; an unknown one falls back to BDT. */
+const CURRENCIES: readonly CurrencyCode[] = CURRENCY_CODES;
 const DISTANCE_UNITS: readonly DistanceUnit[] = ['km', 'mi'];
 const VOLUME_UNITS: readonly VolumeUnit[] = ['L', 'gal_us', 'gal_uk'];
 const MILEAGE_UNITS: readonly MileageUnit[] = ['km_per_l', 'l_per_100km', 'mpg_us', 'mpg_uk'];
@@ -138,6 +140,12 @@ export const parseEntitlement = (data: DocumentData): UserProfile['entitlement']
   ),
   expiresAt: readMillis(data, 'expiresAt', 0) || null,
   updatedAt: readMillis(data, 'updatedAt', 0),
+  provider: readString(data, 'provider', readString(data, 'source', 'none')),
+  productId: readNullableString(data, 'productId'),
+  subscriptionStatus: readNullableString(data, 'subscriptionStatus'),
+  basePlanId: readNullableString(data, 'basePlanId'),
+  autoRenewing: readBoolean(data, 'autoRenewing', false),
+  orderId: readNullableString(data, 'orderId'),
 });
 
 // ---------------------------------------------------------------------------

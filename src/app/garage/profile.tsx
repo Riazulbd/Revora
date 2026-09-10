@@ -63,8 +63,11 @@ export default function BikeProfile() {
       return;
     }
     if (check && !check.ok && check.reason === 'below_current') {
+      // A lower figure is either a fresh mistake or a correction to an old one.
+      // Saying only "it moves forward" leaves a rider who mistyped 6,000 with
+      // nowhere to go, so point at the history, where corrections are made.
       setError(
-        `That is below your last reading of ${formatDistance(check.currentMetres, units.distance)}. The odometer only moves forward.`,
+        `That is below your last reading of ${formatDistance(check.currentMetres, units.distance)}. The odometer only moves forward — if the last reading was a mistake, correct it in the history.`,
       );
       return;
     }
@@ -150,9 +153,21 @@ export default function BikeProfile() {
             />
           </View>
           {error ? (
-            <Txt role="helper" tone="bad" style={{ marginTop: 8 }}>
-              {error}
-            </Txt>
+            <>
+              <Txt role="helper" tone="bad" style={{ marginTop: 8 }}>
+                {error}
+              </Txt>
+              {check && !check.ok && check.reason === 'below_current' ? (
+                <Button
+                  label="Correct a reading"
+                  variant="secondary"
+                  size="small"
+                  onPress={() => router.push('/garage/odometer')}
+                  style={{ marginTop: 10, alignSelf: 'flex-start' }}
+                  testID="cta-correct-reading"
+                />
+              ) : null}
+            </>
           ) : (
             <Txt role="micro" tone="mut" style={{ marginTop: 8 }}>
               Odometer only moves forward — a lower reading gets flagged, never silently accepted.

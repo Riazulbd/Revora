@@ -19,12 +19,24 @@ import { compareIso, dateToIso, daysBetween } from '@/utils/date';
 
 export type OdometerPoint = {
   id: string;
+  /**
+   * The `odometerEntries` document this point came from, when there is one.
+   * Derived points (fuel, service, part) and the bike's own opening and stored
+   * figures have none: they are corrected by editing the record they come from,
+   * never here, which is what keeps the history and the logs in agreement.
+   */
+  readingId: string | null;
   metres: number;
   date: IsoDate;
   source: OdometerSource;
   sourceId: string | null;
   note: string | null;
 };
+
+/** The bike's opening reading, folded into the history. */
+export const INITIAL_ODOMETER_POINT_ID = 'bike:initial';
+/** The bike's stored `currentOdometer`, which the web product reads. */
+export const STORED_ODOMETER_POINT_ID = 'bike:current';
 
 const SOURCE_LABEL: Record<OdometerSource, string> = {
   manual: 'manual update',
@@ -47,35 +59,22 @@ export function buildOdometerHistory(input: {
 }): OdometerPoint[] {
   const points: OdometerPoint[] = [];
 
-  if (input.bike) {
-    const opened = dateToIso(new Date(input.bike.createdAt));
-    if (input.bike.initialOdometerMetres > 0) {
-      points.push({
-        id: 'bike:initial',
-        metres: input.bike.initialOdometerMetres,
-        date: opened,
-        source: 'manual',
-        sourceId: null,
-        note: 'Starting reading',
-      });
-    }
-    // The web product may have moved the odometer on without writing a reading
-    // row. Folding its figure in keeps the two views of the same bike in step.
-    if (input.bike.storedOdometerMetres > input.bike.initialOdometerMetres) {
-      points.push({
-        id: 'bike:current',
-        metres: input.bike.storedOdometerMetres,
-        date: opened,
-        source: 'manual',
-        sourceId: null,
-        note: null,
-      });
-    }
+  if (input.bike && input.bike.initialOdometerMetres > 0) {
+    points.push({
+      id: INITIAL_ODOMETER_POINT_ID,
+      readingId: null,
+      metres: input.bike.initialOdometerMetres,
+      date: dateToIso(new Date(input.bike.createdAt)),
+      source: 'manual',
+      sourceId: null,
+      note: 'Starting reading',
+    });
   }
 
   for (const r of input.readings) {
     points.push({
       id: r.id,
+      readingId: r.id,
       metres: r.metres,
       date: r.date,
       source: r.source,
@@ -87,6 +86,7 @@ export function buildOdometerHistory(input: {
   for (const f of input.fuelEntries) {
     points.push({
       id: `fuel:${f.id}`,
+      readingId: null,
       metres: f.odometerMetres,
       date: f.date,
       source: 'fuel',
@@ -99,6 +99,7 @@ export function buildOdometerHistory(input: {
     if (s.odometerMetres === null) continue;
     points.push({
       id: `service:${s.id}`,
+      readingId: null,
       metres: s.odometerMetres,
       date: s.date,
       source: 'service',
@@ -113,12 +114,32 @@ export function buildOdometerHistory(input: {
     if (p.installedOdometerMetres <= 0) continue;
     points.push({
       id: `part:${p.id}`,
+      readingId: null,
       metres: p.installedOdometerMetres,
       date: p.installedDate,
       source: 'service',
       sourceId: p.id,
       note: 'Part fitted',
     });
+  }
+
+  // The web product may have moved the odometer on without writing a reading
+  // row. Folding its figure in keeps the two views of the same bike in step —
+  // but only when nothing here already accounts for it, because the app writes
+  // this same figure back on every save and it would otherwise appear twice.
+  if (input.bike) {
+    const highest = points.reduce((max, p) => (p.metres > max ? p.metres : max), 0);
+    if (input.bike.storedOdometerMetres > highest) {
+      points.push({
+        id: STORED_ODOMETER_POINT_ID,
+        readingId: null,
+        metres: input.bike.storedOdometerMetres,
+        date: dateToIso(new Date(input.bike.createdAt)),
+        source: 'manual',
+        sourceId: null,
+        note: null,
+      });
+    }
   }
 
   // Newest first, which is how the history screen reads.
@@ -184,6 +205,50 @@ export function validateOdometer(nextMetres: number, currentMetres: number | nul
     return { ok: false, reason: 'implausible_jump', currentMetres };
   }
   return { ok: true };
+}
+
+export type OdometerCorrection = {
+  /** What the odometer will read once the correction is applied. */
+  resultingMetres: number | null;
+  /**
+   * The record that decides the result instead of the figure the rider typed —
+   * either because it already reads higher, or because the reading was removed
+   * and something else is now the highest. Null when the correction stands on
+   * its own.
+   */
+  heldBy: OdometerPoint | null;
+};
+
+/**
+ * The odometer after correcting one stored reading to `metres`, or removing it
+ * when `metres` is null.
+ *
+ * A rider who typed 6,000 instead of 5,588 has to be able to put it right. The
+ * bike's stored figure is excluded on purpose: it is an echo of this history,
+ * written back for the web product, not evidence of its own. Counting it would
+ * mean a correction could never move the odometer down — which is the entire
+ * point of making one.
+ *
+ * The opening reading and every derived record still count, so a correction can
+ * lower the odometer only as far as the rest of the history actually allows.
+ */
+export function previewOdometerCorrection(
+  points: readonly OdometerPoint[],
+  readingId: string,
+  metres: number | null,
+): OdometerCorrection {
+  const survivors = points.filter(
+    (p) => p.id !== STORED_ODOMETER_POINT_ID && p.readingId !== readingId,
+  );
+  const highest = survivors.reduce<OdometerPoint | null>(
+    (best, p) => (best === null || p.metres > best.metres ? p : best),
+    null,
+  );
+  if (metres === null) return { resultingMetres: highest?.metres ?? null, heldBy: highest };
+  if (highest !== null && highest.metres > metres) {
+    return { resultingMetres: highest.metres, heldBy: highest };
+  }
+  return { resultingMetres: metres, heldBy: null };
 }
 
 /** Average distance ridden per calendar month, used by the assistant and analytics. */

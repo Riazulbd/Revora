@@ -1,4 +1,5 @@
 import { getDownloadURL, putFile, ref } from '@react-native-firebase/storage';
+import { Directory, File, Paths } from 'expo-file-system';
 
 import { storage } from './firebase';
 import { toAppError } from './errors';
@@ -39,13 +40,31 @@ export async function uploadImage(input: {
 }
 
 /**
- * Uploads when the cloud side exists; keeps the local file when it does not.
+ * Moves a fallback copy somewhere the OS will not reclaim.
+ *
+ * The picker and the compressor both hand back a URI in the app's *cache*
+ * directory, which Android empties whenever it wants the space and which
+ * "Clear cache" wipes outright. Storing that URI on a record makes a photo that
+ * quietly disappears days later. Documents survive until the app is uninstalled.
+ */
+async function persistLocally(input: { uid: string; kind: UploadKind; recordId: string; localUri: string }): Promise<string> {
+  const source = new File(input.localUri);
+  const folder = new Directory(Paths.document, 'revora', input.kind);
+  folder.create({ intermediates: true, idempotent: true });
+  const destination = new File(folder, `${input.recordId}.jpg`);
+  if (destination.exists) destination.delete();
+  source.copy(destination);
+  return destination.uri;
+}
+
+/**
+ * Uploads when the cloud side exists; keeps a durable local file when it does not.
  *
  * Cloud photo storage is optional infrastructure — the project works before the
  * Storage bucket has been set up, and a rider's photo must never be lost or
  * blocked by that. The record stores whichever path this returns: the cloud
- * path when the upload succeeded, otherwise the device-local URI, which still
- * renders on this phone.
+ * path when the upload succeeded, otherwise a device-local URI that survives
+ * the cache being cleared.
  */
 export async function uploadImageOrKeepLocal(input: {
   uid: string;
@@ -57,7 +76,13 @@ export async function uploadImageOrKeepLocal(input: {
     return { path: await uploadImage(input), uploaded: true };
   } catch (error) {
     log.warn('storage', 'upload failed, keeping local copy', { error: String(error) });
-    return { path: input.localUri, uploaded: false };
+    try {
+      return { path: await persistLocally(input), uploaded: false };
+    } catch (copyError) {
+      // Better a cache URI than nothing; it renders now even if it may not last.
+      log.warn('storage', 'could not persist local copy', { error: String(copyError) });
+      return { path: input.localUri, uploaded: false };
+    }
   }
 }
 

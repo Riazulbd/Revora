@@ -59,7 +59,7 @@ import {
   serialiseVaultDocument,
   serialiseWarranty,
 } from './serialisers';
-import { compact } from './wire';
+import { compact, metresToKm } from './wire';
 
 /**
  * One typed repository per collection in the shared database.
@@ -152,12 +152,24 @@ export const fuelAdjustmentRepository = makeRepository<FuelAdjustment>(
   byDateDesc,
 );
 
-export const odometerRepository = makeRepository<OdometerReading>(
-  'odometerEntries',
-  ignoreCurrency(parseOdometerReading),
-  serialiseOdometerReading,
-  { orderByField: 'odometer', direction: 'desc', limit: SUMMARY_LIMIT },
-);
+export const odometerRepository = {
+  ...makeRepository<OdometerReading>(
+    'odometerEntries',
+    ignoreCurrency(parseOdometerReading),
+    serialiseOdometerReading,
+    { orderByField: 'odometer', direction: 'desc', limit: SUMMARY_LIMIT },
+  ),
+
+  /**
+   * Corrects a reading in place, keeping the rest of the row as it is.
+   *
+   * The stored field is kilometres and the domain is metres; that conversion
+   * belongs here, not in a mutation hook.
+   */
+  correct(_uid: string, id: string, metres: number): Promise<void> {
+    return patchRecord({ name: 'odometerEntries', id, changes: { odometer: metresToKm(metres) } });
+  },
+};
 
 export const maintenanceRuleRepository = makeRepository<MaintenanceRule>(
   'maintenanceRules',

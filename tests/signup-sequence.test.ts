@@ -6,7 +6,7 @@ import {
   initializeTestEnvironment,
   type RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
-import { collection, doc, getDoc, getDocs, limit, orderBy, query, setDoc, where, Timestamp } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, limit, orderBy, query, setDoc, where, Timestamp } from 'firebase/firestore';
 
 import type { Accessory, Bike, Expense, FuelAdjustment, FuelEntry, MaintenanceRule, OdometerReading, Part, SafetyCheck, ServiceRecord, VaultDocument } from '@/types';
 import {
@@ -89,8 +89,20 @@ function creationPayload(data: Record<string, unknown>) {
   return { ...data, userId: UID, ...stamp };
 }
 
+/**
+ * Motorcycles are created by the `createBike` callable, which uses the Admin SDK
+ * and so bypasses these rules — the plan limit is checked there, transactionally,
+ * against the server entitlement. Rules deny the client create outright, so every
+ * test below that needs an existing bike seeds it the way the server does.
+ */
+async function seedBikeAsServer(id = BIKE_ID) {
+  await env.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), 'bikes', id), creationPayload(serialiseBike(bike)));
+  });
+}
+
 describe('the first-run sequence against the production ruleset', () => {
-  it('walks sign-up and onboarding without a single denial', async () => {
+  it('walks sign-up and onboarding, with the bike arriving only from the server', async () => {
     const db = env.authenticatedContext(UID).firestore();
 
     // 1. profileRepository.ensure(): read, then create with the required currency.
@@ -121,8 +133,10 @@ describe('the first-run sequence against the production ruleset', () => {
       ),
     );
 
-    // 3. useAddBike: the bike, through the real serialiser.
-    await assertSucceeds(setDoc(doc(db, 'bikes', BIKE_ID), creationPayload(serialiseBike(bike)), { merge: true }));
+    // 3. useAddBike: the client cannot write the bike itself, whatever it claims.
+    await assertFails(setDoc(doc(db, 'bikes', BIKE_ID), creationPayload(serialiseBike(bike)), { merge: true }));
+    // createBike accepts this exact payload and writes it as the server.
+    await seedBikeAsServer();
 
     // 4. The opening odometer reading.
     const reading: OdometerReading = {
@@ -184,7 +198,7 @@ describe('the first-run sequence against the production ruleset', () => {
 
   it('accepts every record type the app writes, serialised exactly as it writes them', async () => {
     const db = env.authenticatedContext(UID).firestore();
-    await setDoc(doc(db, 'bikes', BIKE_ID), creationPayload(serialiseBike(bike)), { merge: true });
+    await seedBikeAsServer();
 
     const fuel: FuelEntry = {
       ...owned,
@@ -361,9 +375,38 @@ describe('the first-run sequence against the production ruleset', () => {
     await assertSucceeds(getDoc(doc(db, 'entitlements', UID)));
   });
 
+  it('accepts a correction that lowers a reading and the bike odometer with it', async () => {
+    const db = env.authenticatedContext(UID).firestore();
+    await seedBikeAsServer();
+    const mistake: OdometerReading = {
+      ...owned, id: 'odo-typo', metres: 6_000_000, date: '2026-09-01',
+      source: 'manual', sourceId: null, note: null,
+    };
+    await assertSucceeds(
+      setDoc(doc(db, 'odometerEntries', mistake.id), creationPayload(serialiseOdometerReading(mistake)), {
+        merge: true,
+      }),
+    );
+
+    // useCorrectOdometerReading: patch the reading down, then the bike's copy.
+    await assertSucceeds(
+      setDoc(doc(db, 'odometerEntries', mistake.id), { odometer: 5588, updatedAt: now }, { merge: true }),
+    );
+    await assertSucceeds(
+      setDoc(
+        doc(db, 'bikes', BIKE_ID),
+        { ...serialiseBike({ ...bike, storedOdometerMetres: 5_588_000 }), updatedAt: now },
+        { merge: true },
+      ),
+    );
+
+    // Deleting a reading outright is the other half of a correction.
+    await assertSucceeds(deleteDoc(doc(db, 'odometerEntries', mistake.id)));
+  });
+
   it('an update never has to resend the frozen fields', async () => {
     const db = env.authenticatedContext(UID).firestore();
-    await setDoc(doc(db, 'bikes', BIKE_ID), creationPayload(serialiseBike(bike)), { merge: true });
+    await seedBikeAsServer();
 
     // patchRecord(): merge without userId/createdAt — the stored values stand.
     await assertSucceeds(

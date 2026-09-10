@@ -72,6 +72,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
+/**
+ * Pins a subtree to the dark palette.
+ *
+ * The Revora lockup is artwork on a black field, and its wordmark is near-black
+ * by design, so it only reads on a dark ground — which is exactly how the
+ * approved design shows the welcome screen. Rather than knock the background
+ * out of the artwork (which destroys the wordmark), the entry screens are dark
+ * whatever the system or the rider's preference says.
+ */
+export function ForceDarkTheme({ children }: { children: React.ReactNode }) {
+  const parent = useTheme();
+  const value = useMemo<Theme>(() => ({ ...parent, c: darkColors, dark: true }), [parent]);
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+}
+
 export function useTheme(): Theme {
   const ctx = useContext(ThemeContext);
   if (!ctx) throw new Error('useTheme must be used inside <ThemeProvider>');

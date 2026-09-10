@@ -1,3 +1,5 @@
+import { previewOdometerCorrection } from '@/calculations/odometer';
+import { useGarageData } from '@/features/bikes/useGarageData';
 import { useRecordMutation } from '@/features/shared/useRecordMutation';
 import { requireGarage, useGarageContext } from '@/features/shared/useGarageContext';
 import { bikeRepository, odometerRepository } from '@/repositories';
@@ -42,6 +44,46 @@ export function useAddOdometerReading(options: { onSaved?: () => void } = {}) {
       return reading;
     },
     successMessage: 'Odometer updated',
+    onSuccess: () => options.onSaved?.(),
+  });
+}
+
+export type OdometerCorrectionDraft = {
+  readingId: string;
+  /** The corrected reading, or null to remove the reading altogether. */
+  metres: number | null;
+};
+
+/**
+ * Corrects or removes a reading the rider got wrong.
+ *
+ * A mistyped 6,000 has to be fixable back to 5,588, and every derived figure —
+ * mileage, running cost, maintenance due, analytics — has to follow. Nothing
+ * derived is stored, so rewriting the row is enough for all of them.
+ *
+ * The bike's shared `currentOdometer` is the single exception: it is a real
+ * stored copy that the web product reads, and it was moved up when the mistake
+ * was saved. It is recomputed here from the surviving records — and only here is
+ * it allowed to move down.
+ */
+export function useCorrectOdometerReading(options: { onSaved?: () => void } = {}) {
+  const ctx = useGarageContext();
+  const { analytics } = useGarageData();
+  const points = analytics?.odometer.points ?? [];
+
+  return useRecordMutation<OdometerCorrectionDraft>({
+    mutationFn: async ({ readingId, metres }) => {
+      const { uid, bikeId } = requireGarage(ctx);
+      // Computed before the write, from the history as the rider last saw it.
+      const { resultingMetres } = previewOdometerCorrection(points, readingId, metres);
+      if (metres === null) await odometerRepository.remove(uid, readingId);
+      else await odometerRepository.correct(uid, readingId, metres);
+      await bikeRepository.resyncCurrentOdometer(bikeId, resultingMetres ?? 0);
+    },
+    successMessage: (_result, input) =>
+      input.metres === null
+        ? 'Reading deleted · figures recalculated'
+        : 'Odometer corrected · figures recalculated',
     onSuccess: () => options.onSaved?.(),
   });
 }

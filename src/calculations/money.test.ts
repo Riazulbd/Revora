@@ -1,4 +1,6 @@
+import { CURRENCIES, CURRENCY_PICKER_ORDER, searchCurrencies } from './currencies';
 import {
+  currencyDecimals,
   divideRound,
   formatMoney,
   formatMoneyCompact,
@@ -79,5 +81,36 @@ describe('formatMoney', () => {
     expect(formatMoneyCompact(28500000, 'BDT')).toBe('BDT 285k');
     expect(formatMoneyCompact(130500, 'BDT')).toBe('BDT 1,305');
     expect(formatMoneyCompact(1250000000, 'BDT')).toBe('BDT 12.5m');
+  });
+});
+
+describe('the global currency table', () => {
+  it('carries the ISO exponent, which the integer money path depends on', () => {
+    // ¥1000 is 1000 minor units, not 100000 — getting this wrong misprices
+    // every record in that currency by a factor of a hundred.
+    expect(currencyDecimals('JPY')).toBe(0);
+    expect(currencyDecimals('KWD')).toBe(3);
+    expect(currencyDecimals('USD')).toBe(2);
+    expect(parseMoney('1000', 'JPY')).toBe(1000);
+    expect(parseMoney('10.00', 'USD')).toBe(1000);
+    expect(parseMoney('1.234', 'KWD')).toBe(1234);
+  });
+
+  it('offers the home markets first and finds a currency by code, name or symbol', () => {
+    expect(CURRENCY_PICKER_ORDER[0]?.code).toBe('BDT');
+    expect(searchCurrencies('yen').map((c) => c.code)).toContain('JPY');
+    expect(searchCurrencies('JPY').map((c) => c.code)).toContain('JPY');
+    expect(searchCurrencies('₦').map((c) => c.code)).toContain('NGN');
+    expect(searchCurrencies('zzzz')).toHaveLength(0);
+  });
+
+  it('every entry is a well-formed ISO code with a usable symbol', () => {
+    for (const entry of CURRENCIES) {
+      expect(entry.code).toMatch(/^[A-Z]{3}$/);
+      expect(entry.name.length).toBeGreaterThan(2);
+      expect(entry.symbol.length).toBeGreaterThan(0);
+      expect([0, 2, 3]).toContain(entry.minorUnits);
+    }
+    expect(new Set(CURRENCIES.map((c) => c.code)).size).toBe(CURRENCIES.length);
   });
 });

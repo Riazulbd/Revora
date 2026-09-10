@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { FlatList, View } from 'react-native';
 
-import { Divider, MenuRow, Sheet, Txt } from '@/components';
+import { Divider, Input, MenuRow, Sheet, Txt } from '@/components';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { profileRepository } from '@/repositories';
-import { currencySymbol } from '@/calculations/money';
-import type { CurrencyCode, DistanceUnit, MileageUnit, UnitPreferences, VolumeUnit } from '@/types';
+import { searchCurrencies } from '@/calculations/currencies';
+import type { DistanceUnit, MileageUnit, UnitPreferences, VolumeUnit } from '@/types';
 
 /**
  * Unit and currency preferences.
@@ -15,17 +15,6 @@ import type { CurrencyCode, DistanceUnit, MileageUnit, UnitPreferences, VolumeUn
  * is stored pre-formatted — storage is canonical (metres, millilitres, minor
  * units) and formatting happens at the edge (requirement 65 / 66).
  */
-
-const CURRENCIES: readonly { value: CurrencyCode; label: string }[] = [
-  { value: 'BDT', label: 'Bangladeshi taka' },
-  { value: 'INR', label: 'Indian rupee' },
-  { value: 'PKR', label: 'Pakistani rupee' },
-  { value: 'LKR', label: 'Sri Lankan rupee' },
-  { value: 'NPR', label: 'Nepalese rupee' },
-  { value: 'USD', label: 'US dollar' },
-  { value: 'EUR', label: 'Euro' },
-  { value: 'GBP', label: 'Pound sterling' },
-];
 
 const DISTANCES: readonly { value: DistanceUnit; label: string }[] = [
   { value: 'km', label: 'Kilometres' },
@@ -51,10 +40,13 @@ export function useUnitsSettings() {
   const { user } = useAuth();
   const { units } = useGarage();
   const [open, setOpen] = useState<Kind>(null);
+  const [currencyQuery, setCurrencyQuery] = useState('');
+  const matches = useMemo(() => searchCurrencies(currencyQuery), [currencyQuery]);
 
   const apply = async (changes: Partial<UnitPreferences>) => {
     if (!user) return;
     await profileRepository.setUnits(user.uid, { ...units, ...changes });
+    setCurrencyQuery('');
     setOpen(null);
   };
 
@@ -67,28 +59,59 @@ export function useUnitsSettings() {
           ? 'Fuel volume'
           : 'Mileage';
 
+  const close = () => {
+    setCurrencyQuery('');
+    setOpen(null);
+  };
+
   const sheet = (
-    <Sheet visible={open !== null} onClose={() => setOpen(null)} title={title} testID="sheet-units">
+    <Sheet visible={open !== null} onClose={close} title={title} testID="sheet-units">
       <View>
-        {open === 'currency'
-          ? CURRENCIES.map((option, index) => (
-              <View key={option.value}>
-                {index > 0 ? <Divider /> : null}
-                <MenuRow
-                  label={`${option.label} (${currencySymbol(option.value)})`}
-                  onPress={() => void apply({ currency: option.value })}
-                  right={
-                    units.currency === option.value ? (
-                      <Txt role="metaSmall" tone="acc">
-                        Selected
-                      </Txt>
-                    ) : undefined
-                  }
-                  testID={`unit-currency-${option.value}`}
-                />
-              </View>
-            ))
-          : null}
+        {open === 'currency' ? (
+          <>
+            <Input
+              value={currencyQuery}
+              onChangeText={setCurrencyQuery}
+              placeholder="Search currency, code or symbol"
+              autoCorrect={false}
+              size="compact"
+              style={{ marginBottom: 8 }}
+              testID="input-currency-search"
+            />
+            {matches.length === 0 ? (
+              <Txt role="helper" tone="mut" style={{ paddingVertical: 16 }}>
+                No currency matches “{currencyQuery}”.
+              </Txt>
+            ) : (
+              // Virtualised: the full ISO list is far too long to mount at once.
+              <FlatList
+                data={matches}
+                keyExtractor={(entry) => entry.code}
+                style={{ maxHeight: 380 }}
+                keyboardShouldPersistTaps="handled"
+                initialNumToRender={12}
+                windowSize={7}
+                renderItem={({ item, index }) => (
+                  <View>
+                    {index > 0 ? <Divider /> : null}
+                    <MenuRow
+                      label={`${item.name} · ${item.code} (${item.symbol})`}
+                      onPress={() => void apply({ currency: item.code })}
+                      right={
+                        units.currency === item.code ? (
+                          <Txt role="metaSmall" tone="acc">
+                            Selected
+                          </Txt>
+                        ) : undefined
+                      }
+                      testID={`unit-currency-${item.code}`}
+                    />
+                  </View>
+                )}
+              />
+            )}
+          </>
+        ) : null}
 
         {open === 'distance'
           ? DISTANCES.map((option, index) => (

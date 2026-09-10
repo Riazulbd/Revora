@@ -38,9 +38,8 @@ export type BikeDraft = {
  * a starter set of maintenance rules so the Maintenance screen is useful on day
  * one rather than empty.
  *
- * The Free-plan limit is enforced here *and* mirrored in the UI. It is a product
- * limit, not a security boundary — the entitlement it reads comes from the
- * server-owned profile document, never from local state (requirement 33).
+ * The UI checks the Free-plan limit for immediate feedback. The createBike
+ * callable also enforces it transactionally using the server entitlement.
  */
 export function useAddBike(options: { onAdded?: (bike: Bike) => void } = {}) {
   const { user } = useAuth();
@@ -132,7 +131,11 @@ export function useAddBike(options: { onAdded?: (bike: Bike) => void } = {}) {
   });
 }
 
-export function useUpdateBike(options: { onSaved?: () => void } = {}) {
+/**
+ * `stayOnScreen` is for callers that are not an editor — changing the photo from
+ * the Garage tab must not navigate away from the tab the rider is standing on.
+ */
+export function useUpdateBike(options: { onSaved?: () => void; stayOnScreen?: boolean } = {}) {
   const ctx = useGarageContext();
   const router = useRouter();
 
@@ -144,7 +147,7 @@ export function useUpdateBike(options: { onSaved?: () => void } = {}) {
     successMessage: 'Motorcycle updated',
     onSuccess: () => {
       options.onSaved?.();
-      if (router.canGoBack()) router.back();
+      if (!options.stayOnScreen && router.canGoBack()) router.back();
     },
   });
 }

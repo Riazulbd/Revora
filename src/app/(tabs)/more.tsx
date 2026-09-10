@@ -103,6 +103,12 @@ export default function MoreTab() {
             testID="row-assistant"
           />
           <Divider />
+          <MenuRow
+            label="Feedback &amp; support"
+            onPress={() => router.push('/feedback')}
+            testID="row-feedback"
+          />
+          <Divider />
           <MenuRow label="Settings" onPress={() => router.push('/settings')} testID="row-settings" />
           <Divider />
           <MenuRow

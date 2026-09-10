@@ -1,3 +1,4 @@
+import { currencyEntry } from './currencies';
 import type { CurrencyCode } from '@/types';
 
 /**
@@ -5,34 +6,13 @@ import type { CurrencyCode } from '@/types';
  * an amount in a float, so `0.1 + 0.2` style drift is structurally impossible.
  */
 
-const DECIMALS: Record<CurrencyCode, number> = {
-  BDT: 2,
-  INR: 2,
-  USD: 2,
-  EUR: 2,
-  GBP: 2,
-  PKR: 2,
-  LKR: 2,
-  NPR: 2,
-};
-
-const SYMBOLS: Record<CurrencyCode, string> = {
-  BDT: '৳',
-  INR: '₹',
-  USD: '$',
-  EUR: '€',
-  GBP: '£',
-  PKR: '₨',
-  LKR: '₨',
-  NPR: '₨',
-};
-
+/** ISO 4217 exponent. Two is the safe default for an unknown code. */
 export function currencyDecimals(currency: CurrencyCode): number {
-  return DECIMALS[currency] ?? 2;
+  return currencyEntry(currency)?.minorUnits ?? 2;
 }
 
 export function currencySymbol(currency: CurrencyCode): string {
-  return SYMBOLS[currency] ?? currency;
+  return currencyEntry(currency)?.symbol ?? currency;
 }
 
 /** 10^n as an exact integer. */

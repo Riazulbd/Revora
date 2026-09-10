@@ -37,7 +37,7 @@ export default function GarageTab() {
   const [uploading, setUploading] = useState(false);
 
   const photoUrl = useImageUrl(activeBike?.photoPath ?? null);
-  const updateBike = useUpdateBike();
+  const updateBike = useUpdateBike({ stayOnScreen: true });
   const picker = useImagePicker();
 
   const changePhoto = async () => {
@@ -54,7 +54,7 @@ export default function GarageTab() {
       });
       await updateBike.submit({ photoPath: path });
       if (!uploaded) {
-        toast.show('Photo saved on this phone — cloud backup is not set up yet');
+        toast.show('Photo saved on this phone — it will not sync to your other devices yet');
       }
     } catch (error) {
       toast.show(messageFor(error, "Couldn't save that photo."), 'error');

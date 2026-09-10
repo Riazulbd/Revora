@@ -18,14 +18,14 @@ const config: ExpoConfig = {
   name: IS_DEV ? 'Revora (dev)' : 'Revora',
   slug: 'revora',
   scheme: 'revora',
-  version: '1.1',
+  version: '1.3',
   orientation: 'portrait',
   userInterfaceStyle: 'automatic',
   icon: './assets/icon.png',
   assetBundlePatterns: ['**/*'],
   android: {
     package: packageName,
-    versionCode: 2,
+    versionCode: 4,
     googleServicesFile: process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
@@ -141,8 +141,10 @@ const config: ExpoConfig = {
     ],
     'expo-font',
     'expo-system-ui',
+    './plugins/withGradleMemory',
     './plugins/withReleaseSigning',
     './plugins/withKotlin22',
+    './plugins/withGooglePlayBilling',
   ],
   experiments: {
     typedRoutes: true,

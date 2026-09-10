@@ -3,6 +3,7 @@ import {
   buildOdometerHistory,
   currentOdometerMetres,
   MAX_PLAUSIBLE_JUMP_METRES,
+  previewOdometerCorrection,
   totalDistanceMetres,
   validateOdometer,
 } from './odometer';
@@ -161,5 +162,76 @@ describe('validation', () => {
       reason: 'implausible_jump',
       currentMetres: 5_050_000,
     });
+  });
+});
+
+
+describe('correcting a mistyped reading', () => {
+  // The rider meant 5,588 km and typed 6,000. Everything below is that mistake.
+  const mistake = reading({ id: 'typo', metres: 6_000_000, date: '2026-09-01' });
+  const bike = { initialOdometerMetres: 3_900_000, storedOdometerMetres: 6_000_000, createdAt: 1 };
+  const history = (readings: OdometerReading[], fuelEntries = [] as FuelEntry[]) =>
+    buildOdometerHistory({ readings, fuelEntries, services: [], parts: [], bike });
+
+  it('lowers the odometer to the corrected figure', () => {
+    const points = history([mistake]);
+    expect(currentOdometerMetres(points)).toBe(6_000_000);
+
+    const corrected = previewOdometerCorrection(points, 'typo', 5_588_000);
+    expect(corrected.resultingMetres).toBe(5_588_000);
+    expect(corrected.heldBy).toBeNull();
+  });
+
+  it('does not list the stored figure twice once a reading already reports it', () => {
+    // storedOdometerMetres is 6,000,000 because the mistake was synced to it.
+    // Showing it again would put an uneditable twin next to the reading itself.
+    expect(history([mistake]).filter((p) => p.metres === 6_000_000)).toHaveLength(1);
+  });
+
+  it("ignores the bike's stored figure, which is an echo of the mistake", () => {
+    // The web product left the odometer at 6,200 km with no reading behind it.
+    // Counting that echo would pin the odometer there whatever the rider fixes.
+    const drifted = buildOdometerHistory({
+      readings: [mistake], fuelEntries: [], services: [], parts: [],
+      bike: { ...bike, storedOdometerMetres: 6_200_000 },
+    });
+    expect(drifted.some((p) => p.id === 'bike:current' && p.metres === 6_200_000)).toBe(true);
+    expect(previewOdometerCorrection(drifted, 'typo', 5_588_000).resultingMetres).toBe(5_588_000);
+  });
+
+  it('falls back to the next highest record when the reading is deleted', () => {
+    const points = history([mistake, reading({ id: 'ok', metres: 5_400_000, date: '2026-08-20' })]);
+    const removed = previewOdometerCorrection(points, 'typo', null);
+    expect(removed.resultingMetres).toBe(5_400_000);
+    expect(removed.heldBy?.readingId).toBe('ok');
+  });
+
+  it('cannot go below a fuel log, and says which record holds it up', () => {
+    const points = history([mistake], [fuel('f1', 5800, '2026-08-28')]);
+    const corrected = previewOdometerCorrection(points, 'typo', 5_588_000);
+    expect(corrected.resultingMetres).toBe(5_800_000);
+    expect(corrected.heldBy?.source).toBe('fuel');
+    expect(corrected.heldBy?.sourceId).toBe('f1');
+  });
+
+  it('cannot go below the opening reading', () => {
+    const points = history([mistake]);
+    const corrected = previewOdometerCorrection(points, 'typo', 1_000_000);
+    expect(corrected.resultingMetres).toBe(3_900_000);
+    expect(corrected.heldBy?.id).toBe('bike:initial');
+  });
+
+  it('leaves nothing behind when the only reading is removed', () => {
+    const points = buildOdometerHistory({
+      readings: [mistake], fuelEntries: [], services: [], parts: [],
+    });
+    expect(previewOdometerCorrection(points, 'typo', null).resultingMetres).toBeNull();
+  });
+
+  it('corrects only the reading named, never a derived point', () => {
+    const points = history([mistake], [fuel('f1', 5400, '2026-08-28')]);
+    // A fuel log's point carries no readingId, so it can never be edited here.
+    expect(points.filter((p) => p.readingId !== null)).toHaveLength(1);
+    expect(previewOdometerCorrection(points, 'f1', 100).resultingMetres).toBe(6_000_000);
   });
 });

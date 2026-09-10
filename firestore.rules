@@ -17,10 +17,8 @@ rules_version = '2';
 //   - editing shared reference data (`bikeModels`, `fuelGaugeProfiles`);
 //   - reading the spend, quota and purchase-token collections at all.
 //
-// NOT ENFORCEABLE HERE: the free tier's one-bike limit. Rules cannot count
-// documents in a collection, so that limit is enforced in the app for a good
-// error message and again in the `onBikeCreated` server trigger, which is the
-// copy a modified client cannot skip.
+// Bike creation goes through createBike, which checks the server entitlement
+// and serializes concurrent additions. Direct creates and unarchives are denied.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -139,8 +137,12 @@ service cloud.firestore {
       }
 
       allow read: if ownsExisting();
-      allow create: if claimsOwn() && hasOwnerTimestamps() && validBike();
-      allow update: if ownsExisting() && keepsImmutableFields() && validBike();
+      allow create: if false; // createBike callable enforces the account plan.
+      // `get` with a default, never `resource.data.archived`: bikes written by
+      // the web product — and by Revora before this flag existed — have no such
+      // field, and a bare access throws, which would deny every update to them.
+      allow update: if ownsExisting() && keepsImmutableFields() && validBike()
+        && !(resource.data.get('archived', false) == true && incoming().archived == false);
       allow delete: if ownsExisting();
     }
 
@@ -354,6 +356,32 @@ service cloud.firestore {
     }
 
     /* -------------------------------------------------------------- */
+    /* Feedback                                                       */
+    /* -------------------------------------------------------------- */
+
+    // A rider may send a message and read their own back. They may never edit
+    // or delete one: it is a record of what somebody actually said, and support
+    // triage depends on it not changing under them. `notifiedAt` is written by
+    // the relay function with the Admin SDK, so a client claiming it is refused.
+    match /feedback/{feedbackId} {
+      allow read: if ownsExisting();
+      allow create: if claimsOwn()
+        && hasOwnerTimestamps()
+        && incoming().kind in ['idea', 'problem', 'question']
+        && incoming().message is string
+        && incoming().message.size() > 0
+        && incoming().message.size() <= 4000
+        && incoming().tier in ['free', 'pro']
+        && optionalText('contactEmail', 320)
+        && optionalText('appVersion', 32)
+        && optionalText('platform', 32)
+        && optionalText('osVersion', 64)
+        && optionalText('deviceModel', 120)
+        && incoming().notifiedAt == null;
+      allow update, delete: if false;
+    }
+
+    /* -------------------------------------------------------------- */
     /* Entitlement — the Premium-escalation surface                   */
     /* -------------------------------------------------------------- */
 
@@ -419,6 +447,11 @@ service cloud.firestore {
     //  budget         — global spend; discloses commercial information.
     //  purchaseTokens — hash-to-account map; the anti-sharing control itself.
     //  deletionRequests — retained accounting records for closed accounts.
+    //  playAccounts   — obfuscated-account-id to uid; a writable one would let
+    //                   an attacker point somebody else's purchase at their uid.
+    //  billingLocks   — the per-account revision that serialises verification.
+    //  garageLocks    — the same, for the Free-plan motorcycle limit.
+    //  playNotifications — RTDN de-duplication keys.
     match /aiCache/{document=**} {
       allow read, write: if false;
     }
@@ -436,6 +469,22 @@ service cloud.firestore {
     }
 
     match /deletionRequests/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /playAccounts/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /billingLocks/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /garageLocks/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /playNotifications/{document=**} {
       allow read, write: if false;
     }
 

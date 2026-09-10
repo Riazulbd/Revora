@@ -146,7 +146,7 @@ export default function Dashboard() {
         <Stack>
           <OdometerCard analytics={analytics} />
           <MileageCard analytics={analytics} onExplain={() => setExplainOpen(true)} />
-          <TrendCard analytics={analytics} />
+          {isPro ? <TrendCard analytics={analytics} /> : null}
           <MaintenanceCard analytics={analytics} />
           {activeBike?.company.enabled ? <AllowanceCard analytics={analytics} /> : null}
           <SpendingCard analytics={analytics} />

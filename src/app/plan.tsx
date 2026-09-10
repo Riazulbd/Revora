@@ -1,5 +1,6 @@
-import React from 'react';
-import { View } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, View } from 'react-native';
+import { useRouter } from 'expo-router';
 
 import {
   Badge,
@@ -16,6 +17,9 @@ import { useGarage } from '@/features/bikes/GarageProvider';
 import { FREE_PLAN_BIKE_LIMIT } from '@/repositories';
 import { formatLongDate , dateToIso } from '@/utils/date';
 import { useTheme } from '@/theme';
+import { useBilling } from '@/features/billing/BillingProvider';
+import { billingAvailable } from '@/features/billing/googlePlay';
+import { offerPrice } from '@/features/billing/presentation';
 
 const FREE_FEATURES = [
   `${FREE_PLAN_BIKE_LIMIT} motorcycle`,
@@ -35,24 +39,32 @@ const PRO_FEATURES = [
   'No ads',
 ];
 
-/**
- * Free / Pro.
- *
- * Billing is not connected — there is no payment provider wired into this build —
- * and the screen says exactly that rather than offering a button that cannot work
- * (requirement 83). Entitlement is read from the account, so the moment billing
- * grants Pro server-side, this screen reflects it with no app change.
- */
+/** Prices come from Play; the current plan comes from the server entitlement. */
 export default function Plan() {
-  const { isPro, profile, bikes } = useGarage();
-
+  const { isPro, profile, bikes, isPending } = useGarage();
+  const billing = useBilling();
+  const router = useRouter();
+  const { c } = useTheme();
+  const [selectedToken, setSelectedToken] = useState<string | null>(null);
+  const offers = billing.product?.offers ?? [];
+  const selected = offers.find(offer => offer.offerToken === selectedToken) ?? offers[0];
   const expiry = profile?.entitlement.expiresAt ?? null;
+  const status = profile?.entitlement.subscriptionStatus;
+  const googleSubscriber = profile?.entitlement.source === 'google_play';
+  const subscriptionMessage = status === 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD'
+    ? 'There is a payment problem. Pro remains available during your grace period. Update your payment method in Google Play.'
+    : status === 'SUBSCRIPTION_STATE_ON_HOLD'
+      ? 'Your subscription is on hold. Update your payment method in Google Play to restore Pro.'
+      : status === 'SUBSCRIPTION_STATE_PAUSED' ? 'Your subscription is paused. Resume it in Google Play to restore Pro.'
+        : status === 'SUBSCRIPTION_STATE_CANCELED' && isPro ? 'Renewal is canceled. Pro remains available until the date shown.'
+          : null;
 
   return (
     <Screen testID="screen-plan">
       <ScreenHeader title="Free / Pro" />
 
       <Stack>
+        {isPending ? <Txt role="helper" tone="mut">Loading your account plan…</Txt> : null}
         <Card>
           <View
             style={{
@@ -64,7 +76,7 @@ export default function Plan() {
             }}
           >
             <Txt role="cardTitle">Free</Txt>
-            {isPro ? null : <Badge label="CURRENT PLAN" tone="neutral" />}
+            {isPro || isPending ? null : <Badge label="CURRENT PLAN" tone="neutral" />}
           </View>
           <FeatureList features={FREE_FEATURES} />
           <Txt role="micro" tone="mut" style={{ marginTop: 10 }}>
@@ -82,7 +94,7 @@ export default function Plan() {
               marginBottom: 12,
             }}
           >
-            <Txt role="cardTitle">Pro</Txt>
+            <Txt role="cardTitle">{billing.product?.title ?? 'Revora Pro'}</Txt>
             {isPro ? <Badge label="CURRENT PLAN" tone="accent" /> : null}
           </View>
           <FeatureList features={PRO_FEATURES} accent />
@@ -100,20 +112,43 @@ export default function Plan() {
             />
           ) : (
             <>
+              {billing.product?.description ? <Txt role="helper" tone="mut" style={{ marginTop: 14 }}>{billing.product.description}</Txt> : null}
+              {billing.loading ? <Txt role="helper" tone="mut" style={{ marginTop: 14 }}>Loading Google Play plans and prices…</Txt> : null}
+              {offers.map(offer => (
+                <Pressable
+                  key={offer.offerToken}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: offer.offerToken === selected?.offerToken }}
+                  accessibilityLabel={offerPrice(offer)}
+                  onPress={() => setSelectedToken(offer.offerToken)}
+                  style={{ padding: 14, marginTop: 12, borderWidth: 1, borderRadius: 12,
+                    borderColor: offer.offerToken === selected?.offerToken ? c.acc : c.brd }}
+                >
+                  <Txt role="smallStrong">{offerPrice(offer)}</Txt>
+                  <Txt role="micro" tone="mut">
+                    {offer.phases.at(-1)?.recurrenceMode === 1 ? 'Automatically renews. Cancel in Google Play.' : 'Prepaid access. Does not automatically renew.'}
+                  </Txt>
+                </Pressable>
+              ))}
               <Button
-                label="Upgrade — billing not connected yet"
-                disabled
+                label={billing.pending ? 'Payment pending' : 'Upgrade to Pro'}
+                loading={billing.busy}
+                disabled={!billing.canPurchase || !selected || billing.loading || billing.pending || isPending}
                 style={{ marginTop: 14 }}
-                onPress={() => undefined}
+                onPress={() => selected ? billing.upgrade(selected.offerToken) : undefined}
                 testID="cta-upgrade"
               />
-              <Txt role="helper" tone="mut" style={{ marginTop: 10 }}>
-                Revora has no payment provider connected in this build, so there is nothing to buy here yet. Pro
-                is granted on your account, which means whichever store or web checkout is connected later
-                unlocks it everywhere at once.
-              </Txt>
+              {!billingAvailable ? <Txt role="helper" tone="mut" style={{ marginTop: 10 }}>Subscribe using the Revora Android app from Google Play.</Txt>
+                : !billing.canPurchase ? <Button label="Sign in or create an account" variant="secondary" style={{ marginTop: 10 }} onPress={() => router.push('/settings')} /> : null}
             </>
           )}
+          {subscriptionMessage ? <Txt role="helper" style={{ marginTop: 12 }}>{subscriptionMessage}</Txt> : null}
+          {googleSubscriber ? <Button label="Manage Subscription" variant="secondary" onPress={billing.manage} style={{ marginTop: 12 }} testID="cta-manage-subscription" /> : null}
+          {billing.message ? <Txt role="helper" style={{ marginTop: 12 }} testID="billing-status">{billing.message}</Txt> : null}
+          {billing.error ? <Txt role="helper" style={{ marginTop: 12 }} testID="billing-error">{billing.error}</Txt> : null}
+          {billing.canPurchase ? <Button label="Restore purchases" variant="secondary" onPress={billing.restore} loading={billing.busy} style={{ marginTop: 12 }} testID="cta-restore-purchases" /> : null}
+          {billingAvailable && !isPro ? <Button label="Reload plans and prices" variant="ghost" onPress={billing.reload} disabled={billing.loading || billing.busy} style={{ marginTop: 10 }} /> : null}
+          <Txt role="helper" tone="mut" style={{ marginTop: 12 }}>Payment is handled by Google Play. Review the price and billing terms in checkout before confirming.</Txt>
         </Card>
 
         <Txt role="helper" tone="mut">

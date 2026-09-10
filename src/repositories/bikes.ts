@@ -1,6 +1,7 @@
 import { getDoc, setDoc } from '@react-native-firebase/firestore';
 
 import { toAppError } from '@/services/errors';
+import { callBackend } from '@/services/backend';
 import type { SubscribeFn } from '@/services/liveQuery';
 import type { Bike } from '@/types';
 import {
@@ -61,8 +62,12 @@ export const bikeRepository = {
     }
   },
 
-  save(uid: string, bike: Bike, isNew: boolean): Promise<void> {
-    return writeRecord({ uid, name: 'bikes', id: bike.id, data: serialiseBike(bike), isNew });
+  async save(uid: string, bike: Bike, isNew: boolean): Promise<void> {
+    if (isNew) {
+      await callBackend('createBike', { id: bike.id, bike: serialiseBike(bike) }, uid);
+      return;
+    }
+    await writeRecord({ uid, name: 'bikes', id: bike.id, data: serialiseBike(bike), isNew });
   },
 
   async patch(uid: string, bikeId: string, changes: Partial<Bike>): Promise<void> {
@@ -95,6 +100,26 @@ export const bikeRepository = {
     if (!existing) return;
     if (derivedMetres <= existing.storedOdometerMetres) return;
     await bikeRepository.patch(existing.userId, bikeId, { storedOdometerMetres: derivedMetres });
+  },
+
+  /**
+   * Re-points the shared `currentOdometer` at the history, in either direction.
+   *
+   * This is the one place the stored figure is allowed to move backwards, and it
+   * exists because a rider who typed 6,000 instead of 5,588 must be able to fix
+   * it. `syncCurrentOdometer` above stays forward-only: a correction is a
+   * deliberate act on a specific reading, whereas an ordinary save must never be
+   * able to drag the odometer down by accident.
+   *
+   * The caller passes the figure derived from the records *excluding* this
+   * stored one — otherwise it would only ever confirm itself.
+   */
+  async resyncCurrentOdometer(bikeId: string, derivedMetres: number): Promise<void> {
+    const existing = await bikeRepository.get(bikeId);
+    if (!existing) return;
+    const next = Math.max(derivedMetres, existing.initialOdometerMetres);
+    if (next === existing.storedOdometerMetres) return;
+    await bikeRepository.patch(existing.userId, bikeId, { storedOdometerMetres: next });
   },
 
   archive(uid: string, bikeId: string): Promise<void> {
