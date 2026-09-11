@@ -109,13 +109,27 @@ sweeps hourly and repairs anything that was lost entirely.
 
 ## Account binding
 
-A purchase token is bound to exactly one Revora account, and possession of a
-token is never sufficient to claim it (`assertOwner`). A token can be claimed
-only if Google's own `obfuscatedExternalAccountId` matches this uid, or if it
-already belongs to this uid, or if it replaces a token that does. Sharing a
-token with a second account fails with `ACCOUNT_MISMATCH`; an unbindable one
-fails with `UNBOUND_PURCHASE`. Both are covered in
-`functions/test/billing.integration.cjs`.
+**A purchase token is bound to exactly one Revora account, forever.** That is
+the property to protect: one subscription must never serve two accounts.
+Sharing a token with a second account fails with `ACCOUNT_MISMATCH`.
+
+A purchase bought inside the app carries the obfuscated account id set by
+`prepareGooglePlayPurchase`, and Google's own binding is checked first — so it
+can never be claimed by anybody else.
+
+A purchase acquired **outside** the app carries no such id: a **promo code**
+redeemed in the Play Store, or a subscription restarted from the Play
+subscriptions page. Those are claimable by the first account to present one, and
+`verifyPurchase` records the owner in the same transaction, so every later
+attempt is refused. `purchaseTokens.claimedVia` records which route it came by —
+`in_app` or `unbound` — so grants stay auditable.
+
+The trade-off is deliberate and narrow: someone holding another rider's purchase
+token, which in practice means holding their unlocked phone, could claim it
+first. Refusing unbound tokens outright was the earlier behaviour, and it made
+promo codes impossible to redeem — they granted nothing at all.
+
+All of this is covered in `functions/test/billing.integration.cjs`.
 
 Upgrades, downgrades and out-of-app resubscriptions arrive as a new token with a
 `linkedPurchaseToken`. The old token is marked superseded so it can never

@@ -121,3 +121,23 @@ account"*, one of these is true: the subscription or its base plans are not
 activated; the build on the device is not the one Play knows about; or the
 signed-in account is not a licence tester. It is almost never the code — the app
 asks Play for `revora_pro` and renders whatever comes back.
+
+## Promo codes
+
+**Promo codes are redeemed in the Google Play Store, never inside Revora** —
+Play Store app → profile → Payments & subscriptions → Redeem code, or
+`play.google.com/redeem`, or a direct `https://play.google.com/redeem?code=…`
+link you can send people.
+
+A redeemed code creates a real Google subscription with **no Revora account
+attached**, because it never passed through the app's purchase flow. The backend
+claims it for the first Revora account that presents it and binds it there
+permanently — see the account-binding section of [billing.md](billing.md).
+
+Two practical consequences:
+
+- The rider must **open Revora and sign in** after redeeming. Nothing happens
+  until the app reports the purchase; the restore loop does the rest.
+- They should redeem on the **Google account they use on their phone**, and sign
+  in to the **Revora account they intend to keep**. The first Revora account to
+  present that token owns it for good.

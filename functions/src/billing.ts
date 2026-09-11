@@ -1,5 +1,5 @@
 import { getFirestore } from 'firebase-admin/firestore';
-import { accountId, assertOwner, hash, isPro, PRODUCT_ID, subscriptionInfo, type PlaySubscription } from './domain';
+import { accountId, assertOwner, hash, isPro, isUnboundPurchase, PRODUCT_ID, subscriptionInfo, type PlaySubscription } from './domain';
 import { play } from './play';
 
 /** All entry points share this transaction, including RTDN and scheduled repair.
@@ -27,6 +27,12 @@ export async function verifyPurchase(uid: string, token: string, packageName: st
     const record = {
       ...info, userId: uid, packageName, purchaseToken: token, purchase: purchase,
       tokenId, supersededBy: previous.data()?.supersededBy ?? null,
+      // How this account came to own the token. 'unbound' means it arrived from
+      // outside the app — a promo code, or a Play-side resubscription — and was
+      // claimed by first presentation. Kept for support and for auditing grants.
+      claimedVia: previous.data()?.claimedVia
+        ?? (isUnboundPurchase(purchase) ? 'unbound' : 'in_app'),
+      claimedAt: previous.data()?.claimedAt ?? now,
       // Refresh terminal purchases for 60 days, while tokens remain queryable.
       needsSync: info.expiresAt > now - 60 * 86400000 || info.subscriptionStatus === 'SUBSCRIPTION_STATE_PENDING',
     };

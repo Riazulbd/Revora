@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { subscriptionInfo, assertOwner, accountId, isPro } = require('../lib/domain');
+const { subscriptionInfo, assertOwner, accountId, isPro, isUnboundPurchase } = require('../lib/domain');
 
 const now = Date.parse('2026-09-10T00:00:00Z');
 const purchase = (state, expiry = now + 10000) => ({
@@ -33,12 +33,25 @@ test('Google product, line item, expiry and base plan are authoritative', () => 
   assert.equal(info.autoRenewing, true);
   assert.equal(subscriptionInfo({ ...value, lineItems: [{ productId: 'revora_pro' }] }, now).tier, 'free');
 });
-test('new token must be bound by Google to the authenticated account', () => {
+test('a purchase Google bound to one account cannot be claimed by another', () => {
   assert.doesNotThrow(() => assertOwner('rider-a', purchase('ACTIVE')));
   assert.throws(() => assertOwner('rider-b', purchase('ACTIVE')), /ACCOUNT_MISMATCH/);
-  assert.throws(() => assertOwner('rider-a', {}), /UNBOUND_PURCHASE/);
   assert.throws(() => assertOwner('rider-a', purchase('ACTIVE'), 'rider-b'), /ACCOUNT_MISMATCH/);
   assert.throws(() => assertOwner('rider-a', purchase('ACTIVE'), undefined, 'rider-b'), /ACCOUNT_MISMATCH/);
+});
+
+test('a promo redemption carries no binding and is claimable exactly once', () => {
+  // Redeemed in the Play Store, so it never passed through the app and Google
+  // attached no account id. Refusing it outright makes promo codes worthless.
+  const promo = { subscriptionState: 'SUBSCRIPTION_STATE_ACTIVE',
+    lineItems: [{ productId: 'revora_pro', expiryTime: '2027-01-01T00:00:00Z' }] };
+  assert.equal(isUnboundPurchase(promo), true);
+  assert.equal(isUnboundPurchase(purchase('ACTIVE')), false);
+
+  assert.doesNotThrow(() => assertOwner('rider-a', promo));
+  // Once verifyPurchase has recorded rider-a as the owner, nobody else gets it.
+  assert.throws(() => assertOwner('rider-b', promo, 'rider-a'), /ACCOUNT_MISMATCH/);
+  assert.doesNotThrow(() => assertOwner('rider-a', promo, 'rider-a'));
 });
 test('linked tokens and out-of-app resubscriptions preserve ownership', () => {
   assert.doesNotThrow(() => assertOwner('rider-a', {}, 'rider-a'));

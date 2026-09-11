@@ -92,6 +92,36 @@ test('token replay from another Revora account cannot steal a subscription', asy
   assert.equal((await db.doc('entitlements/attacker').get()).exists, false);
 });
 
+test('a promo code redeemed in the Play Store grants Pro, once, to one account', async () => {
+  // Redeemed outside the app, so Google attaches no obfuscatedExternalAccountId.
+  // Before first-claim binding this was refused and 200 promo codes were inert.
+  const promo = purchase();
+  delete promo.externalAccountIdentifiers;
+  purchases.set('promo-token', promo);
+
+  await verifyPurchase(uid, 'promo-token', pkg);
+  assert.equal((await entitlement()).tier, 'pro');
+  assert.deepEqual(acknowledgements, ['promo-token'], 'a promo purchase still has to be acknowledged');
+
+  const stored = (await db.doc(`purchaseTokens/${hash('promo-token')}`).get()).data();
+  assert.equal(stored.claimedVia, 'unbound', 'provenance is recorded for auditing grants');
+  assert.equal(stored.userId, uid);
+
+  // The binding is what makes it claimable exactly once.
+  await assert.rejects(verifyPurchase('someone-else', 'promo-token', pkg), /ACCOUNT_MISMATCH/);
+  assert.equal((await db.doc('entitlements/someone-else').get()).exists, false);
+
+  // Re-verifying as the owner stays idempotent and does not re-acknowledge.
+  await verifyPurchase(uid, 'promo-token', pkg);
+  assert.deepEqual(acknowledgements, ['promo-token']);
+});
+
+test('a purchase made in the app is still bound to the account that bought it', async () => {
+  await verifyPurchase(uid, 'token', pkg);
+  const stored = (await db.doc(`purchaseTokens/${hash('token')}`).get()).data();
+  assert.equal(stored.claimedVia, 'in_app');
+});
+
 test('acknowledgement failure keeps durable verification and retry repairs it', async () => {
   const acknowledge = play.acknowledge;
   play.acknowledge = async () => { throw new Error('Transient Google error'); };
