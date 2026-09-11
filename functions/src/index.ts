@@ -90,6 +90,13 @@ export const googlePlayRtdn = onMessagePublished({ region, topic, retry: true, t
   if (!parsed.success || parsed.data.packageName !== packageName.value()) {
     logger.warn('Ignored invalid or wrong-package Play notification'); return;
   }
+  // Play's "Send test notification" carries no purchase token, so without this
+  // a successful test is silent — indistinguishable from one that never arrived.
+  if (parsed.data.testNotification !== undefined) {
+    logger.info('Play test notification received — RTDN is wired correctly', {
+      packageName: parsed.data.packageName, messageId: event.data.message.messageId,
+    });
+  }
   const token = parsed.data.subscriptionNotification?.purchaseToken ?? parsed.data.voidedPurchaseNotification?.purchaseToken;
   if (token) {
     // Notification type is a wake-up signal, never evidence of entitlement.
@@ -99,6 +106,10 @@ export const googlePlayRtdn = onMessagePublished({ region, topic, retry: true, t
       const uid = await resolveOwner(token, purchase);
       if (!uid) { logger.warn('Unbound Play notification', { tokenId: hash(token) }); return; }
       await verifyPurchase(uid, token, packageName.value());
+      logger.info('Play notification applied', {
+        type: parsed.data.subscriptionNotification?.notificationType ?? 'voided',
+        tokenId: hash(token),
+      });
     } catch {
       logger.warn('Play notification will be retried', { messageId: event.data.message.messageId });
       throw new Error('Play notification verification failed');
