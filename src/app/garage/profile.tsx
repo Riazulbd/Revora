@@ -6,6 +6,7 @@ import {
   Banner,
   Button,
   Card,
+  Dialog,
   DividedList,
   Eyebrow,
   Icon,
@@ -22,6 +23,7 @@ import { distanceUnitLabel } from '@/calculations/units';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useAddOdometerReading } from '@/features/odometer/useOdometerMutations';
+import { useRemoveBike } from '@/features/settings/useAccountMutations';
 import { fromMetres, toMetres } from '@/features/shared/formValues';
 import { formatCurrency, formatDistance, formatVolume, NO_VALUE } from '@/utils/format';
 import { formatLongDate } from '@/utils/date';
@@ -32,12 +34,15 @@ export default function BikeProfile() {
   const router = useRouter();
   const { c } = useTheme();
   const toast = useToast();
-  const { activeBike, units } = useGarage();
+  const { activeBike, units, bikes } = useGarage();
   const { analytics } = useGarageData();
 
   const [reading, setReading] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const removeBike = useRemoveBike({ onRemoved: () => router.replace('/(tabs)/garage') });
 
+  const bikeCount = bikes.length;
   const current = analytics?.odometer.currentMetres ?? null;
   const addReading = useAddOdometerReading({
     onSaved: () => {
@@ -189,7 +194,27 @@ export default function BikeProfile() {
           onPress={() => router.push('/garage/edit')}
           testID="cta-edit-bike"
         />
+
+        <Button
+          label="Delete this motorcycle"
+          variant="ghost"
+          size="medium"
+          onPress={() => setConfirmRemove(true)}
+          testID="cta-delete-bike"
+        />
       </Stack>
+
+      <Dialog
+        visible={confirmRemove}
+        onClose={() => setConfirmRemove(false)}
+        title={`Delete ${activeBike.nickname}?`}
+        message={`Every fuel log, service, part, accessory, expense, document and reading for this motorcycle is deleted with it. ${bikeCount === 1 ? 'It is the only motorcycle in your garage, so you will start again from an empty garage. ' : ''}This can't be undone.`}
+        confirmLabel="Delete"
+        destructive
+        busy={removeBike.isPending}
+        onConfirm={() => void removeBike.submit(activeBike.id)}
+        testID="dialog-delete-bike"
+      />
     </Screen>
   );
 }

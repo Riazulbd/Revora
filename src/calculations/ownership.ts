@@ -1,4 +1,4 @@
-import type { Bike, DistanceUnit, LedgerEntry } from '@/types';
+import type { Bike, CostBasis, DistanceUnit, LedgerEntry } from '@/types';
 import { breakdown, totalMinor, type SpendBreakdown } from './expenses';
 import { costPerDistance } from './units';
 
@@ -16,6 +16,14 @@ export type OwnershipCost = {
   runningCostMinor: number;
   /** Purchase + running. Null when there is no purchase price to add. */
   totalOwnershipMinor: number | null;
+  /** Which of the two the rider chose in Settings. */
+  costBasis: CostBasis;
+  /**
+   * The figure every screen headlines, and the one `costPerDistanceScaled`
+   * divides. Equals `runningCostMinor` on the `running` basis, and
+   * `totalOwnershipMinor` on `total` when a purchase price exists.
+   */
+  headlineCostMinor: number;
   breakdown: SpendBreakdown;
   /**
    * Running cost per unit distance, scaled by 100 (so `483` means 4.83/km).
@@ -30,18 +38,31 @@ export function calculateOwnershipCost(input: {
   ledger: readonly LedgerEntry[];
   distanceMetres: number;
   distanceUnit: DistanceUnit;
+  /** Which figure the screens headline, and what cost-per-distance divides. */
+  costBasis?: CostBasis;
 }): OwnershipCost {
   const runningCostMinor = totalMinor(input.ledger);
   const purchasePriceMinor = input.bike.purchasePriceMinor;
+  const totalOwnershipMinor = purchasePriceMinor === null ? null : purchasePriceMinor + runningCostMinor;
+
+  // `total` only differs once a purchase price exists; without one there is
+  // nothing to add, and silently showing running cost under a "total" label
+  // would be a figure that does not mean what it says.
+  const basis = input.costBasis ?? 'running';
+  const headlineMinor = basis === 'total' && totalOwnershipMinor !== null
+    ? totalOwnershipMinor
+    : runningCostMinor;
 
   return {
     purchasePriceMinor,
     runningCostMinor,
-    totalOwnershipMinor: purchasePriceMinor === null ? null : purchasePriceMinor + runningCostMinor,
+    totalOwnershipMinor,
+    costBasis: basis,
+    headlineCostMinor: headlineMinor,
     breakdown: breakdown(input.ledger),
     costPerDistanceScaled:
       input.distanceMetres > 0
-        ? costPerDistance(runningCostMinor, input.distanceMetres, input.distanceUnit)
+        ? costPerDistance(headlineMinor, input.distanceMetres, input.distanceUnit)
         : null,
     distanceMetres: input.distanceMetres,
   };

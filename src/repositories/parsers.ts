@@ -116,6 +116,7 @@ export const parseUserProfile = (id: string, data: DocumentData): UserProfile =>
       distance: readEnum(units, 'distance', DISTANCE_UNITS, 'km'),
       volume: readEnum(units, 'volume', VOLUME_UNITS, 'L'),
       mileage: readEnum(units, 'mileage', MILEAGE_UNITS, 'km_per_l'),
+      costBasis: readEnum(units, 'costBasis', ['running', 'total'] as const, 'running'),
     },
     activeBikeId: readNullableString(data, 'activeBikeId'),
     // Replaced by the entitlements document; Free until that says otherwise.

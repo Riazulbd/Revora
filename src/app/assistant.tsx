@@ -3,7 +3,8 @@ import { Pressable, ScrollView, View , KeyboardAvoidingView, Platform } from 're
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Badge, Icon, Input, ScreenHeader, Txt } from '@/components';
-import { answerQuestion, SUGGESTED_QUESTIONS } from '@/features/assistant/answerQuestion';
+import { SUGGESTED_QUESTIONS } from '@/features/assistant/answerQuestion';
+import { useAssistant } from '@/features/assistant/useAssistant';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useExpiringDocuments } from '@/features/records/useRecordQueries';
@@ -26,7 +27,11 @@ export default function Assistant() {
   const { profile, activeBike } = useGarage();
   const expiring = useExpiringDocuments();
   const proGate = useProGate();
+  const assistant = useAssistant();
   const scrollRef = useRef<ScrollView>(null);
+  // A counter rather than a clock: message ids only have to be unique within
+  // this conversation, and `Date.now()` is not pure enough for the lint rule.
+  const nextId = useRef(0);
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -39,23 +44,25 @@ export default function Assistant() {
   ]);
   const [draft, setDraft] = useState('');
 
-  const send = (question: string) => {
+  const send = async (question: string) => {
     const text = question.trim();
-    if (text === '') return;
+    if (text === '' || assistant.pending) return;
 
     if (!proGate.isPro) {
       proGate.open('The assistant');
       return;
     }
 
-    const answer = answerQuestion(text, analytics, { documents: expiring });
+    const stamp = (nextId.current += 1);
+    setMessages((prev) => [...prev, { id: `u${stamp}`, role: 'user', text }]);
+    setDraft('');
+    requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
 
+    const reply = await assistant.ask(text, analytics, { documents: expiring }, []);
     setMessages((prev) => [
       ...prev,
-      { id: `u${Date.now()}`, role: 'user', text },
-      { id: `a${Date.now()}`, role: 'assistant', text: answer.text },
+      { id: `a${stamp}`, role: 'assistant', text: reply.notice ? `${reply.notice}\n\n${reply.text}` : reply.text },
     ]);
-    setDraft('');
     requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
   };
 
@@ -109,7 +116,7 @@ export default function Assistant() {
                 <Pressable
                   key={question}
                   accessibilityRole="button"
-                  onPress={() => send(question)}
+                  onPress={() => void send(question)}
                   testID={`suggest-${question.slice(0, 12)}`}
                   style={({ pressed }) => ({
                     minHeight: 40,
@@ -150,14 +157,14 @@ export default function Assistant() {
             placeholder="Ask about your bike…"
             size="compact"
             returnKeyType="send"
-            onSubmitEditing={() => send(draft)}
+            onSubmitEditing={() => void send(draft)}
             style={{ flex: 1 }}
             testID="input-assistant"
           />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Send"
-            onPress={() => send(draft)}
+            onPress={() => void send(draft)}
             testID="cta-assistant-send"
             style={({ pressed }) => ({
               width: 48,

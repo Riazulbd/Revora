@@ -4,9 +4,9 @@ import { FlatList, View } from 'react-native';
 import { Divider, Input, MenuRow, Sheet, Txt } from '@/components';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { useGarage } from '@/features/bikes/GarageProvider';
-import { profileRepository } from '@/repositories';
+import { bikeRepository, profileRepository } from '@/repositories';
 import { searchCurrencies } from '@/calculations/currencies';
-import type { DistanceUnit, MileageUnit, UnitPreferences, VolumeUnit } from '@/types';
+import type { CostBasis, DistanceUnit, MileageUnit, UnitPreferences, VolumeUnit } from '@/types';
 
 /**
  * Unit and currency preferences.
@@ -34,11 +34,16 @@ const MILEAGES: readonly { value: MileageUnit; label: string }[] = [
   { value: 'mpg_uk', label: 'MPG (UK)' },
 ];
 
-type Kind = 'currency' | 'distance' | 'volume' | 'mileage' | null;
+const COST_BASES: readonly { value: CostBasis; label: string; helper: string }[] = [
+  { value: 'running', label: 'Running costs', helper: 'Fuel, servicing, parts, accessories and expenses — what it costs to keep on the road.' },
+  { value: 'total', label: 'Including purchase price', helper: 'Running costs plus what you paid for the motorcycle.' },
+];
+
+type Kind = 'currency' | 'distance' | 'volume' | 'mileage' | 'costBasis' | null;
 
 export function useUnitsSettings() {
   const { user } = useAuth();
-  const { units } = useGarage();
+  const { units, activeBike } = useGarage();
   const [open, setOpen] = useState<Kind>(null);
   const [currencyQuery, setCurrencyQuery] = useState('');
   const matches = useMemo(() => searchCurrencies(currencyQuery), [currencyQuery]);
@@ -46,6 +51,14 @@ export function useUnitsSettings() {
   const apply = async (changes: Partial<UnitPreferences>) => {
     if (!user) return;
     await profileRepository.setUnits(user.uid, { ...units, ...changes });
+    // A motorcycle's records are denominated in *its* currency — that is what
+    // every figure is formatted with. Changing the preference alone left the
+    // setting doing nothing visible, so the active bike moves with it. Amounts
+    // are relabelled, never converted: there is no exchange rate in Revora, and
+    // inventing one would silently rewrite what the rider actually paid.
+    if (changes.currency && activeBike && activeBike.currency !== changes.currency) {
+      await bikeRepository.patch(user.uid, activeBike.id, { currency: changes.currency });
+    }
     setCurrencyQuery('');
     setOpen(null);
   };
@@ -57,7 +70,9 @@ export function useUnitsSettings() {
         ? 'Distance'
         : open === 'volume'
           ? 'Fuel volume'
-          : 'Mileage';
+          : open === 'costBasis'
+            ? 'Cost basis'
+            : 'Mileage';
 
   const close = () => {
     setCurrencyQuery('');
@@ -110,6 +125,34 @@ export function useUnitsSettings() {
                 )}
               />
             )}
+          </>
+        ) : null}
+
+        {open === 'costBasis' ? (
+          <>
+            <Txt role="helper" tone="mut" style={{ marginBottom: 10 }}>
+              Which figure Revora headlines as what this motorcycle costs, and what cost per {units.distance} divides.
+            </Txt>
+            {COST_BASES.map((option, index) => (
+              <View key={option.value}>
+                {index > 0 ? <Divider /> : null}
+                <MenuRow
+                  label={option.label}
+                  onPress={() => void apply({ costBasis: option.value })}
+                  right={
+                    units.costBasis === option.value ? (
+                      <Txt role="metaSmall" tone="acc">
+                        Selected
+                      </Txt>
+                    ) : undefined
+                  }
+                  testID={`unit-costbasis-${option.value}`}
+                />
+                <Txt role="micro" tone="mut" style={{ paddingBottom: 8 }}>
+                  {option.helper}
+                </Txt>
+              </View>
+            ))}
           </>
         ) : null}
 
@@ -187,5 +230,6 @@ export function useUnitsSettings() {
     openDistance: () => setOpen('distance'),
     openVolume: () => setOpen('volume'),
     openMileage: () => setOpen('mileage'),
+    openCostBasis: () => setOpen('costBasis'),
   };
 }

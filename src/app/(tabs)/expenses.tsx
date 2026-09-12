@@ -99,8 +99,8 @@ export default function ExpensesTab() {
 
       <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
         <StatTile
-          label="RUNNING TOTAL"
-          value={formatCurrency(analytics.ownership.runningCostMinor, analytics.currency)}
+          label={analytics.ownership.costBasis === 'total' ? 'TOTAL OWNED' : 'RUNNING TOTAL'}
+          value={formatCurrency(analytics.ownership.headlineCostMinor, analytics.currency)}
         />
         <StatTile
           label={`COST / ${analytics.units.distance.toUpperCase()}`}

@@ -164,6 +164,7 @@ export function analyseBike(data: GarageData): BikeAnalytics {
     ledger,
     distanceMetres: totalDistanceMetres(points),
     distanceUnit: data.units.distance,
+    costBasis: data.units.costBasis,
   });
 
   const fuelSorted = [...data.fuelEntries].sort(byDateDesc);

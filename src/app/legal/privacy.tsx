@@ -21,7 +21,7 @@ const SECTIONS: readonly { title: string; body: string }[] = [
   },
   {
     title: 'What Revora does not do',
-    body: 'Revora does not sell your data, does not share it with advertisers, and does not use your records to train anything. The in-app assistant runs entirely on your device and answers only from figures the app has already calculated — your records are not sent to any language model.',
+    body: 'Revora does not sell your data, does not share it with advertisers, and does not use your records to train anything. On the Free plan the assistant runs entirely on your device and nothing leaves it.',
   },
   {
     title: 'Permissions',
@@ -30,6 +30,10 @@ const SECTIONS: readonly { title: string; body: string }[] = [
   {
     title: 'Working offline',
     body: 'Revora keeps a full copy of your records on your device so it works with no connection. Anything you log offline is saved locally and uploaded automatically when a connection returns.',
+  },
+  {
+    title: 'The Pro assistant',
+    body: 'On Revora Pro, a question you type into the assistant is sent to Revora’s server together with a summary of that motorcycle’s figures — its odometer, mileage, running costs, service status and recent fill-ups — and passed to a language model (Google Gemini, via OpenRouter) to phrase the answer. Only the summary is sent, never your documents, photos, registration or chassis numbers, and never your name or email. Your question and the answer are not stored: only the date, the model used and the number of tokens, so usage can be reconciled. The assistant is instructed to quote figures Revora has already calculated and never to compute its own. If you would rather nothing left your device, the Free assistant answers the same questions offline.',
   },
   {
     title: 'Ads on the free plan',

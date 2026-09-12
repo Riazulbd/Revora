@@ -18,18 +18,21 @@ const config: ExpoConfig = {
   name: IS_DEV ? 'Revora (dev)' : 'Revora',
   slug: 'revora',
   scheme: 'revora',
-  version: '1.3',
+  version: '1.7',
   orientation: 'portrait',
   userInterfaceStyle: 'automatic',
   icon: './assets/icon.png',
   assetBundlePatterns: ['**/*'],
   android: {
     package: packageName,
-    versionCode: 4,
+    versionCode: 8,
     googleServicesFile: process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
     adaptiveIcon: {
+      // The mark sits on transparent inside Android's 66% safe zone; the plate
+      // is this colour, not baked into the image, so Android's own mask is the
+      // only rounding applied. A pre-rounded icon reads as a sticker.
       foregroundImage: './assets/adaptive-icon.png',
-      backgroundColor: '#FFFFFF',
+      backgroundColor: '#101214',
     },
     softwareKeyboardLayoutMode: 'pan',
     permissions: ['android.permission.POST_NOTIFICATIONS'],
@@ -116,11 +119,14 @@ const config: ExpoConfig = {
     [
       'expo-splash-screen',
       {
-        image: './assets/splash-icon.png',
-        imageWidth: 240,
+        // Android 12+ allows only a centred icon on a colour — no full-bleed
+        // splash art. The two marks differ solely in ink so each reads on its
+        // own ground.
+        image: './assets/splash-icon-light.png',
+        imageWidth: 220,
         resizeMode: 'contain',
         backgroundColor: '#F5F6F8',
-        dark: { backgroundColor: '#101214' },
+        dark: { image: './assets/splash-icon.png', backgroundColor: '#101214' },
       },
     ],
     [

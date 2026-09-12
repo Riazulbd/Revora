@@ -144,8 +144,8 @@ export default function Dashboard() {
         <EmptyDashboard />
       ) : (
         <Stack>
-          <OdometerCard analytics={analytics} />
           <MileageCard analytics={analytics} onExplain={() => setExplainOpen(true)} />
+          <OdometerCard analytics={analytics} />
           {isPro ? <TrendCard analytics={analytics} /> : null}
           <MaintenanceCard analytics={analytics} />
           {activeBike?.company.enabled ? <AllowanceCard analytics={analytics} /> : null}

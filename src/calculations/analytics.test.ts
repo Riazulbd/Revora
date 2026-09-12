@@ -3,7 +3,7 @@ import type { GarageData } from './analytics';
 import { analyseBike, hasChartData, monthlySeries } from './analytics';
 import { formatMileageValue } from '@/utils/format';
 
-const units = { currency: 'BDT', distance: 'km', volume: 'L', mileage: 'km_per_l' } as const;
+const units = { currency: 'BDT', distance: 'km', volume: 'L', mileage: 'km_per_l', costBasis: 'running' } as const;
 
 const bike: Bike = {
   id: 'b1',

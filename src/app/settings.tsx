@@ -235,6 +235,17 @@ export default function Settings() {
             }
             testID="row-mileage"
           />
+          <Divider />
+          <MenuRow
+            label="Cost basis"
+            onPress={unitSettings.openCostBasis}
+            right={
+              <Txt role="metaSmall" tone="mut">
+                {units.costBasis === 'total' ? 'With purchase' : 'Running only'}
+              </Txt>
+            }
+            testID="row-cost-basis"
+          />
         </Card>
 
         <Card variant="list">

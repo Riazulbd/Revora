@@ -10,6 +10,8 @@ import { accountId, hash, isPro, PRODUCT_ID } from './domain';
 import { resolveOwner, verifyPurchase } from './billing';
 import { play } from './play';
 
+export { askAssistant } from './assistant';
+
 // Deployed separately, once Slack is set up. The Firebase CLI resolves every
 // `defineSecret` in the codebase during analysis — including for functions the
 // --only filter excludes — so exporting this before the Secret Manager API is
@@ -32,6 +34,24 @@ function requireUid(request: CallableRequest, registered = true): string {
   return request.auth.uid;
 }
 
+/** Status and reason only. Never the message or URL: both can carry the token. */
+function playFailure(error: unknown): Record<string, unknown> {
+  const value = error as {
+    code?: string | number;
+    response?: { status?: number; data?: { error?: { status?: string; message?: string; details?: { reason?: string }[] } } };
+  };
+  // Google's description is the only thing that distinguishes "service account
+  // not linked in Play Console" from "wrong developer account" — both are 401.
+  // Any token-shaped run of characters is redacted before it reaches a log.
+  const described = value.response?.data?.error?.message ?? '';
+  return {
+    httpStatus: value.response?.status ?? value.code ?? 'unknown',
+    googleStatus: value.response?.data?.error?.status ?? 'unknown',
+    reason: value.response?.data?.error?.details?.find((d) => d.reason)?.reason ?? 'unknown',
+    described: described.replace(/[A-Za-z0-9_-]{24,}/g, '<redacted>').slice(0, 300),
+  };
+}
+
 async function billingAction<T>(action: () => Promise<T>): Promise<T> {
   try { return await action(); } catch (error) {
     // Never log Google HTTP errors: their URL contains the purchase token.
@@ -41,7 +61,12 @@ async function billingAction<T>(action: () => Promise<T>): Promise<T> {
       throw new HttpsError('permission-denied', 'This purchase is linked to another Revora account, or could not be linked. Sign in to the account used to subscribe.');
     }
     if (reason === 'INVALID_PRODUCT') throw new HttpsError('invalid-argument', 'This is not a Revora Pro subscription.');
-    logger.warn('Google Play verification needs retry');
+    // Google's own message and URL are never logged — the URL carries the
+    // purchase token. The status code and Google's machine-readable reason are
+    // safe, and without them a failure here is undiagnosable: "needs retry"
+    // looks identical whether the API is disabled, the service account lacks
+    // permission, or Google is simply down.
+    logger.warn('Google Play verification needs retry', playFailure(error));
     throw new HttpsError('unavailable', 'Could not verify with Google Play. Use Restore purchases to retry.');
   }
 }

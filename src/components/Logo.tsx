@@ -1,26 +1,47 @@
 import React from 'react';
-import { Image, type ImageStyle } from 'react-native';
+import { Image, View, type ViewStyle } from 'react-native';
 
-const LOCKUP = require('../../assets/logo.png');
+import { useTheme } from '@/theme';
+import { Txt } from './Text';
+
+const MARK_DARK = require('../../assets/splash-icon.png');
+const MARK_LIGHT = require('../../assets/splash-icon-light.png');
 
 /**
- * The approved Revora lockup.
+ * The Revora lockup: the mark above the wordmark.
  *
- * One file, because there is only one piece of artwork: it is drawn on a black
- * field with a near-black wordmark. A "dark variant" produced by knocking that
- * background out erases the wordmark and clips the underlines, so wherever this
- * appears the surrounding screen is pinned dark instead — see `ForceDarkTheme`.
+ * Composed rather than shipped as one flattened image. The old lockup was a
+ * single PNG drawn on a black field with a near-black wordmark, which is why it
+ * could only ever appear on a dark ground and why a knocked-out "dark variant"
+ * destroyed it. Built this way the wordmark is real text that takes the theme's
+ * ink, so it reads on either background.
  */
-export function Logo({ width = 230, style }: { width?: number; style?: ImageStyle }) {
-  // The source lockup is 1536 x 1024; `contain` keeps the whole field visible.
-  const height = Math.round((width * 1024) / 1536);
+export function Logo({ width = 230, style }: { width?: number; style?: ViewStyle }) {
+  const { c, dark } = useTheme();
+  const mark = Math.round(width * 0.42);
 
   return (
-    <Image
-      source={LOCKUP}
-      accessibilityLabel="Revora — know your bike"
-      resizeMode="contain"
-      style={[{ width, height }, style]}
-    />
+    <View style={[{ alignItems: 'center', gap: Math.round(width * 0.045) }, style]}>
+      <Image
+        source={dark ? MARK_DARK : MARK_LIGHT}
+        style={{ width: mark, height: mark }}
+        resizeMode="contain"
+        accessibilityLabel="Revora"
+      />
+      <Txt
+        role="screenTitle"
+        style={{
+          fontSize: Math.round(width * 0.155),
+          fontWeight: '800',
+          letterSpacing: width * 0.021,
+          color: c.ink,
+          // The tracking is applied to the right of every glyph, including the
+          // last, so the word sits left of centre without this.
+          marginLeft: width * 0.021,
+        }}
+      >
+        REVORA
+      </Txt>
+    </View>
   );
 }

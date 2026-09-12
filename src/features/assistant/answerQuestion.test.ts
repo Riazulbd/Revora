@@ -10,7 +10,7 @@ import { answerQuestion, SUGGESTED_QUESTIONS } from './answerQuestion';
  * but fabricated value (requirement 36).
  */
 
-const units: UnitPreferences = { currency: 'BDT', distance: 'km', volume: 'L', mileage: 'km_per_l' };
+const units: UnitPreferences = { currency: 'BDT', distance: 'km', volume: 'L', mileage: 'km_per_l', costBasis: 'running' };
 
 const bike: Bike = {
   id: 'b1',

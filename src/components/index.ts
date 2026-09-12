@@ -13,6 +13,7 @@ export { Logo } from './Logo';
 export { Field, FieldRow, Input, PickerField, TextArea } from './Input';
 export { DividedList, KeyValueRow, MenuRow, RecordRow, RowIcon } from './Rows';
 export { Screen, ScreenHeader, Stack, TabHeader } from './Screen';
+export { Splash } from './Splash';
 export { ChipGroup, ChoiceGrid, Segmented, type SegmentedOption } from './Segmented';
 export { Sheet } from './Sheet';
 export { StatRow, StatTile } from './StatTile';

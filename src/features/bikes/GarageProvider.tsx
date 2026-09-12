@@ -37,6 +37,7 @@ const DEFAULT_UNITS: UnitPreferences = {
   distance: 'km',
   volume: 'L',
   mileage: 'km_per_l',
+  costBasis: 'running',
 };
 
 const GarageContext = createContext<GarageContextValue | null>(null);

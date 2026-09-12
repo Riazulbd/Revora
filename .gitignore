@@ -30,3 +30,6 @@ play-assets/raw/
 # Release artefacts — rebuilt from source, far too large to track.
 *.aab
 *.apk
+
+# Third-party product photography. Not ours to ship or version.
+Yamaha-*.jpg

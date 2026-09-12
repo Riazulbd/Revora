@@ -51,7 +51,7 @@ export const profileRepository = {
     if (existing) return existing;
 
     const now = Date.now();
-    const units: UnitPreferences = { currency: 'BDT', distance: 'km', volume: 'L', mileage: 'km_per_l' };
+    const units: UnitPreferences = { currency: 'BDT', distance: 'km', volume: 'L', mileage: 'km_per_l', costBasis: 'running' };
 
     try {
       await setDoc(

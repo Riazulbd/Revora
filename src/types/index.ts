@@ -43,12 +43,28 @@ export type OwnedRecord = BaseRecord & { bikeId: string };
 // User
 // ---------------------------------------------------------------------------
 
+/**
+ * How figures are *presented*. Storage stays canonical — metres, millilitres,
+ * minor units — and these decide only what the rider sees.
+ *
+ * `costBasis` lives here rather than in its own document because it travels the
+ * same path as the units: profile → `useGarageData` → `analyseBike`, so one
+ * choice reaches every screen and Dashboard and Analytics cannot disagree.
+ */
 export type UnitPreferences = {
   currency: CurrencyCode;
   distance: DistanceUnit;
   volume: VolumeUnit;
   mileage: MileageUnit;
+  /**
+   * `running` counts what it costs to keep the bike on the road — fuel,
+   * servicing, parts, accessories and expenses. `total` adds the purchase
+   * price, which is the true cost of owning it.
+   */
+  costBasis: CostBasis;
 };
+
+export type CostBasis = 'running' | 'total';
 
 export type PlanTier = 'free' | 'pro';
 

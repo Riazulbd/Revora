@@ -21,7 +21,7 @@ import { formatCurrency, formatDistance, formatMileageValue } from '@/utils/form
  * then edits and deletes them, and asserts that every derived figure follows.
  */
 
-const units: UnitPreferences = { currency: 'BDT', distance: 'km', volume: 'L', mileage: 'km_per_l' };
+const units: UnitPreferences = { currency: 'BDT', distance: 'km', volume: 'L', mileage: 'km_per_l', costBasis: 'running' };
 
 const bike: Bike = {
   id: 'bike-1',
@@ -424,5 +424,40 @@ describe('the numbers never break', () => {
         expect(Number.isFinite(maybe)).toBe(true);
       }
     }
+  });
+});
+
+describe('cost basis', () => {
+  const withPrice = { ...bike, purchasePriceMinor: 28_500_000 };
+  const data = (basis: 'running' | 'total') => ({
+    ...garage(),
+    bike: withPrice,
+    fuelEntries: [fill('f1', 4845, 11, '2026-08-20', 1), fill('f2', 5180, 9, '2026-08-30', 2)],
+    units: { ...units, costBasis: basis },
+  });
+
+  it('running counts what it costs to keep on the road, not what it cost to buy', () => {
+    const a = analyseBike(data('running'));
+    expect(a.ownership.headlineCostMinor).toBe(a.ownership.runningCostMinor);
+    expect(a.ownership.headlineCostMinor).toBeLessThan(28_500_000);
+  });
+
+  it('total adds the purchase price, and cost per distance follows it', () => {
+    const running = analyseBike(data('running'));
+    const total = analyseBike(data('total'));
+    expect(total.ownership.headlineCostMinor).toBe(running.ownership.runningCostMinor + 28_500_000);
+    expect(total.ownership.totalOwnershipMinor).toBe(total.ownership.headlineCostMinor);
+    // The headline is what cost/km divides, so the two must move together.
+    expect(total.ownership.costPerDistanceScaled).toBeGreaterThan(
+      running.ownership.costPerDistanceScaled ?? 0,
+    );
+  });
+
+  it('falls back to running when there is no purchase price to add', () => {
+    // A "total" that silently equals running would be a figure that does not
+    // mean what its label says.
+    const a = analyseBike({ ...data('total'), bike: { ...bike, purchasePriceMinor: null } });
+    expect(a.ownership.totalOwnershipMinor).toBeNull();
+    expect(a.ownership.headlineCostMinor).toBe(a.ownership.runningCostMinor);
   });
 });
