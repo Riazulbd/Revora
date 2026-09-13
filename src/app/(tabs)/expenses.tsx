@@ -18,10 +18,11 @@ import {
   Txt,
 } from '@/components';
 import { ledgerTag } from '@/calculations/expenses';
+import { MIN_DISTANCE_FOR_COST_PER_UNIT } from '@/calculations/ownership';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { formatMonthLong, formatShortDate, monthKey } from '@/utils/date';
-import { formatCurrency, formatRate } from '@/utils/format';
+import { costPerDistanceHint, formatCurrency, formatRate } from '@/utils/format';
 import type { LedgerEntry } from '@/types';
 import { useTheme } from '@/theme';
 
@@ -82,6 +83,12 @@ export default function ExpensesTab() {
 
   if (!analytics) return null;
 
+  const costHint = costPerDistanceHint(
+    analytics.ownership.distanceMetres,
+    MIN_DISTANCE_FOR_COST_PER_UNIT,
+    analytics.units.distance,
+  );
+
   const header = (
     <View>
       <TabHeader
@@ -108,6 +115,12 @@ export default function ExpensesTab() {
         />
         <StatTile label="THIS MONTH" value={formatCurrency(analytics.thisMonthMinor, analytics.currency)} />
       </View>
+
+      {costHint ? (
+        <Txt role="helper" tone="mut" style={{ marginBottom: 14 }} testID="hint-cost-per-distance">
+          {costHint}
+        </Txt>
+      ) : null}
 
       {activeBike?.company.enabled ? (
         <Card variant="flush" style={{ paddingHorizontal: 14, paddingVertical: 12, marginBottom: 14 }}>

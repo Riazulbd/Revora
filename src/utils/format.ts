@@ -174,3 +174,25 @@ export function formatters(units: UnitPreferences, currency: CurrencyCode) {
 }
 
 export type Formatters = ReturnType<typeof formatters>;
+
+/**
+ * Why cost-per-distance is not shown yet, and what would make it appear.
+ *
+ * A tile that goes blank reads as a broken app. Naming the threshold and the
+ * distance still to go turns the same withheld figure into something the rider
+ * can act on, which is what requirement 12 is actually for: `—` says "not
+ * known", and this says why.
+ */
+export function costPerDistanceHint(
+  trackedMetres: number,
+  requiredMetres: number,
+  unit: DistanceUnit,
+): string | null {
+  if (trackedMetres >= requiredMetres) return null;
+  const label = distanceUnitLabel(unit);
+  return (
+    `Cost per ${label} needs ${formatDistance(requiredMetres, unit)} of tracked riding — ` +
+    `${formatDistance(requiredMetres - trackedMetres, unit)} to go. ` +
+    `Over a shorter log a single purchase decides the figure.`
+  );
+}

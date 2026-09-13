@@ -1,5 +1,6 @@
 import { efficiencyFrom } from '@/calculations/units';
 import {
+  costPerDistanceHint,
   formatCurrency,
   formatDistance,
   formatMileage,
@@ -81,5 +82,24 @@ describe('rate formatting respects the currency scale', () => {
     // BDT 14,260 over 10 km = BDT 1,426/km
     const scaled = Math.round((1_426_000 * 100 * 1000) / 10_000);
     expect(formatRate(scaled, 'BDT')).toBe('BDT 1,426');
+  });
+});
+
+describe('a withheld cost per distance explains itself', () => {
+  it('names the threshold and the distance still to go', () => {
+    const hint = costPerDistanceHint(665_000, 1_000_000, 'km');
+    expect(hint).toContain('1,000 km');
+    expect(hint).toContain('335 km to go');
+  });
+
+  it('says nothing once the figure is trustworthy', () => {
+    expect(costPerDistanceHint(1_000_000, 1_000_000, 'km')).toBeNull();
+    expect(costPerDistanceHint(2_400_000, 1_000_000, 'km')).toBeNull();
+  });
+
+  it('speaks the rider\'s unit, not kilometres by default', () => {
+    const hint = costPerDistanceHint(0, 1_000_000, 'mi');
+    expect(hint).toContain('Cost per mi');
+    expect(hint).not.toContain('km');
   });
 });

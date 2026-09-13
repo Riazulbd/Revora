@@ -31,6 +31,7 @@ import {
 import { mileageGaugeMax , efficiencyToDisplay } from '@/calculations/units';
 import { confidenceLabel } from '@/calculations/mileage';
 import { STATUS_LABEL } from '@/calculations/maintenance';
+import { MIN_DISTANCE_FOR_COST_PER_UNIT } from '@/calculations/ownership';
 import { BikeSwitcherButton, BikeSwitcherSheet, useBikeSwitcher } from '@/features/bikes/BikeSwitcher';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
@@ -41,6 +42,7 @@ import { DashboardAdCard } from '@/features/ads/DashboardAdCard';
 import { useConnectivity } from '@/services/connectivity';
 import { formatLongDate, formatMonthLabel, formatShortDate, monthKey, todayIso } from '@/utils/date';
 import {
+  costPerDistanceHint,
   formatCurrency,
   formatDistance,
   formatDistanceValue,
@@ -223,6 +225,11 @@ function OdometerCard({ analytics }: CardProps) {
   const { units, currency } = analytics;
   const odo = analytics.odometer;
   const latestInterval = analytics.mileage.latest;
+  const costHint = costPerDistanceHint(
+    analytics.ownership.distanceMetres,
+    MIN_DISTANCE_FOR_COST_PER_UNIT,
+    units.distance,
+  );
 
   const updatedLine =
     odo.latest === null
@@ -252,7 +259,7 @@ function OdometerCard({ analytics }: CardProps) {
           value={formatCurrency(analytics.fuel.thisMonthSpendMinor, currency)}
         />
         <StatTile
-          label="COST / KM"
+          label={`COST / ${units.distance.toUpperCase()}`}
           value={formatRate(analytics.ownership.costPerDistanceScaled, currency)}
           suffix={analytics.ownership.costPerDistanceScaled === null ? undefined : `/${units.distance}`}
         />
@@ -261,6 +268,12 @@ function OdometerCard({ analytics }: CardProps) {
           value={analytics.fuel.latest ? formatVolume(analytics.fuel.latest.litresMl, units.volume) : NO_VALUE}
         />
       </View>
+
+      {costHint ? (
+        <Txt role="meta" tone="mut" style={{ marginTop: 10 }} testID="hint-cost-per-distance">
+          {costHint}
+        </Txt>
+      ) : null}
     </Card>
   );
 }

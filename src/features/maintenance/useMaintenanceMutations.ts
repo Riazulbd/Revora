@@ -3,8 +3,14 @@ import { useRouter } from 'expo-router';
 import { defaultWarnAheadDays, defaultWarnAheadMetres } from '@/calculations/maintenance';
 import { useRecordMutation } from '@/features/shared/useRecordMutation';
 import { requireGarage, useGarageContext } from '@/features/shared/useGarageContext';
-import { bikeRepository, expenseRepository, maintenanceRuleRepository } from '@/repositories';
-import type { Expense, IsoDate, MaintenanceRule } from '@/types';
+import {
+  bikeRepository,
+  maintenanceRuleRepository,
+  serviceItemRepository,
+  serviceRepository,
+} from '@/repositories';
+import type { IsoDate, MaintenanceRule, ServiceRecord } from '@/types';
+import type { ServiceItemDraft } from '@/features/services/useServiceMutations';
 
 export type RuleDraft = {
   id: string;
@@ -72,7 +78,13 @@ export function useDeleteRule(options: { onDeleted?: () => void } = {}) {
   });
 }
 
+export type CompletionReason = 'routine' | 'unscheduled';
+
 export type CompletionDraft = {
+  /** Why it was done. An off-schedule change is noted on the record. */
+  reason?: CompletionReason;
+  /** What was fitted, if the rider recorded it. */
+  items?: ServiceItemDraft[];
   rule: MaintenanceRule;
   date: IsoDate;
   odometerMetres: number;
@@ -107,24 +119,61 @@ export function useCompleteRule(options: { onCompleted?: () => void } = {}) {
         lastCompletedDate: draft.date,
       });
 
-      const standalone = draft.serviceId === null;
-      if (standalone && draft.costMinor !== null && draft.costMinor > 0) {
-        const expense: Expense = {
-          id: expenseRepository.newId(),
+      // Work done outside a booked service is still work done. It used to write
+      // a loose expense labelled "other", which left the rider's service history
+      // silently missing every unscheduled oil change — and nowhere to record
+      // which oil went in. It now writes a real service record, so there is one
+      // path for all maintenance and the same questions can be asked of it:
+      // what was fitted, how far it ran, what it cost.
+      if (draft.serviceId === null) {
+        const serviceId = serviceRepository.newId();
+        const service: ServiceRecord = {
+          id: serviceId,
           userId: uid,
           bikeId,
           createdAt: now,
           updatedAt: now,
-          amountMinor: draft.costMinor,
-          currency,
-          category: 'other',
-          derived: false,
-          linkedRuleId: draft.rule.id,
+          title: draft.rule.name,
+          workshop: draft.workshop,
+          selfService: draft.workshop === null,
           date: draft.date,
-          note: draft.notes ?? draft.rule.name,
+          odometerMetres: draft.odometerMetres,
+          labourCostMinor: 0,
+          partsCostMinor: draft.costMinor ?? 0,
+          totalCostMinor: draft.costMinor ?? 0,
+          currency,
+          notes: draft.reason === 'unscheduled' ? (draft.notes ?? 'Done outside the schedule') : draft.notes,
+          completedRuleIds: [draft.rule.id],
+          itemsSummary: draft.rule.name,
+          receiptPaths: [],
+          estimate: null,
           clientRef: `${draft.rule.id}:${draft.date}`,
         };
-        await expenseRepository.save(uid, expense, true);
+        await serviceRepository.save(uid, service, true);
+
+        for (const item of draft.items ?? []) {
+          await serviceItemRepository.save(
+            uid,
+            {
+              id: serviceItemRepository.newId(),
+              userId: uid,
+              bikeId,
+              createdAt: now,
+              updatedAt: now,
+              serviceId,
+              ruleId: draft.rule.id,
+              category: item.category,
+              brand: item.brand,
+              product: item.product,
+              spec: item.spec,
+              quantity: item.quantity,
+              unit: item.unit,
+              costMinor: item.costMinor,
+              currency,
+            },
+            true,
+          );
+        }
       }
 
       await bikeRepository.syncCurrentOdometer(bikeId, draft.odometerMetres);

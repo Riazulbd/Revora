@@ -25,6 +25,7 @@ import { MileageExplainSheet } from '@/features/fuel/MileageExplainSheet';
 import { ProUpsellSheet, useProGate } from '@/features/premium/ProUpsell';
 import { useConnectivity } from '@/services/connectivity';
 import { volumeUnitLabel } from '@/calculations/units';
+import { formatMonthLabel, formatMonthLong, formatShortDate, monthKey } from '@/utils/date';
 import { formatCurrency, formatPricePerVolume } from '@/utils/format';
 import { useTheme } from '@/theme';
 
@@ -81,6 +82,8 @@ export default function FuelTab() {
     }
   };
 
+  const monthLabel = analytics ? formatMonthLabel(monthKey(analytics.today)).toUpperCase() : '';
+
   const header = (
     <View>
       <TabHeader
@@ -109,16 +112,28 @@ export default function FuelTab() {
         <>
           <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
             <SummaryTile
-              label="THIS MONTH"
+              label={`${monthLabel} SPEND`}
               value={formatCurrency(analytics.fuel.thisMonthSpendMinor, analytics.currency)}
             />
-            <SummaryTile label="FILLS" value={String(analytics.fuel.thisMonthFills)} />
+            <SummaryTile label={`${monthLabel} FILLS`} value={String(analytics.fuel.thisMonthFills)} />
             <SummaryTile
               label="AVG PRICE"
               value={formatPricePerVolume(analytics.fuel.averagePricePerLitreMinor, analytics.currency)}
               suffix={`/${volumeUnitLabel(units.volume)}`}
             />
           </View>
+
+          {/* Two tiles read the calendar month and the third reads the whole
+              log, so an empty month sits above a list of fills and looks like
+              the app lost them. Say which month is empty, and when the last
+              fill actually was. */}
+          {analytics.fuel.thisMonthFills === 0 && analytics.fuel.latest ? (
+            <Txt role="meta" tone="mut" style={{ marginBottom: 14 }} testID="hint-empty-month">
+              {`No fills logged in ${formatMonthLong(monthKey(analytics.today))}. `}
+              {`Your last was ${formatShortDate(analytics.fuel.latest.date)}, and the ${entries.length} `}
+              {`fill${entries.length === 1 ? '' : 's'} below are all still counted.`}
+            </Txt>
+          ) : null}
 
           <ChipGroup options={FILTERS} value={filter} onChange={setFilter} style={{ marginBottom: 14 }} />
         </>

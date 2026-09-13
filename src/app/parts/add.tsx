@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   Dialog,
+  Segmented,
   DateField,
   Divider,
   Field,
@@ -25,6 +26,7 @@ import { distanceUnitLabel } from '@/calculations/units';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useRecategorise } from '@/features/parts/useRecategorise';
+import type { SegmentedOption } from '@/components';
 import { conversionLosses } from '@/calculations/recategorise';
 import { useNewPartId, useSavePart } from '@/features/parts/usePartMutations';
 import { fromMetres, fromMinor, toMetres, toMinor, toTrimmed } from '@/features/shared/formValues';
@@ -41,6 +43,11 @@ import { formatLongDate, todayIso } from '@/utils/date';
  * Linking a part to a service is how the ledger stays honest: a linked part's
  * cost lives on the service and produces no second line (requirement 28).
  */
+const TYPE_OPTIONS: readonly SegmentedOption<'part' | 'accessory'>[] = [
+  { value: 'part', label: 'Part' },
+  { value: 'accessory', label: 'Accessory' },
+];
+
 export default function PartEditorRoute() {
   const { id: editingId } = useLocalSearchParams<{ id?: string }>();
   const { units } = useGarage();
@@ -156,6 +163,20 @@ function PartForm({
       <ScreenHeader title={existing ? 'Edit part' : 'Add part'} />
 
       <Stack gap={14}>
+        {existing ? (
+          <Field
+            label="Type"
+            helper="Moving this keeps the cost in your history. A part wears out and is tracked against distance; an accessory is bought once and stays."
+          >
+            <Segmented
+              options={TYPE_OPTIONS}
+              value="part"
+              onChange={(next) => { if (next === 'accessory') setConvertOpen(true); }}
+              testID="segmented-record-type"
+            />
+          </Field>
+        ) : null}
+
         <Field label="Part name" error={errors.name ?? null}>
           <Input
             value={name}
@@ -269,15 +290,6 @@ function PartForm({
           Linked part costs appear once in the ledger — never double counted.
         </Txt>
 
-        {existing ? (
-          <Button
-            label="This is an accessory, not a part"
-            variant="ghost"
-            size="medium"
-            onPress={() => setConvertOpen(true)}
-            testID="cta-convert-to-accessory"
-          />
-        ) : null}
       </Stack>
 
       {existing ? (

@@ -5,6 +5,7 @@ import {
   Button,
   DateField,
   Dialog,
+  Segmented,
   Field,
   FieldRow,
   Input,
@@ -18,6 +19,7 @@ import { currencySymbol, currencyDecimals } from '@/calculations/money';
 import { formatDistance } from '@/utils/format';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useRecategorise } from '@/features/parts/useRecategorise';
+import type { SegmentedOption } from '@/components';
 import { conversionLosses } from '@/calculations/recategorise';
 import {
   useDeleteAccessory,
@@ -33,6 +35,11 @@ import type { BikeAnalytics } from '@/calculations/analytics';
 import type { Accessory } from '@/types';
 import { accessorySchema } from '@/validation/schemas';
 import { todayIso } from '@/utils/date';
+
+const TYPE_OPTIONS: readonly SegmentedOption<'part' | 'accessory'>[] = [
+  { value: 'part', label: 'Part' },
+  { value: 'accessory', label: 'Accessory' },
+];
 
 export default function AccessoryEditorRoute() {
   const { id: editingId } = useLocalSearchParams<{ id?: string }>();
@@ -140,6 +147,20 @@ function AccessoryForm({
       <ScreenHeader title={existing ? 'Edit accessory' : 'Add accessory'} />
 
       <Stack gap={14}>
+        {existing ? (
+          <Field
+            label="Type"
+            helper="Moving this keeps the cost in your history. An accessory is bought once and stays; a part wears out and is tracked against distance."
+          >
+            <Segmented
+              options={TYPE_OPTIONS}
+              value="accessory"
+              onChange={(next) => { if (next === 'part') setConvertOpen(true); }}
+              testID="segmented-record-type"
+            />
+          </Field>
+        ) : null}
+
         <Field label="Accessory" error={errors.name ?? null}>
           <Input
             value={name}
@@ -216,13 +237,6 @@ function AccessoryForm({
 
       {existing ? (
         <>
-          <Button
-            label="This is a part, not an accessory"
-            variant="ghost"
-            size="medium"
-            onPress={() => setConvertOpen(true)}
-            testID="cta-convert-to-part"
-          />
 
           <Dialog
             visible={convertOpen}

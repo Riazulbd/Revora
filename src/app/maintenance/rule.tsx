@@ -20,6 +20,8 @@ import {
   Stack,
   ToggleRow,
   Txt,
+  Segmented,
+  type SegmentedOption,
 } from '@/components';
 import type { BikeAnalytics, RuleWithStatus } from '@/calculations/analytics';
 import { defaultWarnAheadDays, defaultWarnAheadMetres, STATUS_LABEL } from '@/calculations/maintenance';
@@ -28,6 +30,7 @@ import { currencySymbol } from '@/calculations/money';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { describeLastCompleted } from '@/features/maintenance/describeRule';
+import type { CompletionReason } from '@/features/maintenance/useMaintenanceMutations';
 import { useCompleteRule, useDeleteRule, useNewRuleId, useSaveRule } from '@/features/maintenance/useMaintenanceMutations';
 import { fromMetres, toInteger, toMetres, toMinor, toTrimmed } from '@/features/shared/formValues';
 import { useStableId } from '@/features/shared/useStableId';
@@ -43,6 +46,11 @@ import { todayIso } from '@/utils/date';
  * point. A cost entered here lands in the ledger exactly once, because the
  * completion is not linked to a service (requirement 23).
  */
+const REASON_OPTIONS: readonly SegmentedOption<CompletionReason>[] = [
+  { value: 'routine', label: 'Routine' },
+  { value: 'unscheduled', label: 'Off-schedule' },
+];
+
 export default function RuleEditorRoute() {
   const { id: editingId } = useLocalSearchParams<{ id?: string }>();
   const { units } = useGarage();
@@ -110,6 +118,9 @@ function RuleForm({
   );
   const [completionCost, setCompletionCost] = useState('');
   const [completionWorkshop, setCompletionWorkshop] = useState('');
+  const [completionReason, setCompletionReason] = useState<CompletionReason>('routine');
+  const [completionBrand, setCompletionBrand] = useState('');
+  const [completionSpec, setCompletionSpec] = useState('');
 
   const saveRule = useSaveRule();
   const deleteRule = useDeleteRule({
@@ -184,8 +195,22 @@ function RuleForm({
       odometerMetres: metres ?? currentOdometer ?? 0,
       costMinor: toMinor(completionCost, currency),
       workshop: toTrimmed(completionWorkshop),
-      notes: existing.name,
+      notes: null,
       serviceId: null,
+      reason: completionReason,
+      items:
+        completionBrand.trim() === '' && completionSpec.trim() === ''
+          ? []
+          : [{
+              ruleId: existing.id,
+              category: existing.name,
+              brand: completionBrand.trim() || null,
+              product: null,
+              spec: completionSpec.trim() || null,
+              quantity: 1,
+              unit: 'piece' as const,
+              costMinor: toMinor(completionCost, currency),
+            }],
     });
   };
 
@@ -364,6 +389,12 @@ function RuleForm({
         currencyLabel={currencySymbol(currency)}
         distanceLabel={distanceUnitLabel(units.distance)}
         busy={completeRule.isPending}
+        reason={completionReason}
+        onReasonChange={setCompletionReason}
+        brand={completionBrand}
+        onBrandChange={setCompletionBrand}
+        spec={completionSpec}
+        onSpecChange={setCompletionSpec}
         onConfirm={confirmComplete}
       />
     </Screen>
@@ -386,6 +417,12 @@ function CompletionSheet(props: {
   currencyLabel: string;
   distanceLabel: string;
   busy: boolean;
+  reason: CompletionReason;
+  onReasonChange: (next: CompletionReason) => void;
+  brand: string;
+  onBrandChange: (next: string) => void;
+  spec: string;
+  onSpecChange: (next: string) => void;
   onConfirm: () => void;
 }) {
   return (
@@ -433,9 +470,22 @@ function CompletionSheet(props: {
           </Field>
         </FieldRow>
 
+        <Field label="Why">
+          <Segmented options={REASON_OPTIONS} value={props.reason} onChange={props.onReasonChange} testID="segmented-reason" />
+        </Field>
+
+        <FieldRow>
+          <Field label="Brand (optional)" flex={1}>
+            <Input value={props.brand} onChangeText={props.onBrandChange} placeholder="AMSOIL" size="compact" autoCapitalize="words" testID="input-completion-brand" />
+          </Field>
+          <Field label="Grade (optional)" flex={1}>
+            <Input value={props.spec} onChangeText={props.onSpecChange} placeholder="10W-30" size="compact" testID="input-completion-spec" />
+          </Field>
+        </FieldRow>
+
         <Txt role="helper" tone="mut">
-          A cost entered here appears once in your expense ledger. If the work was part of a service, record it
-          on the service instead so it is not counted twice.
+          This is saved to your service history, so an oil change done outside the schedule is recorded like any
+          other work. Its cost appears once in the ledger.
         </Txt>
 
         <Button
