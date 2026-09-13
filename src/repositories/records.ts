@@ -13,6 +13,7 @@ import type {
   OwnedRecord,
   Part,
   SafetyCheck,
+  ServiceItem,
   ServiceRecord,
   VaultDocument,
   Warranty,
@@ -36,6 +37,7 @@ import {
   makeExpenseParser,
   makeFuelParser,
   makePartParser,
+  makeServiceItemParser,
   makeServiceParser,
   parseAppNotification,
   parseCaptureItem,
@@ -54,6 +56,7 @@ import {
   serialiseMaintenanceRule,
   serialiseOdometerReading,
   serialisePart,
+  serialiseServiceItem,
   serialiseSafetyCheck,
   serialiseService,
   serialiseVaultDocument,
@@ -183,6 +186,13 @@ export const serviceRepository = makeRepository<ServiceRecord>(
   makeServiceParser,
   serialiseService,
   byDateDesc,
+);
+
+export const serviceItemRepository = makeRepository<ServiceItem>(
+  'serviceItems',
+  makeServiceItemParser,
+  serialiseServiceItem,
+  { orderByField: 'name', direction: 'asc', limit: SUMMARY_LIMIT },
 );
 
 export const partRepository = makeRepository<Part>('parts', makePartParser, serialisePart, {

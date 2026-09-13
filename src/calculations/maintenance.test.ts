@@ -133,3 +133,36 @@ describe('aggregation', () => {
     expect([good, overdue].sort(compareByUrgency)[0]!.rule.name).toBe('B');
   });
 });
+
+describe('a rule with no interval', () => {
+  const noInterval = {
+    id: 'r1', userId: 'u1', bikeId: 'b1', createdAt: 1, updatedAt: 1,
+    name: 'Master service', intervalMetres: null, intervalDays: null,
+    warnAheadMetres: 500_000, warnAheadDays: 14,
+    enabled: true, lastCompletedMetres: null, lastCompletedDate: null, notes: null,
+  } as const;
+
+  it('can never fall due, before or after being completed', () => {
+    // This is why the rule form now refuses to save one: marking it complete
+    // writes the completion but changes nothing the rider can see, which reads
+    // as a dead button.
+    const before = calculateMaintenanceStatus(noInterval, 5_588_000, '2026-09-13');
+    const after = calculateMaintenanceStatus(
+      { ...noInterval, lastCompletedMetres: 5_588_000, lastCompletedDate: '2026-09-13' },
+      5_588_000, '2026-09-13',
+    );
+    expect(before.kind).toBe('unknown');
+    expect(after.kind).toBe('unknown');
+    expect(after.dueAtMetres).toBeNull();
+    expect(after.dueOnDate).toBeNull();
+  });
+
+  it('a distance interval makes the same completion project a next due point', () => {
+    const after = calculateMaintenanceStatus(
+      { ...noInterval, intervalMetres: 12_000_000, lastCompletedMetres: 5_588_000, lastCompletedDate: '2026-09-13' },
+      5_588_000, '2026-09-13',
+    );
+    expect(after.kind).toBe('good');
+    expect(after.dueAtMetres).toBe(17_588_000);
+  });
+});

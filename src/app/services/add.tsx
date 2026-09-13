@@ -22,6 +22,8 @@ import {
 } from '@/components';
 import { currencySymbol, currencyDecimals } from '@/calculations/money';
 import { distanceUnitLabel } from '@/calculations/units';
+import { matchingWorkshops } from '@/calculations/workshops';
+import { ServiceItemRows, type ItemDraft } from '@/features/services/ServiceItemRows';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useDeleteService, useNewServiceId, useSaveService } from '@/features/services/useServiceMutations';
@@ -85,6 +87,9 @@ function ServiceForm({
   const [title, setTitle] = useState(existing?.title ?? '');
   const [selfService, setSelfService] = useState(existing?.selfService ?? false);
   const [workshop, setWorkshop] = useState(existing?.workshop ?? '');
+  // Offered from the rider's own service history, narrowing as they type. The
+  // exact match is dropped: once it is typed there is nothing left to suggest.
+  const workshopSuggestions = matchingWorkshops(analytics?.workshops ?? [], workshop).slice(0, 6);
   const [date, setDate] = useState(existing?.date ?? todayIso());
   const [odometer, setOdometer] = useState(
     fromMetres(existing?.odometerMetres ?? analytics.odometer.currentMetres, units.distance),
@@ -95,6 +100,7 @@ function ServiceForm({
   const [totalTouched, setTotalTouched] = useState(existing !== null);
   const [notes, setNotes] = useState(existing?.notes ?? '');
   const [completedRuleIds, setCompletedRuleIds] = useState<string[]>(existing?.completedRuleIds ?? []);
+  const [itemDrafts, setItemDrafts] = useState<Record<string, ItemDraft>>({});
   const [receiptUri, setReceiptUri] = useState<string | null>(existing?.receiptPaths[0] ?? null);
   const [quote, setQuote] = useState(
     existing?.estimate ? fromMinor(existing.estimate.quoteMinor, decimals) : '',
@@ -125,6 +131,10 @@ function ServiceForm({
       : total;
 
   const rules = analytics.maintenance.rules;
+  const chosenForItems = rules
+    .filter((r) => completedRuleIds.includes(r.rule.id))
+    .map((r) => ({ id: r.rule.id, name: r.rule.name }));
+
 
   const saveService = useSaveService();
   const deleteService = useDeleteService({
@@ -149,6 +159,25 @@ function ServiceForm({
     if (odometer.trim() !== '' && odometerMetres === null) next.odometer = 'Enter the reading.';
 
     const chosenRules = rules.filter((r) => completedRuleIds.includes(r.rule.id)).map((r) => r.rule);
+    // Only lines the rider actually filled in become records; ticking an item
+    // without naming a product is a completed job, not a product.
+    const items = chosenRules.flatMap((rule) => {
+      const draft = itemDrafts[rule.id];
+      if (!draft) return [];
+      const brand = draft.brand.trim(), product = draft.product.trim(), spec = draft.spec.trim();
+      const costMinor = toMinor(draft.cost, currency);
+      if (brand === '' && product === '' && spec === '' && costMinor === null) return [];
+      return [{
+        ruleId: rule.id,
+        category: rule.name,
+        brand: brand || null,
+        product: product || null,
+        spec: spec || null,
+        quantity: Number(draft.quantity.trim()) > 0 ? Number(draft.quantity.trim()) : 1,
+        unit: draft.unit,
+        costMinor,
+      }];
+    });
     const itemsSummary = chosenRules.length > 0 ? chosenRules.map((r) => r.name).join(', ') : null;
 
     const result = serviceSchema.safeParse({
@@ -198,6 +227,10 @@ function ServiceForm({
       notes: toTrimmed(notes),
       itemsSummary,
       completedRules: chosenRules,
+      items,
+      existingItems: existing
+        ? analytics.serviceItems.filter((item) => item.serviceId === existing.id)
+        : undefined,
       receiptPaths: receiptPath ? [receiptPath] : [],
       estimate: selfService
         ? null
@@ -240,7 +273,11 @@ function ServiceForm({
         </Card>
 
         {!selfService ? (
-          <Field label="Workshop" error={errors.workshop ?? null}>
+          <Field
+            label="Workshop"
+            error={errors.workshop ?? null}
+            helper={workshopSuggestions.length > 0 ? 'Tap one you have used before, or type a new name.' : undefined}
+          >
             <Input
               value={workshop}
               onChangeText={setWorkshop}
@@ -248,6 +285,28 @@ function ServiceForm({
               autoCapitalize="words"
               testID="input-workshop"
             />
+            {workshopSuggestions.length > 0 ? (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+                {workshopSuggestions.map((name) => (
+                  <Pressable
+                    key={name}
+                    accessibilityRole="button"
+                    onPress={() => setWorkshop(name)}
+                    style={{
+                      paddingHorizontal: 12,
+                      paddingVertical: 7,
+                      borderRadius: 999,
+                      backgroundColor: c.sur2,
+                      borderWidth: 1,
+                      borderColor: c.brd,
+                    }}
+                    testID={`chip-workshop-${name}`}
+                  >
+                    <Txt role="metaSmall">{name}</Txt>
+                  </Pressable>
+                ))}
+              </View>
+            ) : null}
           </Field>
         ) : null}
 
@@ -343,9 +402,22 @@ function ServiceForm({
                 );
               })}
             </View>
+            {chosenForItems.length > 0 ? (
+              <View style={{ marginTop: 14 }}>
+                <ServiceItemRows
+                  items={chosenForItems}
+                  drafts={itemDrafts}
+                  onChange={(ruleId, draft) => setItemDrafts((prev) => ({ ...prev, [ruleId]: draft }))}
+                  products={analytics.products}
+                  currencyLabel={currencySymbol(currency)}
+                  currency={currency}
+                />
+              </View>
+            ) : null}
+
             <Txt role="helper" tone="mut" style={{ marginTop: 10 }}>
               Ticked items reset their maintenance rules automatically. Their cost stays on this service — it is
-              never counted twice.
+              never counted twice. Recording the product used is optional.
             </Txt>
           </Card>
         ) : null}

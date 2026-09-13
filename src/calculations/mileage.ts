@@ -112,9 +112,16 @@ export function calculateMileageIntervals(
       const fuelMl = rawFuelMl + adjustmentMl;
       const efficiency = efficiencyFrom(distanceMetres, fuelMl);
 
+      // Entries are ordered by odometer, so a mistyped reading sorts into the
+      // wrong place and produces an interval that runs backwards in time. Real
+      // distance never does: the odometer and the calendar advance together. A
+      // closing fill dated before the one it closes is a typo, not a journey,
+      // and a confident figure drawn across it would be worse than none.
+      const coherent = entry.date >= start.date;
+
       // A fill the rider has flagged as following an unlogged one cannot close a
       // trustworthy interval — the fuel in between was never recorded.
-      if (efficiency !== null && !missedFill) {
+      if (efficiency !== null && !missedFill && coherent) {
         intervals.push({
           fromEntryId: start.id,
           toEntryId: entry.id,
@@ -175,10 +182,20 @@ function weightedAverage(intervals: readonly MileageInterval[]): Efficiency | nu
   return efficiencyFrom(distance, fuel);
 }
 
+/**
+ * How much the *average* can be relied on — not how clean any one interval was.
+ *
+ * A single flawless full-to-full measurement is still one measurement: traffic,
+ * a pillion or a headwind move a tank's figure by several km/L. Reporting "high"
+ * off one interval tells a rider their mileage is settled when it is not, which
+ * is precisely the kind of confident-but-wrong number this app exists to avoid.
+ */
 function overallConfidence(intervals: readonly MileageInterval[]): MileageConfidence {
   if (intervals.length === 0) return 'insufficient';
   if (intervals.some((i) => i.confidence === 'estimated')) return 'estimated';
   if (intervals.some((i) => i.confidence === 'medium')) return 'medium';
+  // Clean intervals, but too few of them to call the average settled.
+  if (intervals.length < RELIABLE_INTERVALS_REQUIRED) return 'medium';
   return 'high';
 }
 

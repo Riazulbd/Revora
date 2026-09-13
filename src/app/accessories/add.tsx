@@ -15,7 +15,10 @@ import {
   Txt,
 } from '@/components';
 import { currencySymbol, currencyDecimals } from '@/calculations/money';
+import { formatDistance } from '@/utils/format';
 import { useGarageData } from '@/features/bikes/useGarageData';
+import { useRecategorise } from '@/features/parts/useRecategorise';
+import { conversionLosses } from '@/calculations/recategorise';
 import {
   useDeleteAccessory,
   useNewAccessoryId,
@@ -78,6 +81,9 @@ function AccessoryForm({
   const [photoUri, setPhotoUri] = useState<string | null>(existing?.photoPath ?? null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [convertOpen, setConvertOpen] = useState(false);
+  const recategorise = useRecategorise({ onDone: () => setConvertOpen(false) });
+  const currentOdometer = analytics.odometer.currentMetres;
 
   const saveAccessory = useSaveAccessory();
   const deleteAccessory = useDeleteAccessory({
@@ -207,6 +213,44 @@ function AccessoryForm({
           Purchase and fitting are added together in your ledger, once.
         </Txt>
       </Stack>
+
+      {existing ? (
+        <>
+          <Button
+            label="This is a part, not an accessory"
+            variant="ghost"
+            size="medium"
+            onPress={() => setConvertOpen(true)}
+            testID="cta-convert-to-part"
+          />
+
+          <Dialog
+            visible={convertOpen}
+            onClose={() => setConvertOpen(false)}
+            title="Move to parts?"
+            message={
+              currentOdometer === null
+                ? 'A part measures wear from the odometer reading it was fitted at, and this motorcycle has no reading yet. Add one first.'
+                : `It will be recorded as fitted at ${formatDistance(currentOdometer, analytics.units.distance)}, today's reading — edit that afterwards if it went on earlier.${
+                    conversionLosses('accessoryToPart', existing).length > 0
+                      ? ` This discards ${conversionLosses('accessoryToPart', existing).join(', ')}.`
+                      : ''
+                  }`
+            }
+            confirmLabel={currentOdometer === null ? 'Close' : 'Move'}
+            busy={recategorise.isPending}
+            onConfirm={() => {
+              if (currentOdometer === null) { setConvertOpen(false); return; }
+              void recategorise.submit({
+                direction: 'accessoryToPart',
+                accessory: existing,
+                odometerMetres: currentOdometer,
+              });
+            }}
+            testID="dialog-convert-accessory"
+          />
+        </>
+      ) : null}
 
       <Dialog
         visible={deleteOpen}

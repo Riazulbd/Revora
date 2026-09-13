@@ -2,8 +2,31 @@ import { useRouter } from 'expo-router';
 
 import { useRecordMutation } from '@/features/shared/useRecordMutation';
 import { requireGarage, useGarageContext } from '@/features/shared/useGarageContext';
-import { bikeRepository, maintenanceRuleRepository, serviceRepository } from '@/repositories';
-import type { IsoDate, MaintenanceRule, ServiceRecord, WorkshopEstimate } from '@/types';
+import {
+  bikeRepository,
+  maintenanceRuleRepository,
+  serviceItemRepository,
+  serviceRepository,
+} from '@/repositories';
+import type {
+  IsoDate,
+  MaintenanceRule,
+  ServiceItem,
+  ServiceItemUnit,
+  ServiceRecord,
+  WorkshopEstimate,
+} from '@/types';
+
+export type ServiceItemDraft = {
+  ruleId: string | null;
+  category: string;
+  brand: string | null;
+  product: string | null;
+  spec: string | null;
+  quantity: number;
+  unit: ServiceItemUnit;
+  costMinor: number | null;
+};
 
 export type ServiceDraft = {
   id: string;
@@ -19,9 +42,13 @@ export type ServiceDraft = {
   itemsSummary: string | null;
   /** Rules this service resets. */
   completedRules: MaintenanceRule[];
+  /** What was fitted under each rule. Only those with something recorded. */
+  items: ServiceItemDraft[];
   receiptPaths: string[];
   estimate: WorkshopEstimate | null;
   existing?: ServiceRecord;
+  /** Item rows already saved against this service, replaced on edit. */
+  existingItems?: ServiceItem[];
 };
 
 /**
@@ -80,6 +107,36 @@ export function useSaveService(options: { onSaved?: (service: ServiceRecord) => 
           lastCompletedOdometer: completedMetres === null ? null : completedMetres / 1000,
           lastCompletedDate: draft.date,
         });
+      }
+
+      // Item lines are replaced wholesale rather than diffed: a service is
+      // edited as one thing, and reconciling five rows by identity would be
+      // more ways to get it wrong than rewriting them.
+      for (const existing of draft.existingItems ?? []) {
+        await serviceItemRepository.remove(uid, existing.id);
+      }
+      for (const item of draft.items) {
+        await serviceItemRepository.save(
+          uid,
+          {
+            id: serviceItemRepository.newId(),
+            userId: uid,
+            bikeId,
+            createdAt: now,
+            updatedAt: now,
+            serviceId: draft.id,
+            ruleId: item.ruleId,
+            category: item.category,
+            brand: item.brand,
+            product: item.product,
+            spec: item.spec,
+            quantity: item.quantity,
+            unit: item.unit,
+            costMinor: item.costMinor,
+            currency: draft.existing?.currency ?? currency,
+          },
+          true,
+        );
       }
 
       if (draft.odometerMetres !== null) {

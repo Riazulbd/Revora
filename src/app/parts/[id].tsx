@@ -29,6 +29,8 @@ import { distanceUnitLabel } from '@/calculations/units';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useDeletePart, useRemovePart } from '@/features/parts/usePartMutations';
+import { useRecategorise } from '@/features/parts/useRecategorise';
+import { conversionLosses } from '@/calculations/recategorise';
 import { fromMetres, toMetres } from '@/features/shared/formValues';
 import { formatCurrency, formatDistance, formatPercent, NO_VALUE } from '@/utils/format';
 import { formatLongDate, todayIso } from '@/utils/date';
@@ -41,6 +43,8 @@ export default function PartDetail() {
 
   const [removeOpen, setRemoveOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [convertOpen, setConvertOpen] = useState(false);
+  const recategorise = useRecategorise({ onDone: () => setConvertOpen(false) });
   const [removeOdometer, setRemoveOdometer] = useState('');
   const [removeDate, setRemoveDate] = useState(todayIso());
 
@@ -271,6 +275,25 @@ export default function PartDetail() {
           />
         </View>
       </Sheet>
+
+      <Button
+        label="This is an accessory, not a part"
+        variant="ghost"
+        size="medium"
+        onPress={() => setConvertOpen(true)}
+        testID="cta-convert-to-accessory"
+      />
+
+      <Dialog
+        visible={convertOpen}
+        onClose={() => setConvertOpen(false)}
+        title="Move to accessories?"
+        message={`An accessory is bought once and stays on the bike, so it is left out of cost per ${units.distance} and of part-wear tracking. This discards ${conversionLosses('partToAccessory', part).join(', ')}. The cost stays in your history.`}
+        confirmLabel="Move"
+        busy={recategorise.isPending}
+        onConfirm={() => void recategorise.submit({ direction: 'partToAccessory', part })}
+        testID="dialog-convert-part"
+      />
 
       <Dialog
         visible={deleteOpen}

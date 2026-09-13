@@ -404,6 +404,30 @@ describe('the first-run sequence against the production ruleset', () => {
     await assertSucceeds(deleteDoc(doc(db, 'odometerEntries', mistake.id)));
   });
 
+  it('a custom maintenance rule can be marked complete', async () => {
+    const db = env.authenticatedContext(UID).firestore();
+    await seedBikeAsServer();
+
+    // Created exactly as useSaveRule writes it: a distance-only custom rule
+    // with no time interval, which is what "Master service" looks like.
+    const custom: MaintenanceRule = {
+      ...owned, id: 'rule-custom', name: 'Master service',
+      intervalMetres: 12_000_000, intervalDays: null,
+      warnAheadMetres: 500_000, warnAheadDays: 14,
+      enabled: true, lastCompletedMetres: null, lastCompletedDate: null, notes: null,
+    };
+    await assertSucceeds(
+      setDoc(doc(db, 'maintenanceRules', custom.id), creationPayload(serialiseMaintenanceRule(custom)), { merge: true }),
+    );
+
+    // Exactly what useCompleteRule patches: km, the date, and a timestamp.
+    await assertSucceeds(
+      setDoc(doc(db, 'maintenanceRules', custom.id),
+        { lastCompletedOdometer: 5588, lastCompletedDate: '2026-09-13', updatedAt: now },
+        { merge: true }),
+    );
+  });
+
   it('an update never has to resend the frozen fields', async () => {
     const db = env.authenticatedContext(UID).firestore();
     await seedBikeAsServer();

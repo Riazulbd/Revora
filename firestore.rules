@@ -259,18 +259,28 @@ service cloud.firestore {
       allow delete: if ownsExisting();
     }
 
+    // One fitted part or fluid. `name` is the maintenance category; the brand,
+    // product and spec beside it are optional, so a rider who only records that
+    // the oil was changed writes a valid item.
     match /serviceItems/{itemId} {
+      function validItem() {
+        return requiredText('bikeId', 128)
+          && requiredText('serviceId', 128)
+          && requiredText('name', 120)
+          && isNumber(incoming().quantity)
+          && incoming().quantity > 0
+          && optionalText('ruleId', 128)
+          && optionalText('brand', 80)
+          && optionalText('product', 120)
+          && optionalText('spec', 60)
+          && (!('unit' in incoming()) || incoming().unit in ['piece', 'litre'])
+          && optionalNonNegativeNumber('unitCost')
+          && optionalNonNegativeNumber('totalCost');
+      }
+
       allow read: if ownsExisting();
-      allow create: if claimsOwn()
-        && hasOwnerTimestamps()
-        && requiredText('bikeId', 128)
-        && requiredText('serviceId', 128)
-        && requiredText('name', 120)
-        && isNumber(incoming().quantity)
-        && incoming().quantity > 0
-        && optionalNonNegativeNumber('unitCost')
-        && optionalNonNegativeNumber('totalCost');
-      allow update: if ownsExisting() && keepsImmutableFields();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validItem();
+      allow update: if ownsExisting() && keepsImmutableFields() && validItem();
       allow delete: if ownsExisting();
     }
 

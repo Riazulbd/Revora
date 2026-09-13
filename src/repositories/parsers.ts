@@ -22,6 +22,7 @@ import type {
   VaultDocument,
   VolumeUnit,
   Warranty,
+  ServiceItem,
 } from '@/types';
 import { todayIso } from '@/utils/date';
 import {
@@ -468,3 +469,20 @@ export const parseAppNotification = (id: string, data: DocumentData): AppNotific
   readAt: readNullableNumber(data, 'readAt'),
   href: readNullableString(data, 'href'),
 });
+
+/** `serviceItems/{id}` — see `serialiseServiceItem` for the wire shape. */
+export const makeServiceItemParser =
+  (currency: CurrencyCode) =>
+  (id: string, data: DocumentData): ServiceItem => ({
+    ...base(id, data),
+    serviceId: readString(data, 'serviceId'),
+    ruleId: readNullableString(data, 'ruleId'),
+    category: readString(data, 'name', 'Item'),
+    brand: readNullableString(data, 'brand'),
+    product: readNullableString(data, 'product'),
+    spec: readNullableString(data, 'spec'),
+    quantity: readNumber(data, 'quantity', 1),
+    unit: readEnum(data, 'unit', ['piece', 'litre'] as const, 'piece'),
+    costMinor: nullableMoney(data, 'totalCost', currency),
+    currency,
+  });

@@ -57,7 +57,13 @@ export default function RuleEditorRoute() {
     );
   }
 
-  const entry = editingId ? (analytics.maintenance.rules.find((r) => r.rule.id === editingId) ?? null) : null;
+  // Look in both lists: a disabled rule must still open for editing, or it can
+  // never be turned back on.
+  const entry = editingId
+    ? ([...analytics.maintenance.rules, ...analytics.maintenance.disabled].find(
+        (r) => r.rule.id === editingId,
+      ) ?? null)
+    : null;
 
   return <RuleForm key={entry?.rule.id ?? 'new'} entry={entry} analytics={analytics} units={units} />;
 }
@@ -123,6 +129,13 @@ function RuleForm({
 
     const days = intervalDays.trim() === '' ? null : toInteger(intervalDays);
     if (intervalDays.trim() !== '' && days === null) next.intervalDays = 'Enter a number of days.';
+
+    // A rule with neither interval can never fall due, so marking it complete
+    // changes nothing a rider can see — which reads as a broken button. There
+    // is no such thing as a schedule without an interval.
+    if (intervalMetres === null && days === null) {
+      next.intervalDistance = 'Set a distance or a time interval — a rule needs at least one.';
+    }
 
     const warnMetres = warnDistance.trim() === '' ? null : toMetres(warnDistance, units.distance);
     if (warnDistance.trim() !== '' && warnMetres === null) next.warnDistance = 'Enter a distance.';

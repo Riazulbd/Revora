@@ -11,6 +11,7 @@ import {
   maintenanceRuleRepository,
   odometerRepository,
   partRepository,
+  serviceItemRepository,
   serviceRepository,
   type RecordRepository,
 } from '@/repositories';
@@ -40,6 +41,7 @@ const LIMITS = {
   odometer: 400,
   rules: 100,
   services: 200,
+  serviceItems: 400,
   parts: 200,
   accessories: 100,
   expenses: 400,
@@ -88,6 +90,7 @@ const SOURCES: readonly RefreshableSource[] = [
   { name: odometerRepository.name, refresh: odometerRepository.refresh, limit: LIMITS.odometer },
   { name: maintenanceRuleRepository.name, refresh: maintenanceRuleRepository.refresh, limit: LIMITS.rules },
   { name: serviceRepository.name, refresh: serviceRepository.refresh, limit: LIMITS.services },
+  { name: serviceItemRepository.name, refresh: serviceItemRepository.refresh, limit: LIMITS.serviceItems },
   { name: partRepository.name, refresh: partRepository.refresh, limit: LIMITS.parts },
   { name: accessoryRepository.name, refresh: accessoryRepository.refresh, limit: LIMITS.accessories },
   { name: expenseRepository.name, refresh: expenseRepository.refresh, limit: LIMITS.expenses },
@@ -106,6 +109,7 @@ export function useGarageData(): GarageDataResult {
   const odometer = useBikeCollection(odometerRepository, uid, bikeId, currency, LIMITS.odometer);
   const rules = useBikeCollection(maintenanceRuleRepository, uid, bikeId, currency, LIMITS.rules);
   const services = useBikeCollection(serviceRepository, uid, bikeId, currency, LIMITS.services);
+  const serviceItems = useBikeCollection(serviceItemRepository, uid, bikeId, currency, LIMITS.serviceItems);
   const parts = useBikeCollection(partRepository, uid, bikeId, currency, LIMITS.parts);
   const accessories = useBikeCollection(accessoryRepository, uid, bikeId, currency, LIMITS.accessories);
   const expenses = useBikeCollection(expenseRepository, uid, bikeId, currency, LIMITS.expenses);
@@ -121,6 +125,7 @@ export function useGarageData(): GarageDataResult {
       odometerReadings: odometer.data ?? [],
       rules: rules.data ?? [],
       services: services.data ?? [],
+      serviceItems: serviceItems.data ?? [],
       parts: parts.data ?? [],
       accessories: accessories.data ?? [],
       expenses: expenses.data ?? [],
@@ -134,6 +139,7 @@ export function useGarageData(): GarageDataResult {
     odometer.data,
     rules.data,
     services.data,
+    serviceItems.data,
     parts.data,
     accessories.data,
     expenses.data,

@@ -461,3 +461,58 @@ describe('cost basis', () => {
     expect(a.ownership.headlineCostMinor).toBe(a.ownership.runningCostMinor);
   });
 });
+
+describe('cost per distance measures consumption', () => {
+  const ridden = [fill('f1', 4845, 11, '2026-08-20', 1), fill('f2', 5118, 6, '2026-08-30', 2)];
+
+  it('a one-off accessory does not inflate cost per kilometre', () => {
+    // The case seen on a real bike: BDT 6,000 of accessories over 273 tracked km
+    // turned a few taka per km into twenty-six.
+    const withoutAccessory = analyseBike({ ...garage(), fuelEntries: ridden });
+    const withAccessory = analyseBike({
+      ...garage(), fuelEntries: ridden,
+      accessories: [{ ...tailBox, purchaseCostMinor: 600_000, installationCostMinor: 0 }],
+    });
+    expect(withAccessory.ownership.costPerDistanceScaled)
+      .toBe(withoutAccessory.ownership.costPerDistanceScaled);
+  });
+
+  it('but the accessory still counts in what the bike has cost', () => {
+    const withAccessory = analyseBike({
+      ...garage(), fuelEntries: ridden,
+      accessories: [{ ...tailBox, purchaseCostMinor: 600_000, installationCostMinor: 0 }],
+    });
+    expect(withAccessory.ownership.runningCostMinor)
+      .toBeGreaterThan(withAccessory.ownership.consumptionCostMinor);
+    expect(withAccessory.ownership.runningCostMinor - withAccessory.ownership.consumptionCostMinor)
+      .toBe(600_000);
+  });
+});
+
+describe('cost per distance withholds itself until it is meaningful', () => {
+  const shortLog = [fill('f1', 4845, 11, '2026-08-20', 1), fill('f2', 5118, 6, '2026-08-30', 2)];
+
+  it('says nothing over a few hundred kilometres, however much was spent', () => {
+    // 273 km tracked and a suspension replacement on it: the arithmetic is
+    // sound and the answer is meaningless, so Revora declines to give one.
+    // No opening reading, so the tracked span is only the 273 km between fills.
+    const a = analyseBike({
+      ...garage(), odometerReadings: [], fuelEntries: shortLog,
+      services: [{ ...service, totalCostMinor: 600_000, partsCostMinor: 600_000, labourCostMinor: 0 }],
+    });
+    expect(a.odometer.totalDistanceMetres).toBeLessThan(1_000_000);
+    expect(a.ownership.costPerDistanceScaled).toBeNull();
+    // The spend itself is still counted; only the ratio is withheld.
+    expect(a.ownership.runningCostMinor).toBeGreaterThan(600_000);
+  });
+
+  it('answers once the bike has covered enough ground', () => {
+    const longLog = [
+      fill('f1', 4845, 11, '2026-08-20', 1),
+      fill('f2', 6200, 28, '2026-09-05', 2),
+    ];
+    const a = analyseBike({ ...garage(), odometerReadings: [], fuelEntries: longLog });
+    expect(a.odometer.totalDistanceMetres).toBeGreaterThanOrEqual(1_000_000);
+    expect(a.ownership.costPerDistanceScaled).not.toBeNull();
+  });
+});

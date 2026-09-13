@@ -43,7 +43,17 @@ export function StatTile({
         style,
       ]}
     >
-      <Txt role="tileLabel" tone={accent ? 'acc' : 'mut'} uppercase numberOfLines={1}>
+      {/* Labels are tracked uppercase in a third-width tile, so a two-word one
+          clips to "RUNNING TOT…". Shrinking beats truncating: a smaller label
+          still reads, a clipped one leaves the rider guessing what it counted. */}
+      <Txt
+        role="tileLabel"
+        tone={accent ? 'acc' : 'mut'}
+        uppercase
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.8}
+      >
         {label}
       </Txt>
       <Txt role="tileValue" tone={accent ? 'acc' : tone} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>

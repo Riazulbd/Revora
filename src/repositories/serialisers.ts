@@ -13,6 +13,7 @@ import type {
   ServiceRecord,
   VaultDocument,
   Warranty,
+  ServiceItem,
 } from '@/types';
 import { compact, metresToKm, minorToMajor, mlToLitres } from './wire';
 
@@ -248,4 +249,25 @@ export const serialiseSafetyCheck = (check: SafetyCheck): DocumentData =>
     note: check.note,
     photoPath: check.photoPath,
     clientRef: check.clientRef,
+  });
+
+/**
+ * `serviceItems/{id}` — one fitted part or fluid.
+ *
+ * `name` carries the category because the shared ruleset already requires it;
+ * the product fields are additive and optional, so an item written by the web
+ * product without them still parses.
+ */
+export const serialiseServiceItem = (item: ServiceItem): DocumentData =>
+  compact({
+    bikeId: item.bikeId,
+    serviceId: item.serviceId,
+    ruleId: item.ruleId,
+    name: item.category,
+    brand: item.brand,
+    product: item.product,
+    spec: item.spec,
+    quantity: item.quantity,
+    unit: item.unit,
+    totalCost: item.costMinor === null ? null : minorToMajor(item.costMinor, item.currency),
   });

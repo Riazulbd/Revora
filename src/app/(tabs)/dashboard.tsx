@@ -252,7 +252,7 @@ function OdometerCard({ analytics }: CardProps) {
           value={formatCurrency(analytics.fuel.thisMonthSpendMinor, currency)}
         />
         <StatTile
-          label="RUNNING COST"
+          label="COST / KM"
           value={formatRate(analytics.ownership.costPerDistanceScaled, currency)}
           suffix={analytics.ownership.costPerDistanceScaled === null ? undefined : `/${units.distance}`}
         />

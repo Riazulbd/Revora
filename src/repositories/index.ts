@@ -14,6 +14,7 @@ export {
   partRepository,
   perBikeRepositories,
   safetyRepository,
+  serviceItemRepository,
   serviceRepository,
   SUMMARY_LIMIT,
   warrantyRepository,

@@ -504,3 +504,52 @@ export type Feedback = BaseRecord & {
   /** Set by the backend once it has been relayed; never written by a client. */
   notifiedAt: Millis | null;
 };
+
+// ---------------------------------------------------------------------------
+// Service items — what was actually fitted
+// ---------------------------------------------------------------------------
+
+/**
+ * One line of a service: the maintenance item, and optionally the product used.
+ *
+ * Kept as its own record rather than text inside the service, so the same
+ * question can be asked across a bike's whole life: which oil is in it now, how
+ * far the last one ran, which brake pad lasted longest, what a brand costs per
+ * kilometre. Text in a service note answers none of those.
+ *
+ * `category` is what was done — "Engine oil", "Brake pads — front". Everything
+ * about the product is optional: a rider who only wants to record that the oil
+ * was changed should not have to name a brand.
+ */
+export type ServiceItem = OwnedRecord & {
+  serviceId: string;
+  /** The maintenance rule this line completes, when it maps to one. */
+  ruleId: string | null;
+  category: string;
+  /** Who made it — "AMSOIL", "Honda OEM". */
+  brand: string | null;
+  /** The product itself — "Metric Motorcycle Oil". */
+  product: string | null;
+  /** Grade, viscosity or part number — "10W-30", "NGK CPR8EA-9". */
+  spec: string | null;
+  /** How many, in `unit`. Litres for fluids, pieces for everything else. */
+  quantity: number;
+  unit: ServiceItemUnit;
+  /** What this line cost. Null when the rider did not split it out. */
+  costMinor: number | null;
+  currency: CurrencyCode;
+};
+
+export type ServiceItemUnit = 'piece' | 'litre';
+
+/** A product the rider has used before, derived from their service items. */
+export type KnownProduct = {
+  category: string;
+  brand: string | null;
+  product: string | null;
+  spec: string | null;
+  /** Most recent use, so suggestions can be ordered by recency. */
+  lastUsedOn: IsoDate;
+  lastCostMinor: number | null;
+  timesUsed: number;
+};

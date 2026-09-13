@@ -12,6 +12,8 @@ import type {
   Part,
   ServiceRecord,
   UnitPreferences,
+  KnownProduct,
+  ServiceItem,
 } from '@/types';
 import { monthKey, recentMonthKeys, todayIso } from '@/utils/date';
 import { buildLedger, breakdown, filterByMonth, monthlyTotals, totalMinor } from './expenses';
@@ -27,6 +29,8 @@ import {
 } from './odometer';
 import { calculateAllowance, calculateOwnershipCost, type AllowanceSummary, type OwnershipCost } from './ownership';
 import { calculatePartLife, isPartActive, type PartLife } from './parts';
+import { knownProducts } from './products';
+import { recentWorkshops } from './workshops';
 
 /**
  * The one place every derived number in Revora is produced.
@@ -46,6 +50,7 @@ export type GarageData = {
   odometerReadings: readonly OdometerReading[];
   rules: readonly MaintenanceRule[];
   services: readonly ServiceRecord[];
+  serviceItems?: readonly ServiceItem[];
   parts: readonly Part[];
   accessories: readonly Accessory[];
   expenses: readonly Expense[];
@@ -90,8 +95,17 @@ export type BikeAnalytics = {
     priceTrend: FuelPricePoint[];
   };
 
+  /** Workshops used before, most recent first — offered when logging a service. */
+  workshops: string[];
+  /** Products fitted before, so the next service can pick rather than retype. */
+  products: KnownProduct[];
+  /** The item lines themselves, so an edit can replace its own rows. */
+  serviceItems: ServiceItem[];
+
   maintenance: {
     rules: RuleWithStatus[];
+    /** Rules the rider turned off: no reminders, but still editable. */
+    disabled: RuleWithStatus[];
     counts: ReturnType<typeof countByStatus>;
     nextDue: RuleWithStatus | null;
   };
@@ -181,6 +195,14 @@ export function analyseBike(data: GarageData): BikeAnalytics {
     .filter((r) => r.enabled)
     .map((rule) => ({ rule, status: calculateMaintenanceStatus(rule, currentMetres, today) }));
 
+  // Turned-off rules still have to be reachable. They are excluded from due
+  // counts and reminders — that is what turning one off means — but a rule that
+  // vanishes from every list the moment it is disabled can never be turned back
+  // on, and the rider has silently lost it.
+  const disabledRules: RuleWithStatus[] = data.rules
+    .filter((r) => !r.enabled)
+    .map((rule) => ({ rule, status: calculateMaintenanceStatus(rule, currentMetres, today) }));
+
   const nextDue =
     [...rulesWithStatus]
       .filter((r) => r.status.remainingMetres !== null || r.status.remainingDays !== null)
@@ -234,8 +256,13 @@ export function analyseBike(data: GarageData): BikeAnalytics {
         .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
         .map((f) => ({ date: f.date, pricePerLitreMinor: f.pricePerLitreMinor })),
     },
+    workshops: recentWorkshops(data.services),
+    products: knownProducts(data.serviceItems ?? [], data.services),
+    serviceItems: [...(data.serviceItems ?? [])],
+
     maintenance: {
       rules: rulesWithStatus,
+      disabled: disabledRules,
       counts: countByStatus(rulesWithStatus.map((r) => r.status)),
       nextDue,
     },

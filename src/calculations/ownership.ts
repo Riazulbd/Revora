@@ -18,6 +18,8 @@ export type OwnershipCost = {
   totalOwnershipMinor: number | null;
   /** Which of the two the rider chose in Settings. */
   costBasis: CostBasis;
+  /** Running cost excluding one-off accessories — what cost/distance divides. */
+  consumptionCostMinor: number;
   /**
    * The figure every screen headlines, and the one `costPerDistanceScaled`
    * divides. Equals `runningCostMinor` on the `running` basis, and
@@ -33,6 +35,20 @@ export type OwnershipCost = {
   distanceMetres: number;
 };
 
+/**
+ * Distance a bike must have covered before cost-per-distance means anything.
+ *
+ * The figure is spending divided by kilometres, so over a short log whatever
+ * the rider happened to buy dominates it. On a real bike with 665 km tracked, a
+ * single suspension replacement put "running cost" at BDT 24/km against a true
+ * fuel cost near BDT 3/km — a number that looks authoritative and teaches the
+ * rider something false. Below this, Revora says it does not know yet.
+ *
+ * A thousand kilometres is roughly a month of ordinary riding and long enough
+ * that one purchase no longer sets the answer.
+ */
+export const MIN_DISTANCE_FOR_COST_PER_UNIT = 1_000_000;
+
 export function calculateOwnershipCost(input: {
   bike: Pick<Bike, 'purchasePriceMinor'>;
   ledger: readonly LedgerEntry[];
@@ -45,6 +61,17 @@ export function calculateOwnershipCost(input: {
   const purchasePriceMinor = input.bike.purchasePriceMinor;
   const totalOwnershipMinor = purchasePriceMinor === null ? null : purchasePriceMinor + runningCostMinor;
 
+  /**
+   * Cost per distance measures *consumption*, so accessories are left out.
+   *
+   * A tail box or a seat cushion is bought once and keeps its value; charging it
+   * against the kilometres ridden since makes the figure swing wildly with how
+   * long the rider has been tracking. On a bike with 665 km logged, one BDT
+   * 6,000 accessory turned BDT ~3/km of real running cost into BDT 26.5/km.
+   * They stay in the totals above, which is where a one-off belongs.
+   */
+  const consumptionMinor = totalMinor(input.ledger.filter((e) => e.source !== 'accessory'));
+
   // `total` only differs once a purchase price exists; without one there is
   // nothing to add, and silently showing running cost under a "total" label
   // would be a figure that does not mean what it says.
@@ -52,17 +79,23 @@ export function calculateOwnershipCost(input: {
   const headlineMinor = basis === 'total' && totalOwnershipMinor !== null
     ? totalOwnershipMinor
     : runningCostMinor;
+  // On the total basis the purchase price is deliberately in the per-distance
+  // figure — that is what "what has this bike cost me per km" means there.
+  const perDistanceMinor = basis === 'total' && purchasePriceMinor !== null
+    ? consumptionMinor + purchasePriceMinor
+    : consumptionMinor;
 
   return {
     purchasePriceMinor,
     runningCostMinor,
     totalOwnershipMinor,
     costBasis: basis,
+    consumptionCostMinor: consumptionMinor,
     headlineCostMinor: headlineMinor,
     breakdown: breakdown(input.ledger),
     costPerDistanceScaled:
-      input.distanceMetres > 0
-        ? costPerDistance(headlineMinor, input.distanceMetres, input.distanceUnit)
+      input.distanceMetres >= MIN_DISTANCE_FOR_COST_PER_UNIT
+        ? costPerDistance(perDistanceMinor, input.distanceMetres, input.distanceUnit)
         : null,
     distanceMetres: input.distanceMetres,
   };

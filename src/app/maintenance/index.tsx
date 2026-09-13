@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import {
   ErrorState,
   Badge,
+  Eyebrow,
   Button,
   EmptyState,
   RecordRow,
@@ -34,6 +35,7 @@ export default function MaintenanceRules() {
   const { analytics, isPending, error, refetch } = useGarageData();
 
   const rules = [...(analytics?.maintenance.rules ?? [])].sort(compareByUrgency);
+  const disabled = analytics?.maintenance.disabled ?? [];
   const counts = analytics?.maintenance.counts;
 
   if (error) {
@@ -111,6 +113,21 @@ export default function MaintenanceRules() {
               />
             ))}
           </View>
+
+          {disabled.length > 0 ? (
+            <View style={{ gap: 12 }}>
+              <Eyebrow>TURNED OFF</Eyebrow>
+              {disabled.map(({ rule }) => (
+                <RecordRow
+                  key={rule.id}
+                  title={rule.name}
+                  subtitle="No reminders — tap to turn back on"
+                  onPress={() => router.push({ pathname: '/maintenance/rule', params: { id: rule.id } })}
+                  testID={`rule-disabled-${rule.id}`}
+                />
+              ))}
+            </View>
+          ) : null}
 
           <Txt role="helper" tone="mut">
             Statuses come from your odometer and the time since last completion. Warn-ahead distance is

@@ -117,7 +117,10 @@ describe('the worked example from the design', () => {
   it('produces one interval at 37.2 km/L', () => {
     expect(a.mileage.count).toBe(1);
     expect(formatMileageValue(a.mileage.latest!.efficiency, 'km_per_l')).toBe('37.2');
-    expect(a.mileage.confidence).toBe('high');
+    // One clean interval is still one measurement. Confidence describes the
+    // average, not the tidiness of a single tank, so it stays "medium" until
+    // there are enough intervals to call it settled.
+    expect(a.mileage.confidence).toBe('medium');
   });
 
   it('withholds the statistics that need five intervals', () => {

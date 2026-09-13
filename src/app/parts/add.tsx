@@ -5,6 +5,7 @@ import { useLocalSearchParams } from 'expo-router';
 import {
   Button,
   Card,
+  Dialog,
   DateField,
   Divider,
   Field,
@@ -23,6 +24,8 @@ import { currencySymbol, currencyDecimals } from '@/calculations/money';
 import { distanceUnitLabel } from '@/calculations/units';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
+import { useRecategorise } from '@/features/parts/useRecategorise';
+import { conversionLosses } from '@/calculations/recategorise';
 import { useNewPartId, useSavePart } from '@/features/parts/usePartMutations';
 import { fromMetres, fromMinor, toMetres, toMinor, toTrimmed } from '@/features/shared/formValues';
 import { useStableId } from '@/features/shared/useStableId';
@@ -90,6 +93,8 @@ function PartForm({
   const [notes, setNotes] = useState(existing?.notes ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [linkOpen, setLinkOpen] = useState(false);
+  const [convertOpen, setConvertOpen] = useState(false);
+  const recategorise = useRecategorise({ onDone: () => setConvertOpen(false) });
 
   const savePart = useSavePart();
   const services = analytics.services.all;
@@ -263,7 +268,30 @@ function PartForm({
         <Txt role="helper" tone="mut" align="center">
           Linked part costs appear once in the ledger — never double counted.
         </Txt>
+
+        {existing ? (
+          <Button
+            label="This is an accessory, not a part"
+            variant="ghost"
+            size="medium"
+            onPress={() => setConvertOpen(true)}
+            testID="cta-convert-to-accessory"
+          />
+        ) : null}
       </Stack>
+
+      {existing ? (
+        <Dialog
+          visible={convertOpen}
+          onClose={() => setConvertOpen(false)}
+          title="Move to accessories?"
+          message={`An accessory is bought once and stays on the bike, so it is left out of cost per distance and of part-wear tracking. This discards ${conversionLosses('partToAccessory', existing).join(', ')}. The cost stays in your history.`}
+          confirmLabel="Move"
+          busy={recategorise.isPending}
+          onConfirm={() => void recategorise.submit({ direction: 'partToAccessory', part: existing })}
+          testID="dialog-convert-part"
+        />
+      ) : null}
 
       <Sheet visible={linkOpen} onClose={() => setLinkOpen(false)} title="Link to a service">
         <Card variant="flush">
