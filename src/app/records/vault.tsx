@@ -15,7 +15,8 @@ import {
   Stack,
   Txt,
 } from '@/components';
-import { documentStatus, useDocuments } from '@/features/records/useRecordQueries';
+import { documentStatus } from '@/calculations/documents';
+import { useDocuments } from '@/features/records/useRecordQueries';
 import { daysBetween, formatLongDate, todayIso } from '@/utils/date';
 import { useTheme } from '@/theme';
 import type { VaultDocument } from '@/types';

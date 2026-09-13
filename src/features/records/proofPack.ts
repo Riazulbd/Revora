@@ -2,7 +2,9 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 
 import type { BikeAnalytics } from '@/calculations/analytics';
-import { documentStatus } from '@/features/records/useRecordQueries';
+import { proofCertificate, type AttestedRecord } from '@/calculations/certificate';
+import { REVORA_MARK_DATA_URI } from '@/features/records/brandMark';
+import { documentStatus } from '@/calculations/documents';
 import { AppError } from '@/services/errors';
 import type { Bike, VaultDocument } from '@/types';
 import { formatLongDate, todayIso } from '@/utils/date';
@@ -21,12 +23,56 @@ export type ProofPackOptions = {
   consentGiven: boolean;
 };
 
+/** Fuel rows are capped so a long log does not run to fifty pages. */
+const FUEL_ROW_LIMIT = 40;
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+/**
+ * Exactly the records the document prints, in the order it prints them.
+ *
+ * The certificate has to describe what a reader can see: counting an expense
+ * that never appears in any table would make the stamp claim more than the
+ * page shows, and omitting a printed service would let one be altered without
+ * the reference changing.
+ */
+function attestedRecords(input: {
+  analytics: BikeAnalytics;
+  documents: readonly VaultDocument[];
+}): AttestedRecord[] {
+  const { analytics, documents } = input;
+  return [
+    ...analytics.services.all.map((s) => ({
+      kind: 'service',
+      id: s.id,
+      date: s.date,
+      figure: s.totalCostMinor,
+    })),
+    ...analytics.fuel.entries.slice(0, FUEL_ROW_LIMIT).map((f) => ({
+      kind: 'fuel',
+      id: f.id,
+      date: f.date,
+      figure: f.odometerMetres,
+    })),
+    ...[...analytics.parts.active, ...analytics.parts.removed].map(({ part }) => ({
+      kind: 'part',
+      id: part.id,
+      date: part.installedDate,
+      figure: part.installedOdometerMetres,
+    })),
+    ...documents.map((d) => ({
+      kind: 'document',
+      id: d.id,
+      date: d.expiresOn,
+      figure: null,
+    })),
+  ];
 }
 
 function row(label: string, value: string): string {
@@ -61,7 +107,7 @@ export function buildProofPackHtml(input: {
     .join('');
 
   const fuelRows = analytics.fuel.entries
-    .slice(0, 40)
+    .slice(0, FUEL_ROW_LIMIT)
     .map(
       (entry) => `
         <tr>
@@ -85,6 +131,14 @@ export function buildProofPackHtml(input: {
         </tr>`,
     )
     .join('');
+
+  const certificate = proofCertificate(attestedRecords({ analytics, documents }));
+  const coverage =
+    certificate.firstDate === null || certificate.lastDate === null
+      ? 'No dated records'
+      : certificate.firstDate === certificate.lastDate
+        ? formatLongDate(certificate.firstDate)
+        : `${formatLongDate(certificate.firstDate)} — ${formatLongDate(certificate.lastDate)}`;
 
   const documentRows = documents
     .map((document) => {
@@ -113,8 +167,53 @@ export function buildProofPackHtml(input: {
   td.value { font-weight: 600; }
   .note { font-size: 10.5px; color: #878E98; margin-top: 24px; line-height: 1.6; }
   .empty { color: #878E98; font-size: 11.5px; padding: 8px 4px; }
+
+  .masthead { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px;
+              border-bottom: 2px solid #14171B; padding-bottom: 14px; margin-bottom: 22px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .mark { width: 46px; height: 46px; }
+  .wordmark { font-size: 21px; font-weight: 800; letter-spacing: .11em; line-height: 1; }
+  .kicker { font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: #878E98; margin-top: 4px; }
+
+  /* A seal earns its look from the double rule and the tilt, not from claiming
+     more than Revora can know — the wording below it is deliberately narrow. */
+  .stamp { border: 2px solid #F4511E; border-radius: 10px; padding: 3px; margin: 2px 8px 2px 0;
+           transform: rotate(-3deg); flex: none; }
+  .stamp-inner { border: 1px solid #F4511E; border-radius: 7px; padding: 8px 14px; text-align: center;
+                 color: #F4511E; }
+  .stamp-title { font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+  .stamp-rule { height: 1px; background: #F4511E; opacity: .4; margin: 6px 0; }
+  .stamp-line { font-size: 8.5px; letter-spacing: .06em; text-transform: uppercase; font-weight: 700;
+                line-height: 1.5; }
+  .stamp-ref { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; font-weight: 800;
+               letter-spacing: .1em; margin-top: 4px; }
+  .scope { border: 1px solid #E9EBEF; border-radius: 8px; padding: 10px 12px; margin-top: 20px;
+           font-size: 10px; color: #878E98; line-height: 1.65; }
+  .scope b { color: #14171B; }
 </style></head>
 <body>
+  <div class="masthead">
+    <div class="brand">
+      <img class="mark" src="${REVORA_MARK_DATA_URI}" alt="">
+      <div>
+        <div class="wordmark">REVORA</div>
+        <div class="kicker">Ownership record</div>
+      </div>
+    </div>
+    <div class="stamp">
+      <div class="stamp-inner">
+        <div class="stamp-title">Certified by Revora</div>
+        <div class="stamp-rule"></div>
+        <div class="stamp-line">
+          ${certificate.recordCount} record${certificate.recordCount === 1 ? '' : 's'}<br>
+          ${escapeHtml(coverage)}<br>
+          Issued ${escapeHtml(formatLongDate(today))}
+        </div>
+        <div class="stamp-ref">${escapeHtml(certificate.reference)}</div>
+      </div>
+    </div>
+  </div>
+
   <h1>${escapeHtml(bike.nickname)}</h1>
   <p class="sub">
     Ownership record generated by Revora on ${escapeHtml(formatLongDate(today))}${
@@ -163,6 +262,17 @@ export function buildProofPackHtml(input: {
       ? '<p class="empty">No documents recorded.</p>'
       : `<table><thead><tr><th>Document</th><th>Expires</th><th>Status</th></tr></thead><tbody>${documentRows}</tbody></table>`
   }
+
+  <div class="scope">
+    <b>What this stamp certifies.</b> Revora generated this document from
+    ${certificate.recordCount} record${certificate.recordCount === 1 ? '' : 's'} held in the owner's logbook, and
+    reference <b>${escapeHtml(certificate.reference)}</b> is a fingerprint of exactly those records. Regenerating
+    the pack from unchanged records reproduces the same reference; altering, adding or removing any record
+    changes it. Ask the seller to generate a fresh copy and compare.<br>
+    <b>What it does not certify.</b> Revora has never seen this motorcycle. It does not verify that the work
+    listed was carried out, that the odometer is genuine, or that the machine is roadworthy. This is a record of
+    what the owner logged — not an independent inspection, and no substitute for one.
+  </div>
 
   <p class="note">
     Every figure in this report comes from records the owner logged in Revora. Consumption is measured between

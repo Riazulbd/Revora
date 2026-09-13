@@ -8,9 +8,10 @@ import {
   safetyRepository,
   warrantyRepository,
 } from '@/repositories';
+import { documentStatus } from '@/calculations/documents';
 import { useLiveQuery } from '@/services/liveQuery';
 import type { CaptureItem, SafetyCheck, VaultDocument, Warranty } from '@/types';
-import { daysBetween, todayIso } from '@/utils/date';
+import { todayIso } from '@/utils/date';
 
 /**
  * Live reads for the record collections that the dashboard does not need.
@@ -19,7 +20,6 @@ import { daysBetween, todayIso } from '@/utils/date';
  * open listeners for the document vault (requirement 60 / mistake 22).
  */
 
-export const DOCUMENT_WARNING_DAYS = 30;
 
 export function useDocuments() {
   const { user } = useAuth();
@@ -83,16 +83,6 @@ export function useCaptureQueue() {
         ? () => undefined
         : captureRepository.subscribe(uid, bikeId, 'BDT', { limit: 100 })(onData, onError),
   });
-}
-
-export type DocumentStatus = 'valid' | 'expiring' | 'expired' | 'no_expiry';
-
-export function documentStatus(document: VaultDocument, today = todayIso()): DocumentStatus {
-  if (document.expiresOn === null) return 'no_expiry';
-  const days = daysBetween(today, document.expiresOn);
-  if (days < 0) return 'expired';
-  if (days <= DOCUMENT_WARNING_DAYS) return 'expiring';
-  return 'valid';
 }
 
 /** Counts used by the More menu badges. */
