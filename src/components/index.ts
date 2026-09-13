@@ -3,6 +3,7 @@ export { Badge, ProBadge, type BadgeTone } from './Badge';
 export { Banner, type BannerTone } from './Banner';
 export { Button, ButtonRow, LinkButton, type ButtonVariant } from './Button';
 export { Card, CardHeader, Eyebrow } from './Card';
+export { CopyableRow, CopyButton, useCopy } from './Copyable';
 export { BarChart, Gauge, ProgressBar, SpendBar, TrendChart, type BarDatum, type TrendPoint } from './Charts';
 export { DateField } from './DateField';
 export { Dialog } from './Dialog';

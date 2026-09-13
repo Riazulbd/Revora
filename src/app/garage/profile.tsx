@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import * as Clipboard from 'expo-clipboard';
 
 import {
   Banner,
   Button,
   Card,
+  CopyableRow,
   Dialog,
   DividedList,
   Eyebrow,
-  Icon,
   Input,
   KeyValueRow,
   Screen,
   ScreenHeader,
   Stack,
   Txt,
-  useToast,
 } from '@/components';
 import { validateOdometer } from '@/calculations/odometer';
 import { distanceUnitLabel } from '@/calculations/units';
@@ -28,12 +26,9 @@ import { fromMetres, toMetres } from '@/features/shared/formValues';
 import { formatCurrency, formatDistance, formatVolume, NO_VALUE } from '@/utils/format';
 import { formatLongDate } from '@/utils/date';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/theme';
 
 export default function BikeProfile() {
   const router = useRouter();
-  const { c } = useTheme();
-  const toast = useToast();
   const { activeBike, units, bikes } = useGarage();
   const { analytics } = useGarageData();
 
@@ -52,12 +47,6 @@ export default function BikeProfile() {
   });
 
   if (!activeBike) return null;
-
-  const copy = async (label: string, value: string | null) => {
-    if (!value) return;
-    await Clipboard.setStringAsync(value);
-    toast.show(`${label} copied`);
-  };
 
   const parsed = toMetres(reading, units.distance);
   const check = parsed === null ? null : validateOdometer(parsed, current);
@@ -91,28 +80,16 @@ export default function BikeProfile() {
             <KeyValueRow label="Model" value={activeBike.model || NO_VALUE} />
             <KeyValueRow label="Nickname" value={activeBike.nickname} />
             <KeyValueRow label="Year" value={activeBike.year === null ? NO_VALUE : String(activeBike.year)} />
-            <KeyValueRow
+            <CopyableRow
               label="Engine no."
-              value={activeBike.engineNumber ?? NO_VALUE}
-              onPress={
-                activeBike.engineNumber ? () => void copy('Engine number', activeBike.engineNumber) : undefined
-              }
-              trailing={
-                activeBike.engineNumber ? <Icon name="copy" size={14} color={c.acc} strokeWidth={2} /> : undefined
-              }
+              value={activeBike.engineNumber}
+              copyLabel="Engine number"
               testID="row-engine"
             />
-            <KeyValueRow
+            <CopyableRow
               label="Chassis no."
-              value={activeBike.chassisNumber ?? NO_VALUE}
-              onPress={
-                activeBike.chassisNumber
-                  ? () => void copy('Chassis number', activeBike.chassisNumber)
-                  : undefined
-              }
-              trailing={
-                activeBike.chassisNumber ? <Icon name="copy" size={14} color={c.acc} strokeWidth={2} /> : undefined
-              }
+              value={activeBike.chassisNumber}
+              copyLabel="Chassis number"
               testID="row-chassis"
             />
             <KeyValueRow label="Tank capacity" value={formatVolume(activeBike.tankCapacityMl, units.volume)} />

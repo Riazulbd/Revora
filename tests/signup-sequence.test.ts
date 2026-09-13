@@ -320,6 +320,7 @@ describe('the first-run sequence against the production ruleset', () => {
       customKindLabel: null,
       title: 'Insurance — 3rd party',
       reference: 'TP-4432871',
+    issuedOn: null,
       expiresOn: '2026-09-24',
       filePath: null,
       keepOfflineCopy: true,

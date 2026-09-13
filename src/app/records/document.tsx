@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import {
@@ -7,15 +8,18 @@ import {
   ButtonRow,
   Card,
   ChoiceGrid,
+  CopyButton,
   DateField,
   Dialog,
   Field,
+  FieldRow,
   Input,
   Screen,
   ScreenHeader,
   SkeletonList,
   Stack,
   ToggleRow,
+  Txt,
 } from '@/components';
 import { useDocuments } from '@/features/records/useRecordQueries';
 import {
@@ -28,18 +32,19 @@ import { toTrimmed } from '@/features/shared/formValues';
 import { useGarageContext } from '@/features/shared/useGarageContext';
 import { useStableId } from '@/features/shared/useStableId';
 import { uploadImageOrKeepLocal } from '@/services/storage';
+import {
+  DOCUMENT_KIND_LABEL,
+  DOCUMENT_REFERENCE_LABEL,
+  expiryLabel,
+  isTimeLimited,
+} from '@/calculations/documents';
 import { documentSchema } from '@/validation/schemas';
 import { daysBetween, todayIso } from '@/utils/date';
 import type { DocumentKind, VaultDocument } from '@/types';
 
-const KINDS: readonly { value: DocumentKind; label: string }[] = [
-  { value: 'registration', label: 'Registration' },
-  { value: 'insurance', label: 'Insurance' },
-  { value: 'tax_token', label: 'Tax token' },
-  { value: 'fitness', label: 'Fitness' },
-  { value: 'licence', label: 'Licence' },
-  { value: 'custom', label: 'Custom' },
-];
+const KINDS: readonly { value: DocumentKind; label: string }[] = (
+  ['registration', 'insurance', 'tax_token', 'fitness', 'licence', 'custom'] as const
+).map((value) => ({ value, label: value === 'licence' ? 'Licence' : DOCUMENT_KIND_LABEL[value] }));
 
 const DEFAULT_TITLE: Record<DocumentKind, string> = {
   registration: 'Registration',
@@ -79,6 +84,7 @@ function DocumentForm({ existing }: { existing: VaultDocument | null }) {
   const [kind, setKind] = useState<DocumentKind>(existing?.kind ?? 'registration');
   const [title, setTitle] = useState(existing?.title ?? DEFAULT_TITLE.registration);
   const [reference, setReference] = useState(existing?.reference ?? '');
+  const [issuedOn, setIssuedOn] = useState<string | null>(existing?.issuedOn ?? null);
   const [expiresOn, setExpiresOn] = useState<string | null>(existing?.expiresOn ?? null);
   const [keepOfflineCopy, setKeepOfflineCopy] = useState(existing?.keepOfflineCopy ?? true);
   const [notes, setNotes] = useState(existing?.notes ?? '');
@@ -96,12 +102,14 @@ function DocumentForm({ existing }: { existing: VaultDocument | null }) {
   });
 
   const days = expiresOn === null ? null : daysBetween(todayIso(), expiresOn);
+  const timeLimited = isTimeLimited(kind);
 
   const submit = async () => {
     const result = documentSchema.safeParse({
       kind,
       title: title.trim(),
       reference: toTrimmed(reference),
+      issuedOn,
       expiresOn,
       keepOfflineCopy,
       notes: toTrimmed(notes),
@@ -131,6 +139,7 @@ function DocumentForm({ existing }: { existing: VaultDocument | null }) {
       customKindLabel: result.data.kind === 'custom' ? result.data.title : null,
       title: result.data.title,
       reference: result.data.reference,
+      issuedOn: result.data.issuedOn,
       expiresOn: result.data.expiresOn,
       keepOfflineCopy: result.data.keepOfflineCopy,
       filePath,
@@ -166,26 +175,54 @@ function DocumentForm({ existing }: { existing: VaultDocument | null }) {
           />
         </Field>
 
-        <Field label="Policy / document no. (optional)">
-          <Input
-            value={reference}
-            onChangeText={setReference}
-            placeholder="TP-4432871"
-            autoCapitalize="characters"
-            autoCorrect={false}
-            size="compact"
-            testID="input-document-reference"
-          />
+        <Field label={`${DOCUMENT_REFERENCE_LABEL[kind]} (optional)`}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Input
+              value={reference}
+              onChangeText={setReference}
+              placeholder="TP-4432871"
+              autoCapitalize="characters"
+              autoCorrect={false}
+              size="compact"
+              style={{ flex: 1 }}
+              testID="input-document-reference"
+            />
+            {reference.trim() === '' ? null : (
+              <CopyButton
+                label={DOCUMENT_REFERENCE_LABEL[kind]}
+                value={reference.trim()}
+                testID="copy-document-reference"
+              />
+            )}
+          </View>
         </Field>
 
-        <Field label="Expires (optional)" helper="Leave blank for a document that never expires.">
-          <DateField
-            value={expiresOn}
-            onChange={setExpiresOn}
-            placeholder="No expiry"
-            testID="field-document-expiry"
-          />
-        </Field>
+        {/* A document with a term is defined by its two dates, so they sit
+            together rather than with the expiry alone buried further down. */}
+        <FieldRow>
+          <Field label="Issued on (optional)" flex={1}>
+            <DateField
+              value={issuedOn}
+              onChange={setIssuedOn}
+              placeholder="Not recorded"
+              testID="field-document-issued"
+            />
+          </Field>
+          <Field label={expiryLabel(kind)} error={errors.expiresOn ?? null} flex={1}>
+            <DateField
+              value={expiresOn}
+              onChange={setExpiresOn}
+              placeholder={timeLimited ? 'Required' : 'No expiry'}
+              testID="field-document-expiry"
+            />
+          </Field>
+        </FieldRow>
+
+        <Txt role="helper" tone="mut">
+          {timeLimited
+            ? `A ${DOCUMENT_KIND_LABEL[kind].toLowerCase()} is issued for a term. Revora reminds you at 30, 14 and 3 days before it runs out.`
+            : 'Leave the expiry blank for a document that never runs out.'}
+        </Txt>
 
         {days !== null ? (
           <Banner

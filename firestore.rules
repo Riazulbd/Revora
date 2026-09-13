@@ -514,6 +514,7 @@ service cloud.firestore {
           && incoming().keepOfflineCopy is bool
           && optionalText('customKindLabel', 60)
           && optionalText('reference', 80)
+          && optionalText('issuedOn', 40)
           && optionalText('expiresOn', 40)
           && optionalText('filePath', 512)
           && optionalText('notes', 2000);

@@ -409,6 +409,8 @@ export type VaultDocument = OwnedRecord & {
   customKindLabel: string | null;
   title: string;
   reference: string | null;
+  /** Start of the validity period. A tax token is issued for a term, not a day. */
+  issuedOn: IsoDate | null;
   expiresOn: IsoDate | null;
   filePath: string | null;
   keepOfflineCopy: boolean;

@@ -217,6 +217,7 @@ export const serialiseVaultDocument = (document: VaultDocument): DocumentData =>
     customKindLabel: document.customKindLabel,
     title: document.title,
     reference: document.reference,
+    issuedOn: document.issuedOn,
     expiresOn: document.expiresOn,
     filePath: document.filePath,
     keepOfflineCopy: document.keepOfflineCopy,

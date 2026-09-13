@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import {
   Badge,
   Button,
+  CopyButton,
   EmptyState,
   Icon,
   RecordRow,
@@ -15,9 +16,9 @@ import {
   Stack,
   Txt,
 } from '@/components';
-import { documentStatus } from '@/calculations/documents';
+import { DOCUMENT_REFERENCE_LABEL, documentStatus, validityLine } from '@/calculations/documents';
 import { useDocuments } from '@/features/records/useRecordQueries';
-import { daysBetween, formatLongDate, todayIso } from '@/utils/date';
+import { todayIso } from '@/utils/date';
 import { useTheme } from '@/theme';
 import type { VaultDocument } from '@/types';
 
@@ -96,14 +97,7 @@ function DocumentRow({ document, today }: { document: VaultDocument; today: stri
   const router = useRouter();
   const { c } = useTheme();
   const status = documentStatus(document, today);
-  const days = document.expiresOn === null ? null : daysBetween(today, document.expiresOn);
-
-  const subtitle =
-    document.expiresOn === null
-      ? (document.reference ?? 'No expiry recorded')
-      : days !== null && days < 0
-        ? `Expired ${formatLongDate(document.expiresOn)}`
-        : `Expires ${formatLongDate(document.expiresOn)}${days !== null ? ` · ${days} days` : ''}`;
+  const reference = document.reference?.trim() ?? '';
 
   return (
     <RecordRow
@@ -117,9 +111,24 @@ function DocumentRow({ document, today }: { document: VaultDocument; today: stri
         </RowIcon>
       }
       title={document.title}
-      subtitle={subtitle}
+      subtitle={validityLine(document, today)}
+      caption={reference === '' ? undefined : reference}
       onPress={() => router.push({ pathname: '/records/document', params: { id: document.id } })}
-      trailing={<Badge label={STATUS_LABEL[status]} tone={STATUS_TONE[status]} />}
+      trailing={
+        <View style={{ alignItems: 'flex-end', gap: 8 }}>
+          <Badge label={STATUS_LABEL[status]} tone={STATUS_TONE[status]} />
+          {/* The number is the reason the record exists — it gets typed into a
+              renewal form or read down a phone. Copying it should not cost a
+              screen. */}
+          {reference === '' ? null : (
+            <CopyButton
+              label={DOCUMENT_REFERENCE_LABEL[document.kind]}
+              value={reference}
+              testID={`copy-document-${document.id}`}
+            />
+          )}
+        </View>
+      }
       testID={`document-${document.id}`}
     />
   );

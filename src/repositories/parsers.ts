@@ -405,6 +405,7 @@ export const parseVaultDocument = (id: string, data: DocumentData): VaultDocumen
   customKindLabel: readNullableString(data, 'customKindLabel'),
   title: readString(data, 'title', 'Document'),
   reference: readNullableString(data, 'reference'),
+  issuedOn: readNullableIsoDate(data, 'issuedOn'),
   expiresOn: readNullableIsoDate(data, 'expiresOn'),
   filePath: readNullableString(data, 'filePath'),
   keepOfflineCopy: readBoolean(data, 'keepOfflineCopy', false),

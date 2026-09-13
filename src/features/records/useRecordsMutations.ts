@@ -21,6 +21,7 @@ export type DocumentDraft = {
   customKindLabel: string | null;
   title: string;
   reference: string | null;
+  issuedOn: IsoDate | null;
   expiresOn: IsoDate | null;
   keepOfflineCopy: boolean;
   filePath: string | null;
@@ -46,6 +47,7 @@ export function useSaveDocument(options: { onSaved?: () => void } = {}) {
         customKindLabel: draft.customKindLabel,
         title: draft.title,
         reference: draft.reference,
+        issuedOn: draft.issuedOn,
         expiresOn: draft.expiresOn,
         filePath: draft.filePath,
         keepOfflineCopy: draft.keepOfflineCopy,

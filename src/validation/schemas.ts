@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-import { isIsoDate } from '@/utils/date';
+import { DOCUMENT_KIND_LABEL, isTimeLimited } from '@/calculations/documents';
+import { compareIso, isIsoDate } from '@/utils/date';
 
 /**
  * Validation.
@@ -161,14 +162,35 @@ export const expenseSchema = z.object({
   note: z.string().trim().max(200).nullable(),
 });
 
-export const documentSchema = z.object({
-  kind: z.enum(['registration', 'insurance', 'tax_token', 'fitness', 'licence', 'custom']),
-  title: z.string().trim().min(1, { message: 'Name this document.' }).max(90),
-  reference: z.string().trim().max(80).nullable(),
-  expiresOn: isoDate.nullable(),
-  keepOfflineCopy: z.boolean(),
-  notes: z.string().trim().max(500).nullable(),
-});
+export const documentSchema = z
+  .object({
+    kind: z.enum(['registration', 'insurance', 'tax_token', 'fitness', 'licence', 'custom']),
+    title: z.string().trim().min(1, { message: 'Name this document.' }).max(90),
+    reference: z.string().trim().max(80).nullable(),
+    issuedOn: isoDate.nullable(),
+    expiresOn: isoDate.nullable(),
+    keepOfflineCopy: z.boolean(),
+    notes: z.string().trim().max(500).nullable(),
+  })
+  .superRefine((value, ctx) => {
+    // A tax token, licence or fitness certificate is issued for a term. Saved
+    // without its end date it is a photograph: the reminder that makes the
+    // record worth keeping can never fire. See `isTimeLimited`.
+    if (value.expiresOn === null && isTimeLimited(value.kind)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['expiresOn'],
+        message: `A ${DOCUMENT_KIND_LABEL[value.kind].toLowerCase()} runs out — add the date it is valid until so Revora can remind you before it does.`,
+      });
+    }
+    if (value.issuedOn !== null && value.expiresOn !== null && compareIso(value.expiresOn, value.issuedOn) < 0) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['expiresOn'],
+        message: 'That is before the issue date.',
+      });
+    }
+  });
 
 export const warrantySchema = z.object({
   title: z.string().trim().min(1, { message: 'Name this warranty.' }).max(90),
