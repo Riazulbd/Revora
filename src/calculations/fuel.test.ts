@@ -1,7 +1,8 @@
-import type { FuelAdjustment } from '@/types';
+import type { FuelAdjustment, FuelEntry } from '@/types';
 import {
   adjustmentMlInRange,
   deriveFuelAmounts,
+  fuelTotals,
   litresFromPriceAndTotal,
   normaliseFuelAmounts,
   priceFromLitresAndTotal,
@@ -128,5 +129,47 @@ describe('normaliseFuelAmounts', () => {
   it('rejects an entry with no money on it at all', () => {
     expect(normaliseFuelAmounts({ litresMl: 9000, pricePerLitreMinor: null, totalCostMinor: null })).toBeNull();
     expect(normaliseFuelAmounts({ litresMl: 0, pricePerLitreMinor: 14500, totalCostMinor: null })).toBeNull();
+  });
+});
+
+const fill = (litres: number, totalMinor: number, date: string): FuelEntry => ({
+  id: `f-${date}`,
+  userId: 'u1',
+  bikeId: 'b1',
+  createdAt: 1,
+  updatedAt: 1,
+  date,
+  odometerMetres: 5_000_000,
+  litresMl: Math.round(litres * 1000),
+  pricePerLitreMinor: priceFromLitresAndTotal(Math.round(litres * 1000), totalMinor) ?? 0,
+  totalCostMinor: totalMinor,
+  fillType: 'full',
+  missedPreviousFill: false,
+  currency: 'BDT',
+  station: null,
+  receiptPath: null,
+  notes: null,
+  clientRef: `ref-${date}`,
+});
+
+describe('fuel totals cover whatever slice they are given', () => {
+  const entries = [
+    fill(11, 159_500, '2026-08-20'),
+    fill(9, 130_500, '2026-08-30'),
+    fill(10, 145_000, '2026-09-02'),
+  ];
+
+  it('counts fills, fuel and money over the whole log', () => {
+    expect(fuelTotals(entries)).toEqual({ fills: 3, litresMl: 30_000, spendMinor: 435_000 });
+  });
+
+  it('gives the same arithmetic over one month as over all of it', () => {
+    const august = entries.filter((e) => e.date.startsWith('2026-08'));
+    expect(fuelTotals(august)).toEqual({ fills: 2, litresMl: 20_000, spendMinor: 290_000 });
+  });
+
+  it('reports an empty slice as genuine zeroes, not as missing data', () => {
+    // A month with no fills really did cost nothing; that is a fact, not a gap.
+    expect(fuelTotals([])).toEqual({ fills: 0, litresMl: 0, spendMinor: 0 });
   });
 });

@@ -116,6 +116,27 @@ export function normaliseFuelAmounts(input: {
   return null;
 }
 
+/**
+ * How many fills, how much fuel and how much money — over whatever set of
+ * entries is handed in.
+ *
+ * One function for both the calendar month and the whole log, so the two can
+ * never drift apart: a screen that shows "2 fills this month" beside "2 fills
+ * all time" is showing the same arithmetic over different slices, not two
+ * separate sums that happen to agree today.
+ */
+export type FuelTotals = { fills: number; litresMl: number; spendMinor: number };
+
+export function fuelTotals(entries: readonly FuelEntry[]): FuelTotals {
+  let litresMl = 0;
+  let spendMinor = 0;
+  for (const e of entries) {
+    litresMl += e.litresMl;
+    spendMinor += e.totalCostMinor;
+  }
+  return { fills: entries.length, litresMl, spendMinor };
+}
+
 /** Average price paid per litre across a set of fills, weighted by volume. */
 export function averagePricePerLitre(entries: readonly FuelEntry[]): number | null {
   let ml = 0;

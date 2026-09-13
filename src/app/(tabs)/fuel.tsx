@@ -8,6 +8,7 @@ import {
   Button,
   Card,
   ChipGroup,
+  Eyebrow,
   EmptyState,
   ErrorState,
   MenuRow,
@@ -25,8 +26,8 @@ import { MileageExplainSheet } from '@/features/fuel/MileageExplainSheet';
 import { ProUpsellSheet, useProGate } from '@/features/premium/ProUpsell';
 import { useConnectivity } from '@/services/connectivity';
 import { volumeUnitLabel } from '@/calculations/units';
-import { formatMonthLabel, formatMonthLong, formatShortDate, monthKey } from '@/utils/date';
-import { formatCurrency, formatPricePerVolume } from '@/utils/format';
+import { formatMonthLong, monthKey } from '@/utils/date';
+import { formatCurrency, formatPricePerVolume, formatVolume } from '@/utils/format';
 import { useTheme } from '@/theme';
 
 type Filter = 'all' | 'full' | 'partial' | 'adjusted';
@@ -82,8 +83,6 @@ export default function FuelTab() {
     }
   };
 
-  const monthLabel = analytics ? formatMonthLabel(monthKey(analytics.today)).toUpperCase() : '';
-
   const header = (
     <View>
       <TabHeader
@@ -110,30 +109,36 @@ export default function FuelTab() {
 
       {analytics && entries.length > 0 ? (
         <>
+          {/* Two scopes, each under its own heading. Before this, spend and
+              fill count read the calendar month while average price read the
+              whole log, and nothing on screen said so — a rider whose fills
+              were dated last month saw "FILLS 0" sitting above those fills. */}
+          <Eyebrow style={{ marginBottom: 8 }}>{formatMonthLong(monthKey(analytics.today))}</Eyebrow>
           <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
             <SummaryTile
-              label={`${monthLabel} SPEND`}
+              label="SPEND"
               value={formatCurrency(analytics.fuel.thisMonthSpendMinor, analytics.currency)}
             />
-            <SummaryTile label={`${monthLabel} FILLS`} value={String(analytics.fuel.thisMonthFills)} />
+            <SummaryTile label="FILLS" value={String(analytics.fuel.thisMonthFills)} />
+            <SummaryTile
+              label="FUEL"
+              value={formatVolume(analytics.fuel.thisMonthLitresMl, units.volume)}
+            />
+          </View>
+
+          <Eyebrow style={{ marginBottom: 8 }}>All time</Eyebrow>
+          <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
+            <SummaryTile
+              label="SPEND"
+              value={formatCurrency(analytics.fuel.allTime.spendMinor, analytics.currency)}
+            />
+            <SummaryTile label="FILLS" value={String(analytics.fuel.allTime.fills)} />
             <SummaryTile
               label="AVG PRICE"
               value={formatPricePerVolume(analytics.fuel.averagePricePerLitreMinor, analytics.currency)}
               suffix={`/${volumeUnitLabel(units.volume)}`}
             />
           </View>
-
-          {/* Two tiles read the calendar month and the third reads the whole
-              log, so an empty month sits above a list of fills and looks like
-              the app lost them. Say which month is empty, and when the last
-              fill actually was. */}
-          {analytics.fuel.thisMonthFills === 0 && analytics.fuel.latest ? (
-            <Txt role="meta" tone="mut" style={{ marginBottom: 14 }} testID="hint-empty-month">
-              {`No fills logged in ${formatMonthLong(monthKey(analytics.today))}. `}
-              {`Your last was ${formatShortDate(analytics.fuel.latest.date)}, and the ${entries.length} `}
-              {`fill${entries.length === 1 ? '' : 's'} below are all still counted.`}
-            </Txt>
-          ) : null}
 
           <ChipGroup options={FILTERS} value={filter} onChange={setFilter} style={{ marginBottom: 14 }} />
         </>

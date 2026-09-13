@@ -17,7 +17,7 @@ import type {
 } from '@/types';
 import { monthKey, recentMonthKeys, todayIso } from '@/utils/date';
 import { buildLedger, breakdown, filterByMonth, monthlyTotals, totalMinor } from './expenses';
-import { averagePricePerLitre } from './fuel';
+import { averagePricePerLitre, fuelTotals, type FuelTotals } from './fuel';
 import { calculateMaintenanceStatus, countByStatus, type MaintenanceStatus } from './maintenance';
 import { calculateMileageSummary, RELIABLE_INTERVALS_REQUIRED, type MileageSummary } from './mileage';
 import {
@@ -90,6 +90,9 @@ export type BikeAnalytics = {
     adjustments: FuelAdjustment[];
     thisMonthSpendMinor: number;
     thisMonthFills: number;
+    thisMonthLitresMl: number;
+    /** The whole log, so a quiet month never reads as an empty history. */
+    allTime: FuelTotals;
     averagePricePerLitreMinor: number | null;
     latest: FuelEntry | null;
     priceTrend: FuelPricePoint[];
@@ -183,6 +186,7 @@ export function analyseBike(data: GarageData): BikeAnalytics {
 
   const fuelSorted = [...data.fuelEntries].sort(byDateDesc);
   const thisMonthFuel = fuelSorted.filter((f) => monthKey(f.date) === thisMonth);
+  const thisMonthTotals = fuelTotals(thisMonthFuel);
 
   const allowance = calculateAllowance({
     enabled: data.bike.company.enabled,
@@ -248,8 +252,10 @@ export function analyseBike(data: GarageData): BikeAnalytics {
     fuel: {
       entries: fuelSorted,
       adjustments: [...data.fuelAdjustments].sort(byDateDesc),
-      thisMonthSpendMinor: thisMonthFuel.reduce((sum, f) => sum + f.totalCostMinor, 0),
-      thisMonthFills: thisMonthFuel.length,
+      thisMonthSpendMinor: thisMonthTotals.spendMinor,
+      thisMonthFills: thisMonthTotals.fills,
+      thisMonthLitresMl: thisMonthTotals.litresMl,
+      allTime: fuelTotals(fuelSorted),
       averagePricePerLitreMinor: averagePricePerLitre(data.fuelEntries),
       latest: fuelSorted[0] ?? null,
       priceTrend: [...data.fuelEntries]
