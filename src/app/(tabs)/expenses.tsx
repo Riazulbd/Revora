@@ -18,7 +18,7 @@ import {
   Txt,
 } from '@/components';
 import { ledgerTag } from '@/calculations/expenses';
-import { MIN_DISTANCE_FOR_COST_PER_UNIT } from '@/calculations/ownership';
+import { SETTLED_DISTANCE_FOR_COST_PER_UNIT } from '@/calculations/ownership';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { formatMonthLong, formatShortDate, monthKey } from '@/utils/date';
@@ -85,7 +85,7 @@ export default function ExpensesTab() {
 
   const costHint = costPerDistanceHint(
     analytics.ownership.distanceMetres,
-    MIN_DISTANCE_FOR_COST_PER_UNIT,
+    SETTLED_DISTANCE_FOR_COST_PER_UNIT,
     analytics.units.distance,
   );
 

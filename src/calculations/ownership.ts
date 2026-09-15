@@ -29,25 +29,34 @@ export type OwnershipCost = {
   breakdown: SpendBreakdown;
   /**
    * Running cost per unit distance, scaled by 100 (so `483` means 4.83/km).
-   * Null when there is not enough distance to divide by.
+   * Null only when there is no distance to divide by at all.
    */
   costPerDistanceScaled: number | null;
+  /**
+   * Whether enough distance has accumulated that one purchase no longer sets
+   * the answer. False does not withhold the figure — it earns it a caveat.
+   */
+  costPerDistanceSettled: boolean;
   distanceMetres: number;
 };
 
 /**
- * Distance a bike must have covered before cost-per-distance means anything.
+ * Distance below which cost-per-distance is still worth showing, but is worth
+ * a caveat beside it.
  *
  * The figure is spending divided by kilometres, so over a short log whatever
- * the rider happened to buy dominates it. On a real bike with 665 km tracked, a
- * single suspension replacement put "running cost" at BDT 24/km against a true
- * fuel cost near BDT 3/km — a number that looks authoritative and teaches the
- * rider something false. Below this, Revora says it does not know yet.
+ * the rider happened to buy dominates it: on a bike with 665 km tracked a
+ * single suspension replacement puts running cost at BDT 24/km against a true
+ * fuel cost near BDT 3/km.
  *
- * A thousand kilometres is roughly a month of ordinary riding and long enough
- * that one purchase no longer sets the answer.
+ * This used to withhold the figure entirely below a thousand kilometres. That
+ * was the wrong call. A rider who has spent money and ridden 400 km is owed the
+ * arithmetic on what they logged — it is their data, and it is not wrong, it is
+ * just early. Withholding it reads as a broken app and teaches nothing, where a
+ * figure with a sentence beside it teaches exactly the right lesson. The
+ * constant now drives that sentence rather than a null.
  */
-export const MIN_DISTANCE_FOR_COST_PER_UNIT = 1_000_000;
+export const SETTLED_DISTANCE_FOR_COST_PER_UNIT = 1_000_000;
 
 export function calculateOwnershipCost(input: {
   bike: Pick<Bike, 'purchasePriceMinor'>;
@@ -93,10 +102,8 @@ export function calculateOwnershipCost(input: {
     consumptionCostMinor: consumptionMinor,
     headlineCostMinor: headlineMinor,
     breakdown: breakdown(input.ledger),
-    costPerDistanceScaled:
-      input.distanceMetres >= MIN_DISTANCE_FOR_COST_PER_UNIT
-        ? costPerDistance(perDistanceMinor, input.distanceMetres, input.distanceUnit)
-        : null,
+    costPerDistanceScaled: costPerDistance(perDistanceMinor, input.distanceMetres, input.distanceUnit),
+    costPerDistanceSettled: input.distanceMetres >= SETTLED_DISTANCE_FOR_COST_PER_UNIT,
     distanceMetres: input.distanceMetres,
   };
 }

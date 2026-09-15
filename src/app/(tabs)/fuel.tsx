@@ -25,6 +25,7 @@ import { FuelRow } from '@/features/fuel/FuelRow';
 import { MileageExplainSheet } from '@/features/fuel/MileageExplainSheet';
 import { ProUpsellSheet, useProGate } from '@/features/premium/ProUpsell';
 import { useConnectivity } from '@/services/connectivity';
+import { mileageBlockerMessage } from '@/calculations/mileage';
 import { volumeUnitLabel } from '@/calculations/units';
 import { formatMonthLong, monthKey } from '@/utils/date';
 import { formatCurrency, formatPricePerVolume, formatVolume } from '@/utils/format';
@@ -208,7 +209,7 @@ export default function FuelTab() {
             <EmptyState
               icon="fuel"
               title="No fuel logs yet"
-              message="Your first fill sets the baseline. Mileage appears after the second full-tank fill."
+              message={mileageBlockerMessage(analytics?.mileage.blockedBy ?? 'no_fills')}
               primaryAction={{ label: 'Log a fill-up', onPress: () => router.push('/fuel/add') }}
               variant="page"
               testID="empty-fuel"

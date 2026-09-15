@@ -176,23 +176,21 @@ export function formatters(units: UnitPreferences, currency: CurrencyCode) {
 export type Formatters = ReturnType<typeof formatters>;
 
 /**
- * Why cost-per-distance is not shown yet, and what would make it appear.
+ * The caveat that belongs beside an early cost-per-distance figure.
  *
- * A tile that goes blank reads as a broken app. Naming the threshold and the
- * distance still to go turns the same withheld figure into something the rider
- * can act on, which is what requirement 12 is actually for: `—` says "not
- * known", and this says why.
+ * The figure is always shown now — it is the rider's own arithmetic on their
+ * own spending, and withholding it read as a broken app. What it needs is
+ * context: over a short log one purchase moves it enormously, and saying so
+ * turns a number that would mislead into one that teaches.
  */
 export function costPerDistanceHint(
   trackedMetres: number,
-  requiredMetres: number,
+  settledMetres: number,
   unit: DistanceUnit,
 ): string | null {
-  if (trackedMetres >= requiredMetres) return null;
-  const label = distanceUnitLabel(unit);
+  if (trackedMetres >= settledMetres) return null;
   return (
-    `Cost per ${label} needs ${formatDistance(requiredMetres, unit)} of tracked riding — ` +
-    `${formatDistance(requiredMetres - trackedMetres, unit)} to go. ` +
-    `Over a shorter log a single purchase decides the figure.`
+    `Based on ${formatDistance(trackedMetres, unit)} so far, so one large purchase still moves it a lot. ` +
+    `It settles around ${formatDistance(settledMetres, unit)}.`
   );
 }

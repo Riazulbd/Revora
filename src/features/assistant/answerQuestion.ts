@@ -107,7 +107,7 @@ const INTENTS: Intent[] = [
     test: /(average|avg).*(mileage|km\/l|consumption|economy)|mileage/i,
     answer: (a) => {
       if (a.mileage.average === null) {
-        return 'I do not have a complete full-to-full interval yet. Log a second full-tank fill and your first mileage figure appears.';
+        return 'I do not have a complete full-to-full interval yet, so any figure I gave you would be an estimate rather than a measurement.';
       }
       const best =
         a.mileage.best && a.mileage.worst

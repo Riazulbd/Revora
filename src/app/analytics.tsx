@@ -22,7 +22,7 @@ import {
   Txt,
 } from '@/components';
 import { monthlySeries, type BikeAnalytics } from '@/calculations/analytics';
-import { RELIABLE_INTERVALS_REQUIRED } from '@/calculations/mileage';
+import { mileageBlockerMessage, RELIABLE_INTERVALS_REQUIRED } from '@/calculations/mileage';
 import { efficiencyToDisplay, mileageUnitLabel } from '@/calculations/units';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { ProUpsellSheet, useProGate } from '@/features/premium/ProUpsell';
@@ -133,7 +133,7 @@ function LatestCalculationCard({ analytics }: Props) {
         <Eyebrow>LATEST FUEL CALCULATION</Eyebrow>
         <InsufficientData
           title="No complete interval yet"
-          message="Mileage is measured between two full-tank fills. Log a second full tank and the working appears here."
+          message={mileageBlockerMessage(analytics.mileage.blockedBy ?? 'no_fills')}
           style={{ marginTop: 12 }}
         />
       </Card>

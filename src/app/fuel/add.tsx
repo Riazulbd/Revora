@@ -18,6 +18,7 @@ import {
   Segmented,
   SkeletonList,
   Txt,
+  useToast,
 } from '@/components';
 import type { BikeAnalytics } from '@/calculations/analytics';
 import { currencyDecimals, currencySymbol } from '@/calculations/money';
@@ -62,6 +63,9 @@ const ADJUSTMENT_ROWS: readonly { reason: FuelAdjustmentReason; label: string; a
   { reason: 'transferred', label: 'Drained or transferred out', adds: false },
   { reason: 'added_unlogged', label: 'Fuel added but not logged', adds: true },
 ];
+
+/** Top to bottom on the form, so the toast names the first thing they will see. */
+const FIELD_ORDER = ['odometer', 'litres', 'total', 'adjustments', 'form'] as const;
 
 const FILL_OPTIONS = [
   { value: 'full' as const, label: 'Full tank' },
@@ -111,6 +115,7 @@ function FuelForm({
 }) {
   const garage = useGarageContext();
   const connectivity = useConnectivity();
+  const toast = useToast();
 
   const newId = useNewFuelId();
   const generatedId = useStableId(newId);
@@ -257,7 +262,14 @@ function FuelForm({
     }
 
     setErrors(next);
-    if (Object.keys(next).length > 0) return;
+    if (Object.keys(next).length > 0) {
+      // The Save button sits below the fold, so the field it highlighted is
+      // often off-screen: the rider taps, nothing visibly happens, and they tap
+      // again. Say what is wrong where the thumb already is.
+      const first = FIELD_ORDER.find((key) => next[key] !== undefined);
+      toast.show(first === undefined ? 'Check the highlighted fields.' : (next[first] as string), 'error');
+      return;
+    }
 
     // Upload the receipt first so the stored record points at the final path.
     // A failed upload keeps the local URI: the photo stays visible on this device
@@ -392,8 +404,8 @@ function FuelForm({
           </Txt>
           <Segmented options={FILL_OPTIONS} value={fillType} onChange={setFillType} testID="segment-fill" />
           <Txt role="helper" tone="mut">
-            Mileage is only calculated between two full tanks — partial fills are counted into the next
-            interval.
+            Mark a fill Full when you filled the tank to the top. Revora measures between two full tanks;
+            until it has a pair it shows an estimate across everything you have logged.
           </Txt>
         </View>
 

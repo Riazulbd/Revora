@@ -489,20 +489,21 @@ describe('cost per distance measures consumption', () => {
   });
 });
 
-describe('cost per distance withholds itself until it is meaningful', () => {
+describe('cost per distance is given early, with the caveat that it is early', () => {
   const shortLog = [fill('f1', 4845, 11, '2026-08-20', 1), fill('f2', 5118, 6, '2026-08-30', 2)];
 
-  it('says nothing over a few hundred kilometres, however much was spent', () => {
-    // 273 km tracked and a suspension replacement on it: the arithmetic is
-    // sound and the answer is meaningless, so Revora declines to give one.
+  it('answers over a few hundred kilometres, and flags the figure as unsettled', () => {
+    // 273 km tracked and a suspension replacement on it. The arithmetic is the
+    // rider's own spending over their own distance, so it is shown — but one
+    // purchase still dominates it, which `costPerDistanceSettled` says.
     // No opening reading, so the tracked span is only the 273 km between fills.
     const a = analyseBike({
       ...garage(), odometerReadings: [], fuelEntries: shortLog,
       services: [{ ...service, totalCostMinor: 600_000, partsCostMinor: 600_000, labourCostMinor: 0 }],
     });
     expect(a.odometer.totalDistanceMetres).toBeLessThan(1_000_000);
-    expect(a.ownership.costPerDistanceScaled).toBeNull();
-    // The spend itself is still counted; only the ratio is withheld.
+    expect(a.ownership.costPerDistanceScaled).not.toBeNull();
+    expect(a.ownership.costPerDistanceSettled).toBe(false);
     expect(a.ownership.runningCostMinor).toBeGreaterThan(600_000);
   });
 

@@ -23,6 +23,20 @@ import { efficiencyFrom, type Efficiency } from './units';
 
 export type MileageConfidence = 'high' | 'medium' | 'estimated' | 'insufficient';
 
+/**
+ * Why there is no measured interval yet.
+ *
+ * A rider who has logged four fills and sees an empty card has no way to tell a
+ * broken app from a rule they tripped over. Every path that discards an
+ * interval now names itself, so the screen can say which one it was.
+ */
+export type MileageBlocker =
+  | 'no_fills'
+  | 'one_fill'
+  | 'no_closing_full_tank'
+  | 'missed_fill'
+  | 'dates_out_of_order';
+
 export type MileageInterval = {
   /** The fill that opened the interval (a full tank). */
   fromEntryId: string;
@@ -74,8 +88,17 @@ export function calculateMileageIntervals(
   entries: readonly FuelEntry[],
   adjustments: readonly FuelAdjustment[] = [],
 ): MileageInterval[] {
+  return measureMileage(entries, adjustments).intervals;
+}
+
+/** The intervals, plus what stopped the ones that did not make it. */
+function measureMileage(
+  entries: readonly FuelEntry[],
+  adjustments: readonly FuelAdjustment[],
+): { intervals: MileageInterval[]; discardedBy: MileageBlocker | null } {
   const ordered = sortEntriesForMileage(entries);
   const intervals: MileageInterval[] = [];
+  let discardedBy: MileageBlocker | null = null;
 
   let anchor: FuelEntry | null = null;
   let rawFuelMl = 0;
@@ -121,6 +144,15 @@ export function calculateMileageIntervals(
 
       // A fill the rider has flagged as following an unlogged one cannot close a
       // trustworthy interval — the fuel in between was never recorded.
+      if (efficiency === null) {
+        // Zero distance or zero fuel — nothing to divide, and nothing the
+        // rider did wrong that naming a blocker would help with.
+      } else if (missedFill) {
+        discardedBy = discardedBy ?? 'missed_fill';
+      } else if (!coherent) {
+        discardedBy = discardedBy ?? 'dates_out_of_order';
+      }
+
       if (efficiency !== null && !missedFill && coherent) {
         intervals.push({
           fromEntryId: start.id,
@@ -148,11 +180,25 @@ export function calculateMileageIntervals(
     else unknownFills += 1;
   }
 
-  return intervals;
+  return { intervals, discardedBy };
 }
 
 export type MileageSummary = {
   intervals: MileageInterval[];
+  /**
+   * A figure drawn across the whole log when no full-to-full interval exists.
+   *
+   * Full-to-full is the only way to *measure* consumption, because it is the
+   * only arrangement where the tank holds the same amount at both ends. But a
+   * rider four fills in, seeing nothing, has no way to tell whether the app is
+   * working. This spans the first fill to the last and divides by every litre
+   * bought in between, which spreads whatever the tank level difference is
+   * across all of that distance instead of across one tank. It is always
+   * labelled `estimated`, and a real interval always replaces it.
+   */
+  provisional: MileageInterval | null;
+  /** Why `intervals` is empty, when it is. Null once a figure is measured. */
+  blockedBy: MileageBlocker | null;
   /** The most recent complete interval, or null. */
   latest: MileageInterval | null;
   /**
@@ -171,6 +217,60 @@ export type MileageSummary = {
 
 /** Best/worst and the rolling five-interval average only unlock at five intervals. */
 export const RELIABLE_INTERVALS_REQUIRED = 5;
+
+/**
+ * The widest span the log supports, treated as one interval.
+ *
+ * Deliberately not exposed as a measured interval: it sits in `provisional`,
+ * carries `estimated` confidence, and never feeds the average.
+ */
+function provisionalInterval(
+  entries: readonly FuelEntry[],
+  adjustments: readonly FuelAdjustment[],
+): MileageInterval | null {
+  const ordered = sortEntriesForMileage(entries);
+  if (ordered.length < 2) return null;
+
+  const start = ordered[0];
+  const end = ordered[ordered.length - 1];
+  if (start === undefined || end === undefined) return null;
+  if (end.date < start.date) return null;
+
+  const distanceMetres = end.odometerMetres - start.odometerMetres;
+  // Every litre bought after the opening fill, the closing one included — the
+  // opening fill's own fuel was burned before this span began.
+  let rawFuelMl = 0;
+  let partialFills = 0;
+  let unknownFills = 0;
+  for (const entry of ordered.slice(1)) {
+    rawFuelMl += entry.litresMl;
+    if (entry.fillType === 'partial') partialFills += 1;
+    else if (entry.fillType !== 'full') unknownFills += 1;
+  }
+
+  const adjustmentMl = adjustmentMlInRange(adjustments, start.date, end.date);
+  const fuelMl = rawFuelMl + adjustmentMl;
+  const efficiency = efficiencyFrom(distanceMetres, fuelMl);
+  if (efficiency === null) return null;
+
+  return {
+    fromEntryId: start.id,
+    toEntryId: end.id,
+    fromOdometerMetres: start.odometerMetres,
+    toOdometerMetres: end.odometerMetres,
+    distanceMetres,
+    fuelMl,
+    rawFuelMl,
+    adjustmentMl,
+    efficiency,
+    confidence: 'estimated',
+    partialFills,
+    unknownFills,
+    hasAdjustments: adjustmentMl !== 0,
+    fromDate: start.date,
+    date: end.date,
+  };
+}
 
 function weightedAverage(intervals: readonly MileageInterval[]): Efficiency | null {
   let distance = 0;
@@ -203,12 +303,14 @@ export function calculateMileageSummary(
   entries: readonly FuelEntry[],
   adjustments: readonly FuelAdjustment[] = [],
 ): MileageSummary {
-  const intervals = calculateMileageIntervals(entries, adjustments);
+  const { intervals, discardedBy } = measureMileage(entries, adjustments);
   const count = intervals.length;
 
   if (count === 0) {
     return {
       intervals,
+      provisional: provisionalInterval(entries, adjustments),
+      blockedBy: blockerFor(entries, discardedBy),
       latest: null,
       average: null,
       lastFive: null,
@@ -236,6 +338,8 @@ export function calculateMileageSummary(
 
   return {
     intervals,
+    provisional: null,
+    blockedBy: null,
     latest,
     average,
     lastFive,
@@ -244,6 +348,37 @@ export function calculateMileageSummary(
     confidence: overallConfidence(intervals),
     count,
   };
+}
+
+/**
+ * Which explanation the rider is owed, in the order that helps most.
+ *
+ * A discarded interval outranks a missing one: "your dates run backwards" tells
+ * a rider what to fix, where "log another full tank" would send them to the
+ * pump to repeat the same mistake.
+ */
+function blockerFor(entries: readonly FuelEntry[], discardedBy: MileageBlocker | null): MileageBlocker {
+  if (discardedBy !== null) return discardedBy;
+  if (entries.length === 0) return 'no_fills';
+  if (entries.length === 1) return 'one_fill';
+  return 'no_closing_full_tank';
+}
+
+/** What to put on screen when there is no measured figure. */
+export function mileageBlockerMessage(blocker: MileageBlocker): string {
+  switch (blocker) {
+    case 'no_fills':
+      return 'Log your first fill and Revora starts measuring from there.';
+    case 'one_fill':
+      return 'One fill is a starting point, not a measurement. The next one gives you a figure.';
+    case 'missed_fill':
+      return 'A fill is marked as following one that was never logged, so the fuel in between is unknown. Clear that flag, or log the missing fill, and the figure returns.';
+    case 'dates_out_of_order':
+      return 'Two fills disagree: the later odometer reading carries the earlier date. Correct whichever is wrong and the figure returns.';
+    case 'no_closing_full_tank':
+    default:
+      return 'Measuring needs a fill marked Full tank at both ends of a stretch. Mark your next one Full and the measured figure replaces the estimate.';
+  }
 }
 
 export function confidenceLabel(confidence: MileageConfidence): string {

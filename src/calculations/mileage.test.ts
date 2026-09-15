@@ -329,3 +329,75 @@ describe('editing history', () => {
     expect(after.intervals[0]!.fuelMl).toBe(10_000);
   });
 });
+
+describe('a rider who has logged fills is never left with a blank card', () => {
+  it('estimates across the whole log when no fill was marked full', () => {
+    const summary = calculateMileageSummary([
+      fuel({ odoKm: 5000, litres: 10, fillType: 'partial', date: '2026-09-01' }),
+      fuel({ odoKm: 5300, litres: 7, fillType: 'partial', date: '2026-09-08' }),
+      fuel({ odoKm: 5600, litres: 8, fillType: 'partial', date: '2026-09-15' }),
+    ]);
+
+    expect(summary.count).toBe(0);
+    expect(summary.provisional).not.toBeNull();
+    // 600 km on the 15 L bought after the opening fill.
+    expect(summary.provisional?.distanceMetres).toBe(600_000);
+    expect(summary.provisional?.fuelMl).toBe(15_000);
+    expect(summary.provisional?.confidence).toBe('estimated');
+    expect(summary.blockedBy).toBe('no_closing_full_tank');
+  });
+
+  it('spans the whole log rather than the last pair, so one tank cannot set it', () => {
+    // Four fills: the estimate must use 5,000 → 5,900, not 5,600 → 5,900.
+    const summary = calculateMileageSummary([
+      fuel({ odoKm: 5000, litres: 10, fillType: 'partial', date: '2026-09-01' }),
+      fuel({ odoKm: 5300, litres: 7, fillType: 'partial', date: '2026-09-08' }),
+      fuel({ odoKm: 5600, litres: 8, fillType: 'partial', date: '2026-09-15' }),
+      fuel({ odoKm: 5900, litres: 2, fillType: 'partial', date: '2026-09-20' }),
+    ]);
+    expect(summary.provisional?.distanceMetres).toBe(900_000);
+    expect(summary.provisional?.fuelMl).toBe(17_000);
+  });
+
+  it('drops the estimate the moment a real interval exists', () => {
+    const summary = calculateMileageSummary([
+      fuel({ odoKm: 5000, litres: 10, date: '2026-09-01' }),
+      fuel({ odoKm: 5300, litres: 7, date: '2026-09-08' }),
+    ]);
+    expect(summary.count).toBe(1);
+    expect(summary.provisional).toBeNull();
+    expect(summary.blockedBy).toBeNull();
+  });
+
+  it('offers no estimate from a single fill, which measures nothing', () => {
+    const summary = calculateMileageSummary([fuel({ odoKm: 5000, litres: 10, fillType: 'partial' })]);
+    expect(summary.provisional).toBeNull();
+    expect(summary.blockedBy).toBe('one_fill');
+  });
+});
+
+describe('the blocker says which rule was tripped', () => {
+  it('names an out-of-order pair over a missing full tank', () => {
+    // Both fills are full, so "no closing full tank" would be a lie; the dates
+    // disagreeing with the odometer is the thing the rider has to fix.
+    const summary = calculateMileageSummary([
+      fuel({ odoKm: 5000, litres: 10, date: '2026-09-10' }),
+      fuel({ odoKm: 5300, litres: 7, date: '2026-09-02' }),
+    ]);
+    expect(summary.count).toBe(0);
+    expect(summary.blockedBy).toBe('dates_out_of_order');
+  });
+
+  it('names a missed fill, which no amount of full tanks would fix', () => {
+    const summary = calculateMileageSummary([
+      fuel({ odoKm: 5000, litres: 10, date: '2026-09-01' }),
+      fuel({ odoKm: 5300, litres: 7, date: '2026-09-08', missedPreviousFill: true }),
+    ]);
+    expect(summary.count).toBe(0);
+    expect(summary.blockedBy).toBe('missed_fill');
+  });
+
+  it('says there are no fills at all rather than blaming the rider', () => {
+    expect(calculateMileageSummary([]).blockedBy).toBe('no_fills');
+  });
+});

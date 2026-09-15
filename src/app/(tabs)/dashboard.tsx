@@ -29,9 +29,9 @@ import {
   Txt,
 } from '@/components';
 import { mileageGaugeMax , efficiencyToDisplay } from '@/calculations/units';
-import { confidenceLabel } from '@/calculations/mileage';
+import { confidenceLabel, mileageBlockerMessage } from '@/calculations/mileage';
 import { STATUS_LABEL } from '@/calculations/maintenance';
-import { MIN_DISTANCE_FOR_COST_PER_UNIT } from '@/calculations/ownership';
+import { SETTLED_DISTANCE_FOR_COST_PER_UNIT } from '@/calculations/ownership';
 import { BikeSwitcherButton, BikeSwitcherSheet, useBikeSwitcher } from '@/features/bikes/BikeSwitcher';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
@@ -227,7 +227,7 @@ function OdometerCard({ analytics }: CardProps) {
   const latestInterval = analytics.mileage.latest;
   const costHint = costPerDistanceHint(
     analytics.ownership.distanceMetres,
-    MIN_DISTANCE_FOR_COST_PER_UNIT,
+    SETTLED_DISTANCE_FOR_COST_PER_UNIT,
     units.distance,
   );
 
@@ -280,8 +280,13 @@ function OdometerCard({ analytics }: CardProps) {
 
 function MileageCard({ analytics, onExplain }: CardProps & { onExplain: () => void }) {
   const { units } = analytics;
-  const latest = analytics.mileage.latest;
+  // A measured interval when there is one; otherwise the estimate drawn across
+  // the whole log, so a rider several fills in is never shown a blank card with
+  // no idea whether the app is working.
+  const latest = analytics.mileage.latest ?? analytics.mileage.provisional;
+  const estimated = analytics.mileage.latest === null && analytics.mileage.provisional !== null;
   const gaugeValue = latest ? efficiencyToDisplay(latest.efficiency, units.mileage) : null;
+  const blockedBy = analytics.mileage.blockedBy;
 
   return (
     <Card>
@@ -305,27 +310,43 @@ function MileageCard({ analytics, onExplain }: CardProps & { onExplain: () => vo
             <StatTile
               variant="centered"
               label="AVERAGE"
-              value={formatMileageValue(analytics.mileage.average, units.mileage)}
+              value={formatMileageValue(
+                estimated ? latest.efficiency : analytics.mileage.average,
+                units.mileage,
+              )}
             />
-            <StatTile variant="centered" label="INTERVALS" value={String(analytics.mileage.count)} />
+            <StatTile
+              variant="centered"
+              label="INTERVALS"
+              value={estimated ? NO_VALUE : String(analytics.mileage.count)}
+            />
             <StatTile
               variant="centered"
               label="CONFIDENCE"
-              value={confidenceLabel(analytics.mileage.confidence)}
+              value={confidenceLabel(estimated ? 'estimated' : analytics.mileage.confidence)}
               tone={
-                analytics.mileage.confidence === 'high'
-                  ? 'good'
-                  : analytics.mileage.confidence === 'medium'
-                    ? 'warn'
-                    : 'ink'
+                estimated
+                  ? 'warn'
+                  : analytics.mileage.confidence === 'high'
+                    ? 'good'
+                    : analytics.mileage.confidence === 'medium'
+                      ? 'warn'
+                      : 'ink'
               }
             />
           </View>
+
+          {/* An estimate has to say it is one, and say what would replace it. */}
+          {estimated && blockedBy !== null ? (
+            <Txt role="meta" tone="mut" style={{ marginTop: 10 }} testID="hint-mileage-estimated">
+              {`Estimated across ${formatDistance(latest.distanceMetres, units.distance)} from ${formatVolume(latest.fuelMl, units.volume)}. ${mileageBlockerMessage(blockedBy)}`}
+            </Txt>
+          ) : null}
         </>
       ) : (
         <InsufficientData
           title="No mileage yet"
-          message="Mileage appears after your second full-tank fill — Revora measures between two full tanks and never guesses."
+          message={blockedBy === null ? 'Log a fill and Revora starts measuring.' : mileageBlockerMessage(blockedBy)}
           style={{ marginTop: 12 }}
         />
       )}
