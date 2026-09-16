@@ -88,6 +88,21 @@ export function monthKeyOfToday(now: Date = new Date()): string {
 
 const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+const MONTH_LONG = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+
+/**
+ * `'September'` — the month on its own.
+ *
+ * Used where a heading already establishes which year is meant, and printing
+ * it would add a figure the rider has to read past.
+ */
+export function monthName(value: IsoDate): string {
+  return MONTH_LONG[Number(value.slice(5, 7)) - 1] ?? '';
+}
+
 /** `'30 Aug 2026'` — the long form the design uses in lists and detail screens. */
 export function formatLongDate(value: IsoDate): string {
   const [y, m, d] = splitIso(value);

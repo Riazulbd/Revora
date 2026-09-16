@@ -16,6 +16,7 @@ import {
   Txt,
   useToast,
 } from '@/components';
+import { AddBikeUpsell } from '@/features/bikes/AddBikeUpsell';
 import { BikeSwitcherSheet, useBikeSwitcher } from '@/features/bikes/BikeSwitcher';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
@@ -35,6 +36,7 @@ export default function GarageTab() {
   const { analytics, refetch } = useGarageData();
   const switcher = useBikeSwitcher();
   const [uploading, setUploading] = useState(false);
+  const [upsellOpen, setUpsellOpen] = useState(false);
 
   const photoUrl = useImageUrl(activeBike?.photoPath ?? null);
   const updateBike = useUpdateBike({ stayOnScreen: true });
@@ -109,7 +111,7 @@ export default function GarageTab() {
                 {activeBike.nickname}
               </Txt>
               <Txt role="bodySmall" tone="mut" numberOfLines={2}>
-                {[activeBike.model, activeBike.year ? String(activeBike.year) : null, 'active bike']
+                {[activeBike.model, activeBike.year ? String(activeBike.year) : null]
                   .filter(Boolean)
                   .join(' · ')}
               </Txt>
@@ -132,10 +134,16 @@ export default function GarageTab() {
             />
           </View>
 
+          {activeBike.purchasePriceMinor === null ? (
+            <Txt role="helper" tone="mut" style={{ marginTop: 10 }} testID="hint-purchase-price">
+              Purchase price not recorded — add it in Edit details to unlock all-in cost.
+            </Txt>
+          ) : null}
+
           <ButtonRow>
             <View style={{ flex: 1, marginTop: 12 }}>
               <Button
-                label="Full profile"
+                label="Motorcycle profile"
                 variant="ghost"
                 size="small"
                 onPress={() => router.push('/garage/profile')}
@@ -193,7 +201,10 @@ export default function GarageTab() {
 
         <Pressable
           accessibilityRole="button"
-          onPress={() => router.push(isPro ? '/(onboarding)/add-bike' : '/plan')}
+          onPress={() => {
+            if (isPro) router.push('/(onboarding)/add-bike');
+            else setUpsellOpen(true);
+          }}
           testID="cta-add-bike"
           style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
         >
@@ -224,6 +235,7 @@ export default function GarageTab() {
       </Stack>
 
       <BikeSwitcherSheet visible={switcher.visible} onClose={switcher.close} />
+      <AddBikeUpsell visible={upsellOpen} onClose={() => setUpsellOpen(false)} />
     </Screen>
   );
 }

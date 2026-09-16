@@ -104,6 +104,10 @@ export default function ExpensesTab() {
         }
       />
 
+      <Txt role="helper" tone="mut" style={{ marginBottom: 10 }}>
+        Every taka, one line each.
+      </Txt>
+
       <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
         <StatTile
           label={analytics.ownership.costBasis === 'total' ? 'ALL-IN' : 'TOTAL SPENT'}
@@ -115,6 +119,12 @@ export default function ExpensesTab() {
         />
         <StatTile label="THIS MONTH" value={formatCurrency(analytics.thisMonthMinor, analytics.currency)} />
       </View>
+
+      {analytics.ownership.costBasis === 'total' ? (
+        <Txt role="helper" tone="mut" style={{ marginBottom: 10 }} testID="hint-cost-basis">
+          All-in includes the purchase price — set in Settings › Cost basis.
+        </Txt>
+      ) : null}
 
       {costHint ? (
         <Txt role="helper" tone="mut" style={{ marginBottom: 14 }} testID="hint-cost-per-distance">
@@ -169,8 +179,8 @@ export default function ExpensesTab() {
   const footer =
     lines.length > 0 ? (
       <Txt role="helper" tone="mut" style={{ marginTop: 16 }}>
-        Fuel, service, part and accessory costs link in automatically and appear exactly once — no double
-        counting. Manual entries cover everything else.
+        Parts fitted during a service are inside that service&apos;s total. Accessories count in totals but
+        not in cost / km — a one-off would make that figure swing.
       </Txt>
     ) : null;
 

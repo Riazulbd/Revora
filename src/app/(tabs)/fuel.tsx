@@ -25,11 +25,11 @@ import { FuelRow } from '@/features/fuel/FuelRow';
 import { MileageExplainSheet } from '@/features/fuel/MileageExplainSheet';
 import { ProUpsellSheet, useProGate } from '@/features/premium/ProUpsell';
 import { useConnectivity } from '@/services/connectivity';
-import { mileageBlockerMessage } from '@/calculations/mileage';
 import { volumeUnitLabel } from '@/calculations/units';
-import { formatMonthLong, monthKey } from '@/utils/date';
-import { formatCurrency, formatPricePerVolume, formatVolume } from '@/utils/format';
+import { monthName } from '@/utils/date';
+import { formatCurrency, formatDistance, formatPricePerVolume, formatVolume } from '@/utils/format';
 import { useTheme } from '@/theme';
+import type { CurrencyCode, UnitPreferences } from '@/types';
 
 type Filter = 'all' | 'full' | 'partial' | 'adjusted';
 
@@ -102,7 +102,7 @@ export default function FuelTab() {
       {!connectivity.isOnline ? (
         <Banner
           icon="wifiOff"
-          message="You're offline. Everything still works — logs save here and sync when a connection returns."
+          message="You're offline. Fills you log now are saved on this phone and sync later."
           style={{ marginBottom: 14 }}
           testID="banner-offline"
         />
@@ -114,7 +114,7 @@ export default function FuelTab() {
               fill count read the calendar month while average price read the
               whole log, and nothing on screen said so — a rider whose fills
               were dated last month saw "FILLS 0" sitting above those fills. */}
-          <Eyebrow style={{ marginBottom: 8 }}>{formatMonthLong(monthKey(analytics.today))}</Eyebrow>
+          <Eyebrow style={{ marginBottom: 8 }}>{monthName(analytics.today)}</Eyebrow>
           <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
             <SummaryTile
               label="SPEND"
@@ -206,23 +206,19 @@ export default function FuelTab() {
         ListFooterComponent={footer}
         ListEmptyComponent={
           entries.length === 0 ? (
-            <EmptyState
-              icon="fuel"
-              title="No fuel logs yet"
-              message={mileageBlockerMessage(analytics?.mileage.blockedBy ?? 'no_fills')}
-              primaryAction={{ label: 'Log a fill-up', onPress: () => router.push('/fuel/add') }}
-              variant="page"
-              testID="empty-fuel"
-            />
+            <>
+              <EmptyState
+                icon="fuel"
+                title="Your fills will live here"
+                message="Log every fill — litres, price, and whether the tank was full. Two full-tank fills in a row is what unlocks a measured km/L."
+                primaryAction={{ label: 'Log a fill-up', onPress: () => router.push('/fuel/add') }}
+                variant="page"
+                testID="empty-fuel"
+              />
+              <ExampleFill units={units} currency={analytics?.currency ?? units.currency} />
+            </>
           ) : (
-            <Card style={{ alignItems: 'center', paddingVertical: 28 }}>
-              <Txt role="mediumStrong" align="center">
-                No fills match this filter
-              </Txt>
-              <Txt role="metaSmall" tone="mut" align="center" style={{ marginTop: 6 }}>
-                Switch back to All fills to see the whole log.
-              </Txt>
-            </Card>
+            <FilteredEmpty filter={filter} onShowAll={() => setFilter('all')} />
           )
         }
         renderItem={({ item }) => (
@@ -285,5 +281,100 @@ function SummaryTile({ label, value, suffix }: { label: string; value: string; s
         ) : null}
       </Txt>
     </View>
+  );
+}
+
+/**
+ * A worked example under the empty state.
+ *
+ * A rider who has logged nothing has no idea what a fill record contains or
+ * why the app keeps asking whether the tank was full. One example row answers
+ * both in less space than a paragraph — and it is unmistakably an example,
+ * greyed and captioned, never passed off as their data.
+ */
+function ExampleFill({ units, currency }: { units: UnitPreferences; currency: CurrencyCode }) {
+  const { c, radius } = useTheme();
+
+  return (
+    <View style={{ gap: 8, marginTop: 20 }}>
+      <Eyebrow>WHAT A FILL LOOKS LIKE</Eyebrow>
+      <View
+        style={{
+          borderRadius: radius.listCard,
+          borderWidth: 1,
+          borderColor: c.brd,
+          borderStyle: 'dashed',
+          backgroundColor: 'transparent',
+          padding: 14,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+          opacity: 0.75,
+        }}
+        accessibilityLabel="Example fill: 8.2 litres, full tank"
+        testID="example-fill"
+      >
+        <View style={{ flex: 1, gap: 3 }}>
+          <Txt role="rowTitleDense" tone="mut">
+            {`16 Sep · ${formatDistance(6_214_000, units.distance)}`}
+          </Txt>
+          <Txt role="metaSmall" tone="mut">
+            {`${formatVolume(8_200, units.volume)} · Full tank`}
+          </Txt>
+        </View>
+        <View style={{ alignItems: 'flex-end', gap: 4 }}>
+          <Txt role="value" tone="mut">
+            {formatCurrency(100_400, currency)}
+          </Txt>
+          <Txt role="micro" tone="mut">
+            km/L later
+          </Txt>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+/**
+ * A filter that matched nothing.
+ *
+ * The distinction that matters: an empty "Partial" filter is not a gap in the
+ * log, it is a fact about the bike — every fill was a full tank, which is the
+ * best case for mileage. Saying "no results" would read as a failure.
+ */
+function FilteredEmpty({ filter, onShowAll }: { filter: Filter; onShowAll: () => void }) {
+  const copy: Record<Exclude<Filter, 'all'>, { title: string; message: string }> = {
+    full: {
+      title: 'No full-tank fills',
+      message: 'Mileage is measured between two full tanks, so marking your next one Full unlocks it.',
+    },
+    partial: {
+      title: 'No partial fills',
+      message: 'Every fill so far was a full tank — good news for mileage.',
+    },
+    adjusted: {
+      title: 'No adjustments',
+      message: 'Nothing has been logged as spilled, leaked or drained. That is the normal case.',
+    },
+  };
+  const { title, message } = copy[filter === 'all' ? 'partial' : filter];
+
+  return (
+    <Card style={{ alignItems: 'center', paddingVertical: 26, gap: 6 }}>
+      <Txt role="mediumStrong" align="center">
+        {title}
+      </Txt>
+      <Txt role="metaSmall" tone="mut" align="center">
+        {message}
+      </Txt>
+      <Button
+        label="Show all fills"
+        variant="secondary"
+        size="small"
+        onPress={onShowAll}
+        style={{ marginTop: 8 }}
+        testID="cta-show-all-fills"
+      />
+    </Card>
   );
 }
