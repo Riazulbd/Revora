@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..800&display=swap" rel="stylesheet">
+<style>
+body { margin:0; background:#26292e; font-family:'Google Sans Flex',sans-serif; }
+a { color:#F4511E; text-decoration:none; }
+@keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</helmet>
+<section style="padding:48px; display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap">
+
+  <!-- LIGHT · DOCUMENT VAULT -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Document vault (light)</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 20px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 4px 0">
+        <div style="font:700 24px 'Google Sans Flex'; color:#14171B">Documents</div>
+        <div style="height:40px; border-radius:14px; background:#F4511E; display:flex; align-items:center; gap:6px; padding:0 16px; font:700 13px 'Google Sans Flex'; color:#FFFFFF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>Add</div>
+      </div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; margin-top:16px; padding:16px; display:flex; flex-direction:column; gap:10px">
+        <div style="display:flex; justify-content:space-between; align-items:center"><span style="display:flex; align-items:center; gap:10px; font:700 17px 'Google Sans Flex'; color:#14171B"><span style="width:36px; height:36px; border-radius:11px; background:#FBF3E4; display:flex; align-items:center; justify-content:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B7791F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>Tax token</span><span style="font:700 11px 'Google Sans Flex'; letter-spacing:0.4px; color:#B7791F; background:#FFFFFF; border:1px solid #B7791F; border-radius:8px; padding:2px 8px">EXPIRING &middot; 12 DAYS</span></div>
+        <div style="font:500 12px 'Google Sans Flex'; color:#878E98; font-variant-numeric:tabular-nums">12 Mar 2026 — valid until 28 Sep 2026</div>
+        <div style="display:flex; align-items:center; gap:10px">
+          <div style="flex:1; height:44px; border-radius:11px; background:#F1F2F5; display:flex; align-items:center; padding:0 14px; font:700 15px 'Google Sans Flex'; color:#14171B; font-variant-numeric:tabular-nums; letter-spacing:0.5px">DHA-TT-4471982</div>
+          <div style="width:44px; height:44px; border-radius:11px; background:#FDEAE3; display:flex; align-items:center; justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F4511E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></div>
+        </div>
+      </div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; margin-top:10px; padding:16px; display:flex; flex-direction:column; gap:10px">
+        <div style="display:flex; justify-content:space-between; align-items:center"><span style="display:flex; align-items:center; gap:10px; font:700 17px 'Google Sans Flex'; color:#14171B"><span style="width:36px; height:36px; border-radius:11px; background:#E3F6EE; display:flex; align-items:center; justify-content:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0FA968" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.4 3 7.8 7 9 4-1.2 7-4.6 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></span>Insurance</span><span style="font:700 11px 'Google Sans Flex'; letter-spacing:0.4px; color:#0FA968; background:#FFFFFF; border:1px solid #0FA968; border-radius:8px; padding:2px 8px">VALID &middot; 179 DAYS</span></div>
+        <div style="font:500 12px 'Google Sans Flex'; color:#878E98; font-variant-numeric:tabular-nums">12 Mar 2026 — valid until 11 Mar 2027</div>
+        <div style="display:flex; align-items:center; gap:10px">
+          <div style="flex:1; height:44px; border-radius:11px; background:#F1F2F5; display:flex; align-items:center; padding:0 14px; font:700 15px 'Google Sans Flex'; color:#14171B; font-variant-numeric:tabular-nums; letter-spacing:0.5px">GD-2216-0093</div>
+          <div style="width:44px; height:44px; border-radius:11px; background:#FDEAE3; display:flex; align-items:center; justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F4511E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></div>
+        </div>
+      </div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; margin-top:10px; padding:16px; display:flex; flex-direction:column; gap:8px">
+        <div style="display:flex; justify-content:space-between; align-items:center"><span style="display:flex; align-items:center; gap:10px; font:700 17px 'Google Sans Flex'; color:#14171B"><span style="width:36px; height:36px; border-radius:11px; background:#E7EEFC; display:flex; align-items:center; justify-content:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2E6BE6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 14h6M9 17h4"/></svg></span>Registration</span><span style="font:700 11px 'Google Sans Flex'; letter-spacing:0.4px; color:#B7791F; background:#FFFFFF; border:1px solid #B7791F; border-radius:8px; padding:2px 8px">NO EXPIRY RECORDED</span></div>
+        <div style="font:500 12px 'Google Sans Flex'; color:#B7791F">Add the valid-until date so reminders can fire.</div>
+      </div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; margin-top:10px; padding:16px; display:flex; justify-content:space-between; align-items:center">
+        <div style="display:flex; align-items:center; gap:10px"><span style="width:36px; height:36px; border-radius:11px; background:#F1F2F5; display:flex; align-items:center; justify-content:center; flex-shrink:0"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#878E98" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6"/></svg></span><div><span style="font:700 17px 'Google Sans Flex'; color:#14171B">Purchase invoice</span><div style="font:500 12px 'Google Sans Flex'; color:#878E98; margin-top:2px">Custom document</div></div></div>
+        <span style="font:700 11px 'Google Sans Flex'; letter-spacing:0.4px; color:#878E98; background:#F1F2F5; border-radius:8px; padding:2px 8px">NEVER EXPIRES</span>
+      </div>
+      <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; margin:12px 4px 0">Reminders fire 30, 14 and 3 days before an expiry. Everything here works offline — built for a traffic stop.</div>
+    </div>
+  </div>
+
+  <!-- DARK · DOCUMENT EDITOR, EXPIRY MISSING -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Document editor · Expiry missing (dark)</div>
+    <div style="width:412px; background:#101214; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#F2F4F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="font:700 20px 'Google Sans Flex'; color:#F2F4F6">Tax token</div>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap">
+        <div style="height:36px; border-radius:7px; background:#F2F4F6; color:#101214; display:flex; align-items:center; padding:0 13px; font:700 12px 'Google Sans Flex'">Tax token</div>
+        <div style="height:36px; border-radius:7px; background:#191C20; border:1px solid #2C3138; color:#F2F4F6; display:flex; align-items:center; padding:0 13px; font:600 12px 'Google Sans Flex'; box-sizing:border-box">Insurance</div>
+        <div style="height:36px; border-radius:7px; background:#191C20; border:1px solid #2C3138; color:#F2F4F6; display:flex; align-items:center; padding:0 13px; font:600 12px 'Google Sans Flex'; box-sizing:border-box">Licence</div>
+        <div style="height:36px; border-radius:7px; background:#191C20; border:1px solid #2C3138; color:#F2F4F6; display:flex; align-items:center; padding:0 13px; font:600 12px 'Google Sans Flex'; box-sizing:border-box">Custom</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:7px; margin-top:16px">
+        <div style="font:600 12px 'Google Sans Flex'; color:#9AA1AA">Tax token no.</div>
+        <div style="height:52px; border-radius:13px; background:#191C20; border:1px solid #2C3138; display:flex; align-items:center; justify-content:space-between; padding:0 6px 0 14px; box-sizing:border-box">
+          <span style="font:700 15px 'Google Sans Flex'; color:#F2F4F6; font-variant-numeric:tabular-nums; letter-spacing:0.5px">DHA-TT-4471982</span>
+          <div style="width:40px; height:40px; border-radius:10px; background:#3A2118; display:flex; align-items:center; justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF6B3D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:12px; margin-top:14px">
+        <div style="flex:1; display:flex; flex-direction:column; gap:7px">
+          <div style="font:600 12px 'Google Sans Flex'; color:#9AA1AA">Issued on</div>
+          <div style="height:52px; border-radius:13px; background:#191C20; border:1px solid #2C3138; display:flex; align-items:center; padding:0 14px; font:700 14px 'Google Sans Flex'; color:#F2F4F6; box-sizing:border-box">12 Mar 2026</div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:7px">
+          <div style="font:600 12px 'Google Sans Flex'; color:#9AA1AA">Valid until</div>
+          <div style="height:52px; border-radius:13px; background:#191C20; border:1.5px solid #E5695A; display:flex; align-items:center; padding:0 14px; font:500 14px 'Google Sans Flex'; color:#9AA1AA; box-sizing:border-box">Pick a date</div>
+        </div>
+      </div>
+      <div style="border-radius:11px; background:#191C20; border:1px solid #2C3138; padding:12px 14px; display:flex; gap:10px; align-items:flex-start; margin-top:12px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E5695A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:1px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <div style="font:500 12.5px 'Google Sans Flex'; line-height:1.5; color:#F2F4F6"><span style="font-weight:700; color:#E5695A">A tax token is issued for a term.</span> Without the end date this is just a photo — the reminder that makes it worth keeping can never fire. Custom documents are exempt.</div>
+      </div>
+      <div style="border-radius:16px; background:#191C20; border:1px solid #2C3138; padding:14px 16px; margin-top:14px; display:flex; align-items:center; justify-content:space-between">
+        <div style="display:flex; align-items:center; gap:10px"><span style="width:36px; height:36px; border-radius:11px; background:#3A2118; display:flex; align-items:center; justify-content:center; flex-shrink:0"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FF6B3D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13v8M12 13l-3 3M12 13l3 3M20 16.6A5 5 0 0 0 18 7h-1.3A8 8 0 1 0 4 15.3"/></svg></span><div><div style="font:700 14px 'Google Sans Flex'; color:#F2F4F6">Keep an offline copy</div><div style="font:500 12px 'Google Sans Flex'; color:#9AA1AA; margin-top:2px">Openable with no signal — where you get stopped</div></div></div>
+        <div style="width:52px; height:32px; border-radius:16px; background:#FF6B3D; display:flex; align-items:center; justify-content:flex-end; padding:3px; box-sizing:border-box"><div style="width:26px; height:26px; border-radius:50%; background:#101214"></div></div>
+      </div>
+      <div style="height:52px; border-radius:14px; background:#23272C; border:1px solid #2C3138; display:flex; align-items:center; justify-content:center; font:700 15px 'Google Sans Flex'; color:#9AA1AA; margin-top:16px; box-sizing:border-box">Save document</div>
+    </div>
+  </div>
+
+  <!-- LIGHT · WARRANTIES -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Warranties · Open claim (light)</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 20px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 4px 0">
+        <div style="font:700 24px 'Google Sans Flex'; color:#14171B">Warranties</div>
+        <div style="height:40px; border-radius:14px; background:#F4511E; display:flex; align-items:center; gap:6px; padding:0 16px; font:700 13px 'Google Sans Flex'; color:#FFFFFF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>Add</div>
+      </div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; margin-top:16px; padding:16px; display:flex; flex-direction:column; gap:8px">
+        <div style="display:flex; justify-content:space-between; align-items:center"><span style="display:flex; align-items:center; gap:10px; font:700 15px 'Google Sans Flex'; color:#14171B"><span style="width:36px; height:36px; border-radius:11px; background:#FBF3E4; display:flex; align-items:center; justify-content:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B7791F" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="7" width="16" height="11" rx="2"/><path d="M21 11v3M6.5 12.5h3M15 12.5h3M16.5 11v3"/></svg></span>Battery &middot; Hamko</span><span style="font:700 11px 'Google Sans Flex'; letter-spacing:0.4px; color:#B7791F; background:#FFFFFF; border:1px solid #B7791F; border-radius:8px; padding:2px 8px">CLAIM OPEN</span></div>
+        <div style="font:500 12px 'Google Sans Flex'; color:#878E98; font-variant-numeric:tabular-nums">Bought at Motor House Dhanmondi &middot; valid until 28 Apr 2027</div>
+        <div style="font:500 12px 'Google Sans Flex'; color:#B7791F">Claim opened 11 Sep — not holding charge. Awaiting inspection.</div>
+      </div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; margin-top:10px; padding:16px; display:flex; flex-direction:column; gap:8px">
+        <div style="display:flex; justify-content:space-between; align-items:center"><span style="display:flex; align-items:center; gap:10px; font:700 15px 'Google Sans Flex'; color:#14171B"><span style="width:36px; height:36px; border-radius:11px; background:#E3F6EE; display:flex; align-items:center; justify-content:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0FA968" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v5M12 16v5M3 12h5M16 12h5"/></svg></span>Tyre (rear) &middot; MRF</span><span style="font:700 11px 'Google Sans Flex'; letter-spacing:0.4px; color:#0FA968; background:#FFFFFF; border:1px solid #0FA968; border-radius:8px; padding:2px 8px">ACTIVE</span></div>
+        <div style="font:500 12px 'Google Sans Flex'; color:#878E98; font-variant-numeric:tabular-nums">Bought at Rahim Motors &middot; valid until 2 Jul 2028</div>
+      </div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; margin-top:10px; padding:16px; display:flex; flex-direction:column; gap:8px; opacity:0.65">
+        <div style="display:flex; justify-content:space-between; align-items:center"><span style="display:flex; align-items:center; gap:10px; font:700 15px 'Google Sans Flex'; color:#14171B"><span style="width:36px; height:36px; border-radius:11px; background:#F1F2F5; display:flex; align-items:center; justify-content:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#878E98" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="7" width="16" height="11" rx="2"/><path d="M21 11v3M6.5 12.5h3"/></svg></span>Old battery &middot; Volta</span><span style="font:700 11px 'Google Sans Flex'; letter-spacing:0.4px; color:#878E98; background:#F1F2F5; border-radius:8px; padding:2px 8px">EXPIRED</span></div>
+        <div style="font:500 12px 'Google Sans Flex'; color:#878E98">Kept as evidence of cover — matters at resale.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DARK · SAFETY CHECK FORM -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Safety check · One-handed form (dark)</div>
+    <div style="width:412px; background:#101214; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#F2F4F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="font:700 20px 'Google Sans Flex'; color:#F2F4F6">Walk-around check</div>
+      </div>
+      <div style="font:500 12px 'Google Sans Flex'; color:#9AA1AA; margin-top:4px">Today &middot; 34,712 km &middot; tap one per row, top to bottom</div>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:14px">
+        <div style="border-radius:16px; background:#191C20; border:1px solid #2C3138; padding:14px 16px">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px">
+            <span style="display:flex; align-items:center; gap:10px; font:700 15px 'Google Sans Flex'; color:#F2F4F6; flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9AA1AA" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v5M12 16v5M3 12h5M16 12h5"/></svg>Tyres</span>
+            <div style="display:flex; gap:8px; flex-shrink:0">
+              <div style="height:40px; min-width:56px; border-radius:11px; background:#4CC38A; display:flex; align-items:center; justify-content:center; font:700 13px 'Google Sans Flex'; color:#101214; padding:0 12px">OK</div>
+              <div style="height:40px; min-width:56px; border-radius:11px; background:#23272C; display:flex; align-items:center; justify-content:center; font:600 13px 'Google Sans Flex'; color:#9AA1AA; padding:0 12px">Watch</div>
+              <div style="height:40px; min-width:56px; border-radius:11px; background:#23272C; display:flex; align-items:center; justify-content:center; font:600 13px 'Google Sans Flex'; color:#9AA1AA; padding:0 12px">Action</div>
+            </div>
+          </div>
+        </div>
+        <div style="border-radius:16px; background:#191C20; border:1px solid #2C3138; padding:14px 16px">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px">
+            <span style="display:flex; align-items:center; gap:10px; font:700 15px 'Google Sans Flex'; color:#F2F4F6; flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9AA1AA" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/></svg>Chain</span>
+            <div style="display:flex; gap:8px; flex-shrink:0">
+              <div style="height:40px; min-width:56px; border-radius:11px; background:#23272C; display:flex; align-items:center; justify-content:center; font:600 13px 'Google Sans Flex'; color:#9AA1AA; padding:0 12px">OK</div>
+              <div style="height:40px; min-width:56px; border-radius:11px; background:#E0A33C; display:flex; align-items:center; justify-content:center; font:700 13px 'Google Sans Flex'; color:#101214; padding:0 12px">Watch</div>
+              <div style="height:40px; min-width:56px; border-radius:11px; background:#23272C; display:flex; align-items:center; justify-content:center; font:600 13px 'Google Sans Flex'; color:#9AA1AA; padding:0 12px">Action</div>
+            </div>
+          </div>
+          <div style="font:500 12px 'Google Sans Flex'; color:#E0A33C; margin-top:8px">Slack looks high — noted for next service.</div>
+        </div>
+        <div style="border-radius:16px; background:#191C20; border:1px solid #2C3138; padding:14px 16px">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px">
+            <span style="display:flex; align-items:center; gap:10px; font:700 15px 'Google Sans Flex'; color:#F2F4F6; flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9AA1AA" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 3.8v2M12 18.2v2M3.8 12h2M18.2 12h2"/></svg>Brakes</span>
+            <div style="display:flex; gap:8px; flex-shrink:0">
+              <div style="height:40px; min-width:56px; border-radius:11px; background:#23272C; display:flex; align-items:center; justify-content:center; font:600 13px 'Google Sans Flex'; color:#9AA1AA; padding:0 12px">OK</div>
+              <div style="height:40px; min-width:56px; border-radius:11px; background:#23272C; display:flex; align-items:center; justify-content:center; font:600 13px 'Google Sans Flex'; color:#9AA1AA; padding:0 12px">Watch</div>
+              <div style="height:40px; min-width:56px; border-radius:11px; background:#E5695A; display:flex; align-items:center; justify-content:center; font:700 13px 'Google Sans Flex'; color:#101214; padding:0 12px">Action</div>
+            </div>
+          </div>
+          <div style="font:500 12px 'Google Sans Flex'; color:#E5695A; margin-top:8px">Front lever spongy — this shows on the Dashboard until cleared.</div>
+        </div>
+        <div style="border-radius:16px; background:#191C20; border:1px solid #2C3138; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px">
+          <span style="display:flex; align-items:center; gap:10px; font:700 15px 'Google Sans Flex'; color:#F2F4F6; flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9AA1AA" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="7" width="16" height="11" rx="2"/><path d="M21 11v3M6.5 12.5h3M15 12.5h3M16.5 11v3"/></svg>Battery</span>
+          <div style="display:flex; gap:8px; flex-shrink:0">
+            <div style="height:40px; min-width:56px; border-radius:11px; background:#4CC38A; display:flex; align-items:center; justify-content:center; font:700 13px 'Google Sans Flex'; color:#101214; padding:0 12px">OK</div>
+            <div style="height:40px; min-width:56px; border-radius:11px; background:#23272C; display:flex; align-items:center; justify-content:center; font:600 13px 'Google Sans Flex'; color:#9AA1AA; padding:0 12px">Watch</div>
+            <div style="height:40px; min-width:56px; border-radius:11px; background:#23272C; display:flex; align-items:center; justify-content:center; font:600 13px 'Google Sans Flex'; color:#9AA1AA; padding:0 12px">Action</div>
+          </div>
+        </div>
+        <div style="border-radius:16px; background:#191C20; border:1px solid #2C3138; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px">
+          <span style="display:flex; align-items:center; gap:10px; font:700 15px 'Google Sans Flex'; color:#F2F4F6; flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9AA1AA" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.7.5 1.1 1.3 1.2 2.1h4.6c.1-.8.5-1.6 1.2-2.1A6 6 0 0 0 12 3Z"/></svg>Lights</span>
+          <div style="display:flex; gap:8px; flex-shrink:0">
+            <div style="height:40px; min-width:56px; border-radius:11px; background:#4CC38A; display:flex; align-items:center; justify-content:center; font:700 13px 'Google Sans Flex'; color:#101214; padding:0 12px">OK</div>
+            <div style="height:40px; min-width:56px; border-radius:11px; background:#23272C; display:flex; align-items:center; justify-content:center; font:600 13px 'Google Sans Flex'; color:#9AA1AA; padding:0 12px">Watch</div>
+            <div style="height:40px; min-width:56px; border-radius:11px; background:#23272C; display:flex; align-items:center; justify-content:center; font:600 13px 'Google Sans Flex'; color:#9AA1AA; padding:0 12px">Action</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:52px; border-radius:14px; background:#FF6B3D; display:flex; align-items:center; justify-content:center; font:700 15px 'Google Sans Flex'; color:#101214; margin-top:16px">Save check</div>
+    </div>
+  </div>
+
+  <!-- LIGHT · PROOF PACK -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Proof Pack (light)</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#14171B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="font:700 20px 'Google Sans Flex'; color:#14171B">Proof Pack</div>
+      </div>
+      <div style="font:500 13px 'Google Sans Flex'; line-height:1.5; color:#878E98; margin-top:6px">A printable ownership history for a buyer. Rendered on this phone — nothing is uploaded.</div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:16px; margin-top:14px; display:flex; flex-direction:column; gap:10px">
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E">Included</div>
+        <div style="font:500 13px 'Google Sans Flex'; color:#14171B; line-height:1.9">Motorcycle details &middot; 14 services &middot; 52 fuel logs with mileage &middot; parts history &middot; 5 documents</div>
+      </div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; padding:14px 16px; margin-top:10px; display:flex; align-items:center; justify-content:space-between">
+        <div style="display:flex; align-items:center; gap:10px"><span style="width:36px; height:36px; border-radius:11px; background:#FDEAE3; display:flex; align-items:center; justify-content:center; flex-shrink:0"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F4511E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="m1 1 22 22"/></svg></span><div><div style="font:700 14px 'Google Sans Flex'; color:#14171B">Buyer-safe mode</div><div style="font:500 12px 'Google Sans Flex'; color:#878E98; margin-top:2px">Every price is left out of the PDF, not hidden</div></div></div>
+        <div style="width:52px; height:32px; border-radius:16px; background:#F4511E; display:flex; align-items:center; justify-content:flex-end; padding:3px; box-sizing:border-box"><div style="width:26px; height:26px; border-radius:50%; background:#FFFFFF"></div></div>
+      </div>
+      <div style="border-radius:18px; background:#F1F2F5; padding:16px; margin-top:10px; display:flex; gap:12px; align-items:flex-start">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#878E98" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:2px"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+        <div style="font:500 12px 'Google Sans Flex'; line-height:1.55; color:#14171B"><span style="font-weight:700">The stamp certifies provenance only</span> — record count, dates covered, and a reference that fingerprints exactly these records so a buyer can ask for a fresh copy and compare. Revora has never seen the motorcycle; this is not an inspection.</div>
+      </div>
+      <div style="border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; padding:12px 14px; display:flex; gap:10px; align-items:flex-start; margin-top:10px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B7791F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:1px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <div style="font:500 12.5px 'Google Sans Flex'; line-height:1.5; color:#14171B"><span style="font-weight:700; color:#B7791F">Thin log:</span> only 3 months of records. The pack will say so — a buyer can see the coverage dates.</div>
+      </div>
+      <div style="height:52px; border-radius:14px; background:#F4511E; display:flex; align-items:center; justify-content:center; font:700 15px 'Google Sans Flex'; color:#FFFFFF; margin-top:16px">Generate PDF</div>
+    </div>
+  </div>
+
+  <!-- LIGHT · WARRANTY EDITOR -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Warranty editor (light)</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#14171B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="font:700 20px 'Google Sans Flex'; color:#14171B">Warranty</div>
+      </div>
+      <div style="display:flex; gap:12px; margin-top:14px">
+        <div style="flex:1.4; display:flex; flex-direction:column; gap:7px"><div style="font:600 12px 'Google Sans Flex'; color:#878E98">What is covered</div><div style="height:48px; border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 14px; font:700 14px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">Battery &middot; Hamko MF9</div></div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:7px"><div style="font:600 12px 'Google Sans Flex'; color:#878E98">Valid until</div><div style="height:48px; border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 14px; font:700 14px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">28 Apr 2027</div></div>
+      </div>
+      <div style="display:flex; gap:12px; margin-top:12px">
+        <div style="flex:1; display:flex; flex-direction:column; gap:7px"><div style="font:600 12px 'Google Sans Flex'; color:#878E98">Provider</div><div style="height:48px; border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 14px; font:700 14px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">Hamko</div></div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:7px"><div style="font:600 12px 'Google Sans Flex'; color:#878E98">Remind before</div><div style="height:48px; border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 14px; font:700 14px 'Google Sans Flex'; color:#14171B; box-sizing:border-box; font-variant-numeric:tabular-nums">30 days</div></div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px">
+        <div style="font:600 12px 'Google Sans Flex'; color:#878E98">Claim status</div>
+        <div style="display:flex; gap:8px">
+          <div style="height:36px; border-radius:7px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 13px; font:600 12px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">None</div>
+          <div style="height:36px; border-radius:7px; background:#B7791F; display:flex; align-items:center; padding:0 13px; font:700 12px 'Google Sans Flex'; color:#FFFFFF">Open</div>
+          <div style="height:36px; border-radius:7px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 13px; font:600 12px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">Settled</div>
+          <div style="height:36px; border-radius:7px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 13px; font:600 12px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">Rejected</div>
+        </div>
+      </div>
+      <div style="height:48px; border-radius:13px; background:#FFFFFF; border:1px dashed #E9EBEF; display:flex; align-items:center; justify-content:center; gap:8px; font:600 13px 'Google Sans Flex'; color:#878E98; margin-top:14px; box-sizing:border-box"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878E98" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>Evidence photos &middot; receipt, warranty card</div>
+      <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; margin-top:12px">Expired warranties are kept — evidence of cover matters at resale.</div>
+      <div style="height:52px; border-radius:14px; background:#F4511E; display:flex; align-items:center; justify-content:center; font:700 15px 'Google Sans Flex'; color:#FFFFFF; margin-top:14px">Save warranty</div>
+    </div>
+  </div>
+
+  <!-- LIGHT · PROOF PACK GENERATING / READY -->
+  <div style="display:flex; flex-direction:column; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:12px">
+      <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Proof Pack · Generating</div>
+      <div style="width:412px; height:280px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; align-items:center; justify-content:center; box-sizing:border-box; padding:24px">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center">
+          <div style="width:44px; height:44px; border-radius:50%; border:4px solid #FDEAE3; border-top-color:#F4511E; animation:spin 0.9s linear infinite"></div>
+          <div style="font:700 15px 'Google Sans Flex'; color:#14171B">Building your Proof Pack&hellip;</div>
+          <div style="font:500 12px 'Google Sans Flex'; color:#878E98">Rendering on this phone — 71 records, nothing uploaded.</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px">
+      <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Proof Pack · Ready</div>
+      <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; box-sizing:border-box; padding:24px; gap:14px">
+        <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:20px; display:flex; gap:14px; align-items:center">
+          <div style="width:56px; height:72px; border-radius:8px; background:#F1F2F5; border:1px solid #E9EBEF; display:flex; align-items:center; justify-content:center; box-sizing:border-box"><svg width="24" height="24" viewBox="0 0 32 32" fill="none"><path d="M5.5 22.5a11 11 0 0 1 21 0" stroke="#F4511E" stroke-width="2.5" stroke-linecap="round"/><path d="M16 22.5 22 13" stroke="#F4511E" stroke-width="2.5" stroke-linecap="round"/><circle cx="16" cy="22.5" r="2.2" fill="#F4511E"/></svg></div>
+          <div style="flex:1">
+            <div style="font:700 15px 'Google Sans Flex'; color:#14171B">Proof Pack &middot; The Red One</div>
+            <div style="font:500 12px 'Google Sans Flex'; color:#878E98; margin-top:3px; font-variant-numeric:tabular-nums">71 records &middot; Feb 2022 – Sep 2026 &middot; buyer-safe</div>
+            <div style="font:500 11px 'Google Sans Flex'; color:#878E98; margin-top:3px; font-variant-numeric:tabular-nums">Ref RV-7K2M-9QX4 — fingerprints exactly these records</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px">
+          <div style="flex:1; height:52px; border-radius:14px; background:#F4511E; display:flex; align-items:center; justify-content:center; font:700 15px 'Google Sans Flex'; color:#FFFFFF">Share PDF</div>
+          <div style="flex:1; height:52px; border-radius:14px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; justify-content:center; font:700 15px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">Open</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHT · SAFETY & CONDITION LOG -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Safety &amp; condition · One on action (light)</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 20px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 4px 0">
+        <div style="font:700 24px 'Google Sans Flex'; color:#14171B">Safety</div>
+        <div style="height:40px; border-radius:14px; background:#F4511E; display:flex; align-items:center; gap:6px; padding:0 16px; font:700 13px 'Google Sans Flex'; color:#FFFFFF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>New check</div>
+      </div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1.5px solid #D92D20; padding:14px 16px; margin-top:14px; display:flex; gap:12px; align-items:flex-start">
+        <div style="width:36px; height:36px; border-radius:11px; background:#FDECEA; display:flex; align-items:center; justify-content:center; flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#D92D20" stroke-width="1.8"/><circle cx="12" cy="12" r="3.5" stroke="#D92D20" stroke-width="1.8"/><path d="M12 3.8v2M12 18.2v2M3.8 12h2M18.2 12h2" stroke="#D92D20" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <div style="flex:1"><div style="font:700 14px 'Google Sans Flex'; color:#D92D20">Brakes need action</div><div style="font:500 12px 'Google Sans Flex'; color:#14171B; margin-top:2px">Front lever spongy — marked 3 days ago. Shows on the Dashboard until cleared.</div></div>
+      </div>
+      <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E; margin:16px 4px 8px">Current — latest check per area</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+        <div style="border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; padding:11px 12px"><div style="display:flex; justify-content:space-between; align-items:center"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Brakes</span><span style="width:10px; height:10px; border-radius:50%; background:#D92D20"></span></div><div style="font:500 11px 'Google Sans Flex'; color:#D92D20; margin-top:3px">Action &middot; 3 days ago</div></div>
+        <div style="border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; padding:11px 12px"><div style="display:flex; justify-content:space-between; align-items:center"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Chain</span><span style="width:10px; height:10px; border-radius:50%; background:#B7791F"></span></div><div style="font:500 11px 'Google Sans Flex'; color:#B7791F; margin-top:3px; font-variant-numeric:tabular-nums">Watch &middot; slack 32 mm</div></div>
+        <div style="border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; padding:11px 12px"><div style="display:flex; justify-content:space-between; align-items:center"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Tyres</span><span style="width:10px; height:10px; border-radius:50%; background:#0FA968"></span></div><div style="font:500 11px 'Google Sans Flex'; color:#878E98; margin-top:3px; font-variant-numeric:tabular-nums">OK &middot; tread 3.1 mm</div></div>
+        <div style="border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; padding:11px 12px"><div style="display:flex; justify-content:space-between; align-items:center"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Battery</span><span style="width:10px; height:10px; border-radius:50%; background:#0FA968"></span></div><div style="font:500 11px 'Google Sans Flex'; color:#878E98; margin-top:3px">OK &middot; 12 Sep</div></div>
+        <div style="border-radius:11px; background:#F1F2F5; border:1px dashed #C6CAD1; padding:11px 12px"><div style="display:flex; justify-content:space-between; align-items:center"><span style="font:700 13px 'Google Sans Flex'; color:#878E98">Lights</span><span style="width:10px; height:10px; border-radius:50%; background:#C6CAD1"></span></div><div style="font:500 11px 'Google Sans Flex'; color:#878E98; margin-top:3px">Never checked</div></div>
+      </div>
+      <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; margin:8px 4px 0">Never checked is its own state — absence of a check is not &ldquo;OK&rdquo;.</div>
+      <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E; margin:16px 4px 8px">History</div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; padding:0 16px">
+        <div style="font:700 11px 'Google Sans Flex'; letter-spacing:0.4px; text-transform:uppercase; color:#878E98; padding:12px 0 4px">13 Sep · 34,712 km · 5 areas</div>
+        <div style="display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #E9EBEF"><span style="width:8px; height:8px; border-radius:50%; background:#D92D20; flex-shrink:0"></span><div style="flex:1"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Brakes</span> <span style="font:500 12px 'Google Sans Flex'; color:#878E98">&middot; front lever spongy</span></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#878E98" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="11" x="5" y="8" rx="2"/><circle cx="12" cy="13.5" r="2.5"/></svg></div>
+        <div style="display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #E9EBEF"><span style="width:8px; height:8px; border-radius:50%; background:#B7791F; flex-shrink:0"></span><div style="flex:1"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Chain</span> <span style="font:500 12px 'Google Sans Flex'; color:#878E98; font-variant-numeric:tabular-nums">&middot; slack 32 mm</span></div></div>
+        <div style="display:flex; align-items:center; gap:10px; padding:9px 0"><span style="width:8px; height:8px; border-radius:50%; background:#0FA968; flex-shrink:0"></span><div style="flex:1"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Tyres, battery</span> <span style="font:500 12px 'Google Sans Flex'; color:#878E98; font-variant-numeric:tabular-nums">&middot; OK &middot; tread 3.1 mm</span></div></div>
+        <div style="font:700 11px 'Google Sans Flex'; letter-spacing:0.4px; text-transform:uppercase; color:#878E98; padding:12px 0 4px; border-top:1px solid #E9EBEF">28 Aug · 34,180 km · 2 areas</div>
+        <div style="display:flex; align-items:center; gap:10px; padding:9px 0 13px"><span style="width:8px; height:8px; border-radius:50%; background:#0FA968; flex-shrink:0"></span><div style="flex:1"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Chain, tyres</span> <span style="font:500 12px 'Google Sans Flex'; color:#878E98">&middot; OK</span></div></div>
+      </div>
+      <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; margin:8px 4px 0">Each row is one area. Checks made the same day group into a session; the data stores no session — just the checks.</div>
+    </div>
+  </div>
+
+  <!-- DARK · SAFETY NEVER CHECKED -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Safety · Never checked (dark)</div>
+    <div style="width:412px; background:#101214; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 4px 0">
+        <div style="font:700 24px 'Google Sans Flex'; color:#F2F4F6">Safety</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px">
+        <div style="border-radius:11px; background:#191C20; border:1px dashed #2C3138; padding:11px 12px"><span style="font:700 13px 'Google Sans Flex'; color:#9AA1AA">Tyres</span><div style="font:500 11px 'Google Sans Flex'; color:#9AA1AA; margin-top:3px">Never checked</div></div>
+        <div style="border-radius:11px; background:#191C20; border:1px dashed #2C3138; padding:11px 12px"><span style="font:700 13px 'Google Sans Flex'; color:#9AA1AA">Chain</span><div style="font:500 11px 'Google Sans Flex'; color:#9AA1AA; margin-top:3px">Never checked</div></div>
+        <div style="border-radius:11px; background:#191C20; border:1px dashed #2C3138; padding:11px 12px"><span style="font:700 13px 'Google Sans Flex'; color:#9AA1AA">Brakes</span><div style="font:500 11px 'Google Sans Flex'; color:#9AA1AA; margin-top:3px">Never checked</div></div>
+        <div style="border-radius:11px; background:#191C20; border:1px dashed #2C3138; padding:11px 12px"><span style="font:700 13px 'Google Sans Flex'; color:#9AA1AA">Battery</span><div style="font:500 11px 'Google Sans Flex'; color:#9AA1AA; margin-top:3px">Never checked</div></div>
+      </div>
+      <div style="border-radius:18px; background:#191C20; border:1px solid #2C3138; padding:24px 20px; margin-top:14px; display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B3D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.4 3 7.8 7 9 4-1.2 7-4.6 7-9V6l-7-3Z"/></svg>
+        <div style="font:700 15px 'Google Sans Flex'; color:#F2F4F6">Two minutes before a ride</div>
+        <div style="font:500 13px 'Google Sans Flex'; line-height:1.5; color:#9AA1AA; max-width:280px">Walk around the bike and mark each area OK, watch or action. No score, no grade — just what you&rsquo;d act on.</div>
+        <div style="height:48px; border-radius:14px; background:#FF6B3D; display:flex; align-items:center; justify-content:center; font:700 14px 'Google Sans Flex'; color:#101214; padding:0 22px; margin-top:4px">Start first check</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+</body>
+</html>

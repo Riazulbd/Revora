@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..800&display=swap" rel="stylesheet">
+<style>
+body { margin:0; background:#26292e; font-family:'Google Sans Flex',sans-serif; }
+a { color:#F4511E; text-decoration:none; }
+</style>
+</helmet>
+<section style="padding:48px; display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap">
+
+  <!-- LIGHT · LONG HISTORY -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Light · Long history</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 20px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 4px 0">
+        <div style="font:700 24px 'Google Sans Flex'; color:#14171B">Costs</div>
+        <div style="height:40px; border-radius:14px; background:#F4511E; display:flex; align-items:center; gap:6px; padding:0 16px; font:700 13px 'Google Sans Flex'; color:#FFFFFF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>Add expense</div>
+      </div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:16px; margin-top:16px; display:flex; flex-direction:column; gap:10px">
+        <div style="display:flex; gap:8px">
+          <div style="flex:1; border-radius:11px; background:#F1F2F5; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98">Total spent</div><div style="font:700 15px 'Google Sans Flex'; color:#14171B; margin-top:4px; font-variant-numeric:tabular-nums">&#2547;61,430</div></div>
+          <div style="flex:1; border-radius:11px; background:#F1F2F5; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98">Cost / km</div><div style="font:700 15px 'Google Sans Flex'; color:#14171B; margin-top:4px; font-variant-numeric:tabular-nums">&#2547;4.12</div></div>
+          <div style="flex:1; border-radius:11px; background:#F1F2F5; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98">This month</div><div style="font:700 15px 'Google Sans Flex'; color:#14171B; margin-top:4px; font-variant-numeric:tabular-nums">&#2547;4,520</div></div>
+        </div>
+      </div>
+      <div style="display:flex; background:#F1F2F5; border-radius:14px; padding:3px; margin-top:14px">
+        <div style="flex:1; height:38px; border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; justify-content:center; font:700 13px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">This month</div>
+        <div style="flex:1; height:38px; display:flex; align-items:center; justify-content:center; font:600 13px 'Google Sans Flex'; color:#878E98">All time</div>
+      </div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; margin-top:14px; padding:0 16px">
+        <div style="display:flex; align-items:center; gap:10px; padding:13px 0; border-bottom:1px solid #E9EBEF">
+          <div style="flex:1; min-width:0"><div style="font:700 14px 'Google Sans Flex'; color:#14171B">Full tank &middot; Meghna Petrol</div><div style="display:flex; align-items:center; gap:8px; margin-top:3px"><span style="font:500 12px 'Google Sans Flex'; color:#878E98; font-variant-numeric:tabular-nums">13 Sep</span><span style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#F4511E; background:#FDEAE3; border-radius:7px; padding:2px 7px">Fuel</span></div></div>
+          <div style="font:700 14px 'Google Sans Flex'; color:#14171B; font-variant-numeric:tabular-nums">&#2547;1,004</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; padding:13px 0; border-bottom:1px solid #E9EBEF">
+          <div style="flex:1; min-width:0"><div style="font:700 14px 'Google Sans Flex'; color:#14171B">Brake pads &middot; Rahim Motors</div><div style="display:flex; align-items:center; gap:8px; margin-top:3px"><span style="font:500 12px 'Google Sans Flex'; color:#878E98; font-variant-numeric:tabular-nums">9 Sep</span><span style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#2E6BE6; background:#E7EEFC; border-radius:7px; padding:2px 7px">Service</span></div></div>
+          <div style="font:700 14px 'Google Sans Flex'; color:#14171B; font-variant-numeric:tabular-nums">&#2547;1,650</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; padding:13px 0; border-bottom:1px solid #E9EBEF">
+          <div style="flex:1; min-width:0"><div style="font:700 14px 'Google Sans Flex'; color:#14171B">Parking &middot; Bashundhara</div><div style="display:flex; align-items:center; gap:8px; margin-top:3px"><span style="font:500 12px 'Google Sans Flex'; color:#878E98; font-variant-numeric:tabular-nums">8 Sep</span><span style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#0FA968; background:#E3F6EE; border-radius:7px; padding:2px 7px">Expense</span></div></div>
+          <div style="font:700 14px 'Google Sans Flex'; color:#14171B; font-variant-numeric:tabular-nums">&#2547;30</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; padding:13px 0; border-bottom:1px solid #E9EBEF">
+          <div style="flex:1; min-width:0"><div style="font:700 14px 'Google Sans Flex'; color:#14171B">Tail box</div><div style="display:flex; align-items:center; gap:8px; margin-top:3px"><span style="font:500 12px 'Google Sans Flex'; color:#878E98; font-variant-numeric:tabular-nums">4 Sep</span><span style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#0E9488; background:#E0F4F2; border-radius:7px; padding:2px 7px">Accessory</span></div></div>
+          <div style="font:700 14px 'Google Sans Flex'; color:#14171B; font-variant-numeric:tabular-nums">&#2547;1,836</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; padding:13px 0">
+          <div style="flex:1; min-width:0"><div style="font:700 14px 'Google Sans Flex'; color:#14171B">Full tank &middot; Padma Oil</div><div style="display:flex; align-items:center; gap:8px; margin-top:3px"><span style="font:500 12px 'Google Sans Flex'; color:#878E98; font-variant-numeric:tabular-nums">1 Sep</span><span style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#F4511E; background:#FDEAE3; border-radius:7px; padding:2px 7px">Fuel</span></div></div>
+          <div style="font:700 14px 'Google Sans Flex'; color:#14171B; font-variant-numeric:tabular-nums">&#2547;782</div>
+        </div>
+      </div>
+      <div style="font:500 11.5px 'Google Sans Flex'; line-height:1.5; color:#878E98; margin:12px 4px 0">Parts fitted during a service are inside that service&rsquo;s total. Accessories count in totals but not in cost / km — a one-off would make that figure swing.</div>
+    </div>
+  </div>
+
+  <!-- LIGHT · NOTHING LOGGED -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Light · Nothing logged</div>
+    <div style="width:412px; height:600px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 20px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 4px 0">
+        <div style="font:700 24px 'Google Sans Flex'; color:#14171B">Costs</div>
+        <div style="height:40px; border-radius:14px; background:#F4511E; display:flex; align-items:center; gap:6px; padding:0 16px; font:700 13px 'Google Sans Flex'; color:#FFFFFF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>Add expense</div>
+      </div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:24px 20px; margin-top:16px; display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center">
+        <div style="width:52px; height:52px; border-radius:50%; background:#FDEAE3; display:flex; align-items:center; justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4M3 5v14a2 2 0 0 0 2 2h16v-5M18 12a2 2 0 0 0 0 4h4v-4Z" stroke="#F4511E" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div style="font:700 17px 'Google Sans Flex'; color:#14171B">Every taka, one line each</div>
+        <div style="font:500 13px 'Google Sans Flex'; line-height:1.55; color:#878E98; max-width:300px">Fuel fills, services, parts and accessories add their own lines here automatically. Add expense is for everything else — parking, a wash, a fine, insurance paid separately.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DARK · LONG HISTORY -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Dark · Long history</div>
+    <div style="width:412px; background:#101214; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 20px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 4px 0">
+        <div style="font:700 24px 'Google Sans Flex'; color:#F2F4F6">Costs</div>
+        <div style="height:40px; border-radius:14px; background:#FF6B3D; display:flex; align-items:center; gap:6px; padding:0 16px; font:700 13px 'Google Sans Flex'; color:#101214"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#101214" stroke-width="2.4" stroke-linecap="round"/></svg>Add expense</div>
+      </div>
+      <div style="border-radius:18px; background:#191C20; border:1px solid #2C3138; padding:16px; margin-top:16px; display:flex; flex-direction:column; gap:10px">
+        <div style="display:flex; gap:8px">
+          <div style="flex:1; border-radius:11px; background:#23272C; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#9AA1AA">All-in</div><div style="font:700 15px 'Google Sans Flex'; color:#F2F4F6; margin-top:4px; font-variant-numeric:tabular-nums">&#2547;2,86,430</div></div>
+          <div style="flex:1; border-radius:11px; background:#23272C; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#9AA1AA">Cost / km</div><div style="font:700 15px 'Google Sans Flex'; color:#F2F4F6; margin-top:4px; font-variant-numeric:tabular-nums">&#2547;9.86</div></div>
+          <div style="flex:1; border-radius:11px; background:#23272C; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#9AA1AA">This month</div><div style="font:700 15px 'Google Sans Flex'; color:#F2F4F6; margin-top:4px; font-variant-numeric:tabular-nums">&#2547;4,520</div></div>
+        </div>
+        <div style="font:500 11.5px 'Google Sans Flex'; line-height:1.5; color:#9AA1AA">All-in includes the purchase price — set in Settings &rsaquo; Cost basis.</div>
+      </div>
+      <div style="display:flex; background:#23272C; border-radius:14px; padding:3px; margin-top:14px">
+        <div style="flex:1; height:38px; border-radius:11px; background:#191C20; border:1px solid #2C3138; display:flex; align-items:center; justify-content:center; font:700 13px 'Google Sans Flex'; color:#F2F4F6; box-sizing:border-box">This month</div>
+        <div style="flex:1; height:38px; display:flex; align-items:center; justify-content:center; font:600 13px 'Google Sans Flex'; color:#9AA1AA">All time</div>
+      </div>
+      <div style="border-radius:16px; background:#191C20; border:1px solid #2C3138; margin-top:14px; padding:0 16px">
+        <div style="display:flex; align-items:center; gap:10px; padding:13px 0; border-bottom:1px solid #2C3138">
+          <div style="flex:1; min-width:0"><div style="font:700 14px 'Google Sans Flex'; color:#F2F4F6">Full tank &middot; Meghna Petrol</div><div style="display:flex; align-items:center; gap:8px; margin-top:3px"><span style="font:500 12px 'Google Sans Flex'; color:#9AA1AA; font-variant-numeric:tabular-nums">13 Sep</span><span style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#FF6B3D; background:#3A2118; border-radius:7px; padding:2px 7px">Fuel</span></div></div>
+          <div style="font:700 14px 'Google Sans Flex'; color:#F2F4F6; font-variant-numeric:tabular-nums">&#2547;1,004</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; padding:13px 0; border-bottom:1px solid #2C3138">
+          <div style="flex:1; min-width:0"><div style="font:700 14px 'Google Sans Flex'; color:#F2F4F6">Brake pads &middot; Rahim Motors</div><div style="display:flex; align-items:center; gap:8px; margin-top:3px"><span style="font:500 12px 'Google Sans Flex'; color:#9AA1AA; font-variant-numeric:tabular-nums">9 Sep</span><span style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#7AA5F8; background:#1F2B45; border-radius:7px; padding:2px 7px">Service</span></div></div>
+          <div style="font:700 14px 'Google Sans Flex'; color:#F2F4F6; font-variant-numeric:tabular-nums">&#2547;1,650</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; padding:13px 0">
+          <div style="flex:1; min-width:0"><div style="font:700 14px 'Google Sans Flex'; color:#F2F4F6">Parking &middot; Bashundhara</div><div style="display:flex; align-items:center; gap:8px; margin-top:3px"><span style="font:500 12px 'Google Sans Flex'; color:#9AA1AA; font-variant-numeric:tabular-nums">8 Sep</span><span style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#4CC38A; background:#15342B; border-radius:7px; padding:2px 7px">Expense</span></div></div>
+          <div style="font:700 14px 'Google Sans Flex'; color:#F2F4F6; font-variant-numeric:tabular-nums">&#2547;30</div>
+        </div>
+      </div>
+      <div style="font:500 11.5px 'Google Sans Flex'; line-height:1.5; color:#9AA1AA; margin:12px 4px 0">Parts fitted during a service are inside that service&rsquo;s total. Accessories count in totals but not in cost / km.</div>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+</body>
+</html>

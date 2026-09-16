@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..800&display=swap" rel="stylesheet">
+<style>
+body { margin:0; background:#26292e; font-family:'Google Sans Flex',sans-serif; }
+a { color:#F4511E; text-decoration:none; }
+</style>
+</helmet>
+<section style="padding:48px; display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap">
+
+  <!-- LIGHT · ANALYTICS -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Analytics · Pro, full log (light)</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 20px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 4px 0">
+        <div style="font:700 24px 'Google Sans Flex'; color:#14171B">Analytics</div>
+        <span style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; color:#F4511E; background:#FDEAE3; border-radius:8px; padding:3px 8px">PRO</span>
+      </div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:16px; margin-top:16px; display:flex; flex-direction:column; gap:10px">
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E">Latest fuel calculation</div>
+        <div style="display:flex; justify-content:space-between"><span style="font:500 13px 'Google Sans Flex'; color:#14171B">Full tank 1 Sep &rarr; full tank 13 Sep</span><span style="font:700 13px 'Google Sans Flex'; color:#14171B; font-variant-numeric:tabular-nums">338 km</span></div>
+        <div style="display:flex; justify-content:space-between"><span style="font:500 13px 'Google Sans Flex'; color:#14171B">Fuel used in between</span><span style="font:700 13px 'Google Sans Flex'; color:#14171B; font-variant-numeric:tabular-nums">8.2 L</span></div>
+        <div style="height:1px; background:#E9EBEF"></div>
+        <div style="display:flex; justify-content:space-between"><span style="font:500 13px 'Google Sans Flex'; color:#878E98">338 &divide; 8.2</span><span style="font:700 14px 'Google Sans Flex'; color:#F4511E; font-variant-numeric:tabular-nums">= 41.2 km/L</span></div>
+        <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; line-height:1.5">Method: distance between two full tanks &divide; fuel used in between. Check it yourself — that&rsquo;s the point.</div>
+      </div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:16px; margin-top:12px; display:flex; flex-direction:column; gap:10px">
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E">Mileage stats &middot; 12 intervals</div>
+        <div style="display:flex; gap:8px">
+          <div style="flex:1; border-radius:11px; background:#F1F2F5; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98">Average</div><div style="font:700 15px 'Google Sans Flex'; color:#14171B; margin-top:4px; font-variant-numeric:tabular-nums">39.8</div></div>
+          <div style="flex:1; border-radius:11px; background:#F1F2F5; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98">Best / worst</div><div style="font:700 15px 'Google Sans Flex'; color:#14171B; margin-top:4px; font-variant-numeric:tabular-nums">44.1 / 33.6</div></div>
+        </div>
+        <div style="display:flex; gap:8px">
+          <div style="flex:1; border-radius:11px; background:#F1F2F5; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98">Distance</div><div style="font:700 15px 'Google Sans Flex'; color:#14171B; margin-top:4px; font-variant-numeric:tabular-nums">4,030 km</div></div>
+          <div style="flex:1; border-radius:11px; background:#F1F2F5; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98">Litres</div><div style="font:700 15px 'Google Sans Flex'; color:#14171B; margin-top:4px; font-variant-numeric:tabular-nums">101.3 L</div></div>
+        </div>
+      </div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:16px; margin-top:12px; display:flex; flex-direction:column; gap:10px">
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E">Mileage trend &middot; km/L per interval</div>
+        <svg width="100%" height="120" viewBox="0 0 340 120">
+          <path d="M36 10v92M36 102h296" stroke="#E9EBEF" stroke-width="1"/>
+          <text x="30" y="16" text-anchor="end" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">45</text>
+          <text x="30" y="60" text-anchor="end" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">39</text>
+          <text x="30" y="104" text-anchor="end" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">33</text>
+          <path d="M36 58h296" stroke="#E9EBEF" stroke-width="1" stroke-dasharray="3 4"/>
+          <path d="M48 70 74 55 100 62 126 40 152 48 178 88 204 60 230 42 256 50 282 34 308 44 330 28" fill="none" stroke="#F4511E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="330" cy="28" r="3.5" fill="#F4511E"/>
+          <text x="48" y="117" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">May</text>
+          <text x="185" y="117" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">Jul</text>
+          <text x="316" y="117" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">Sep</text>
+        </svg>
+      </div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:16px; margin-top:12px; display:flex; flex-direction:column; gap:10px">
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E">Monthly spending &middot; &#2547;</div>
+        <svg width="100%" height="110" viewBox="0 0 340 110">
+          <path d="M36 8v86M36 94h296" stroke="#E9EBEF" stroke-width="1"/>
+          <text x="30" y="14" text-anchor="end" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">6k</text>
+          <text x="30" y="96" text-anchor="end" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">0</text>
+          <rect x="52" y="52" width="30" height="42" rx="4" fill="#F1F2F5"/>
+          <rect x="100" y="38" width="30" height="56" rx="4" fill="#F1F2F5"/>
+          <rect x="148" y="60" width="30" height="34" rx="4" fill="#F1F2F5"/>
+          <rect x="196" y="22" width="30" height="72" rx="4" fill="#F1F2F5"/>
+          <rect x="244" y="46" width="30" height="48" rx="4" fill="#F1F2F5"/>
+          <rect x="292" y="30" width="30" height="64" rx="4" fill="#F4511E"/>
+          <text x="55" y="106" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">Apr</text>
+          <text x="297" y="106" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">Sep</text>
+        </svg>
+      </div>
+      <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; margin:12px 4px 0; line-height:1.5">Best / worst and the rolling average unlock at five measured intervals. Below that, this screen says how many more are needed instead of drawing a chart the data can&rsquo;t hold.</div>
+    </div>
+  </div>
+
+  <!-- DARK · ASSISTANT -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Assistant · Active conversation (dark)</div>
+    <div style="width:412px; height:800px; background:#101214; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 20px 20px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 4px 0">
+        <div style="font:700 24px 'Google Sans Flex'; color:#F2F4F6">Assistant</div>
+        <span style="font:500 12px 'Google Sans Flex'; color:#9AA1AA; font-variant-numeric:tabular-nums">82 questions left this month</span>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; gap:12px; margin-top:16px; overflow:hidden">
+        <div style="align-self:flex-end; max-width:80%; background:#FF6B3D; color:#101214; border-radius:16px 16px 4px 16px; padding:12px 14px; font:500 13px 'Google Sans Flex'; line-height:1.5">Is my mileage getting worse?</div>
+        <div style="align-self:flex-start; max-width:88%; background:#191C20; border:1px solid #2C3138; border-radius:16px 16px 16px 4px; padding:14px; font:500 13px 'Google Sans Flex'; line-height:1.6; color:#F2F4F6">Slightly, yes. Your last five measured intervals average <span style="font-weight:700; font-variant-numeric:tabular-nums">38.9 km/L</span> against <span style="font-weight:700; font-variant-numeric:tabular-nums">40.6</span> for the five before — about 4% down. The two lowest intervals (33.6 and 35.1) both followed partial fills in city traffic. Your chain is also at 85% of its expected life, which commonly costs a little mileage.<div style="font:500 11px 'Google Sans Flex'; color:#9AA1AA; margin-top:10px">Figures come from the same calculations as your Dashboard — 12 measured intervals.</div></div>
+        <div style="align-self:flex-end; max-width:80%; background:#FF6B3D; color:#101214; border-radius:16px 16px 4px 16px; padding:12px 14px; font:500 13px 'Google Sans Flex'; line-height:1.5">What did servicing cost me this year?</div>
+        <div style="align-self:flex-start; max-width:88%; background:#191C20; border:1px solid #2C3138; border-radius:16px 16px 16px 4px; padding:14px; font:500 13px 'Google Sans Flex'; line-height:1.6; color:#F2F4F6"><span style="font-weight:700; font-variant-numeric:tabular-nums">&#2547;8,120</span> across 5 visits in 2026 so far — largest was the chain &amp; sprocket set (&#2547;3,850, July).</div>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:12px">
+        <div style="flex:1; height:52px; border-radius:13px; background:#191C20; border:1px solid #2C3138; display:flex; align-items:center; padding:0 16px; font:500 14px 'Google Sans Flex'; color:#9AA1AA; box-sizing:border-box">Ask about your bike&hellip;</div>
+        <div style="width:52px; height:52px; border-radius:13px; background:#FF6B3D; display:flex; align-items:center; justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="m5 12 14-7-4 7 4 7-14-7Z" stroke="#101214" stroke-width="2" stroke-linejoin="round"/></svg></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHT · FAST CAPTURE -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Fast Capture · Items waiting (light)</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 20px 24px; box-sizing:border-box">
+      <div style="padding:4px 4px 0">
+        <div style="font:700 24px 'Google Sans Flex'; color:#14171B">Fast Capture</div>
+        <div style="font:500 12px 'Google Sans Flex'; color:#878E98; margin-top:2px">One tap now, details later.</div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:16px">
+        <div style="flex:1; height:120px; border-radius:18px; background:#F4511E; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+          <span style="font:700 14px 'Google Sans Flex'; color:#FFFFFF">Receipt</span>
+        </div>
+        <div style="flex:1; height:120px; border-radius:18px; background:#2E6BE6; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+          <span style="font:700 14px 'Google Sans Flex'; color:#FFFFFF">Odometer</span>
+        </div>
+        <div style="flex:1; height:120px; border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; box-sizing:border-box">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#14171B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          <span style="font:700 14px 'Google Sans Flex'; color:#14171B">Note</span>
+        </div>
+      </div>
+      <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E; margin:20px 4px 8px">Waiting for details &middot; 3</div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; padding:0 16px">
+        <div style="display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid #E9EBEF">
+          <div style="width:44px; height:44px; border-radius:11px; background:#FDEAE3; display:flex; align-items:center; justify-content:center; flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F4511E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+          <div style="flex:1"><div style="font:700 14px 'Google Sans Flex'; color:#14171B">Receipt photo</div><div style="font:500 12px 'Google Sans Flex'; color:#878E98">Today 17:42 &middot; at a pump?</div></div>
+          <div style="height:36px; border-radius:11px; background:#FDEAE3; display:flex; align-items:center; padding:0 12px; font:700 12px 'Google Sans Flex'; color:#F4511E">Make it a fill</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid #E9EBEF">
+          <div style="width:44px; height:44px; border-radius:11px; background:#E7EEFC; display:flex; align-items:center; justify-content:center; flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4.5 19a9 9 0 1 1 15 0" stroke="#2E6BE6" stroke-width="1.8" stroke-linecap="round"/><path d="M12 14.5 15.5 9" stroke="#2E6BE6" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="14.5" r="1.6" fill="#2E6BE6"/></svg></div>
+          <div style="flex:1"><div style="font:700 14px 'Google Sans Flex'; color:#14171B">Odometer shot</div><div style="font:500 12px 'Google Sans Flex'; color:#878E98">Yesterday 09:10</div></div>
+          <div style="height:36px; border-radius:11px; background:#F1F2F5; display:flex; align-items:center; padding:0 12px; font:700 12px 'Google Sans Flex'; color:#14171B">Read &amp; log</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; padding:13px 0">
+          <div style="width:44px; height:44px; border-radius:11px; background:#F1F2F5; display:flex; align-items:center; justify-content:center; flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#878E98" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+          <div style="flex:1"><div style="font:700 14px 'Google Sans Flex'; color:#14171B">Note &middot; &ldquo;clutch cable sticky&rdquo;</div><div style="font:500 12px 'Google Sans Flex'; color:#B7791F">Photo upload waiting for connection — kept on phone</div></div>
+          <div style="height:36px; border-radius:11px; background:#F1F2F5; display:flex; align-items:center; padding:0 12px; font:700 12px 'Google Sans Flex'; color:#14171B">Finish</div>
+        </div>
+      </div>
+      <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; margin:10px 4px 0">Waiting items aren&rsquo;t errors — they&rsquo;re captures doing their job. Each one routes into the full form it belongs in.</div>
+    </div>
+  </div>
+
+  <!-- DARK · NOTIFICATIONS -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Notifications · Mixed urgency (dark)</div>
+    <div style="width:412px; background:#101214; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 20px 24px; box-sizing:border-box">
+      <div style="font:700 24px 'Google Sans Flex'; color:#F2F4F6; padding:4px 4px 0">Notifications</div>
+      <div style="border-radius:16px; background:#191C20; border:1px solid #2C3138; margin-top:16px; padding:0 16px">
+        <div style="display:flex; align-items:center; gap:12px; padding:14px 0; border-bottom:1px solid #2C3138">
+          <div style="width:36px; height:36px; border-radius:11px; background:#3B1D1B; display:flex; align-items:center; justify-content:center; flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E5695A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.2 6 11a6 6 0 0 1-12 0c0-4.8 6-11 6-11Z"/></svg></div>
+          <div style="flex:1"><div style="font:700 14px 'Google Sans Flex'; color:#F2F4F6">Engine oil overdue</div><div style="font:500 12px 'Google Sans Flex'; color:#E5695A; font-variant-numeric:tabular-nums">310 km past due &middot; from your maintenance rules</div></div>
+          <div style="height:36px; border-radius:11px; background:#3A2118; display:flex; align-items:center; padding:0 12px; font:700 12px 'Google Sans Flex'; color:#FF6B3D">Mark done</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; padding:14px 0; border-bottom:1px solid #2C3138">
+          <div style="width:36px; height:36px; border-radius:11px; background:#3A2E15; display:flex; align-items:center; justify-content:center; flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E0A33C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+          <div style="flex:1"><div style="font:700 14px 'Google Sans Flex'; color:#F2F4F6">Tax token expires in 12 days</div><div style="font:500 12px 'Google Sans Flex'; color:#9AA1AA">28 Sep &middot; reminders at 30, 14 and 3 days</div></div>
+          <div style="height:36px; border-radius:11px; background:#23272C; display:flex; align-items:center; padding:0 12px; font:700 12px 'Google Sans Flex'; color:#F2F4F6">Open</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; padding:14px 0">
+          <div style="width:36px; height:36px; border-radius:11px; background:#3A2E15; display:flex; align-items:center; justify-content:center; flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E0A33C" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/></svg></div>
+          <div style="flex:1"><div style="font:700 14px 'Google Sans Flex'; color:#F2F4F6">Chain lube due soon</div><div style="font:500 12px 'Google Sans Flex'; color:#9AA1AA; font-variant-numeric:tabular-nums">In 240 km at your current odometer</div></div>
+          <div style="height:36px; border-radius:11px; background:#23272C; display:flex; align-items:center; padding:0 12px; font:700 12px 'Google Sans Flex'; color:#F2F4F6">Open</div>
+        </div>
+      </div>
+      <div style="font:500 11.5px 'Google Sans Flex'; color:#9AA1AA; margin:10px 4px 0">Everything here is recomputed from your records — mark the oil change done and its notification simply stops existing.</div>
+      <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#FF6B3D; margin:20px 4px 8px">When nothing is pending</div>
+      <div style="border-radius:18px; background:#191C20; border:1px solid #2C3138; padding:24px 20px; display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center">
+        <svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#4CC38A"/><path d="m7.5 12.5 3 3 6-6.5" stroke="#101214" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div style="font:700 15px 'Google Sans Flex'; color:#F2F4F6">Nothing needs your attention</div>
+        <div style="font:500 13px 'Google Sans Flex'; color:#9AA1AA">Rules healthy, documents valid. Go ride.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHT · ANALYTICS FREE + INSUFFICIENT -->
+  <div style="display:flex; flex-direction:column; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:12px">
+      <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Analytics · Free account</div>
+      <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 24px; box-sizing:border-box">
+        <div style="font:700 24px 'Google Sans Flex'; color:#14171B; padding:4px 0 0">Analytics</div>
+        <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:24px 20px; margin-top:14px; display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center">
+          <span style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; color:#F4511E; background:#FDEAE3; border-radius:8px; padding:3px 10px">PRO</span>
+          <div style="font:700 17px 'Google Sans Flex'; color:#14171B">The working behind every figure</div>
+          <div style="font:500 13px 'Google Sans Flex'; line-height:1.55; color:#878E98; max-width:290px">Best and worst intervals, spending breakdowns, ownership cost — computed from the log you already keep.</div>
+          <div style="height:48px; border-radius:14px; background:#F4511E; display:flex; align-items:center; justify-content:center; font:700 14px 'Google Sans Flex'; color:#FFFFFF; padding:0 24px; margin-top:4px">See Pro plans</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px">
+      <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Analytics · Pro, too little data</div>
+      <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 24px; box-sizing:border-box">
+        <div style="font:700 24px 'Google Sans Flex'; color:#14171B; padding:4px 0 0">Analytics</div>
+        <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:16px; margin-top:14px; display:flex; flex-direction:column; gap:10px">
+          <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E">Mileage stats</div>
+          <div style="display:flex; gap:8px">
+            <div style="flex:1; border-radius:11px; background:#F1F2F5; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98">Best / worst</div><div style="font:700 15px 'Google Sans Flex'; color:#878E98; margin-top:4px">&mdash;</div></div>
+            <div style="flex:1; border-radius:11px; background:#F1F2F5; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98">Rolling avg</div><div style="font:700 15px 'Google Sans Flex'; color:#878E98; margin-top:4px">&mdash;</div></div>
+          </div>
+          <div style="font:500 12px 'Google Sans Flex'; color:#878E98">Unlocks at 5 measured intervals — you have 2, so 3 to go.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSISTANT · OTHER STATES -->
+  <div style="display:flex; flex-direction:column; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:12px">
+      <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Assistant · First use (dark)</div>
+      <div style="width:412px; height:420px; background:#101214; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px; box-sizing:border-box">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 4px 0">
+          <div style="font:700 24px 'Google Sans Flex'; color:#F2F4F6">Assistant</div>
+          <span style="font:500 12px 'Google Sans Flex'; color:#9AA1AA; font-variant-numeric:tabular-nums">100 questions a month</span>
+        </div>
+        <div style="font:500 13px 'Google Sans Flex'; color:#9AA1AA; margin-top:10px; line-height:1.5">Answers come from your own records — the same calculations as every screen. Not enough data? It says so.</div>
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#FF6B3D; margin:18px 4px 8px">Try asking</div>
+        <div style="display:flex; flex-direction:column; gap:8px">
+          <div style="height:44px; border-radius:11px; background:#191C20; border:1px solid #2C3138; display:flex; align-items:center; padding:0 14px; font:600 13px 'Google Sans Flex'; color:#F2F4F6; box-sizing:border-box">What does my bike cost per month?</div>
+          <div style="height:44px; border-radius:11px; background:#191C20; border:1px solid #2C3138; display:flex; align-items:center; padding:0 14px; font:600 13px 'Google Sans Flex'; color:#F2F4F6; box-sizing:border-box">When is the next service due?</div>
+          <div style="height:44px; border-radius:11px; background:#191C20; border:1px solid #2C3138; display:flex; align-items:center; padding:0 14px; font:600 13px 'Google Sans Flex'; color:#F2F4F6; box-sizing:border-box">Is my mileage normal for an NS200?</div>
+        </div>
+        <div style="flex:1"></div>
+        <div style="display:flex; gap:8px">
+          <div style="flex:1; height:52px; border-radius:13px; background:#191C20; border:1px solid #2C3138; display:flex; align-items:center; padding:0 16px; font:500 14px 'Google Sans Flex'; color:#9AA1AA; box-sizing:border-box">Ask about your bike&hellip;</div>
+          <div style="width:52px; height:52px; border-radius:13px; background:#FF6B3D; display:flex; align-items:center; justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="m5 12 14-7-4 7 4 7-14-7Z" stroke="#101214" stroke-width="2" stroke-linejoin="round"/></svg></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px">
+      <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Assistant · Quota out &amp; offline (dark)</div>
+      <div style="width:412px; background:#101214; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px; box-sizing:border-box; gap:10px">
+        <div style="border-radius:11px; background:#191C20; border:1px solid #2C3138; padding:12px 14px; display:flex; gap:10px; align-items:flex-start">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0; margin-top:1px"><circle cx="12" cy="12" r="9" stroke="#E0A33C" stroke-width="2"/><path d="M12 7v5l3.5 2" stroke="#E0A33C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div style="font:500 12.5px 'Google Sans Flex'; line-height:1.5; color:#F2F4F6"><span style="font-weight:700; color:#E0A33C">This month&rsquo;s 100 questions are used.</span> The quota resets on 1 Oct. A failed question is refunded automatically.</div>
+        </div>
+        <div style="border-radius:11px; background:#191C20; border:1px solid #2C3138; padding:12px 14px; display:flex; gap:10px; align-items:flex-start">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0; margin-top:1px"><path d="M12 20h.01M8.5 16.4a5 5 0 0 1 7 0M5 12.9a10 10 0 0 1 5.24-2.76M19 12.9a10 10 0 0 0-2.8-1.9M2 8.8a15 15 0 0 1 6.4-3.2M22 8.8a15 15 0 0 0-11.3-3M4 3l17 17" stroke="#E0A33C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          <div style="font:500 12.5px 'Google Sans Flex'; line-height:1.5; color:#F2F4F6"><span style="font-weight:700; color:#E0A33C">You&rsquo;re offline.</span> The Assistant needs a connection — your earlier answers stay readable below.</div>
+        </div>
+        <div style="border-radius:11px; background:#191C20; border:1px solid #2C3138; padding:12px 14px; display:flex; gap:10px; align-items:flex-start">
+          <span style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; color:#FF6B3D; background:#3A2118; border-radius:8px; padding:3px 8px; flex-shrink:0">PRO</span>
+          <div style="font:500 12.5px 'Google Sans Flex'; line-height:1.5; color:#F2F4F6">On Free, this screen makes the case and routes to Your plan — it never fakes an answer.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+</body>
+</html>

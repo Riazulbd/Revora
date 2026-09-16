@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..800&display=swap" rel="stylesheet">
+<style>
+body { margin:0; background:#26292e; font-family:'Google Sans Flex',sans-serif; }
+a { color:#F4511E; text-decoration:none; }
+</style>
+</helmet>
+<section style="padding:48px; display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap">
+
+  <!-- LIGHT · SETTINGS -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Settings (light)</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 20px 24px; box-sizing:border-box">
+      <div style="font:700 24px 'Google Sans Flex'; color:#14171B; padding:4px 4px 0">Settings</div>
+      <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E; margin:16px 4px 8px">Units</div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; padding:0 16px">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid #E9EBEF"><span style="font:700 14px 'Google Sans Flex'; color:#14171B">Distance</span><div style="display:flex; background:#F1F2F5; border-radius:11px; padding:2px"><div style="height:32px; border-radius:9px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 14px; font:700 12px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">km</div><div style="height:32px; display:flex; align-items:center; padding:0 14px; font:600 12px 'Google Sans Flex'; color:#878E98">mi</div></div></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid #E9EBEF"><span style="font:700 14px 'Google Sans Flex'; color:#14171B">Mileage</span><div style="display:flex; background:#F1F2F5; border-radius:11px; padding:2px"><div style="height:32px; border-radius:9px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 10px; font:700 12px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">km/L</div><div style="height:32px; display:flex; align-items:center; padding:0 10px; font:600 12px 'Google Sans Flex'; color:#878E98">L/100km</div><div style="height:32px; display:flex; align-items:center; padding:0 10px; font:600 12px 'Google Sans Flex'; color:#878E98">mpg</div></div></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid #E9EBEF"><span style="font:700 14px 'Google Sans Flex'; color:#14171B">Currency</span><div style="height:36px; border-radius:11px; background:#F1F2F5; display:flex; align-items:center; gap:6px; padding:0 12px; font:700 13px 'Google Sans Flex'; color:#14171B">BDT &#2547;<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="m6 9 6 6 6-6" stroke="#878E98" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 0"><span style="font:700 14px 'Google Sans Flex'; color:#14171B">Cost basis</span><div style="display:flex; background:#F1F2F5; border-radius:11px; padding:2px"><div style="height:32px; border-radius:9px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 12px; font:700 12px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">Running</div><div style="height:32px; display:flex; align-items:center; padding:0 12px; font:600 12px 'Google Sans Flex'; color:#878E98">All-in</div></div></div>
+      </div>
+      <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; margin:10px 4px 0; line-height:1.5">All-in adds the purchase price to every total. Unit changes apply everywhere instantly.</div>
+      <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E; margin:18px 4px 8px">Appearance</div>
+      <div style="display:flex; background:#F1F2F5; border-radius:14px; padding:3px">
+        <div style="flex:1; height:40px; display:flex; align-items:center; justify-content:center; font:600 13px 'Google Sans Flex'; color:#878E98">Light</div>
+        <div style="flex:1; height:40px; display:flex; align-items:center; justify-content:center; font:600 13px 'Google Sans Flex'; color:#878E98">Dark</div>
+        <div style="flex:1; height:40px; border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; justify-content:center; font:700 13px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">System</div>
+      </div>
+      <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E; margin:18px 4px 8px">Data &amp; account</div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; padding:0 16px">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid #E9EBEF"><span style="display:flex; align-items:center; gap:10px; font:700 14px 'Google Sans Flex'; color:#14171B"><span style="width:36px; height:36px; border-radius:11px; background:#E7EEFC; display:flex; align-items:center; justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2E6BE6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M12 15l-4-4M12 15l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></span>Export my data</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="m9 5 7 7-7 7" stroke="#878E98" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid #E9EBEF"><div><div style="font:700 14px 'Google Sans Flex'; color:#14171B">Display name</div><div style="font:500 12px 'Google Sans Flex'; color:#878E98">Tanvir</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="m9 5 7 7-7 7" stroke="#878E98" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid #E9EBEF"><span style="display:flex; align-items:center; gap:10px; font:700 14px 'Google Sans Flex'; color:#14171B"><span style="width:36px; height:36px; border-radius:11px; background:#F1F2F5; display:flex; align-items:center; justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878E98" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></span>Sign out</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="m9 5 7 7-7 7" stroke="#878E98" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0"><div style="display:flex; align-items:center; gap:10px"><span style="width:36px; height:36px; border-radius:11px; background:#FDECEA; display:flex; align-items:center; justify-content:center; flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D92D20" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg></span><div><div style="font:700 14px 'Google Sans Flex'; color:#D92D20">Delete account</div><div style="font:500 12px 'Google Sans Flex'; color:#878E98">Irreversible — the dialog lists exactly what goes</div></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DARK · MOTORCYCLE PROFILE -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Motorcycle profile · Copied + low odometer (dark)</div>
+    <div style="width:412px; background:#101214; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 88px; box-sizing:border-box; position:relative">
+      <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#F2F4F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="font:700 20px 'Google Sans Flex'; color:#F2F4F6">The Red One</div>
+      </div>
+      <div style="border-radius:16px; background:#191C20; border:1px solid #2C3138; margin-top:14px; padding:0 16px">
+        <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #2C3138"><span style="font:500 13px 'Google Sans Flex'; color:#9AA1AA">Make &amp; model</span><span style="font:700 13px 'Google Sans Flex'; color:#F2F4F6">Bajaj Pulsar NS200 &middot; 2022</span></div>
+        <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #2C3138"><span style="font:500 13px 'Google Sans Flex'; color:#9AA1AA">Tank</span><span style="font:700 13px 'Google Sans Flex'; color:#F2F4F6; font-variant-numeric:tabular-nums">12 L</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #2C3138"><span style="font:500 13px 'Google Sans Flex'; color:#9AA1AA">Engine no.</span><div style="display:flex; align-items:center; gap:8px"><span style="font:700 13px 'Google Sans Flex'; color:#F2F4F6; letter-spacing:0.5px; font-variant-numeric:tabular-nums">PFZWJF12904</span><div style="width:36px; height:36px; border-radius:9px; background:#3A2118; display:flex; align-items:center; justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF6B3D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></div></div></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #2C3138"><span style="font:500 13px 'Google Sans Flex'; color:#9AA1AA">Chassis no.</span><div style="display:flex; align-items:center; gap:8px"><span style="font:700 13px 'Google Sans Flex'; color:#F2F4F6; letter-spacing:0.5px; font-variant-numeric:tabular-nums">MD2A36FZ8NCM10482</span><div style="width:36px; height:36px; border-radius:9px; background:#3A2118; display:flex; align-items:center; justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF6B3D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></div></div></div>
+        <div style="display:flex; justify-content:space-between; padding:12px 0"><span style="font:500 13px 'Google Sans Flex'; color:#9AA1AA">Purchase</span><span style="font:700 13px 'Google Sans Flex'; color:#F2F4F6; font-variant-numeric:tabular-nums">&#2547;2,25,000 &middot; 14 Feb 2022</span></div>
+      </div>
+      <div style="border-radius:18px; background:#191C20; border:1px solid #2C3138; padding:16px; margin-top:14px; display:flex; flex-direction:column; gap:10px">
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#FF6B3D">Update odometer</div>
+        <div style="display:flex; gap:10px">
+          <div style="flex:1; height:52px; border-radius:13px; background:#101214; border:1.5px solid #E5695A; display:flex; align-items:center; justify-content:space-between; padding:0 14px; box-sizing:border-box"><span style="font:700 17px 'Google Sans Flex'; color:#F2F4F6; font-variant-numeric:tabular-nums">34,650</span><span style="font:600 12px 'Google Sans Flex'; color:#9AA1AA">km</span></div>
+          <div style="width:110px; height:52px; border-radius:14px; background:#23272C; border:1px solid #2C3138; display:flex; align-items:center; justify-content:center; font:700 14px 'Google Sans Flex'; color:#9AA1AA; box-sizing:border-box">Update</div>
+        </div>
+        <div style="font:500 12px 'Google Sans Flex'; line-height:1.5; color:#E5695A">Lower than the current 34,712 km — the odometer only moves forward. If an earlier reading is wrong, <a href="#" style="font-weight:700; color:#FF6B3D">correct it in Odometer history</a>.</div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:16px">
+        <div style="flex:1; height:48px; border-radius:14px; background:#191C20; border:1px solid #2C3138; display:flex; align-items:center; justify-content:center; font:700 14px 'Google Sans Flex'; color:#F2F4F6; box-sizing:border-box">Edit details</div>
+        <div style="flex:1; height:48px; display:flex; align-items:center; justify-content:center; font:700 14px 'Google Sans Flex'; color:#E5695A">Delete motorcycle</div>
+      </div>
+      <div style="position:absolute; left:24px; right:24px; bottom:18px; border-radius:14px; background:#F2F4F6; padding:12px 16px; display:flex; gap:10px; align-items:center; box-shadow:0 8px 24px rgba(0,0,0,0.4)">
+        <svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#0FA968"/><path d="m7.5 12.5 3 3 6-6.5" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span style="font:500 13px 'Google Sans Flex'; color:#14171B">Chassis number copied</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHT · EDIT MOTORCYCLE -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Edit motorcycle (light)</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#14171B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="font:700 20px 'Google Sans Flex'; color:#14171B">Edit motorcycle</div>
+      </div>
+      <div style="display:flex; gap:12px; margin-top:14px">
+        <div style="flex:1; display:flex; flex-direction:column; gap:7px"><div style="font:600 12px 'Google Sans Flex'; color:#878E98">Manufacturer</div><div style="height:48px; border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 14px; font:700 14px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">Bajaj</div></div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:7px"><div style="font:600 12px 'Google Sans Flex'; color:#878E98">Model</div><div style="height:48px; border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 14px; font:700 14px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">Pulsar NS200</div></div>
+      </div>
+      <div style="display:flex; gap:12px; margin-top:12px">
+        <div style="flex:1.4; display:flex; flex-direction:column; gap:7px"><div style="font:600 12px 'Google Sans Flex'; color:#878E98">Nickname</div><div style="height:48px; border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 14px; font:700 14px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">The Red One</div></div>
+        <div style="flex:0.6; display:flex; flex-direction:column; gap:7px"><div style="font:600 12px 'Google Sans Flex'; color:#878E98">Year</div><div style="height:48px; border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 14px; font:700 14px 'Google Sans Flex'; color:#14171B; box-sizing:border-box; font-variant-numeric:tabular-nums">2022</div></div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:7px; margin-top:12px">
+        <div style="font:600 12px 'Google Sans Flex'; color:#878E98">Engine no. <span style="font:500 11px 'Google Sans Flex'">&middot; case-sensitive, exactly as printed</span></div>
+        <div style="height:52px; border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 14px; font:700 15px ui-monospace,Menlo,monospace; color:#14171B; letter-spacing:1.5px; box-sizing:border-box">PFZWJF12904</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:7px; margin-top:12px">
+        <div style="font:600 12px 'Google Sans Flex'; color:#878E98">Chassis no.</div>
+        <div style="height:52px; border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 14px; font:700 15px ui-monospace,Menlo,monospace; color:#14171B; letter-spacing:1.5px; box-sizing:border-box">MD2A36FZ8NCM10482</div>
+      </div>
+      <div style="border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; padding:12px 14px; margin-top:14px; font:500 12.5px 'Google Sans Flex'; line-height:1.5; color:#14171B">The current odometer isn&rsquo;t edited here — it&rsquo;s derived from readings. <a href="#" style="font-weight:700; color:#F4511E">Correct a reading in Odometer history</a> instead.</div>
+      <div style="height:52px; border-radius:14px; background:#F4511E; display:flex; align-items:center; justify-content:center; font:700 15px 'Google Sans Flex'; color:#FFFFFF; margin-top:16px">Save changes</div>
+      <div style="border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; padding:10px 14px; margin-top:10px; display:flex; gap:10px; align-items:center">
+        <svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#0FA968"/><path d="m7.5 12.5 3 3 6-6.5" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span style="font:500 12.5px 'Google Sans Flex'; color:#14171B">Saved on this phone — offline, syncs when you&rsquo;re back.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHT · FEEDBACK + NOT FOUND -->
+  <div style="display:flex; flex-direction:column; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:12px">
+      <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Feedback &amp; support (light)</div>
+      <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 24px; box-sizing:border-box">
+        <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+          <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#14171B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div style="font:700 20px 'Google Sans Flex'; color:#14171B">Feedback &amp; support</div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:14px">
+          <div style="height:36px; border-radius:7px; background:#14171B; color:#FFFFFF; display:flex; align-items:center; padding:0 13px; font:700 12px 'Google Sans Flex'">Problem</div>
+          <div style="height:36px; border-radius:7px; background:#FFFFFF; border:1px solid #E9EBEF; color:#14171B; display:flex; align-items:center; padding:0 13px; font:600 12px 'Google Sans Flex'; box-sizing:border-box">Feature request</div>
+          <div style="height:36px; border-radius:7px; background:#FFFFFF; border:1px solid #E9EBEF; color:#14171B; display:flex; align-items:center; padding:0 13px; font:600 12px 'Google Sans Flex'; box-sizing:border-box">Question</div>
+        </div>
+        <div style="border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; height:120px; margin-top:12px; padding:14px; font:500 14px 'Google Sans Flex'; color:#878E98; box-sizing:border-box">What happened, and what did you expect instead?</div>
+        <div style="height:48px; border-radius:13px; background:#FFFFFF; border:1px dashed #E9EBEF; display:flex; align-items:center; justify-content:center; gap:8px; font:600 13px 'Google Sans Flex'; color:#878E98; margin-top:10px; box-sizing:border-box"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878E98" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>Attach a screenshot &middot; optional</div>
+        <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; margin-top:12px; line-height:1.5">Sent with your report: app version 2.4.1 and device model (Redmi Note 12). Nothing else — no records, no location.</div>
+        <div style="height:52px; border-radius:14px; background:#F4511E; display:flex; align-items:center; justify-content:center; font:700 15px 'Google Sans Flex'; color:#FFFFFF; margin-top:12px">Send</div>
+        <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; text-align:center; margin-top:10px">We read everything. We reply when there&rsquo;s something to say — usually within a week. Offline? It queues and sends itself.</div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px">
+      <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Not found (light)</div>
+      <div style="width:412px; height:360px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; align-items:center; justify-content:center; box-sizing:border-box; padding:24px">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center">
+          <div style="font:700 17px 'Google Sans Flex'; color:#14171B">That screen doesn&rsquo;t exist</div>
+          <div style="font:500 13px 'Google Sans Flex'; color:#878E98; max-width:280px">Usually a deleted record. If it was a fill you were after, the fuel list has everything that&rsquo;s left.</div>
+          <div style="display:flex; gap:10px">
+            <div style="height:48px; border-radius:14px; background:#F4511E; display:flex; align-items:center; justify-content:center; font:700 14px 'Google Sans Flex'; color:#FFFFFF; padding:0 20px">Go to Dashboard</div>
+            <div style="height:48px; border-radius:14px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; justify-content:center; font:700 14px 'Google Sans Flex'; color:#14171B; padding:0 20px; box-sizing:border-box">Fuel list</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHT · PRIVACY DOC -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Privacy (light)</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 28px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#14171B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="font:700 20px 'Google Sans Flex'; color:#14171B; line-height:1.25">What Revora stores, where,<br/>and how to delete it</div>
+      </div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:16px; margin-top:14px">
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E">In short — a summary, not the contract</div>
+        <div style="font:500 13px 'Google Sans Flex'; line-height:1.7; color:#14171B; margin-top:8px">Your records live on your account. Documents marked offline also stay on this phone. We never sell data. Delete account removes everything, permanently.</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:18px; margin-top:20px; padding:0 4px">
+        <div>
+          <div style="font:700 15px 'Google Sans Flex'; color:#14171B">What is stored</div>
+          <div style="font:500 13px 'Google Sans Flex'; line-height:1.65; color:#14171B; margin-top:6px; max-width:60ch">The records you enter — fuel, services, parts, documents, photos — and your account email and display name. Every figure Revora shows is calculated from what you logged; nothing derived is stored.</div>
+        </div>
+        <div>
+          <div style="font:700 15px 'Google Sans Flex'; color:#14171B">Where</div>
+          <div style="font:500 13px 'Google Sans Flex'; line-height:1.65; color:#14171B; margin-top:6px; max-width:60ch">On your Revora account (Firebase, Google Cloud), and on this phone while offline or when you keep an offline copy of a document. The Proof Pack PDF is rendered on the device and never uploaded.</div>
+        </div>
+        <div>
+          <div style="font:700 15px 'Google Sans Flex'; color:#14171B">How figures are made</div>
+          <div style="font:500 13px 'Google Sans Flex'; line-height:1.65; color:#14171B; margin-top:6px; max-width:60ch">Consumption is measured between two full-tank fills; where there is not enough data, Revora says so rather than estimating. Incorrect entries produce incorrect figures — you can edit or delete any record and everything derived from it is recalculated.</div>
+        </div>
+        <div>
+          <div style="font:700 15px 'Google Sans Flex'; color:#14171B">How to delete it</div>
+          <div style="font:500 13px 'Google Sans Flex'; line-height:1.65; color:#14171B; margin-top:6px; max-width:60ch">Settings &rsaquo; Delete account removes your records, photos and account irreversibly. The dialog lists exactly what goes before you confirm.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHT · TERMS OF USE -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Terms of use (light)</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 28px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#14171B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="font:700 20px 'Google Sans Flex'; color:#14171B; line-height:1.25">What Revora promises,<br/>and what it doesn&rsquo;t</div>
+      </div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:16px; margin-top:14px">
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E">In short — a summary, not the contract</div>
+        <div style="font:500 13px 'Google Sans Flex'; line-height:1.7; color:#14171B; margin-top:8px">Revora calculates from what you log. Billing lives in Google Play. It is a logbook, not an inspection, and the Proof Pack certifies its own provenance — not the motorcycle.</div>
+      </div>
+      <div style="display:flex; gap:6px; margin-top:12px; flex-wrap:wrap">
+        <div style="height:32px; border-radius:7px; background:#FDEAE3; display:flex; align-items:center; padding:0 11px; font:700 11.5px 'Google Sans Flex'; color:#F4511E">Your figures</div>
+        <div style="height:32px; border-radius:7px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 11px; font:600 11.5px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">Subscriptions</div>
+        <div style="height:32px; border-radius:7px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 11px; font:600 11.5px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">No warranty</div>
+        <div style="height:32px; border-radius:7px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 11px; font:600 11.5px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">Proof Pack</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:18px; margin-top:20px; padding:0 4px">
+        <div>
+          <div style="font:700 15px 'Google Sans Flex'; color:#14171B">Your figures</div>
+          <div style="font:500 13px 'Google Sans Flex'; line-height:1.65; color:#14171B; margin-top:6px; max-width:60ch">Every figure Revora shows is calculated from what you logged. Consumption is measured between two full-tank fills; where there is not enough data, Revora says so rather than estimating. Incorrect entries produce incorrect figures — you can edit or delete any record and everything derived from it is recalculated.</div>
+        </div>
+        <div>
+          <div style="font:700 15px 'Google Sans Flex'; color:#14171B">Subscriptions</div>
+          <div style="font:500 13px 'Google Sans Flex'; line-height:1.65; color:#14171B; margin-top:6px; max-width:60ch">Pro is billed by Google Play. Renewal, cancellation and refunds happen in Play, not in the app. If Pro lapses, your records stay — screens that need Pro say so instead of showing them.</div>
+        </div>
+        <div>
+          <div style="font:700 15px 'Google Sans Flex'; color:#14171B">What Revora does not warrant</div>
+          <div style="font:500 13px 'Google Sans Flex'; line-height:1.65; color:#14171B; margin-top:6px; max-width:60ch">Revora is a logbook. It is not a mechanical inspection, not a diagnosis, and not advice about whether a motorcycle is safe to ride. Maintenance reminders repeat what you told them; they do not replace a mechanic&rsquo;s judgement.</div>
+        </div>
+        <div>
+          <div style="font:700 15px 'Google Sans Flex'; color:#14171B">Limits of the Proof Pack</div>
+          <div style="font:500 13px 'Google Sans Flex'; line-height:1.65; color:#14171B; margin-top:6px; max-width:60ch">The stamp certifies that Revora generated the document from the owner&rsquo;s records at that moment — record count, dates covered, and a reference that fingerprints exactly those records. It says nothing about the motorcycle itself.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+</body>
+</html>

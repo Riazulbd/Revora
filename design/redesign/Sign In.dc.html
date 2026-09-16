@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..800&display=swap" rel="stylesheet">
+<style>
+body { margin:0; background:#26292e; font-family:'Google Sans Flex',sans-serif; }
+a { color:#F4511E; text-decoration:none; }
+a:hover { text-decoration:underline; }
+@keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</helmet>
+<section style="padding:48px; display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap">
+
+  <!-- LIGHT · IDLE -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Light · Idle</div>
+    <div style="width:412px; height:860px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 24px; box-sizing:border-box; overflow:hidden">
+      <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#14171B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="font:700 20px 'Google Sans Flex'; color:#14171B">Sign in</div>
+      </div>
+      <div style="font:500 13px 'Google Sans Flex'; line-height:1.5; color:#878E98; margin-top:8px">Your logbook lives on your account, not this phone. Sign in and it comes back — even on a new phone.</div>
+      <div style="display:flex; flex-direction:column; gap:16px; margin-top:24px">
+        <div style="display:flex; flex-direction:column; gap:7px">
+          <div style="font:600 12px 'Google Sans Flex'; color:#878E98">Email</div>
+          <div style="height:52px; border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 16px; font:500 15px 'Google Sans Flex'; color:#878E98; box-sizing:border-box">you@example.com</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:7px">
+          <div style="font:600 12px 'Google Sans Flex'; color:#878E98">Password</div>
+          <div style="height:52px; border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; justify-content:space-between; padding:0 4px 0 16px; box-sizing:border-box">
+            <div style="font:500 15px 'Google Sans Flex'; color:#878E98">Your password</div>
+            <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" stroke="#878E98" stroke-width="1.8"/><circle cx="12" cy="12" r="3" stroke="#878E98" stroke-width="1.8"/></svg></div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; margin-top:2px"><a href="#" style="font:700 13px 'Google Sans Flex'; color:#F4511E; padding:6px 0">Forgot password?</a></div>
+        </div>
+      </div>
+      <div style="height:52px; border-radius:14px; background:#F4511E; display:flex; align-items:center; justify-content:center; font:700 15px 'Google Sans Flex'; color:#FFFFFF; margin-top:12px">Sign in</div>
+      <div style="display:flex; align-items:center; gap:12px; margin:20px 0">
+        <div style="flex:1; height:1px; background:#E9EBEF"></div>
+        <div style="font:500 12px 'Google Sans Flex'; color:#878E98">or</div>
+        <div style="flex:1; height:1px; background:#E9EBEF"></div>
+      </div>
+      <div style="height:52px; border-radius:14px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; justify-content:center; gap:10px; font:700 15px 'Google Sans Flex'; color:#14171B; box-sizing:border-box"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continue with Google</div>
+      <div style="flex:1"></div>
+      <div style="font:500 13px 'Google Sans Flex'; color:#878E98; text-align:center">New to Revora? <a href="#" style="font-weight:700; color:#F4511E">Create account</a></div>
+    </div>
+  </div>
+
+  <!-- LIGHT · KEYBOARD OPEN · SUBMITTING (5.5in frame) -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Keyboard open · Submitting (5.5&Prime;)</div>
+    <div style="width:360px; height:640px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:16px 20px 0; box-sizing:border-box; overflow:hidden">
+      <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#14171B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="font:700 20px 'Google Sans Flex'; color:#14171B">Sign in</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px; margin-top:12px">
+        <div style="display:flex; flex-direction:column; gap:6px">
+          <div style="font:600 12px 'Google Sans Flex'; color:#878E98">Email</div>
+          <div style="height:48px; border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 16px; font:500 15px 'Google Sans Flex'; color:#14171B; box-sizing:border-box; opacity:0.6">tanvir@gmail.com</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px">
+          <div style="font:600 12px 'Google Sans Flex'; color:#878E98">Password</div>
+          <div style="height:48px; border-radius:13px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 16px; font:700 15px 'Google Sans Flex'; color:#14171B; letter-spacing:3px; box-sizing:border-box; opacity:0.6">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</div>
+        </div>
+      </div>
+      <div style="height:52px; border-radius:14px; background:#F4511E; display:flex; align-items:center; justify-content:center; gap:10px; font:700 15px 'Google Sans Flex'; color:#FFFFFF; margin-top:14px">
+        <div style="width:16px; height:16px; border-radius:50%; border:2.5px solid rgba(255,255,255,0.35); border-top-color:#FFFFFF; animation:spin 0.8s linear infinite"></div>Signing in&hellip;
+      </div>
+      <div style="flex:1"></div>
+      <svg width="100%" height="232" viewBox="0 0 320 232" preserveAspectRatio="none" style="display:block; margin:0 -20px; width:calc(100% + 40px)">
+        <defs><pattern id="key" width="32" height="46" patternUnits="userSpaceOnUse"><rect x="2.5" y="5" width="27" height="36" rx="5" fill="#FFFFFF"/></pattern></defs>
+        <rect width="320" height="232" fill="#DDE1E7"/>
+        <rect x="4" y="10" width="312" height="138" fill="url(#key)"/>
+        <rect x="70" y="158" width="180" height="38" rx="6" fill="#FFFFFF"/>
+        <rect x="262" y="158" width="52" height="38" rx="6" fill="#F4511E"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- LIGHT · WRONG CREDENTIALS -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Light · Wrong credentials</div>
+    <div style="width:412px; height:860px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 24px; box-sizing:border-box; overflow:hidden">
+      <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#14171B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="font:700 20px 'Google Sans Flex'; color:#14171B">Sign in</div>
+      </div>
+      <div style="font:500 13px 'Google Sans Flex'; line-height:1.5; color:#878E98; margin-top:8px">Your logbook lives on your account, not this phone. Sign in and it comes back — even on a new phone.</div>
+      <div style="display:flex; flex-direction:column; gap:16px; margin-top:24px">
+        <div style="display:flex; flex-direction:column; gap:7px">
+          <div style="font:600 12px 'Google Sans Flex'; color:#878E98">Email</div>
+          <div style="height:52px; border-radius:13px; background:#FFFFFF; border:1px solid #D92D20; display:flex; align-items:center; padding:0 16px; font:500 15px 'Google Sans Flex'; color:#14171B; box-sizing:border-box">tanvir@gmail.com</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:7px">
+          <div style="font:600 12px 'Google Sans Flex'; color:#878E98">Password</div>
+          <div style="height:52px; border-radius:13px; background:#FFFFFF; border:1px solid #D92D20; display:flex; align-items:center; justify-content:space-between; padding:0 4px 0 16px; box-sizing:border-box">
+            <div style="font:700 15px 'Google Sans Flex'; color:#14171B; letter-spacing:3px">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</div>
+            <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" stroke="#878E98" stroke-width="1.8"/><circle cx="12" cy="12" r="3" stroke="#878E98" stroke-width="1.8"/></svg></div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; margin-top:2px"><a href="#" style="font:700 13px 'Google Sans Flex'; color:#F4511E; padding:6px 0">Forgot password?</a></div>
+        </div>
+      </div>
+      <div style="border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; padding:12px 14px; display:flex; gap:10px; align-items:flex-start; margin-top:4px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0; margin-top:1px"><circle cx="12" cy="12" r="9" stroke="#D92D20" stroke-width="2"/><path d="M12 7.5v5.5" stroke="#D92D20" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16.4" r="1.2" fill="#D92D20"/></svg>
+        <div style="font:500 13px 'Google Sans Flex'; line-height:1.5; color:#14171B"><span style="font-weight:700; color:#D92D20">That email and password don&rsquo;t match.</span> Check both, or <a href="#" style="font-weight:700; color:#F4511E">reset your password</a>.</div>
+      </div>
+      <div style="height:52px; border-radius:14px; background:#F4511E; display:flex; align-items:center; justify-content:center; font:700 15px 'Google Sans Flex'; color:#FFFFFF; margin-top:12px">Sign in</div>
+      <div style="display:flex; align-items:center; gap:12px; margin:20px 0">
+        <div style="flex:1; height:1px; background:#E9EBEF"></div>
+        <div style="font:500 12px 'Google Sans Flex'; color:#878E98">or</div>
+        <div style="flex:1; height:1px; background:#E9EBEF"></div>
+      </div>
+      <div style="height:52px; border-radius:14px; background:#FFFFFF; border:1px solid #E9EBEF; display:flex; align-items:center; justify-content:center; gap:10px; font:700 15px 'Google Sans Flex'; color:#14171B; box-sizing:border-box"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continue with Google</div>
+      <div style="flex:1"></div>
+      <div style="font:500 13px 'Google Sans Flex'; color:#878E98; text-align:center">New to Revora? <a href="#" style="font-weight:700; color:#F4511E">Create account</a></div>
+    </div>
+  </div>
+
+  <!-- LIGHT · OFFLINE -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Light · Offline</div>
+    <div style="width:412px; height:860px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 24px; box-sizing:border-box; overflow:hidden">
+      <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#14171B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="font:700 20px 'Google Sans Flex'; color:#14171B">Sign in</div>
+      </div>
+      <div style="border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; padding:12px 14px; display:flex; gap:10px; align-items:flex-start; margin-top:8px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0; margin-top:1px"><path d="M12 20h.01M8.5 16.4a5 5 0 0 1 7 0M5 12.9a10 10 0 0 1 5.24-2.76M19 12.9a10 10 0 0 0-2.8-1.9M2 8.8a15 15 0 0 1 6.4-3.2M22 8.8a15 15 0 0 0-11.3-3M4 3l17 17" stroke="#B7791F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        <div style="font:500 13px 'Google Sans Flex'; line-height:1.5; color:#14171B"><span style="font-weight:700; color:#B7791F">You&rsquo;re offline.</span> Signing in needs a connection. Anything already saved on this phone is safe and will sync when you&rsquo;re back.</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px; margin-top:20px">
+        <div style="display:flex; flex-direction:column; gap:7px">
+          <div style="font:600 12px 'Google Sans Flex'; color:#878E98">Email</div>
+          <div style="height:52px; border-radius:13px; background:#F1F2F5; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 16px; font:500 15px 'Google Sans Flex'; color:#878E98; box-sizing:border-box">you@example.com</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:7px">
+          <div style="font:600 12px 'Google Sans Flex'; color:#878E98">Password</div>
+          <div style="height:52px; border-radius:13px; background:#F1F2F5; border:1px solid #E9EBEF; display:flex; align-items:center; padding:0 16px; font:500 15px 'Google Sans Flex'; color:#878E98; box-sizing:border-box">Your password</div>
+        </div>
+      </div>
+      <div style="height:52px; border-radius:14px; background:#F1F2F5; border:1px solid #E9EBEF; display:flex; align-items:center; justify-content:center; font:700 15px 'Google Sans Flex'; color:#878E98; margin-top:20px; box-sizing:border-box">Sign in</div>
+      <div style="display:flex; align-items:center; gap:12px; margin:20px 0">
+        <div style="flex:1; height:1px; background:#E9EBEF"></div>
+        <div style="font:500 12px 'Google Sans Flex'; color:#878E98">or</div>
+        <div style="flex:1; height:1px; background:#E9EBEF"></div>
+      </div>
+      <div style="height:52px; border-radius:14px; background:#F1F2F5; border:1px solid #E9EBEF; display:flex; align-items:center; justify-content:center; gap:10px; font:700 15px 'Google Sans Flex'; color:#878E98; box-sizing:border-box"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#B9BEC6" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#B9BEC6" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#B9BEC6" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#B9BEC6" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continue with Google</div>
+      <div style="flex:1"></div>
+      <div style="font:500 13px 'Google Sans Flex'; color:#878E98; text-align:center">New to Revora? <a href="#" style="font-weight:700; color:#F4511E">Create account</a></div>
+    </div>
+  </div>
+
+  <!-- DARK · IDLE -->
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Dark · Idle</div>
+    <div style="width:412px; height:860px; background:#101214; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 24px; box-sizing:border-box; overflow:hidden">
+      <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#F2F4F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="font:700 20px 'Google Sans Flex'; color:#F2F4F6">Sign in</div>
+      </div>
+      <div style="font:500 13px 'Google Sans Flex'; line-height:1.5; color:#9AA1AA; margin-top:8px">Your logbook lives on your account, not this phone. Sign in and it comes back — even on a new phone.</div>
+      <div style="display:flex; flex-direction:column; gap:16px; margin-top:24px">
+        <div style="display:flex; flex-direction:column; gap:7px">
+          <div style="font:600 12px 'Google Sans Flex'; color:#9AA1AA">Email</div>
+          <div style="height:52px; border-radius:13px; background:#191C20; border:1px solid #2C3138; display:flex; align-items:center; padding:0 16px; font:500 15px 'Google Sans Flex'; color:#9AA1AA; box-sizing:border-box">you@example.com</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:7px">
+          <div style="font:600 12px 'Google Sans Flex'; color:#9AA1AA">Password</div>
+          <div style="height:52px; border-radius:13px; background:#191C20; border:1px solid #2C3138; display:flex; align-items:center; justify-content:space-between; padding:0 4px 0 16px; box-sizing:border-box">
+            <div style="font:500 15px 'Google Sans Flex'; color:#9AA1AA">Your password</div>
+            <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" stroke="#9AA1AA" stroke-width="1.8"/><circle cx="12" cy="12" r="3" stroke="#9AA1AA" stroke-width="1.8"/></svg></div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; margin-top:2px"><a href="#" style="font:700 13px 'Google Sans Flex'; color:#FF6B3D; padding:6px 0">Forgot password?</a></div>
+        </div>
+      </div>
+      <div style="height:52px; border-radius:14px; background:#FF6B3D; display:flex; align-items:center; justify-content:center; font:700 15px 'Google Sans Flex'; color:#101214; margin-top:12px">Sign in</div>
+      <div style="display:flex; align-items:center; gap:12px; margin:20px 0">
+        <div style="flex:1; height:1px; background:#2C3138"></div>
+        <div style="font:500 12px 'Google Sans Flex'; color:#9AA1AA">or</div>
+        <div style="flex:1; height:1px; background:#2C3138"></div>
+      </div>
+      <div style="height:52px; border-radius:14px; background:#191C20; border:1px solid #2C3138; display:flex; align-items:center; justify-content:center; gap:10px; font:700 15px 'Google Sans Flex'; color:#F2F4F6; box-sizing:border-box"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continue with Google</div>
+      <div style="flex:1"></div>
+      <div style="font:500 13px 'Google Sans Flex'; color:#9AA1AA; text-align:center">New to Revora? <a href="#" style="font-weight:700; color:#FF6B3D">Create account</a></div>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+</body>
+</html>

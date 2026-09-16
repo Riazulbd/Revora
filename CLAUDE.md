@@ -1,8 +1,19 @@
 # Revora — working notes
 
-Android-first React Native app built from the approved design in
-`design/Revora.dc.html`. **That file is the visual source of truth.** Colours,
-type, spacing, radii and copy come from it; do not substitute a lookalike.
+Android-first React Native app built from the approved redesign in
+`design/redesign/*.dc.html` (20 canvas files, 92 artboards; rendered to
+`design/redesign/render/*.png`). **Those files are the visual source of
+truth.** Every screen must match its artboard: block order, layout, spacing,
+radii, type roles, copy, and every designed state (light, dark, empty, error,
+offline, keyboard-open). Do not substitute a lookalike, and do not pour the
+artboard's copy into an older component and call it done — if the artboard
+draws a different shape, build that shape.
+
+The previous design, `design/Revora.dc.html`, is superseded. Read it only to
+understand where a component came from.
+
+The typeface is Google Sans Flex (`src/theme/typography.ts`). Palette and
+radii are unchanged from the old design (`src/theme/tokens.ts`).
 
 ## Non-negotiables
 
