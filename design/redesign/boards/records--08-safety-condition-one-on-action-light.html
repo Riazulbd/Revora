@@ -1,0 +1,44 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><script src="../support.js"></script>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..800&display=swap" rel="stylesheet">
+<style>
+body { margin:0; background:#26292e; font-family:'Google Sans Flex',sans-serif; }
+a { color:#F4511E; text-decoration:none; }
+@keyframes spin { to { transform:rotate(360deg); } }
+</style>
+
+<style>body{margin:0;padding:24px;background:#26292e;display:inline-block}</style></head>
+<body><section style="display:flex;gap:40px;align-items:flex-start">  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Safety &amp; condition · One on action (light)</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 20px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 4px 0">
+        <div style="font:700 24px 'Google Sans Flex'; color:#14171B">Safety</div>
+        <div style="height:40px; border-radius:14px; background:#F4511E; display:flex; align-items:center; gap:6px; padding:0 16px; font:700 13px 'Google Sans Flex'; color:#FFFFFF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>New check</div>
+      </div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1.5px solid #D92D20; padding:14px 16px; margin-top:14px; display:flex; gap:12px; align-items:flex-start">
+        <div style="width:36px; height:36px; border-radius:11px; background:#FDECEA; display:flex; align-items:center; justify-content:center; flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#D92D20" stroke-width="1.8"/><circle cx="12" cy="12" r="3.5" stroke="#D92D20" stroke-width="1.8"/><path d="M12 3.8v2M12 18.2v2M3.8 12h2M18.2 12h2" stroke="#D92D20" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <div style="flex:1"><div style="font:700 14px 'Google Sans Flex'; color:#D92D20">Brakes need action</div><div style="font:500 12px 'Google Sans Flex'; color:#14171B; margin-top:2px">Front lever spongy — marked 3 days ago. Shows on the Dashboard until cleared.</div></div>
+      </div>
+      <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E; margin:16px 4px 8px">Current — latest check per area</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+        <div style="border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; padding:11px 12px"><div style="display:flex; justify-content:space-between; align-items:center"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Brakes</span><span style="width:10px; height:10px; border-radius:50%; background:#D92D20"></span></div><div style="font:500 11px 'Google Sans Flex'; color:#D92D20; margin-top:3px">Action &middot; 3 days ago</div></div>
+        <div style="border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; padding:11px 12px"><div style="display:flex; justify-content:space-between; align-items:center"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Chain</span><span style="width:10px; height:10px; border-radius:50%; background:#B7791F"></span></div><div style="font:500 11px 'Google Sans Flex'; color:#B7791F; margin-top:3px; font-variant-numeric:tabular-nums">Watch &middot; slack 32 mm</div></div>
+        <div style="border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; padding:11px 12px"><div style="display:flex; justify-content:space-between; align-items:center"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Tyres</span><span style="width:10px; height:10px; border-radius:50%; background:#0FA968"></span></div><div style="font:500 11px 'Google Sans Flex'; color:#878E98; margin-top:3px; font-variant-numeric:tabular-nums">OK &middot; tread 3.1 mm</div></div>
+        <div style="border-radius:11px; background:#FFFFFF; border:1px solid #E9EBEF; padding:11px 12px"><div style="display:flex; justify-content:space-between; align-items:center"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Battery</span><span style="width:10px; height:10px; border-radius:50%; background:#0FA968"></span></div><div style="font:500 11px 'Google Sans Flex'; color:#878E98; margin-top:3px">OK &middot; 12 Sep</div></div>
+        <div style="border-radius:11px; background:#F1F2F5; border:1px dashed #C6CAD1; padding:11px 12px"><div style="display:flex; justify-content:space-between; align-items:center"><span style="font:700 13px 'Google Sans Flex'; color:#878E98">Lights</span><span style="width:10px; height:10px; border-radius:50%; background:#C6CAD1"></span></div><div style="font:500 11px 'Google Sans Flex'; color:#878E98; margin-top:3px">Never checked</div></div>
+      </div>
+      <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; margin:8px 4px 0">Never checked is its own state — absence of a check is not &ldquo;OK&rdquo;.</div>
+      <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E; margin:16px 4px 8px">History</div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; padding:0 16px">
+        <div style="font:700 11px 'Google Sans Flex'; letter-spacing:0.4px; text-transform:uppercase; color:#878E98; padding:12px 0 4px">13 Sep · 34,712 km · 5 areas</div>
+        <div style="display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #E9EBEF"><span style="width:8px; height:8px; border-radius:50%; background:#D92D20; flex-shrink:0"></span><div style="flex:1"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Brakes</span> <span style="font:500 12px 'Google Sans Flex'; color:#878E98">&middot; front lever spongy</span></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#878E98" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="11" x="5" y="8" rx="2"/><circle cx="12" cy="13.5" r="2.5"/></svg></div>
+        <div style="display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #E9EBEF"><span style="width:8px; height:8px; border-radius:50%; background:#B7791F; flex-shrink:0"></span><div style="flex:1"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Chain</span> <span style="font:500 12px 'Google Sans Flex'; color:#878E98; font-variant-numeric:tabular-nums">&middot; slack 32 mm</span></div></div>
+        <div style="display:flex; align-items:center; gap:10px; padding:9px 0"><span style="width:8px; height:8px; border-radius:50%; background:#0FA968; flex-shrink:0"></span><div style="flex:1"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Tyres, battery</span> <span style="font:500 12px 'Google Sans Flex'; color:#878E98; font-variant-numeric:tabular-nums">&middot; OK &middot; tread 3.1 mm</span></div></div>
+        <div style="font:700 11px 'Google Sans Flex'; letter-spacing:0.4px; text-transform:uppercase; color:#878E98; padding:12px 0 4px; border-top:1px solid #E9EBEF">28 Aug · 34,180 km · 2 areas</div>
+        <div style="display:flex; align-items:center; gap:10px; padding:9px 0 13px"><span style="width:8px; height:8px; border-radius:50%; background:#0FA968; flex-shrink:0"></span><div style="flex:1"><span style="font:700 13px 'Google Sans Flex'; color:#14171B">Chain, tyres</span> <span style="font:500 12px 'Google Sans Flex'; color:#878E98">&middot; OK</span></div></div>
+      </div>
+      <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; margin:8px 4px 0">Each row is one area. Checks made the same day group into a session; the data stores no session — just the checks.</div>
+    </div>
+  </div>
+</section></body></html>

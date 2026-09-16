@@ -1,0 +1,54 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><script src="../support.js"></script>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..800&display=swap" rel="stylesheet">
+<style>
+body { margin:0; background:#26292e; font-family:'Google Sans Flex',sans-serif; }
+a { color:#F4511E; text-decoration:none; }
+</style>
+
+<style>body{margin:0;padding:24px;background:#26292e;display:inline-block}</style></head>
+<body><section style="display:flex;gap:40px;align-items:flex-start">  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Odometer history · Correction preview (light)</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 24px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; gap:8px; height:44px; margin-left:-10px">
+        <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#14171B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="font:700 20px 'Google Sans Flex'; color:#14171B">Odometer history</div>
+      </div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:16px; margin-top:14px">
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E">Current odometer</div>
+        <div style="display:flex; align-items:baseline; gap:8px; margin-top:6px"><span style="font:700 28px 'Google Sans Flex'; color:#14171B; font-variant-numeric:tabular-nums">34,712</span><span style="font:700 13px 'Google Sans Flex'; color:#878E98">km</span></div>
+        <div style="font:500 12px 'Google Sans Flex'; color:#878E98; margin-top:4px">Held by the fuel log of 13 Sep. The odometer only moves forward — correct a wrong reading below.</div>
+      </div>
+      <div style="border-radius:16px; background:#FFFFFF; border:1px solid #E9EBEF; margin-top:12px; padding:0 16px">
+        <div style="display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid #E9EBEF">
+          <div style="flex:1"><div style="font:700 14px 'Google Sans Flex'; color:#14171B; font-variant-numeric:tabular-nums">34,712 km</div><div style="font:500 12px 'Google Sans Flex'; color:#878E98">13 Sep &middot; correct on that record</div></div>
+          <span style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#F4511E; background:#FDEAE3; border-radius:7px; padding:2px 7px">Fuel log</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid #E9EBEF">
+          <div style="flex:1"><div style="font:700 14px 'Google Sans Flex'; color:#14171B; font-variant-numeric:tabular-nums">34,626 km</div><div style="font:500 12px 'Google Sans Flex'; color:#878E98">10 Sep &middot; tap to correct</div></div>
+          <span style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98; background:#F1F2F5; border-radius:7px; padding:2px 7px">Manual</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; padding:13px 0">
+          <div style="flex:1"><div style="font:700 14px 'Google Sans Flex'; color:#B7791F; font-variant-numeric:tabular-nums">60,000 km</div><div style="font:500 12px 'Google Sans Flex'; color:#B7791F">8 Sep &middot; looks out of sequence</div></div>
+          <span style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98; background:#F1F2F5; border-radius:7px; padding:2px 7px">Manual</span>
+        </div>
+      </div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1.5px solid #F4511E; padding:16px; margin-top:14px; display:flex; flex-direction:column; gap:12px">
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E">Correcting the 8 Sep reading</div>
+        <div style="display:flex; align-items:center; gap:12px">
+          <div style="flex:1; height:52px; border-radius:13px; background:#F5F6F8; border:1px solid #E9EBEF; display:flex; align-items:center; justify-content:center; font:700 17px 'Google Sans Flex'; color:#878E98; box-sizing:border-box; text-decoration:line-through; font-variant-numeric:tabular-nums">60,000</div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-5-5 5 5-5 5" stroke="#878E98" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div style="flex:1; height:52px; border-radius:13px; background:#FFFFFF; border:1.5px solid #F4511E; display:flex; align-items:center; justify-content:center; font:700 17px 'Google Sans Flex'; color:#14171B; box-sizing:border-box; font-variant-numeric:tabular-nums">6,000</div>
+        </div>
+        <div style="border-radius:11px; background:#F1F2F5; padding:12px 14px; font:500 12.5px 'Google Sans Flex'; line-height:1.5; color:#14171B">After this change the current odometer stays <span style="font-weight:700; font-variant-numeric:tabular-nums">34,712 km</span>, still held by the fuel log of 13 Sep. Every figure derived after 8 Sep is recalculated.</div>
+        <div style="display:flex; gap:10px">
+          <div style="flex:1; height:48px; border-radius:14px; background:#F4511E; display:flex; align-items:center; justify-content:center; font:700 14px 'Google Sans Flex'; color:#FFFFFF">Commit correction</div>
+          <div style="width:100px; height:48px; display:flex; align-items:center; justify-content:center; font:700 14px 'Google Sans Flex'; color:#878E98">Cancel</div>
+        </div>
+      </div>
+      <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; margin-top:12px">No readings yet? The odometer you entered at setup is the first one.</div>
+    </div>
+  </div>
+
+</section></body></html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><script src="../support.js"></script>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..800&display=swap" rel="stylesheet">
+<style>
+body { margin:0; background:#26292e; font-family:'Google Sans Flex',sans-serif; }
+a { color:#F4511E; text-decoration:none; }
+</style>
+
+<style>body{margin:0;padding:24px;background:#26292e;display:inline-block}</style></head>
+<body><section style="display:flex;gap:40px;align-items:flex-start">  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="font:600 12px 'Google Sans Flex'; letter-spacing:0.5px; color:#9AA1AA; text-transform:uppercase">Analytics · Pro, full log (light)</div>
+    <div style="width:412px; background:#F5F6F8; border-radius:24px; border:1px solid #3a3f46; display:flex; flex-direction:column; padding:20px 20px 24px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 4px 0">
+        <div style="font:700 24px 'Google Sans Flex'; color:#14171B">Analytics</div>
+        <span style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; color:#F4511E; background:#FDEAE3; border-radius:8px; padding:3px 8px">PRO</span>
+      </div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:16px; margin-top:16px; display:flex; flex-direction:column; gap:10px">
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E">Latest fuel calculation</div>
+        <div style="display:flex; justify-content:space-between"><span style="font:500 13px 'Google Sans Flex'; color:#14171B">Full tank 1 Sep &rarr; full tank 13 Sep</span><span style="font:700 13px 'Google Sans Flex'; color:#14171B; font-variant-numeric:tabular-nums">338 km</span></div>
+        <div style="display:flex; justify-content:space-between"><span style="font:500 13px 'Google Sans Flex'; color:#14171B">Fuel used in between</span><span style="font:700 13px 'Google Sans Flex'; color:#14171B; font-variant-numeric:tabular-nums">8.2 L</span></div>
+        <div style="height:1px; background:#E9EBEF"></div>
+        <div style="display:flex; justify-content:space-between"><span style="font:500 13px 'Google Sans Flex'; color:#878E98">338 &divide; 8.2</span><span style="font:700 14px 'Google Sans Flex'; color:#F4511E; font-variant-numeric:tabular-nums">= 41.2 km/L</span></div>
+        <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; line-height:1.5">Method: distance between two full tanks &divide; fuel used in between. Check it yourself — that&rsquo;s the point.</div>
+      </div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:16px; margin-top:12px; display:flex; flex-direction:column; gap:10px">
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E">Mileage stats &middot; 12 intervals</div>
+        <div style="display:flex; gap:8px">
+          <div style="flex:1; border-radius:11px; background:#F1F2F5; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98">Average</div><div style="font:700 15px 'Google Sans Flex'; color:#14171B; margin-top:4px; font-variant-numeric:tabular-nums">39.8</div></div>
+          <div style="flex:1; border-radius:11px; background:#F1F2F5; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98">Best / worst</div><div style="font:700 15px 'Google Sans Flex'; color:#14171B; margin-top:4px; font-variant-numeric:tabular-nums">44.1 / 33.6</div></div>
+        </div>
+        <div style="display:flex; gap:8px">
+          <div style="flex:1; border-radius:11px; background:#F1F2F5; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98">Distance</div><div style="font:700 15px 'Google Sans Flex'; color:#14171B; margin-top:4px; font-variant-numeric:tabular-nums">4,030 km</div></div>
+          <div style="flex:1; border-radius:11px; background:#F1F2F5; padding:10px 12px"><div style="font:700 9.5px 'Google Sans Flex'; letter-spacing:0.57px; text-transform:uppercase; color:#878E98">Litres</div><div style="font:700 15px 'Google Sans Flex'; color:#14171B; margin-top:4px; font-variant-numeric:tabular-nums">101.3 L</div></div>
+        </div>
+      </div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:16px; margin-top:12px; display:flex; flex-direction:column; gap:10px">
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E">Mileage trend &middot; km/L per interval</div>
+        <svg width="100%" height="120" viewBox="0 0 340 120">
+          <path d="M36 10v92M36 102h296" stroke="#E9EBEF" stroke-width="1"/>
+          <text x="30" y="16" text-anchor="end" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">45</text>
+          <text x="30" y="60" text-anchor="end" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">39</text>
+          <text x="30" y="104" text-anchor="end" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">33</text>
+          <path d="M36 58h296" stroke="#E9EBEF" stroke-width="1" stroke-dasharray="3 4"/>
+          <path d="M48 70 74 55 100 62 126 40 152 48 178 88 204 60 230 42 256 50 282 34 308 44 330 28" fill="none" stroke="#F4511E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="330" cy="28" r="3.5" fill="#F4511E"/>
+          <text x="48" y="117" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">May</text>
+          <text x="185" y="117" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">Jul</text>
+          <text x="316" y="117" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">Sep</text>
+        </svg>
+      </div>
+      <div style="border-radius:18px; background:#FFFFFF; border:1px solid #E9EBEF; padding:16px; margin-top:12px; display:flex; flex-direction:column; gap:10px">
+        <div style="font:700 10.5px 'Google Sans Flex'; letter-spacing:0.95px; text-transform:uppercase; color:#F4511E">Monthly spending &middot; &#2547;</div>
+        <svg width="100%" height="110" viewBox="0 0 340 110">
+          <path d="M36 8v86M36 94h296" stroke="#E9EBEF" stroke-width="1"/>
+          <text x="30" y="14" text-anchor="end" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">6k</text>
+          <text x="30" y="96" text-anchor="end" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">0</text>
+          <rect x="52" y="52" width="30" height="42" rx="4" fill="#F1F2F5"/>
+          <rect x="100" y="38" width="30" height="56" rx="4" fill="#F1F2F5"/>
+          <rect x="148" y="60" width="30" height="34" rx="4" fill="#F1F2F5"/>
+          <rect x="196" y="22" width="30" height="72" rx="4" fill="#F1F2F5"/>
+          <rect x="244" y="46" width="30" height="48" rx="4" fill="#F1F2F5"/>
+          <rect x="292" y="30" width="30" height="64" rx="4" fill="#F4511E"/>
+          <text x="55" y="106" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">Apr</text>
+          <text x="297" y="106" font-family="Plus Jakarta Sans" font-size="10" font-weight="600" fill="#878E98">Sep</text>
+        </svg>
+      </div>
+      <div style="font:500 11.5px 'Google Sans Flex'; color:#878E98; margin:12px 4px 0; line-height:1.5">Best / worst and the rolling average unlock at five measured intervals. Below that, this screen says how many more are needed instead of drawing a chart the data can&rsquo;t hold.</div>
+    </div>
+  </div>
+</section></body></html>

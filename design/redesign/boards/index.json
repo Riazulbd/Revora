@@ -1,0 +1,639 @@
+[
+ {
+  "file": "Account.dc.html",
+  "canvas_render": "render/Account.png",
+  "caption": "Settings (light)",
+  "html": "boards/account--01-settings-light.html",
+  "png": "boards/account--01-settings-light.png"
+ },
+ {
+  "file": "Account.dc.html",
+  "canvas_render": "render/Account.png",
+  "caption": "Motorcycle profile \u00b7 Copied + low odometer (dark)",
+  "html": "boards/account--02-motorcycle-profile-copied-low-odometer-dark.html",
+  "png": "boards/account--02-motorcycle-profile-copied-low-odometer-dark.png"
+ },
+ {
+  "file": "Account.dc.html",
+  "canvas_render": "render/Account.png",
+  "caption": "Edit motorcycle (light)",
+  "html": "boards/account--03-edit-motorcycle-light.html",
+  "png": "boards/account--03-edit-motorcycle-light.png"
+ },
+ {
+  "file": "Account.dc.html",
+  "canvas_render": "render/Account.png",
+  "caption": "Feedback & support (light)",
+  "html": "boards/account--04-feedback-support-light.html",
+  "png": "boards/account--04-feedback-support-light.png"
+ },
+ {
+  "file": "Account.dc.html",
+  "canvas_render": "render/Account.png",
+  "caption": "Privacy (light)",
+  "html": "boards/account--05-privacy-light.html",
+  "png": "boards/account--05-privacy-light.png"
+ },
+ {
+  "file": "Account.dc.html",
+  "canvas_render": "render/Account.png",
+  "caption": "Terms of use (light)",
+  "html": "boards/account--06-terms-of-use-light.html",
+  "png": "boards/account--06-terms-of-use-light.png"
+ },
+ {
+  "file": "Add Fuel.dc.html",
+  "canvas_render": "render/Add Fuel.png",
+  "caption": "Light \u00b7 New fill",
+  "html": "boards/add-fuel--01-light-new-fill.html",
+  "png": "boards/add-fuel--01-light-new-fill.png"
+ },
+ {
+  "file": "Add Fuel.dc.html",
+  "canvas_render": "render/Add Fuel.png",
+  "caption": "Light \u00b7 Save failed + low odometer",
+  "html": "boards/add-fuel--02-light-save-failed-low-odometer.html",
+  "png": "boards/add-fuel--02-light-save-failed-low-odometer.png"
+ },
+ {
+  "file": "Add Fuel.dc.html",
+  "canvas_render": "render/Add Fuel.png",
+  "caption": "Dark \u00b7 Editing, offline",
+  "html": "boards/add-fuel--03-dark-editing-offline.html",
+  "png": "boards/add-fuel--03-dark-editing-offline.png"
+ },
+ {
+  "file": "Add Motorcycle.dc.html",
+  "canvas_render": "render/Add Motorcycle.png",
+  "caption": "Light \u00b7 Empty",
+  "html": "boards/add-motorcycle--01-light-empty.html",
+  "png": "boards/add-motorcycle--01-light-empty.png"
+ },
+ {
+  "file": "Add Motorcycle.dc.html",
+  "canvas_render": "render/Add Motorcycle.png",
+  "caption": "Light \u00b7 Part-filled, details open",
+  "html": "boards/add-motorcycle--02-light-part-filled-details-open.html",
+  "png": "boards/add-motorcycle--02-light-part-filled-details-open.png"
+ },
+ {
+  "file": "Add Motorcycle.dc.html",
+  "canvas_render": "render/Add Motorcycle.png",
+  "caption": "Light \u00b7 Saved offline",
+  "html": "boards/add-motorcycle--03-light-saved-offline.html",
+  "png": "boards/add-motorcycle--03-light-saved-offline.png"
+ },
+ {
+  "file": "Add Motorcycle.dc.html",
+  "canvas_render": "render/Add Motorcycle.png",
+  "caption": "Dark \u00b7 Empty",
+  "html": "boards/add-motorcycle--04-dark-empty.html",
+  "png": "boards/add-motorcycle--04-dark-empty.png"
+ },
+ {
+  "file": "Costs Tab.dc.html",
+  "canvas_render": "render/Costs Tab.png",
+  "caption": "Light \u00b7 Long history",
+  "html": "boards/costs-tab--01-light-long-history.html",
+  "png": "boards/costs-tab--01-light-long-history.png"
+ },
+ {
+  "file": "Costs Tab.dc.html",
+  "canvas_render": "render/Costs Tab.png",
+  "caption": "Light \u00b7 Nothing logged",
+  "html": "boards/costs-tab--02-light-nothing-logged.html",
+  "png": "boards/costs-tab--02-light-nothing-logged.png"
+ },
+ {
+  "file": "Costs Tab.dc.html",
+  "canvas_render": "render/Costs Tab.png",
+  "caption": "Dark \u00b7 Long history",
+  "html": "boards/costs-tab--03-dark-long-history.html",
+  "png": "boards/costs-tab--03-dark-long-history.png"
+ },
+ {
+  "file": "Create Account.dc.html",
+  "canvas_render": "render/Create Account.png",
+  "caption": "Light \u00b7 Idle, rules up front",
+  "html": "boards/create-account--01-light-idle-rules-up-front.html",
+  "png": "boards/create-account--01-light-idle-rules-up-front.png"
+ },
+ {
+  "file": "Create Account.dc.html",
+  "canvas_render": "render/Create Account.png",
+  "caption": "Light \u00b7 Weak password (after submit)",
+  "html": "boards/create-account--02-light-weak-password-after-submit.html",
+  "png": "boards/create-account--02-light-weak-password-after-submit.png"
+ },
+ {
+  "file": "Create Account.dc.html",
+  "canvas_render": "render/Create Account.png",
+  "caption": "Light \u00b7 Email already in use",
+  "html": "boards/create-account--03-light-email-already-in-use.html",
+  "png": "boards/create-account--03-light-email-already-in-use.png"
+ },
+ {
+  "file": "Create Account.dc.html",
+  "canvas_render": "render/Create Account.png",
+  "caption": "Dark \u00b7 Offline",
+  "html": "boards/create-account--04-dark-offline.html",
+  "png": "boards/create-account--04-dark-offline.png"
+ },
+ {
+  "file": "Dashboard.dc.html",
+  "canvas_render": "render/Dashboard.png",
+  "caption": "Light \u00b7 Mature log",
+  "html": "boards/dashboard--01-light-mature-log.html",
+  "png": "boards/dashboard--01-light-mature-log.png"
+ },
+ {
+  "file": "Dashboard.dc.html",
+  "canvas_render": "render/Dashboard.png",
+  "caption": "Light \u00b7 Few records, estimated",
+  "html": "boards/dashboard--02-light-few-records-estimated.html",
+  "png": "boards/dashboard--02-light-few-records-estimated.png"
+ },
+ {
+  "file": "Dashboard.dc.html",
+  "canvas_render": "render/Dashboard.png",
+  "caption": "Light \u00b7 First run",
+  "html": "boards/dashboard--03-light-first-run.html",
+  "png": "boards/dashboard--03-light-first-run.png"
+ },
+ {
+  "file": "Dashboard.dc.html",
+  "canvas_render": "render/Dashboard.png",
+  "caption": "Light \u00b7 Load error",
+  "html": "boards/dashboard--04-light-load-error.html",
+  "png": "boards/dashboard--04-light-load-error.png"
+ },
+ {
+  "file": "Dashboard.dc.html",
+  "canvas_render": "render/Dashboard.png",
+  "caption": "Dark \u00b7 Mature log",
+  "html": "boards/dashboard--05-dark-mature-log.html",
+  "png": "boards/dashboard--05-dark-mature-log.png"
+ },
+ {
+  "file": "Fuel Detail + Odometer History.dc.html",
+  "canvas_render": "render/Fuel Detail + Odometer History.png",
+  "caption": "Detail \u00b7 Clean interval (light)",
+  "html": "boards/fuel-detail-and-odometer-history--01-detail-clean-interval-light.html",
+  "png": "boards/fuel-detail-and-odometer-history--01-detail-clean-interval-light.png"
+ },
+ {
+  "file": "Fuel Detail + Odometer History.dc.html",
+  "canvas_render": "render/Fuel Detail + Odometer History.png",
+  "caption": "Detail \u00b7 Partial, closed nothing (dark)",
+  "html": "boards/fuel-detail-and-odometer-history--02-detail-partial-closed-nothing-dark.html",
+  "png": "boards/fuel-detail-and-odometer-history--02-detail-partial-closed-nothing-dark.png"
+ },
+ {
+  "file": "Fuel Detail + Odometer History.dc.html",
+  "canvas_render": "render/Fuel Detail + Odometer History.png",
+  "caption": "Odometer history \u00b7 Correction preview (light)",
+  "html": "boards/fuel-detail-and-odometer-history--03-odometer-history-correction-preview-light.html",
+  "png": "boards/fuel-detail-and-odometer-history--03-odometer-history-correction-preview-light.png"
+ },
+ {
+  "file": "Fuel Tab.dc.html",
+  "canvas_render": "render/Fuel Tab.png",
+  "caption": "Light \u00b7 Several fills",
+  "html": "boards/fuel-tab--01-light-several-fills.html",
+  "png": "boards/fuel-tab--01-light-several-fills.png"
+ },
+ {
+  "file": "Fuel Tab.dc.html",
+  "canvas_render": "render/Fuel Tab.png",
+  "caption": "Light \u00b7 No fills yet",
+  "html": "boards/fuel-tab--02-light-no-fills-yet.html",
+  "png": "boards/fuel-tab--02-light-no-fills-yet.png"
+ },
+ {
+  "file": "Fuel Tab.dc.html",
+  "canvas_render": "render/Fuel Tab.png",
+  "caption": "Light \u00b7 Filtered to empty",
+  "html": "boards/fuel-tab--03-light-filtered-to-empty.html",
+  "png": "boards/fuel-tab--03-light-filtered-to-empty.png"
+ },
+ {
+  "file": "Fuel Tab.dc.html",
+  "canvas_render": "render/Fuel Tab.png",
+  "caption": "Dark \u00b7 Offline banner",
+  "html": "boards/fuel-tab--04-dark-offline-banner.html",
+  "png": "boards/fuel-tab--04-dark-offline-banner.png"
+ },
+ {
+  "file": "Garage Tab.dc.html",
+  "canvas_render": "render/Garage Tab.png",
+  "caption": "Light \u00b7 One bike (common case)",
+  "html": "boards/garage-tab--01-light-one-bike-common-case.html",
+  "png": "boards/garage-tab--01-light-one-bike-common-case.png"
+ },
+ {
+  "file": "Garage Tab.dc.html",
+  "canvas_render": "render/Garage Tab.png",
+  "caption": "Light \u00b7 Several bikes, just switched",
+  "html": "boards/garage-tab--02-light-several-bikes-just-switched.html",
+  "png": "boards/garage-tab--02-light-several-bikes-just-switched.png"
+ },
+ {
+  "file": "Garage Tab.dc.html",
+  "canvas_render": "render/Garage Tab.png",
+  "caption": "Light \u00b7 Pro upgrade sheet",
+  "html": "boards/garage-tab--03-light-pro-upgrade-sheet.html",
+  "png": "boards/garage-tab--03-light-pro-upgrade-sheet.png"
+ },
+ {
+  "file": "Garage Tab.dc.html",
+  "canvas_render": "render/Garage Tab.png",
+  "caption": "Dark \u00b7 One bike",
+  "html": "boards/garage-tab--04-dark-one-bike.html",
+  "png": "boards/garage-tab--04-dark-one-bike.png"
+ },
+ {
+  "file": "Insights.dc.html",
+  "canvas_render": "render/Insights.png",
+  "caption": "Analytics \u00b7 Pro, full log (light)",
+  "html": "boards/insights--01-analytics-pro-full-log-light.html",
+  "png": "boards/insights--01-analytics-pro-full-log-light.png"
+ },
+ {
+  "file": "Insights.dc.html",
+  "canvas_render": "render/Insights.png",
+  "caption": "Assistant \u00b7 Active conversation (dark)",
+  "html": "boards/insights--02-assistant-active-conversation-dark.html",
+  "png": "boards/insights--02-assistant-active-conversation-dark.png"
+ },
+ {
+  "file": "Insights.dc.html",
+  "canvas_render": "render/Insights.png",
+  "caption": "Fast Capture \u00b7 Items waiting (light)",
+  "html": "boards/insights--03-fast-capture-items-waiting-light.html",
+  "png": "boards/insights--03-fast-capture-items-waiting-light.png"
+ },
+ {
+  "file": "Insights.dc.html",
+  "canvas_render": "render/Insights.png",
+  "caption": "Notifications \u00b7 Mixed urgency (dark)",
+  "html": "boards/insights--04-notifications-mixed-urgency-dark.html",
+  "png": "boards/insights--04-notifications-mixed-urgency-dark.png"
+ },
+ {
+  "file": "Insights.dc.html",
+  "canvas_render": "render/Insights.png",
+  "caption": "Analytics \u00b7 Free account",
+  "html": "boards/insights--05-analytics-free-account.html",
+  "png": "boards/insights--05-analytics-free-account.png"
+ },
+ {
+  "file": "Insights.dc.html",
+  "canvas_render": "render/Insights.png",
+  "caption": "Assistant \u00b7 First use (dark)",
+  "html": "boards/insights--06-assistant-first-use-dark.html",
+  "png": "boards/insights--06-assistant-first-use-dark.png"
+ },
+ {
+  "file": "Maintenance.dc.html",
+  "canvas_render": "render/Maintenance.png",
+  "caption": "Maintenance \u00b7 Mixed states (light)",
+  "html": "boards/maintenance--01-maintenance-mixed-states-light.html",
+  "png": "boards/maintenance--01-maintenance-mixed-states-light.png"
+ },
+ {
+  "file": "Maintenance.dc.html",
+  "canvas_render": "render/Maintenance.png",
+  "caption": "Service plan \u00b7 Year ahead (dark)",
+  "html": "boards/maintenance--02-service-plan-year-ahead-dark.html",
+  "png": "boards/maintenance--02-service-plan-year-ahead-dark.png"
+ },
+ {
+  "file": "Maintenance.dc.html",
+  "canvas_render": "render/Maintenance.png",
+  "caption": "Rule overdue \u00b7 Completion sheet (light)",
+  "html": "boards/maintenance--03-rule-overdue-completion-sheet-light.html",
+  "png": "boards/maintenance--03-rule-overdue-completion-sheet-light.png"
+ },
+ {
+  "file": "Money - Expense, Allowance, Pro.dc.html",
+  "canvas_render": "render/Money - Expense, Allowance, Pro.png",
+  "caption": "Add expense \u00b7 Reroute (light)",
+  "html": "boards/money---expense-allowance-pro--01-add-expense-reroute-light.html",
+  "png": "boards/money---expense-allowance-pro--01-add-expense-reroute-light.png"
+ },
+ {
+  "file": "Money - Expense, Allowance, Pro.dc.html",
+  "canvas_render": "render/Money - Expense, Allowance, Pro.png",
+  "caption": "Company allowance \u00b7 On (dark)",
+  "html": "boards/money---expense-allowance-pro--02-company-allowance-on-dark.html",
+  "png": "boards/money---expense-allowance-pro--02-company-allowance-on-dark.png"
+ },
+ {
+  "file": "Money - Expense, Allowance, Pro.dc.html",
+  "canvas_render": "render/Money - Expense, Allowance, Pro.png",
+  "caption": "Free / Pro \u00b7 Free, prices loaded (light)",
+  "html": "boards/money---expense-allowance-pro--03-free-pro-free-prices-loaded-light.html",
+  "png": "boards/money---expense-allowance-pro--03-free-pro-free-prices-loaded-light.png"
+ },
+ {
+  "file": "Money - Expense, Allowance, Pro.dc.html",
+  "canvas_render": "render/Money - Expense, Allowance, Pro.png",
+  "caption": "Free / Pro \u00b7 The three failures (light)",
+  "html": "boards/money---expense-allowance-pro--04-free-pro-the-three-failures-light.html",
+  "png": "boards/money---expense-allowance-pro--04-free-pro-the-three-failures-light.png"
+ },
+ {
+  "file": "Navigation.dc.html",
+  "canvas_render": "render/Navigation.png",
+  "caption": "Entry layer \u00b7 Dashboard top (light)",
+  "html": "boards/navigation--01-entry-layer-dashboard-top-light.html",
+  "png": "boards/navigation--01-entry-layer-dashboard-top-light.png"
+ },
+ {
+  "file": "Navigation.dc.html",
+  "canvas_render": "render/Navigation.png",
+  "caption": "Dashboard overflow \u00b7 the rare ones (dark)",
+  "html": "boards/navigation--02-dashboard-overflow-the-rare-ones-dark.html",
+  "png": "boards/navigation--02-dashboard-overflow-the-rare-ones-dark.png"
+ },
+ {
+  "file": "Navigation.dc.html",
+  "canvas_render": "render/Navigation.png",
+  "caption": "Route map \u00b7 cold start \u2192 every screen",
+  "html": "boards/navigation--03-route-map-cold-start-every-screen.html",
+  "png": "boards/navigation--03-route-map-cold-start-every-screen.png"
+ },
+ {
+  "file": "Navigation.dc.html",
+  "canvas_render": "render/Navigation.png",
+  "caption": "Search \u00b7 Resting (light)",
+  "html": "boards/navigation--04-search-resting-light.html",
+  "png": "boards/navigation--04-search-resting-light.png"
+ },
+ {
+  "file": "Navigation.dc.html",
+  "canvas_render": "render/Navigation.png",
+  "caption": "Search \u00b7 Results for \u201coil\u201d (light)",
+  "html": "boards/navigation--05-search-results-for-oil-light.html",
+  "png": "boards/navigation--05-search-results-for-oil-light.png"
+ },
+ {
+  "file": "Navigation.dc.html",
+  "canvas_render": "render/Navigation.png",
+  "caption": "Search \u00b7 Nothing found (light)",
+  "html": "boards/navigation--06-search-nothing-found-light.html",
+  "png": "boards/navigation--06-search-nothing-found-light.png"
+ },
+ {
+  "file": "Parts + Accessories.dc.html",
+  "canvas_render": "render/Parts + Accessories.png",
+  "caption": "Parts \u00b7 Active + removed (light)",
+  "html": "boards/parts-and-accessories--01-parts-active-removed-light.html",
+  "png": "boards/parts-and-accessories--01-parts-active-removed-light.png"
+ },
+ {
+  "file": "Parts + Accessories.dc.html",
+  "canvas_render": "render/Parts + Accessories.png",
+  "caption": "Part detail \u00b7 Move to accessories (dark)",
+  "html": "boards/parts-and-accessories--02-part-detail-move-to-accessories-dark.html",
+  "png": "boards/parts-and-accessories--02-part-detail-move-to-accessories-dark.png"
+ },
+ {
+  "file": "Parts + Accessories.dc.html",
+  "canvas_render": "render/Parts + Accessories.png",
+  "caption": "Add part (light)",
+  "html": "boards/parts-and-accessories--03-add-part-light.html",
+  "png": "boards/parts-and-accessories--03-add-part-light.png"
+ },
+ {
+  "file": "Parts + Accessories.dc.html",
+  "canvas_render": "render/Parts + Accessories.png",
+  "caption": "Accessories (light)",
+  "html": "boards/parts-and-accessories--04-accessories-light.html",
+  "png": "boards/parts-and-accessories--04-accessories-light.png"
+ },
+ {
+  "file": "Parts + Accessories.dc.html",
+  "canvas_render": "render/Parts + Accessories.png",
+  "caption": "Add accessory (light)",
+  "html": "boards/parts-and-accessories--05-add-accessory-light.html",
+  "png": "boards/parts-and-accessories--05-add-accessory-light.png"
+ },
+ {
+  "file": "Parts + Accessories.dc.html",
+  "canvas_render": "render/Parts + Accessories.png",
+  "caption": "Edit accessory \u00b7 Convert to part (dark)",
+  "html": "boards/parts-and-accessories--06-edit-accessory-convert-to-part-dark.html",
+  "png": "boards/parts-and-accessories--06-edit-accessory-convert-to-part-dark.png"
+ },
+ {
+  "file": "Parts + Accessories.dc.html",
+  "canvas_render": "render/Parts + Accessories.png",
+  "caption": "Remove accessory (light)",
+  "html": "boards/parts-and-accessories--07-remove-accessory-light.html",
+  "png": "boards/parts-and-accessories--07-remove-accessory-light.png"
+ },
+ {
+  "file": "Records.dc.html",
+  "canvas_render": "render/Records.png",
+  "caption": "Document vault (light)",
+  "html": "boards/records--01-document-vault-light.html",
+  "png": "boards/records--01-document-vault-light.png"
+ },
+ {
+  "file": "Records.dc.html",
+  "canvas_render": "render/Records.png",
+  "caption": "Document editor \u00b7 Expiry missing (dark)",
+  "html": "boards/records--02-document-editor-expiry-missing-dark.html",
+  "png": "boards/records--02-document-editor-expiry-missing-dark.png"
+ },
+ {
+  "file": "Records.dc.html",
+  "canvas_render": "render/Records.png",
+  "caption": "Warranties \u00b7 Open claim (light)",
+  "html": "boards/records--03-warranties-open-claim-light.html",
+  "png": "boards/records--03-warranties-open-claim-light.png"
+ },
+ {
+  "file": "Records.dc.html",
+  "canvas_render": "render/Records.png",
+  "caption": "Safety check \u00b7 One-handed form (dark)",
+  "html": "boards/records--04-safety-check-one-handed-form-dark.html",
+  "png": "boards/records--04-safety-check-one-handed-form-dark.png"
+ },
+ {
+  "file": "Records.dc.html",
+  "canvas_render": "render/Records.png",
+  "caption": "Proof Pack (light)",
+  "html": "boards/records--05-proof-pack-light.html",
+  "png": "boards/records--05-proof-pack-light.png"
+ },
+ {
+  "file": "Records.dc.html",
+  "canvas_render": "render/Records.png",
+  "caption": "Warranty editor (light)",
+  "html": "boards/records--06-warranty-editor-light.html",
+  "png": "boards/records--06-warranty-editor-light.png"
+ },
+ {
+  "file": "Records.dc.html",
+  "canvas_render": "render/Records.png",
+  "caption": "Proof Pack \u00b7 Generating",
+  "html": "boards/records--07-proof-pack-generating.html",
+  "png": "boards/records--07-proof-pack-generating.png"
+ },
+ {
+  "file": "Records.dc.html",
+  "canvas_render": "render/Records.png",
+  "caption": "Safety & condition \u00b7 One on action (light)",
+  "html": "boards/records--08-safety-condition-one-on-action-light.html",
+  "png": "boards/records--08-safety-condition-one-on-action-light.png"
+ },
+ {
+  "file": "Records.dc.html",
+  "canvas_render": "render/Records.png",
+  "caption": "Safety \u00b7 Never checked (dark)",
+  "html": "boards/records--09-safety-never-checked-dark.html",
+  "png": "boards/records--09-safety-never-checked-dark.png"
+ },
+ {
+  "file": "Reset Password.dc.html",
+  "canvas_render": "render/Reset Password.png",
+  "caption": "Light \u00b7 Idle",
+  "html": "boards/reset-password--01-light-idle.html",
+  "png": "boards/reset-password--01-light-idle.png"
+ },
+ {
+  "file": "Reset Password.dc.html",
+  "canvas_render": "render/Reset Password.png",
+  "caption": "Light \u00b7 Sending",
+  "html": "boards/reset-password--02-light-sending.html",
+  "png": "boards/reset-password--02-light-sending.png"
+ },
+ {
+  "file": "Reset Password.dc.html",
+  "canvas_render": "render/Reset Password.png",
+  "caption": "Light \u00b7 Sent",
+  "html": "boards/reset-password--03-light-sent.html",
+  "png": "boards/reset-password--03-light-sent.png"
+ },
+ {
+  "file": "Reset Password.dc.html",
+  "canvas_render": "render/Reset Password.png",
+  "caption": "Light \u00b7 Offline",
+  "html": "boards/reset-password--04-light-offline.html",
+  "png": "boards/reset-password--04-light-offline.png"
+ },
+ {
+  "file": "Reset Password.dc.html",
+  "canvas_render": "render/Reset Password.png",
+  "caption": "Dark \u00b7 Sent",
+  "html": "boards/reset-password--05-dark-sent.html",
+  "png": "boards/reset-password--05-dark-sent.png"
+ },
+ {
+  "file": "Services.dc.html",
+  "canvas_render": "render/Services.png",
+  "caption": "Service history (light)",
+  "html": "boards/services--01-service-history-light.html",
+  "png": "boards/services--01-service-history-light.png"
+ },
+ {
+  "file": "Services.dc.html",
+  "canvas_render": "render/Services.png",
+  "caption": "Log a service \u00b7 Minimal (dark)",
+  "html": "boards/services--02-log-a-service-minimal-dark.html",
+  "png": "boards/services--02-log-a-service-minimal-dark.png"
+ },
+ {
+  "file": "Services.dc.html",
+  "canvas_render": "render/Services.png",
+  "caption": "Workshop records (light)",
+  "html": "boards/services--03-workshop-records-light.html",
+  "png": "boards/services--03-workshop-records-light.png"
+ },
+ {
+  "file": "Services.dc.html",
+  "canvas_render": "render/Services.png",
+  "caption": "Log a service \u00b7 Both cards open (light)",
+  "html": "boards/services--04-log-a-service-both-cards-open-light.html",
+  "png": "boards/services--04-log-a-service-both-cards-open-light.png"
+ },
+ {
+  "file": "Sign In.dc.html",
+  "canvas_render": "render/Sign In.png",
+  "caption": "Light \u00b7 Idle",
+  "html": "boards/sign-in--01-light-idle.html",
+  "png": "boards/sign-in--01-light-idle.png"
+ },
+ {
+  "file": "Sign In.dc.html",
+  "canvas_render": "render/Sign In.png",
+  "caption": "Keyboard open \u00b7 Submitting (5.5\u2033)",
+  "html": "boards/sign-in--02-keyboard-open-submitting-5-5.html",
+  "png": "boards/sign-in--02-keyboard-open-submitting-5-5.png"
+ },
+ {
+  "file": "Sign In.dc.html",
+  "canvas_render": "render/Sign In.png",
+  "caption": "Light \u00b7 Wrong credentials",
+  "html": "boards/sign-in--03-light-wrong-credentials.html",
+  "png": "boards/sign-in--03-light-wrong-credentials.png"
+ },
+ {
+  "file": "Sign In.dc.html",
+  "canvas_render": "render/Sign In.png",
+  "caption": "Light \u00b7 Offline",
+  "html": "boards/sign-in--04-light-offline.html",
+  "png": "boards/sign-in--04-light-offline.png"
+ },
+ {
+  "file": "Sign In.dc.html",
+  "canvas_render": "render/Sign In.png",
+  "caption": "Dark \u00b7 Idle",
+  "html": "boards/sign-in--05-dark-idle.html",
+  "png": "boards/sign-in--05-dark-idle.png"
+ },
+ {
+  "file": "Splash Screen.dc.html",
+  "canvas_render": "render/Splash Screen.png",
+  "caption": "Splash \u00b7 White",
+  "html": "boards/splash-screen--01-splash-white.html",
+  "png": "boards/splash-screen--01-splash-white.png"
+ },
+ {
+  "file": "Splash Screen.dc.html",
+  "canvas_render": "render/Splash Screen.png",
+  "caption": "Cold start \u00b7 First frame",
+  "html": "boards/splash-screen--02-cold-start-first-frame.html",
+  "png": "boards/splash-screen--02-cold-start-first-frame.png"
+ },
+ {
+  "file": "Welcome.dc.html",
+  "canvas_render": "render/Welcome.png",
+  "caption": "Light \u00b7 Online",
+  "html": "boards/welcome--01-light-online.html",
+  "png": "boards/welcome--01-light-online.png"
+ },
+ {
+  "file": "Welcome.dc.html",
+  "canvas_render": "render/Welcome.png",
+  "caption": "Light \u00b7 Offline",
+  "html": "boards/welcome--02-light-offline.html",
+  "png": "boards/welcome--02-light-offline.png"
+ },
+ {
+  "file": "Welcome.dc.html",
+  "canvas_render": "render/Welcome.png",
+  "caption": "Dark \u00b7 Online",
+  "html": "boards/welcome--03-dark-online.html",
+  "png": "boards/welcome--03-dark-online.png"
+ },
+ {
+  "file": "Welcome.dc.html",
+  "canvas_render": "render/Welcome.png",
+  "caption": "Dark \u00b7 Offline",
+  "html": "boards/welcome--04-dark-offline.html",
+  "png": "boards/welcome--04-dark-offline.png"
+ }
+]
