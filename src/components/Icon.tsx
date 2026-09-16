@@ -40,7 +40,8 @@ export type IconName =
   | 'lock'
   | 'card'
   | 'minus'
-  | 'circle';
+  | 'circle'
+  | 'search';
 
 type Shape =
   | { type: 'path'; d: string }
@@ -100,6 +101,10 @@ const ICONS: Record<IconName, Shape[]> = {
   lock: [{ type: 'rect', x: 4, y: 10, width: 16, height: 11, rx: 2 }, p('M8 10V7a4 4 0 0 1 8 0v3')],
   card: [{ type: 'rect', x: 4, y: 3, width: 16, height: 18, rx: 2 }, p('M8 12h8')],
   circle: [{ type: 'circle', cx: 12, cy: 12, r: 9 }],
+  search: [
+    { type: 'circle', cx: 11, cy: 11, r: 7 },
+    { type: 'path', d: 'm20 20-3.7-3.7' },
+  ],
 };
 
 export type IconProps = {

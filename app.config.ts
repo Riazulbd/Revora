@@ -18,14 +18,14 @@ const config: ExpoConfig = {
   name: IS_DEV ? 'Revora (dev)' : 'Revora',
   slug: 'revora',
   scheme: 'revora',
-  version: '2.4',
+  version: '2.5',
   orientation: 'portrait',
   userInterfaceStyle: 'automatic',
   icon: './assets/icon.png',
   assetBundlePatterns: ['**/*'],
   android: {
     package: packageName,
-    versionCode: 15,
+    versionCode: 16,
     googleServicesFile: process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
     adaptiveIcon: {
       // The mark sits on transparent inside Android's 66% safe zone; the plate

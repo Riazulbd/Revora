@@ -125,7 +125,7 @@ export function SearchBar() {
       })}
       testID="cta-search"
     >
-      <Icon name="circle" size={16} color={c.mut} strokeWidth={2} />
+      <Icon name="search" size={16} color={c.mut} strokeWidth={2} />
       <Txt role="input" tone="mut" numberOfLines={1}>
         Search records, documents, workshops…
       </Txt>

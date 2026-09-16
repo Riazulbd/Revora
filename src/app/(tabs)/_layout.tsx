@@ -64,8 +64,14 @@ export default function TabsLayout() {
             paddingBottom: 18 + insets.bottom,
           }}
         >
-          {TABS.map((tab, index) => {
-            const focused = state.index === index;
+          {TABS.map((tab) => {
+            // Matched by name, never by position. The navigator's route order
+            // comes from the router, not from TABS, so indexing one list with
+            // the other's position silently highlights the wrong tab the
+            // moment either list is reordered — which is exactly what
+            // happened when the fifth tab was retired.
+            const index = state.routes.findIndex((route) => route.name === tab.name);
+            const focused = index >= 0 && state.index === index;
             return (
               <Pressable
                 key={tab.name}
