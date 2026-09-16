@@ -124,8 +124,8 @@ export default function Dashboard() {
 
       {error ? (
         <ErrorState
-          title="Couldn't load your garage"
-          message={error.message}
+          title="Couldn't load your records"
+          message={`${error.message} Your data is safe on your account — this is a loading problem, not a data problem.`}
           onRetry={() => void refetch()}
         />
       ) : isPending && analytics === null ? (
@@ -142,7 +142,7 @@ export default function Dashboard() {
         <EmptyDashboard />
       ) : (
         <Stack>
-          <AttentionCard items={attention.items} />
+          <AttentionCard items={attention.items} isPending={attention.isPending} hasError={error !== null} />
           <OdometerCard analytics={analytics} />
           <MileageCard analytics={analytics} onExplain={() => setExplainOpen(true)} />
           {isPro ? <TrendCard analytics={analytics} /> : null}
@@ -340,10 +340,9 @@ function MileageCard({ analytics, onExplain }: CardProps & { onExplain: () => vo
             <Gauge
               value={gaugeValue}
               max={mileageGaugeMax(units.mileage)}
-              caption={`${units.mileage === 'km_per_l' ? 'km/L' : ''} · ${formatShortDate(latest.date)}`.replace(
-                /^ · /,
-                '',
-              )}
+              caption={`${units.mileage === 'km_per_l' ? 'km/L' : ''} · ${
+                estimated ? 'estimated across the whole log' : `measured ${formatShortDate(latest.date)}`
+              }`.replace(/^ · /, '')}
             />
           </View>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>

@@ -19,11 +19,62 @@ import { useTheme } from '@/theme';
  * fixed it, or a severity that overstates, and they stop reading it — after
  * which the depth of those screens is a straightforward regression.
  */
-export function AttentionCard({ items }: { items: readonly AttentionItem[] }) {
+export function AttentionCard({
+  items,
+  isPending = false,
+  hasError = false,
+}: {
+  items: readonly AttentionItem[];
+  isPending?: boolean;
+  hasError?: boolean;
+}) {
   const router = useRouter();
   const { c, radius } = useTheme();
 
-  if (items.length === 0) return null;
+  // Silence is the answer riders act on, so the three ways of being silent must
+  // not look alike. "Nothing is wrong" is a finding; "I could not check" is
+  // not, and rendering a green tick the app cannot stand behind is the one
+  // failure that would make this card worse than no card.
+  if (hasError) {
+    return (
+      <Card style={{ paddingVertical: 16, gap: 4 }}>
+        <Eyebrow>NEEDS ATTENTION</Eyebrow>
+        <Txt role="rowTitle" style={{ marginTop: 6 }}>
+          Can&apos;t check what needs attention
+        </Txt>
+        <Txt role="metaSmall" tone="mut">
+          Your records didn&apos;t load — not showing a green tick it can&apos;t stand behind.
+        </Txt>
+      </Card>
+    );
+  }
+
+  if (isPending && items.length === 0) return null;
+
+  if (items.length === 0) {
+    return (
+      <Card style={{ paddingVertical: 16, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <View
+          style={{
+            width: 34,
+            height: 34,
+            borderRadius: radius.tile,
+            backgroundColor: c.goodS,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Icon name="check" size={17} color={c.good} strokeWidth={2.6} />
+        </View>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Txt role="rowTitleDense">Nothing needs your attention</Txt>
+          <Txt role="metaSmall" tone="mut">
+            No documents expiring, no rules due. Go ride.
+          </Txt>
+        </View>
+      </Card>
+    );
+  }
 
   return (
     <Card style={{ paddingVertical: 14 }}>
