@@ -10,7 +10,11 @@ import { signUpSchema } from '@/validation/schemas';
 export default function SignUp() {
   const router = useRouter();
   const toast = useToast();
-  const { signUp, signInWithGoogle } = useAuth();
+  const { user, signUp, signInWithGoogle, linkEmailAccount, linkGoogleAccount } = useAuth();
+  // A rider who chose "Continue offline" already owns records under an
+  // anonymous uid. Creating a fresh account here would orphan every one of
+  // them; linking keeps the uid and the data with it.
+  const claiming = user?.isAnonymous === true;
 
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
@@ -32,7 +36,8 @@ export default function SignUp() {
     setErrors({});
     setBusy(true);
     try {
-      await signUp(parsed.data);
+      if (claiming) await linkEmailAccount(parsed.data);
+      else await signUp(parsed.data);
       // The router gate sends a rider with no motorcycle straight to onboarding.
       router.replace('/');
     } catch (error) {
@@ -46,7 +51,13 @@ export default function SignUp() {
     <Screen testID="screen-signup">
       <ScreenHeader title="" style={{ marginBottom: 0 }} />
       <View style={{ gap: 6, marginTop: 8, marginBottom: 24 }}>
-        <Txt role="authTitle">Create account</Txt>
+        <Txt role="authTitle">{claiming ? 'Keep your records' : 'Create account'}</Txt>
+        {claiming ? (
+          <Txt role="subtitle" tone="mut">
+            Your bikes and logs stay exactly as they are — this just adds an email so they follow you to
+            another phone.
+          </Txt>
+        ) : null}
         <Txt role="subtitle" tone="mut">
           One account, all your bikes.
         </Txt>
@@ -108,7 +119,7 @@ export default function SignUp() {
           onPress={async () => {
             setBusy(true);
             try {
-              const signedIn = await signInWithGoogle();
+              const signedIn = claiming ? await linkGoogleAccount() : await signInWithGoogle();
               if (signedIn) router.replace('/');
             } catch (error) {
               toast.show(messageFor(error), 'error');

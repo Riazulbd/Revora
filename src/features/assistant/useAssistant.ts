@@ -38,7 +38,10 @@ export function useAssistant() {
         notice,
       });
 
-      if (!isPro || !user || analytics === null || !activeBike) return onDevice();
+      // The privacy policy promises Free riders an assistant that runs on the
+      // device, and this is it. Only the server-phrased answer is Pro.
+      if (!isPro) return onDevice('From the app itself — Revora Pro answers in plain language with more context.');
+      if (!user || analytics === null || !activeBike) return onDevice();
 
       setPending(true);
       try {

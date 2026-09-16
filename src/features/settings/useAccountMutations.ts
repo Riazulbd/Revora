@@ -21,8 +21,8 @@ export function useDeleteAccount(options: { onDeleted?: () => void } = {}) {
   const { user } = useAuth();
   const { bikes } = useGarage();
 
-  return useRecordMutation<{ password?: string | undefined }>({
-    mutationFn: async ({ password }) => {
+  return useRecordMutation<{ password?: string | undefined; viaGoogle?: boolean }>({
+    mutationFn: async ({ password, viaGoogle }) => {
       if (!user) throw new AppError('auth', 'Sign in again to delete your account.');
       const uid = user.uid;
 
@@ -41,7 +41,7 @@ export function useDeleteAccount(options: { onDeleted?: () => void } = {}) {
       // The profile document last, then the identity itself — once the identity
       // is gone the client has no token left to delete anything with.
       await profileRepository.remove(uid);
-      await authService.deleteAccount(password);
+      await authService.deleteAccount({ password, viaGoogle });
     },
     successMessage: 'Your account and every record in it have been deleted.',
     errorFallback: "Couldn't delete the account. Sign in again and try once more.",

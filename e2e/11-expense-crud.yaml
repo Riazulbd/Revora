@@ -1,0 +1,59 @@
+# An expense through its whole life, and the ledger arithmetic that follows it.
+appId: app.revora.android.dev
+---
+- launchApp:
+    clearState: false
+
+- tapOn:
+    id: "tab-expenses"
+- assertVisible:
+    id: "screen-expenses"
+- tapOn:
+    id: "cta-add-expense"
+- assertVisible:
+    id: "screen-expense-add"
+
+- tapOn:
+    id: "input-amount"
+- inputText: "250"
+- tapOn:
+    id: "input-expense-note"
+- inputText: "E2E Parking Fee"
+- scrollUntilVisible:
+    element:
+      id: "cta-save-expense"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-expense"
+
+- assertVisible:
+    id: "screen-expenses"
+- assertVisible: "E2E Parking Fee"
+
+# ---------- UPDATE ----------
+- tapOn: "E2E Parking Fee"
+- tapOn:
+    id: "input-amount"
+- eraseText
+- inputText: "400"
+- scrollUntilVisible:
+    element:
+      id: "cta-save-expense"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-expense"
+- assertVisible: "400"
+
+# ---------- DELETE ----------
+- tapOn: "E2E Parking Fee"
+- scrollUntilVisible:
+    element:
+      id: "cta-delete-expense"
+    direction: DOWN
+- tapOn:
+    id: "cta-delete-expense"
+- tapOn:
+    id: "dialog-delete-expense-confirm"
+- assertVisible:
+    id: "screen-expenses"
+- assertNotVisible: "E2E Parking Fee"

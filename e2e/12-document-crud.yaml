@@ -1,0 +1,41 @@
+# A document, and the rule that a time-limited one cannot be saved undated.
+#
+# Registration, insurance, tax token, fitness and licence are issued for a
+# term. Saved without the end date the record is a photograph: the reminder
+# that makes it worth keeping can never fire. The form refuses, and this proves
+# the refusal still happens.
+appId: app.revora.android.dev
+---
+- launchApp:
+    clearState: false
+
+- tapOn:
+    id: "tab-dashboard"
+- tapOn:
+    id: "quick-documents"
+- assertVisible:
+    id: "screen-vault"
+- tapOn:
+    id: "cta-add-document"
+- assertVisible:
+    id: "screen-document"
+
+- tapOn: "Tax token"
+- tapOn:
+    id: "input-document-title"
+- eraseText
+- inputText: "E2E Tax Token"
+- tapOn:
+    id: "input-document-reference"
+- inputText: "E2E-TT-0001"
+
+# Saving with no valid-until date must be refused, and must say why.
+- scrollUntilVisible:
+    element:
+      id: "cta-save-document"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-document"
+- assertVisible: "runs out"
+- assertVisible:
+    id: "screen-document"

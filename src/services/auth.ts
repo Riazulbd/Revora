@@ -39,6 +39,12 @@ export type AuthUser = {
   emailVerified: boolean;
   /** True for a rider who chose "Continue offline — no account". */
   isAnonymous: boolean;
+  /**
+   * Which sign-in methods this account carries — 'password', 'google.com'.
+   * Re-authentication has to use one the account actually has: asking a
+   * Google-only rider for a password they never set is a locked door.
+   */
+  providers: string[];
 };
 
 function toAuthUser(user: User): AuthUser {
@@ -48,6 +54,7 @@ function toAuthUser(user: User): AuthUser {
     displayName: user.displayName,
     emailVerified: user.emailVerified,
     isAnonymous: user.isAnonymous,
+    providers: user.providerData.map((entry) => entry.providerId),
   };
 }
 
@@ -75,6 +82,31 @@ function ensureGoogleConfigured() {
   GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
 }
 
+/**
+ * Runs the Google account picker and turns the result into a Firebase
+ * credential. Null when the rider closed the picker.
+ */
+async function googleCredential() {
+  ensureGoogleConfigured();
+  try {
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+    const response = await GoogleSignin.signIn();
+    if (!isSuccessResponse(response)) return null;
+    const idToken = response.data.idToken;
+    if (!idToken) throw new AppError('auth', "Google didn't return a sign-in token. Try again.");
+    return GoogleAuthProvider.credential(idToken);
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'code' in error) {
+      const code = String((error as { code: unknown }).code);
+      if (code === '12501' || code === 'SIGN_IN_CANCELLED' || code === '-5') return null;
+      if (code === 'PLAY_SERVICES_NOT_AVAILABLE' || code === '12500') {
+        throw new AppError('auth', 'Google sign-in needs Google Play services, which this device does not have.');
+      }
+    }
+    throw toAppError(error);
+  }
+}
+
 export const authService = {
   /**
    * Google Sign-In → Firebase credential.
@@ -83,32 +115,50 @@ export const authService = {
    * null and the caller simply stays on the sign-in screen.
    */
   async signInWithGoogle(): Promise<AuthUser | null> {
-    ensureGoogleConfigured();
+    const credential = await googleCredential();
+    if (credential === null) return null;
     try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      const response = await GoogleSignin.signIn();
-      if (!isSuccessResponse(response)) return null; // cancelled
-
-      const idToken = response.data.idToken;
-      if (!idToken) {
-        throw new AppError('auth', "Google didn't return a sign-in token. Try again.");
-      }
-
-      const credential = GoogleAuthProvider.credential(idToken);
       const result = await signInWithCredential(auth(), credential);
       return toAuthUser(result.user);
     } catch (error) {
+      throw toAppError(error);
+    }
+  },
+
+  /**
+   * Attaches a Google identity to the current (anonymous) account.
+   *
+   * `linkWithCredential` keeps the uid, which is the whole point: every bike
+   * and log the rider made offline stays theirs. `signInWithCredential` here
+   * would mint a fresh uid and silently orphan all of it.
+   *
+   * If that Google account already owns a separate Revora account, linking is
+   * refused rather than merged — two logbooks cannot be folded into one from a
+   * phone, and picking a side for the rider would lose one of them.
+   */
+  async linkGoogleAccount(): Promise<AuthUser | null> {
+    const user = auth().currentUser;
+    if (!user) throw new AppError('auth', 'Sign in again to finish setting up your account.');
+    const credential = await googleCredential();
+    if (credential === null) return null;
+    try {
+      const result = await linkWithCredential(user, credential);
+      await result.user.reload();
+      return toAuthUser(auth().currentUser ?? result.user);
+    } catch (error) {
       if (typeof error === 'object' && error !== null && 'code' in error) {
         const code = String((error as { code: unknown }).code);
-        // The library's cancel codes — the rider changed their mind.
-        if (code === '12501' || code === 'SIGN_IN_CANCELLED' || code === '-5') return null;
-        if (code === 'PLAY_SERVICES_NOT_AVAILABLE' || code === '12500') {
-          throw new AppError('auth', 'Google sign-in needs Google Play services, which this device does not have.');
+        if (code === 'auth/credential-already-in-use') {
+          throw new AppError(
+            'auth',
+            'That Google account already has its own Revora records. To use those instead, sign out and choose Continue with Google.',
+          );
         }
       }
       throw toAppError(error);
     }
   },
+
 
   async signUp(input: { email: string; password: string; displayName: string }): Promise<AuthUser> {
     try {
@@ -221,12 +271,16 @@ export const authService = {
    * Firebase requires a recent sign-in; `password` re-authenticates when the
    * session has aged out.
    */
-  async deleteAccount(password?: string): Promise<void> {
+  async deleteAccount(reauth: { password?: string; viaGoogle?: boolean }): Promise<void> {
     const user = auth().currentUser;
     if (!user) throw new AppError('auth', 'Sign in again to delete your account.');
     try {
-      if (password && user.email) {
-        const credential = EmailAuthProvider.credential(user.email, password);
+      if (reauth.viaGoogle) {
+        const credential = await googleCredential();
+        if (credential === null) throw new AppError('auth', 'Confirm with Google to delete your account.');
+        await reauthenticateWithCredential(user, credential);
+      } else if (reauth.password && user.email) {
+        const credential = EmailAuthProvider.credential(user.email, reauth.password);
         await reauthenticateWithCredential(user, credential);
       }
       await deleteUser(user);
@@ -234,4 +288,5 @@ export const authService = {
       throw toAppError(error);
     }
   },
+
 };

@@ -18,6 +18,8 @@ type AuthContextValue = {
   /** Resolves false when the rider dismissed the Google account picker. */
   signInWithGoogle: () => Promise<boolean>;
   linkEmailAccount: (input: { email: string; password: string; displayName: string }) => Promise<void>;
+  /** Resolves false when the rider dismissed the Google account picker. */
+  linkGoogleAccount: () => Promise<boolean>;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
 };
@@ -81,6 +83,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
+  const linkGoogleAccount = useCallback(async () => {
+    const result = await authService.linkGoogleAccount();
+    return result !== null;
+  }, []);
+
   const signOut = useCallback(async () => {
     // Drop every listener first, so no query fires against a uid that is about
     // to disappear and trip a permission-denied error on the way out.
@@ -103,10 +110,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       continueWithoutAccount,
       signInWithGoogle,
       linkEmailAccount,
+      linkGoogleAccount,
       signOut,
       refresh,
     }),
-    [status, user, signIn, signUp, continueWithoutAccount, signInWithGoogle, linkEmailAccount, signOut, refresh],
+    [status, user, signIn, signUp, continueWithoutAccount, signInWithGoogle, linkEmailAccount, linkGoogleAccount, signOut, refresh],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

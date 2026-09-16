@@ -180,6 +180,23 @@ export default function Dashboard() {
               testID="overflow-plan"
             />
             <MenuRow
+              label="Assistant"
+              right={isPro ? undefined : <ProBadge />}
+              onPress={() => {
+                setOverflowOpen(false);
+                router.push('/assistant');
+              }}
+              testID="overflow-assistant"
+            />
+            <MenuRow
+              label="Analytics"
+              onPress={() => {
+                setOverflowOpen(false);
+                router.push('/analytics');
+              }}
+              testID="overflow-analytics"
+            />
+            <MenuRow
               label="Feedback & support"
               onPress={() => {
                 setOverflowOpen(false);

@@ -52,7 +52,7 @@ const REASON_OPTIONS: readonly SegmentedOption<CompletionReason>[] = [
 ];
 
 export default function RuleEditorRoute() {
-  const { id: editingId } = useLocalSearchParams<{ id?: string }>();
+  const { id: editingId, complete } = useLocalSearchParams<{ id?: string; complete?: string }>();
   const { units } = useGarage();
   const { analytics } = useGarageData();
 
@@ -73,14 +73,25 @@ export default function RuleEditorRoute() {
       ) ?? null)
     : null;
 
-  return <RuleForm key={entry?.rule.id ?? 'new'} entry={entry} analytics={analytics} units={units} />;
+  return (
+    <RuleForm
+      key={entry?.rule.id ?? 'new'}
+      entry={entry}
+      analytics={analytics}
+      units={units}
+      openCompletion={complete === '1' && entry !== null}
+    />
+  );
 }
 
 function RuleForm({
+  openCompletion = false,
   entry,
   analytics,
   units,
 }: {
+  /** Open the completion sheet on arrival — the attention card's Mark done. */
+  openCompletion?: boolean;
   entry: RuleWithStatus | null;
   analytics: BikeAnalytics;
   units: UnitPreferences;
@@ -110,7 +121,7 @@ function RuleForm({
   const [notes, setNotes] = useState(existing?.notes ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const [completeOpen, setCompleteOpen] = useState(false);
+  const [completeOpen, setCompleteOpen] = useState(openCompletion);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [completionDate, setCompletionDate] = useState(todayIso());
   const [completionOdometer, setCompletionOdometer] = useState(

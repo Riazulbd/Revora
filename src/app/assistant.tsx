@@ -48,11 +48,6 @@ export default function Assistant() {
     const text = question.trim();
     if (text === '' || assistant.pending) return;
 
-    if (!proGate.isPro) {
-      proGate.open('The assistant');
-      return;
-    }
-
     const stamp = (nextId.current += 1);
     setMessages((prev) => [...prev, { id: `u${stamp}`, role: 'user', text }]);
     setDraft('');

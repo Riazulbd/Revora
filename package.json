@@ -15,7 +15,8 @@
     "verify": "npm run typecheck && npm run lint && npm run test",
     "test:rules": "firebase emulators:exec --only firestore --project revora-rules-test \"jest --config jest.rules.config.js\"",
     "test:functions": "npm --prefix functions test",
-    "test:billing": "firebase emulators:exec --only firestore --project revora-rules-test \"npm --prefix functions run test:integration\""
+    "test:billing": "firebase emulators:exec --only firestore --project revora-rules-test \"npm --prefix functions run test:integration\"",
+    "test:e2e": "bash e2e/run-all.sh"
   },
   "dependencies": {
     "@expo-google-fonts/google-sans-flex": "^0.4.5",

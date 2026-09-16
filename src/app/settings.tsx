@@ -50,6 +50,8 @@ export default function Settings() {
   const { c, preference, setPreference } = useTheme();
   const toast = useToast();
   const { user, signOut } = useAuth();
+  const usesPassword = user?.providers.includes('password') ?? false;
+  const usesGoogle = user?.providers.includes('google.com') ?? false;
   const { profile, units, isPro } = useGarage();
   const connectivity = useConnectivity();
   const syncState = useSyncState();
@@ -338,7 +340,15 @@ export default function Settings() {
             </Txt>
           </View>
 
-          {user?.isAnonymous ? null : (
+          {/* Re-authentication has to use a method the account actually has.
+              A Google-only rider was being asked for a password they never
+              set, which made the account impossible to delete. */}
+          {usesGoogle && !usesPassword ? (
+            <Txt role="helper" tone="mut">
+              You&apos;ll confirm with your Google account before anything is deleted.
+            </Txt>
+          ) : null}
+          {user?.isAnonymous || !usesPassword ? null : (
             <Field label="Confirm your password" helper="Required for a change this serious.">
               <Input
                 value={deletePassword}
@@ -357,7 +367,8 @@ export default function Settings() {
             loading={deleteAccount.isPending}
             onPress={async () => {
               const result = await deleteAccount.submit({
-                password: user?.isAnonymous ? undefined : deletePassword,
+                password: usesPassword ? deletePassword : undefined,
+                viaGoogle: !usesPassword && usesGoogle,
               });
               if (result !== null) {
                 setDeleteOpen(false);
