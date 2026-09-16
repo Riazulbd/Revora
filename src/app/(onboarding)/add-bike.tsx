@@ -56,8 +56,8 @@ export default function AddBike() {
         </Txt>
         <Txt role="authTitle">Add your motorcycle</Txt>
         <Txt role="subtitle" tone="mut">
-          {user?.displayName ? `Nearly there, ${user.displayName}. ` : ''}You can edit everything later in
-          Garage.
+          {user?.displayName ? `Nearly there, ${user.displayName}. ` : ''}Three things to start. Everything
+          else can wait.
         </Txt>
       </View>
 
@@ -65,7 +65,7 @@ export default function AddBike() {
 
       <View style={{ gap: 10, marginTop: 20 }}>
         <Button
-          label="Add to garage"
+          label="Start tracking"
           onPress={submit}
           loading={addBike.isPending}
           testID="cta-add-bike"

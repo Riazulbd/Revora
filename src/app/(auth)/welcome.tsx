@@ -31,10 +31,12 @@ export default function Welcome() {
         <Logo width={230} style={{ alignSelf: 'center' }} />
 
         <View style={{ gap: 8 }}>
-          <Txt role="heroLine">Know your bike.</Txt>
-          <Txt role="subtitle" tone="mut" style={{ lineHeight: 21 }}>
-            Fuel, mileage, maintenance and every taka your motorcycle costs — tracked properly, and it keeps
-            working with no signal.
+          <Txt role="micro" tone="mut" uppercase style={{ letterSpacing: 1.1 }}>
+            The motorcycle logbook
+          </Txt>
+          <Txt role="heroLine">Know what your bike really costs — and how it&apos;s really running.</Txt>
+          <Txt role="metaSmall" tone="mut">
+            Fuel · Service · Documents · Resale
           </Txt>
         </View>
 

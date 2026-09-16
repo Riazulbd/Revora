@@ -49,7 +49,7 @@ export default function Recover() {
       <View style={{ gap: 6, marginTop: 8, marginBottom: 24 }}>
         <Txt role="authTitle">Reset password</Txt>
         <Txt role="subtitle" tone="mut" style={{ lineHeight: 20 }}>
-          Enter the email on your account and we&apos;ll send you a link to set a new password.
+          Enter your account email and we&apos;ll send a link to set a new password.
         </Txt>
       </View>
 
@@ -90,7 +90,7 @@ export default function Recover() {
           <Banner
             tone="good"
             icon="check"
-            message="Check your inbox — the link expires in an hour. Look in spam if it hasn't arrived."
+            message="If that address has a Revora account, a reset link is on its way. It can take a minute or two. Not seeing it? Check spam."
           />
         ) : null}
       </View>
