@@ -89,7 +89,7 @@ export default function ProofPack() {
     <Screen testID="screen-proof-pack">
       <ScreenHeader
         title="Proof pack"
-        subtitle="A printable, buyer-safe history report for resale"
+        subtitle="A printable ownership history for a buyer. Rendered on this phone — nothing is uploaded."
         style={{ marginBottom: 16 }}
       />
 
@@ -132,7 +132,7 @@ export default function ProofPack() {
         </Card>
 
         <Button
-          label="Generate printable PDF"
+          label="Generate PDF"
           onPress={() => setConfirmOpen(true)}
           disabled={!analytics || analytics.isEmpty}
           testID="cta-generate-proof"

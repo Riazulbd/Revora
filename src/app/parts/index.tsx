@@ -175,9 +175,15 @@ function PartCard({ part, life, units }: { part: Part; life: PartLife; units: Un
         </Txt>
       </View>
 
+      {/* Expected life is the one figure that may be absent, and the row says
+          so rather than leaving a gap where a number should be. A part with no
+          expected life is not a part with zero life left. */}
       <Txt role="metaSmall" tone="mut" numberOfLines={2}>
-        Installed {formatDistance(part.installedOdometerMetres, units.distance)} · used{' '}
-        {formatDistance(life.usedMetres, units.distance)}
+        {`Fitted at ${formatDistance(part.installedOdometerMetres, units.distance)} · ${formatDistance(life.usedMetres, units.distance)} run · ${
+          part.expectedLifeMetres === null
+            ? 'no expected life'
+            : `expected ${formatDistance(part.expectedLifeMetres, units.distance)}`
+        }`}
       </Txt>
 
         {life.remainingPercent === null ? null : (

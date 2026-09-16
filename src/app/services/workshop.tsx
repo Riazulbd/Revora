@@ -62,7 +62,7 @@ export default function WorkshopRecords() {
     <Screen onRefresh={refetch} testID="screen-workshop">
       <ScreenHeader
         title="Workshop records"
-        subtitle="Quote against invoice, so nothing gets replaced without asking"
+        subtitle="Record the quote, compare the invoice"
       />
 
       {records.length === 0 ? (
@@ -191,6 +191,14 @@ export default function WorkshopRecords() {
               </Card>
             );
           })}
+
+          {/* The Delta tile is the reason this screen exists, and its sign
+              carries the meaning. A rider who reads red as "bad news" and green
+              as "good" has read it correctly — say so once rather than leaving
+              them to infer it from one example. */}
+          <Txt role="helper" tone="mut">
+            Under-quote shows in green with a minus — over and under are different news.
+          </Txt>
         </Stack>
       )}
     </Screen>

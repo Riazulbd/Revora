@@ -241,17 +241,17 @@ function AccessoryForm({
           <Dialog
             visible={convertOpen}
             onClose={() => setConvertOpen(false)}
-            title="Move to parts?"
+            title="Make this a part?"
             message={
               currentOdometer === null
                 ? 'A part measures wear from the odometer reading it was fitted at, and this motorcycle has no reading yet. Add one first.'
-                : `It will be recorded as fitted at ${formatDistance(currentOdometer, analytics.units.distance)}, today's reading — edit that afterwards if it went on earlier.${
+                : `A part wears, so it needs one thing an accessory never had: the reading when it was fitted. It goes in at ${formatDistance(currentOdometer, analytics.units.distance)}, today's reading — edit that afterwards if it went on earlier.${
                     conversionLosses('accessoryToPart', existing).length > 0
                       ? ` This discards ${conversionLosses('accessoryToPart', existing).join(', ')}.`
                       : ''
                   }`
             }
-            confirmLabel={currentOdometer === null ? 'Close' : 'Move'}
+            confirmLabel={currentOdometer === null ? 'Close' : 'Move it'}
             busy={recategorise.isPending}
             onConfirm={() => {
               if (currentOdometer === null) { setConvertOpen(false); return; }

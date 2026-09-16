@@ -101,6 +101,13 @@ export default function MaintenanceRules() {
             </View>
           ) : null}
 
+          {/* A rule's status is not a stored flag — it moves the moment a fuel
+              log advances the odometer. Riders notice a badge changing without
+              them touching maintenance, so the screen says why. */}
+          <Txt role="helper" tone="mut" testID="hint-status-live">
+            Status is recomputed from the current odometer — a fuel log can change it.
+          </Txt>
+
           <View style={{ gap: 12 }}>
             {rules.map(({ rule, status }) => (
               <RecordRow
@@ -121,7 +128,7 @@ export default function MaintenanceRules() {
                 <RecordRow
                   key={rule.id}
                   title={rule.name}
-                  subtitle="No reminders — tap to turn back on"
+                  subtitle="Reminders off · history kept · tap to turn back on"
                   onPress={() => router.push({ pathname: '/maintenance/rule', params: { id: rule.id } })}
                   testID={`rule-disabled-${rule.id}`}
                 />

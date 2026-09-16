@@ -296,9 +296,9 @@ function PartForm({
         <Dialog
           visible={convertOpen}
           onClose={() => setConvertOpen(false)}
-          title="Move to accessories?"
-          message={`An accessory is bought once and stays on the bike, so it is left out of cost per distance and of part-wear tracking. This discards ${conversionLosses('partToAccessory', existing).join(', ')}. The cost stays in your history.`}
-          confirmLabel="Move"
+          title="Make this an accessory?"
+          message={`An accessory doesn't wear, so these are discarded: ${conversionLosses('partToAccessory', existing).join(', ')}. It also leaves cost per distance, because a one-off charged against kilometres makes that figure swing. The cost stays in your history.`}
+          confirmLabel="Move it"
           busy={recategorise.isPending}
           onConfirm={() => void recategorise.submit({ direction: 'partToAccessory', part: existing })}
           testID="dialog-convert-part"

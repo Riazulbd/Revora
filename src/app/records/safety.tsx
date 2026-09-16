@@ -3,10 +3,17 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import {
+  conditionHistory,
+  currentCondition,
+  SAFETY_AREA_LABEL,
+} from '@/calculations/safety';
+
+import {
   Badge,
   Banner,
   Button,
   EmptyState,
+  Eyebrow,
   RecordRow,
   Screen,
   ScreenHeader,
@@ -19,14 +26,6 @@ import type { SafetyStatus } from '@/types';
 
 const TONE: Record<SafetyStatus, 'good' | 'warn' | 'bad'> = { ok: 'good', watch: 'warn', action: 'bad' };
 const LABEL: Record<SafetyStatus, string> = { ok: 'OK', watch: 'WATCH', action: 'ACTION' };
-
-const AREA_LABEL = {
-  tyres: 'Tyres',
-  chain: 'Chain',
-  brakes: 'Brakes',
-  battery: 'Battery',
-  lights: 'Lights',
-} as const;
 
 export default function SafetyLog() {
   const router = useRouter();
@@ -71,19 +70,57 @@ export default function SafetyLog() {
             testID="empty-safety"
           />
         ) : (
-          <View style={{ gap: 12 }}>
-            {items.map((check) => (
-              <RecordRow
-                key={check.id}
-                title={AREA_LABEL[check.area]}
-                subtitle={`${check.summary} · ${formatLongDate(check.date)}`}
-                caption={check.note ?? undefined}
-                onPress={() => router.push({ pathname: '/records/safety-add', params: { id: check.id } })}
-                trailing={<Badge label={LABEL[check.status]} tone={TONE[check.status]} />}
-                testID={`safety-${check.id}`}
-              />
-            ))}
-          </View>
+          <>
+            <View style={{ gap: 10 }}>
+              <Eyebrow>CURRENT — LATEST CHECK PER AREA</Eyebrow>
+              {currentCondition(items).map((state) => (
+                <RecordRow
+                  key={state.area}
+                  title={state.label}
+                  subtitle={
+                    state.latest === null
+                      ? 'Never checked'
+                      : `${state.latest.summary} · ${formatLongDate(state.latest.date)}`
+                  }
+                  caption={
+                    state.status === 'action'
+                      ? 'Shows on the Dashboard until cleared'
+                      : (state.latest?.note ?? undefined)
+                  }
+                  onPress={() =>
+                    router.push(
+                      state.latest === null
+                        ? { pathname: '/records/safety-add', params: { area: state.area } }
+                        : { pathname: '/records/safety-add', params: { id: state.latest.id } },
+                    )
+                  }
+                  trailing={
+                    <Badge
+                      label={state.status === null ? 'NOT CHECKED' : LABEL[state.status]}
+                      tone={state.status === null ? 'neutral' : TONE[state.status]}
+                    />
+                  }
+                  testID={`safety-area-${state.area}`}
+                />
+              ))}
+            </View>
+
+            {conditionHistory(items).length > 0 ? (
+              <View style={{ gap: 10 }}>
+                <Eyebrow>HISTORY</Eyebrow>
+                {conditionHistory(items).map((check) => (
+                  <RecordRow
+                    key={check.id}
+                    title={SAFETY_AREA_LABEL[check.area]}
+                    subtitle={`${check.summary} · ${formatLongDate(check.date)}`}
+                    onPress={() => router.push({ pathname: '/records/safety-add', params: { id: check.id } })}
+                    trailing={<Badge label={LABEL[check.status]} tone={TONE[check.status]} />}
+                    testID={`safety-${check.id}`}
+                  />
+                ))}
+              </View>
+            ) : null}
+          </>
         )}
       </Stack>
     </Screen>

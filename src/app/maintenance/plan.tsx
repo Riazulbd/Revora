@@ -69,6 +69,15 @@ export default function ServicePlan() {
         }`}
       />
 
+      {/* A projection is an assumption with a date on it. Naming the figure it
+          was built from is what separates a useful forecast from a promise the
+          app cannot keep. */}
+      {!empty && analytics ? (
+        <Txt role="helper" tone="mut" style={{ marginBottom: 14 }} testID="hint-projection">
+          {`Projected from the current ${formatDistance(analytics.odometer.currentMetres, units.distance)}. Projections, not promises.`}
+        </Txt>
+      ) : null}
+
       {empty ? (
         <EmptyState
           icon="wrench"

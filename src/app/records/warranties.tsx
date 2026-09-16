@@ -11,6 +11,7 @@ import {
   ScreenHeader,
   SkeletonList,
   Stack,
+  Txt,
 } from '@/components';
 import { useWarranties } from '@/features/records/useRecordQueries';
 import { daysBetween, formatLongDate, todayIso } from '@/utils/date';
@@ -66,6 +67,13 @@ export default function Warranties() {
         />
       ) : (
         <Stack gap={12}>
+          {/* Riders ask why a lapsed warranty is still listed. It is listed
+              because a buyer asking what was covered and when is exactly the
+              question it answers. */}
+          <Txt role="helper" tone="mut">
+            Expired warranties are kept — evidence of cover matters at resale.
+          </Txt>
+
           <View style={{ gap: 12 }}>
             {items.map((warranty) => {
               const status = warrantyTone(warranty, today);

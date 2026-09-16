@@ -76,13 +76,19 @@ export default function ServiceHistory() {
           <Card variant="flush" style={{ paddingHorizontal: 16, paddingVertical: 14 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
               <Txt role="smallStrong" tone="mut">
-                Total spent on services
+                {`All services · ${services.length} visit${services.length === 1 ? '' : 's'}`}
               </Txt>
               <Txt role="rowTitle" numberOfLines={1}>
                 {formatCurrency(analytics?.services.totalSpendMinor ?? 0, analytics?.currency ?? 'BDT')}
               </Txt>
             </View>
           </Card>
+
+          {/* Riders see a part in the parts list and the same money inside a
+              service total, and reasonably suspect it was counted twice. */}
+          <Txt role="helper" tone="mut">
+            A service&apos;s total includes its parts — they don&apos;t appear twice in Costs.
+          </Txt>
 
           <View style={{ gap: 12 }}>
             {services.map((service) => (
