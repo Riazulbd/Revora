@@ -17,11 +17,19 @@ motorcycles" sells to a minority. The features with broad pull are **no ads** an
 
 ## The marginal cost of a Pro rider is close to zero
 
-Worth stating plainly, because it changes the shape of the plans: **the
+Worth stating plainly, because it changes the shape of the plans: **the Free
 Assistant runs entirely on the device.** `src/features/assistant/answerQuestion.ts`
 matches a question to an intent and reads the answer out of `BikeAnalytics` —
-there is no model call, no API key, and it works with no connection. It costs
-nothing per question and works offline.
+no model call, no API key, works with no connection, costs nothing.
+
+**Pro is different.** A Pro question goes to `askAssistant` in
+`functions/src/assistant.ts`, which sends a snapshot of the bike's already-
+formatted figures to a model via OpenRouter and returns a phrased answer. That
+call is metered: 100 questions per account per calendar month, reserved in a
+Firestore transaction before the model is called and refunded on failure. The
+model is forbidden from doing arithmetic — it quotes the app's figures — so the
+answer can never disagree with the Dashboard. When the server fails, the quota
+is spent, or the rider is offline, the on-device answerer steps in.
 
 So a Pro rider costs you Firestore reads and Storage, and nothing else. At the
 volumes in [scaling.md](scaling.md) that is a fraction of a cent per rider per

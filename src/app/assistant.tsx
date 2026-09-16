@@ -62,7 +62,7 @@ export default function Assistant() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top }}>
+    <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top }} testID="screen-assistant">
       <View style={{ paddingHorizontal: 20, paddingTop: 10 }}>
         <ScreenHeader
           title="Assistant"

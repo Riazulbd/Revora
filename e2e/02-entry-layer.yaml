@@ -34,3 +34,20 @@ appId: app.revora.android.dev
 - assertVisible: "Your plan"
 - assertVisible: "Feedback & support"
 - back
+
+# The overflow is the only route to two screens the fifth tab used to reach.
+- tapOn:
+    id: "cta-overflow"
+- tapOn:
+    id: "overflow-assistant"
+- assertVisible:
+    id: "screen-assistant"
+- back
+
+- tapOn:
+    id: "cta-overflow"
+- tapOn:
+    id: "overflow-analytics"
+- assertVisible:
+    id: "screen-analytics"
+- back

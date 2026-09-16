@@ -110,9 +110,9 @@ Three things worth adding:
 - **A budget alert** in GCP at your expected monthly spend. Firestore has no cap;
   a runaway listener is discovered by the bill.
 - Note that `aiCache`, `aiUsage` and `budget` belong to the **web** product,
-  which shares this Firebase project. The Android app never reads or writes
-  them — its Assistant is on-device and costs nothing per question — so they are
-  not part of this app's cost model.
+  which shares this Firebase project. The Android app's Free assistant is
+  on-device and costs nothing; its Pro assistant is the `askAssistant` function,
+  metered at 100 questions per rider per month and priced in [pricing.md](pricing.md).
 
 ## Feedback and support
 
