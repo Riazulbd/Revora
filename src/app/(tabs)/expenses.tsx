@@ -66,7 +66,7 @@ export default function ExpensesTab() {
   if (error) {
     return (
       <Screen variant="tab" testID="screen-expenses">
-        <TabHeader title="Expenses" />
+        <TabHeader title="Costs" />
         <ErrorState message={error.message} onRetry={() => void refetch()} variant="page" />
       </Screen>
     );

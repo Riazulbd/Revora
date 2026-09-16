@@ -18,12 +18,23 @@ import { useTheme } from '@/theme';
  * configuration (requirement 40).
  */
 
+/**
+ * Four tabs, in the order the redesign settled on.
+ *
+ * "More" is gone. Twenty-three identical rows was the weakest screen in the
+ * app, and the fifth tab existed only to hold it. What it reached now arrives
+ * three ways instead: the Dashboard's attention list brings anything wrong to
+ * the rider, search finds the rest by name, and the overflow carries the
+ * handful of screens opened a few times in a bike's life.
+ *
+ * "Expenses" is "Costs" because riders read Expenses next to Garage and
+ * expected receipts, not the running cost of the motorcycle.
+ */
 const TABS: readonly { name: string; label: string; icon: IconName; href: Href }[] = [
   { name: 'dashboard', label: 'Dashboard', icon: 'dashboard', href: '/(tabs)/dashboard' },
   { name: 'fuel', label: 'Fuel', icon: 'fuelTab', href: '/(tabs)/fuel' },
+  { name: 'expenses', label: 'Costs', icon: 'expenses', href: '/(tabs)/expenses' },
   { name: 'garage', label: 'Garage', icon: 'garage', href: '/(tabs)/garage' },
-  { name: 'expenses', label: 'Expenses', icon: 'expenses', href: '/(tabs)/expenses' },
-  { name: 'more', label: 'More', icon: 'more', href: '/(tabs)/more' },
 ];
 
 export default function TabsLayout() {
@@ -92,6 +103,8 @@ export default function TabsLayout() {
         </View>
       )}
     >
+      {/* Still registered so an existing deep link into it resolves. */}
+      <Tabs.Screen name="more" options={{ title: 'More', href: null }} />
       {TABS.map((tab) => (
         <Tabs.Screen key={tab.name} name={tab.name} options={{ title: tab.label }} />
       ))}

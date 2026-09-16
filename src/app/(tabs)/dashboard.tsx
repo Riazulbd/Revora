@@ -3,19 +3,20 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import {
-  Avatar,
   Banner,
   Button,
   Card,
   CardHeader,
-  CircleButton,
   Divider,
   EmptyState,
   ErrorState,
   Eyebrow,
   Gauge,
   Icon,
+  DividedList,
   InsufficientData,
+  ProBadge,
+  Sheet,
   LinkButton,
   MenuRow,
   ProgressBar,
@@ -36,7 +37,6 @@ import { BikeSwitcherButton, BikeSwitcherSheet, useBikeSwitcher } from '@/featur
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { MileageExplainSheet } from '@/features/fuel/MileageExplainSheet';
-import { useNotificationRows } from '@/features/notifications/useNotifications';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { DashboardAdCard } from '@/features/ads/DashboardAdCard';
 import { useConnectivity } from '@/services/connectivity';
@@ -53,6 +53,9 @@ import {
 } from '@/utils/format';
 import { useTheme } from '@/theme';
 import { StatusTone } from '@/features/maintenance/statusTone';
+import { AttentionCard } from '@/features/dashboard/AttentionCard';
+import { AttentionBell, OverflowButton, QuickTiles, SearchBar } from '@/features/dashboard/EntryLayer';
+import { useAttention } from '@/features/dashboard/useAttention';
 
 /**
  * The dashboard, built entirely from the rider's own records.
@@ -62,14 +65,14 @@ import { StatusTone } from '@/features/maintenance/statusTone';
  */
 export default function Dashboard() {
   const router = useRouter();
-  const { c } = useTheme();
   const { user } = useAuth();
   const { activeBike, isPro, profile } = useGarage();
   const { analytics, isPending, error, refetch } = useGarageData();
-  const { unreadCount } = useNotificationRows();
   const connectivity = useConnectivity();
   const switcher = useBikeSwitcher();
   const [explainOpen, setExplainOpen] = useState(false);
+  const [overflowOpen, setOverflowOpen] = useState(false);
+  const attention = useAttention();
 
   const name = profile?.displayName ?? user?.displayName ?? 'rider';
   const today = todayIso();
@@ -86,23 +89,9 @@ export default function Dashboard() {
         }}
       >
         <BikeSwitcherButton onPress={switcher.open} />
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <CircleButton
-            accessibilityLabel={
-              unreadCount > 0 ? `Notifications, ${unreadCount} needing attention` : 'Notifications'
-            }
-            onPress={() => router.push('/notifications')}
-            showDot={unreadCount > 0}
-            testID="open-notifications"
-          >
-            <Icon name="bell" size={19} color={c.ink} />
-          </CircleButton>
-          <Avatar
-            name={name}
-            uri={profile?.photoPath ?? null}
-            onPress={() => router.push('/settings')}
-            testID="open-settings"
-          />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+          <AttentionBell count={attention.count} />
+          <OverflowButton onPress={() => setOverflowOpen(true)} />
         </View>
       </View>
 
@@ -115,6 +104,13 @@ export default function Dashboard() {
             ? `Here's how your ${activeBike.nickname} is doing · ${formatShortDate(today)}`
             : `Add a motorcycle to get started · ${formatShortDate(today)}`}
         </Txt>
+      </View>
+
+      {/* Search and the three one-tap destinations. Everything the retired
+          fifth tab reached is now found here, or arrives by itself below. */}
+      <View style={{ gap: 10, marginBottom: 16 }}>
+        <SearchBar />
+        <QuickTiles />
       </View>
 
       {!connectivity.isOnline ? (
@@ -146,8 +142,9 @@ export default function Dashboard() {
         <EmptyDashboard />
       ) : (
         <Stack>
-          <MileageCard analytics={analytics} onExplain={() => setExplainOpen(true)} />
+          <AttentionCard items={attention.items} />
           <OdometerCard analytics={analytics} />
+          <MileageCard analytics={analytics} onExplain={() => setExplainOpen(true)} />
           {isPro ? <TrendCard analytics={analytics} /> : null}
           <MaintenanceCard analytics={analytics} />
           {activeBike?.company.enabled ? <AllowanceCard analytics={analytics} /> : null}
@@ -159,6 +156,49 @@ export default function Dashboard() {
       )}
 
       <BikeSwitcherSheet visible={switcher.visible} onClose={switcher.close} />
+      {/* The rare destinations. Settings, the plan, feedback and the legal
+          documents are opened a handful of times in a bike's life, so they cost
+          two taps rather than a permanent place on screen. */}
+      <Sheet visible={overflowOpen} onClose={() => setOverflowOpen(false)} title="More" testID="sheet-overflow">
+        <Card variant="list" style={{ paddingVertical: 4 }}>
+          <DividedList>
+            <MenuRow
+              label="Settings"
+              onPress={() => {
+                setOverflowOpen(false);
+                router.push('/settings');
+              }}
+              testID="overflow-settings"
+            />
+            <MenuRow
+              label="Your plan"
+              right={isPro ? <ProBadge /> : undefined}
+              onPress={() => {
+                setOverflowOpen(false);
+                router.push('/plan');
+              }}
+              testID="overflow-plan"
+            />
+            <MenuRow
+              label="Feedback & support"
+              onPress={() => {
+                setOverflowOpen(false);
+                router.push('/feedback');
+              }}
+              testID="overflow-feedback"
+            />
+            <MenuRow
+              label="Privacy & terms"
+              onPress={() => {
+                setOverflowOpen(false);
+                router.push('/legal/privacy');
+              }}
+              testID="overflow-legal"
+            />
+          </DividedList>
+        </Card>
+      </Sheet>
+
       <MileageExplainSheet visible={explainOpen} onClose={() => setExplainOpen(false)} analytics={analytics} />
     </Screen>
   );
