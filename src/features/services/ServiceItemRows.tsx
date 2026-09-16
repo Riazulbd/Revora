@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { Divider, Field, FieldRow, Icon, Input, Txt } from '@/components';
-import { describeProduct, productsFor } from '@/calculations/products';
+import { describeProduct, placeholdersFor, productsFor } from '@/calculations/products';
 import { useTheme } from '@/theme';
 import type { CurrencyCode, KnownProduct, ServiceItemUnit } from '@/types';
 
@@ -62,6 +62,9 @@ export function ServiceItemRows({
         });
         const open = openId === item.id;
         const suggestions = productsFor(products, item.name).slice(0, 4);
+        // The boxes prompt with something plausible for THIS item — a tyre row
+        // asking for a 10W-30 grade tells the rider they are on the wrong row.
+        const hints = placeholdersFor(item.name);
 
         return (
           <View
@@ -144,7 +147,7 @@ export function ServiceItemRows({
                     <Input
                       value={draft.brand}
                       onChangeText={(next) => onChange(item.id, { ...draft, brand: next })}
-                      placeholder="AMSOIL"
+                      placeholder={hints.brand}
                       size="compact"
                       autoCapitalize="words"
                       testID={`input-brand-${item.id}`}
@@ -154,7 +157,7 @@ export function ServiceItemRows({
                     <Input
                       value={draft.spec}
                       onChangeText={(next) => onChange(item.id, { ...draft, spec: next })}
-                      placeholder="10W-30"
+                      placeholder={hints.spec}
                       size="compact"
                       testID={`input-spec-${item.id}`}
                     />
@@ -165,7 +168,7 @@ export function ServiceItemRows({
                   <Input
                     value={draft.product}
                     onChangeText={(next) => onChange(item.id, { ...draft, product: next })}
-                    placeholder="Metric Motorcycle Oil"
+                    placeholder={hints.product}
                     size="compact"
                     testID={`input-product-${item.id}`}
                   />

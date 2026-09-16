@@ -1,0 +1,26 @@
+# A save that fails must say so where the thumb is.
+#
+# The bug: errors rendered on the field, which sits above the fold, while Save
+# sits at the bottom. Tapping Save appeared to do nothing, so riders tapped it
+# two or three times.
+appId: app.revora.android.dev
+---
+- launchApp:
+    clearState: false
+- tapOn:
+    id: "tab-dashboard"
+- tapOn:
+    id: "quick-add-fuel"
+- assertVisible:
+    id: "screen-fuel-add"
+
+# Submit empty — the odometer and litres are both missing.
+- scrollUntilVisible:
+    element:
+      id: "cta-save-fuel"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-fuel"
+
+# A toast names the first problem without the rider scrolling to find it.
+- assertVisible: "Enter the reading at the pump."

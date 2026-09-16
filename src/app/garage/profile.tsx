@@ -21,6 +21,7 @@ import { distanceUnitLabel } from '@/calculations/units';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useAddOdometerReading } from '@/features/odometer/useOdometerMutations';
+import { OwnershipHub } from '@/features/bikes/OwnershipHub';
 import { useRemoveBike } from '@/features/settings/useAccountMutations';
 import { fromMetres, toMetres } from '@/features/shared/formValues';
 import { formatCurrency, formatDistance, formatVolume, NO_VALUE } from '@/utils/format';
@@ -164,13 +165,11 @@ export default function BikeProfile() {
           />
         ) : null}
 
-        <Button
-          label="Edit details"
-          variant="secondary"
-          size="medium"
-          onPress={() => router.push('/garage/edit')}
-          testID="cta-edit-bike"
-        />
+        <Txt role="helper" tone="mut">
+          Everything this motorcycle owns lives here.
+        </Txt>
+
+        <OwnershipHub />
 
         <Button
           label="Delete this motorcycle"

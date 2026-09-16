@@ -3,9 +3,9 @@ import { Image, Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import {
-  Button,
-  ButtonRow,
   Card,
+  Divider,
+  MenuRow,
   Icon,
   ProBadge,
   Screen,
@@ -30,7 +30,7 @@ import { useTheme } from '@/theme';
 
 export default function GarageTab() {
   const router = useRouter();
-  const { c, radius } = useTheme();
+  const { c } = useTheme();
   const toast = useToast();
   const { activeBike, units, isPro, isPending } = useGarage();
   const { analytics, refetch } = useGarageData();
@@ -104,9 +104,10 @@ export default function GarageTab() {
 
       <Stack>
         <Card>
-          <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center', marginBottom: 16 }}>
-            <BikePhoto uri={photoUrl} busy={uploading || picker.busy} onPress={changePhoto} />
-            <View style={{ flex: 1, gap: 2 }}>
+          <BikePhoto uri={photoUrl} busy={uploading || picker.busy} onPress={changePhoto} />
+
+          <View style={{ gap: 14, marginTop: 14, marginBottom: 16 }}>
+            <View style={{ gap: 2 }}>
               <Txt role="cardTitle" numberOfLines={2}>
                 {activeBike.nickname}
               </Txt>
@@ -140,28 +141,19 @@ export default function GarageTab() {
             </Txt>
           ) : null}
 
-          <ButtonRow>
-            <View style={{ flex: 1, marginTop: 12 }}>
-              <Button
-                label="Motorcycle profile"
-                variant="ghost"
-                size="small"
-                onPress={() => router.push('/garage/profile')}
-                style={{ height: 46, borderWidth: 1, borderColor: c.brd, borderRadius: radius.smallCard - 2 }}
-                testID="cta-profile"
-              />
-            </View>
-            <View style={{ flex: 1, marginTop: 12 }}>
-              <Button
-                label="Odometer history"
-                variant="ghost"
-                size="small"
-                onPress={() => router.push('/garage/odometer')}
-                style={{ height: 46, borderWidth: 1, borderColor: c.brd, borderRadius: radius.smallCard - 2 }}
-                testID="cta-odometer"
-              />
-            </View>
-          </ButtonRow>
+          <View style={{ marginTop: 14, gap: 2 }}>
+            <MenuRow
+              label="Motorcycle profile"
+              onPress={() => router.push('/garage/profile')}
+              testID="cta-profile"
+            />
+            <Divider />
+            <MenuRow
+              label="Odometer history"
+              onPress={() => router.push('/garage/odometer')}
+              testID="cta-odometer"
+            />
+          </View>
         </Card>
 
         <Pressable
@@ -251,7 +243,7 @@ function BikePhoto({ uri, busy, onPress }: { uri: string | null; busy: boolean; 
       testID="bike-photo"
       style={({ pressed }) => ({ opacity: pressed || busy ? 0.7 : 1 })}
     >
-      <View style={{ width: 74, height: 64, borderRadius: 16, overflow: 'hidden' }}>
+      <View style={{ width: '100%', aspectRatio: 16 / 9, borderRadius: 16, overflow: 'hidden' }}>
         {uri ? (
           <Image source={{ uri }} accessibilityLabel="Your motorcycle" style={{ width: '100%', height: '100%' }} />
         ) : (
@@ -266,12 +258,12 @@ function BikePhoto({ uri, busy, onPress }: { uri: string | null; busy: boolean; 
               borderRadius: 16,
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 3,
+              gap: 8,
             }}
           >
-            <Icon name="motorcycle" size={22} color={c.acc} strokeWidth={1.8} />
-            <Txt role="pro" tone="mut">
-              ADD PHOTO
+            <Icon name="motorcycle" size={30} color={c.acc} strokeWidth={1.6} />
+            <Txt role="metaSmall" tone="mut">
+              Add a photo of the bike
             </Txt>
           </View>
         )}

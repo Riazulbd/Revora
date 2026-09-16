@@ -1,4 +1,4 @@
-import { describeProduct, knownProducts, productsFor } from './products';
+import { describeProduct, knownProducts, productsFor, placeholdersFor } from './products';
 import type { ServiceItem, ServiceRecord } from '@/types';
 
 let seq = 0;
@@ -105,4 +105,33 @@ test('describes a product from whichever parts were recorded', () => {
     .toBe('AMSOIL Metric Motorcycle Oil · 10W-30');
   expect(describeProduct({ brand: 'Honda OEM', product: null, spec: null })).toBe('Honda OEM');
   expect(describeProduct({ brand: null, product: null, spec: 'CPR8EA-9' })).toBe('CPR8EA-9');
+});
+
+describe('item boxes prompt for the item in front of the rider', () => {
+  it('asks a tyre row for a tyre size, never an oil grade', () => {
+    // The bug this replaces: every row prompted AMSOIL / 10W-30 / Metric
+    // Motorcycle Oil, so a tyre row read as the app showing the wrong item.
+    const hints = placeholdersFor('Tyre pressure & tread');
+    expect(hints.brand).toBe('MRF');
+    expect(hints.spec).not.toContain('W-');
+  });
+
+  it('matches on words, because rules are named by the rider', () => {
+    expect(placeholdersFor('Front tyre').brand).toBe(placeholdersFor('Tires').brand);
+    expect(placeholdersFor('Engine oil & filter').spec).toBe('10W-30');
+    expect(placeholdersFor('Chain clean, lube & tension').brand).toBe('DID');
+  });
+
+  it('prefers the more specific match when a name could hit two rules', () => {
+    // "Air filter" contains neither oil nor chain, but "oil filter" would hit
+    // the oil rule first — which is the right answer for an oil filter.
+    expect(placeholdersFor('Air filter').brand).toBe('K&N');
+    expect(placeholdersFor('Oil filter').brand).toBe('AMSOIL');
+  });
+
+  it('falls back to a plain instruction rather than a misleading example', () => {
+    const hints = placeholdersFor('Master Service');
+    expect(hints.brand).toBe('Brand');
+    expect(hints.spec).toBe('Grade or part no.');
+  });
 });

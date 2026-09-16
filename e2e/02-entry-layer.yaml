@@ -1,0 +1,36 @@
+# The Dashboard band that replaced the fifth tab.
+#
+# Each of these is one tap from a cold start by design — Documents at a traffic
+# stop, Fast Capture at a pump. If any regresses to a deeper route, the reason
+# for retiring "More" goes with it.
+appId: app.revora.android.dev
+---
+- launchApp:
+    clearState: false
+- tapOn:
+    id: "tab-dashboard"
+
+- tapOn:
+    id: "cta-search"
+- assertVisible:
+    id: "screen-search"
+- back
+
+- tapOn:
+    id: "quick-documents"
+- assertVisible:
+    id: "screen-vault"
+- back
+
+- tapOn:
+    id: "quick-capture"
+- assertVisible:
+    id: "screen-capture"
+- back
+
+- tapOn:
+    id: "cta-overflow"
+- assertVisible: "Settings"
+- assertVisible: "Your plan"
+- assertVisible: "Feedback & support"
+- back

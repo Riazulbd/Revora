@@ -1,0 +1,39 @@
+# Ticking a maintenance item gives you a row for THAT item.
+#
+# The bug this guards: every item row prompted with AMSOIL / 10W-30 / "Metric
+# Motorcycle Oil", so ticking Tyre pressure produced a row asking for an oil
+# viscosity grade. A rider reasonably read that as the form showing the wrong
+# item. Placeholders are instructions, and a wrong one is a wrong instruction.
+appId: app.revora.android.dev
+---
+- launchApp:
+    clearState: false
+
+- tapOn:
+    id: "tab-garage"
+- tapOn:
+    id: "cta-profile"
+- tapOn:
+    id: "hub-services"
+- tapOn:
+    id: "cta-add-service"
+- assertVisible:
+    id: "screen-service-add"
+
+- scrollUntilVisible:
+    element: "MAINTENANCE ITEMS COMPLETED"
+    direction: DOWN
+
+- tapOn: "Engine oil & filter"
+- tapOn: "Tyre pressure & tread"
+
+# Both ticked items get their own row.
+- assertVisible: "Engine oil & filter"
+- assertVisible: "Tyre pressure & tread"
+
+# Expanding the tyre row must not prompt for an oil grade.
+- tapOn:
+    text: "Tyre pressure & tread"
+    index: 1
+- assertNotVisible: "10W-30"
+- assertNotVisible: "Metric Motorcycle Oil"

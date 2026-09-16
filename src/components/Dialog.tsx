@@ -91,6 +91,7 @@ export function Dialog({
               onPress={onClose}
               disabled={busy}
               style={{ flex: 1, height: 48, borderRadius: 12 }}
+              testID={testID === undefined ? undefined : `${testID}-cancel`}
             />
             <Button
               label={confirmLabel}
@@ -99,6 +100,7 @@ export function Dialog({
               onPress={onConfirm}
               loading={busy}
               style={{ flex: 1, height: 48, borderRadius: 12 }}
+              testID={testID === undefined ? undefined : `${testID}-confirm`}
             />
           </ButtonRow>
         </View>

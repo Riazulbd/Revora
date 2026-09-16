@@ -1,0 +1,98 @@
+# A fill, from creation to deletion, the way a rider actually does it.
+#
+# The whole app hangs off this record: the odometer, mileage, cost per km and
+# every maintenance status are recomputed from fuel logs, so a fill that saves
+# wrong or deletes badly corrupts figures on five other screens. Nothing is
+# stored derived, which is exactly why this has to be exercised end to end —
+# the damage would show up somewhere other than where it was caused.
+#
+# The station name is the marker. It is distinctive so the flow can find its
+# own record among the rider's real ones, and so a failed run leaves something
+# obviously test-shaped rather than something that looks like real data.
+appId: app.revora.android.dev
+---
+- launchApp:
+    clearState: false
+
+# ---------- CREATE ----------
+- tapOn:
+    id: "tab-dashboard"
+- tapOn:
+    id: "quick-add-fuel"
+- assertVisible:
+    id: "screen-fuel-add"
+
+- tapOn:
+    id: "input-odometer"
+- inputText: "9100"
+
+- tapOn:
+    id: "input-litres"
+- inputText: "7.5"
+
+- tapOn:
+    id: "input-price"
+- inputText: "122"
+
+- scrollUntilVisible:
+    element:
+      id: "input-station"
+    direction: DOWN
+- tapOn:
+    id: "input-station"
+- inputText: "E2E Test Pump"
+
+- scrollUntilVisible:
+    element:
+      id: "cta-save-fuel"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-fuel"
+
+# Back on the log, the fill is there with the station that identifies it.
+- assertVisible:
+    id: "screen-fuel"
+- assertVisible: "E2E Test Pump"
+
+# The total derived itself from litres x price: 7.5 x 122 = 915.
+- assertVisible: "915"
+
+# ---------- UPDATE ----------
+- tapOn: "E2E Test Pump"
+- assertVisible:
+    id: "screen-fuel-detail"
+- tapOn:
+    id: "cta-edit"
+- assertVisible:
+    id: "screen-fuel-add"
+
+- tapOn:
+    id: "input-litres"
+- eraseText
+- inputText: "8"
+
+- scrollUntilVisible:
+    element:
+      id: "cta-save-fuel"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-fuel"
+
+# 8 x 122 = 976 — the total must follow the edit, not keep the old figure.
+- assertVisible: "976"
+- assertNotVisible: "915"
+
+# ---------- DELETE ----------
+- tapOn: "E2E Test Pump"
+- assertVisible:
+    id: "screen-fuel-detail"
+- tapOn:
+    id: "cta-delete"
+- assertVisible:
+    id: "dialog-delete-fuel"
+- tapOn:
+    id: "dialog-delete-fuel-confirm"
+
+- assertVisible:
+    id: "screen-fuel"
+- assertNotVisible: "E2E Test Pump"

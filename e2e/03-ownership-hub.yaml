@@ -1,0 +1,75 @@
+# Every screen the retired fifth tab used to reach is still reachable.
+#
+# This is the regression that matters most. Cutting "More" without building its
+# replacement left Warranties, Parts, Service history, Workshop records and the
+# Proof Pack with no route at all — the data was still there and no tap could
+# find it. Each assertion below is a screen that was orphaned.
+appId: app.revora.android.dev
+---
+- launchApp:
+    clearState: false
+
+- tapOn:
+    id: "tab-garage"
+- tapOn:
+    id: "cta-profile"
+- assertVisible:
+    id: "screen-bike-profile"
+
+- tapOn:
+    id: "hub-documents"
+- assertVisible:
+    id: "screen-vault"
+- back
+
+- tapOn:
+    id: "hub-warranties"
+- assertVisible:
+    id: "screen-warranties"
+- back
+
+- tapOn:
+    id: "hub-proof-pack"
+- assertVisible:
+    id: "screen-proof-pack"
+- back
+
+- tapOn:
+    id: "hub-services"
+- assertVisible:
+    id: "screen-services"
+- back
+
+- tapOn:
+    id: "hub-maintenance"
+- assertVisible:
+    id: "screen-maintenance"
+- back
+
+- tapOn:
+    id: "hub-safety"
+- assertVisible:
+    id: "screen-safety"
+- back
+
+- scrollUntilVisible:
+    element:
+      id: "hub-parts"
+    direction: DOWN
+- tapOn:
+    id: "hub-parts"
+- assertVisible:
+    id: "screen-parts"
+- back
+
+- tapOn:
+    id: "hub-workshop"
+- assertVisible:
+    id: "screen-workshop"
+- back
+
+- tapOn:
+    id: "hub-odometer"
+- assertVisible:
+    id: "screen-odometer"
+- back

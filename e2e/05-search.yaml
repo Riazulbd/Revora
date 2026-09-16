@@ -1,0 +1,24 @@
+# Search is what pays for the deeper screens, so it has to actually find things.
+appId: app.revora.android.dev
+---
+- launchApp:
+    clearState: false
+- tapOn:
+    id: "tab-dashboard"
+- tapOn:
+    id: "cta-search"
+- assertVisible:
+    id: "screen-search"
+
+# Resting state offers a way in rather than a blank box.
+- assertVisible: "TRY"
+
+# A query with no match explains what is covered, never a bare "no results".
+- tapOn:
+    id: "input-search"
+- inputText: "kawasaki"
+- assertVisible: "Search covers your services"
+
+- eraseText
+- inputText: "oil"
+- assertNotVisible: "Search covers your services"
