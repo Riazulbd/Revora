@@ -2,16 +2,23 @@ import { PixelRatio, type TextStyle } from 'react-native';
 
 /**
  * Typography transcribed from the approved design. Every `font:` shorthand in
- * design/Revora.dc.html maps to one of the roles below.
+ * the design artboards maps to one of the roles below.
  *
- * The design is set in Manrope at weights 400/500/600/700/800.
+ * Set in Google Sans Flex at weights 400/500/600/700/800 (MIT AND OFL-1.1).
+ * It replaced Manrope in the 2026 redesign; the px scale survived that change
+ * unaltered, so only the family and a handful of weights moved — which is why
+ * the role names below still line up with the screens that use them.
+ *
+ * Single face on purpose. The artboards ship stylesheet links for two further
+ * families, but neither is used by a single element, and loading a typeface no
+ * glyph is set in costs start-up time for nothing.
  */
 export const fontFamily = {
-  400: 'Manrope_400Regular',
-  500: 'Manrope_500Medium',
-  600: 'Manrope_600SemiBold',
-  700: 'Manrope_700Bold',
-  800: 'Manrope_800ExtraBold',
+  400: 'GoogleSansFlex_400Regular',
+  500: 'GoogleSansFlex_500Medium',
+  600: 'GoogleSansFlex_600SemiBold',
+  700: 'GoogleSansFlex_700Bold',
+  800: 'GoogleSansFlex_800ExtraBold',
 } as const;
 
 export type FontWeight = keyof typeof fontFamily;
@@ -51,11 +58,11 @@ export const type = {
   /** `font:700 17px` — card headline. */
   cardTitle: spec(17, 700),
   /** `font:600 17px` — the welcome screen's "Know your bike." line. */
-  heroLine: spec(17, 600),
+  heroLine: spec(17, 700),
   /** `font:700 16px` — dialog title, primary button on tall forms. */
   dialogTitle: spec(16, 700),
   /** `font:600 40px/1` — hero odometer number. */
-  hero: spec(40, 600, 40),
+  hero: spec(40, 700, 40),
   /** `font:700 34px` — fuel detail total. */
   figure: spec(34, 700),
   /** `font:700 20px` — large numeric inputs. */
@@ -63,7 +70,7 @@ export const type = {
   /** `font:500 15px` — standard input text. */
   input: spec(15, 500),
   /** `font:600 16px` — numeric input text. */
-  inputNumeric: spec(16, 600),
+  inputNumeric: spec(16, 700),
   /** `font:700 15.5px` — primary button label. */
   buttonPrimary: spec(15.5, 700),
   /** `font:700 14px` — secondary button label. */
@@ -121,7 +128,7 @@ export const type = {
   /** `font:600 14px` — list value. */
   value: spec(14, 600),
   /** `font:600 20px` — allowance figure. */
-  figureSmall: spec(20, 600),
+  figureSmall: spec(20, 700),
   /** `font:600 15px`/`font:700 15px` — tile value. */
   tileValue: spec(15, 700),
   /** `font:700 17px` — fuel summary tile value. */

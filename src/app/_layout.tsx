@@ -9,12 +9,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import {
-  Manrope_400Regular,
-  Manrope_500Medium,
-  Manrope_600SemiBold,
-  Manrope_700Bold,
-  Manrope_800ExtraBold,
-} from '@expo-google-fonts/manrope';
+  GoogleSansFlex_400Regular,
+  GoogleSansFlex_500Medium,
+  GoogleSansFlex_600SemiBold,
+  GoogleSansFlex_700Bold,
+  GoogleSansFlex_800ExtraBold,
+} from '@expo-google-fonts/google-sans-flex';
 
 import { ToastProvider } from '@/components';
 import { AuthProvider } from '@/features/auth/AuthProvider';
@@ -31,11 +31,11 @@ void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 export default function RootLayout() {
   const [queryClient] = useState(() => createQueryClient());
   const [fontsLoaded, fontError] = useFonts({
-    Manrope_400Regular,
-    Manrope_500Medium,
-    Manrope_600SemiBold,
-    Manrope_700Bold,
-    Manrope_800ExtraBold,
+    GoogleSansFlex_400Regular,
+    GoogleSansFlex_500Medium,
+    GoogleSansFlex_600SemiBold,
+    GoogleSansFlex_700Bold,
+    GoogleSansFlex_800ExtraBold,
   });
 
   const onReady = useCallback(() => {
