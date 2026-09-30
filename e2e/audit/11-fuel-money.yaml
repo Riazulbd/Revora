@@ -1,0 +1,65 @@
+# Phase B · 11 — litres × price = total, exactly, before anything is saved.
+#
+#   9 L × 145        → total 1305   (9,000 ml × 14,500 minor / 1,000 = 130,500 minor → "1305")
+#   9 L + total 1305 → price 145    (130,500 / 9,000 ml × 1,000 = 14,500 minor → "145")
+#   price 145 + total 1305 → litres 9  (130,500 / 14,500 × 1,000 = 9,000 ml → "9")
+#
+# Self-contained, fresh account so the price box starts EMPTY (a new fill
+# pre-fills the previous fill's price otherwise).
+#
+# NOTE for Phase B: the third leg is expected to FAIL. deriveFuelAmounts()
+# (src/calculations/fuel.ts:86-88) does return litresMl from price + total, but
+# the form's recalculate() (src/app/fuel/add.tsx:170-183) only ever writes back
+# `total` or `price` — it never calls setLitres. A red result here is the
+# finding, not a flow bug.
+appId: app.revora.android.dev
+---
+- runFlow: lib/fresh-anon-bike.yaml
+
+- tapOn:
+    id: "quick-add-fuel"
+- assertVisible:
+    id: "screen-fuel-add"
+
+# ---------- litres + price → total ----------
+- tapOn:
+    id: "input-litres"
+- inputText: "9"
+- tapOn:
+    id: "input-price"
+- inputText: "145"
+- hideKeyboard
+- assertVisible:
+    id: "input-total"
+    text: "1305"
+
+# ---------- litres + total → price ----------
+- tapOn:
+    id: "input-price"
+- eraseText
+- tapOn:
+    id: "input-total"
+- eraseText
+- inputText: "1305"
+- hideKeyboard
+- assertVisible:
+    id: "input-price"
+    text: "145"
+- assertVisible:
+    id: "input-litres"
+    text: "9"
+
+# ---------- price + total → litres  (expected FAIL, see header) ----------
+- tapOn:
+    id: "input-litres"
+- eraseText
+- hideKeyboard
+- assertVisible:
+    id: "input-price"
+    text: "145"
+- assertVisible:
+    id: "input-total"
+    text: "1305"
+- assertVisible:
+    id: "input-litres"
+    text: "9"

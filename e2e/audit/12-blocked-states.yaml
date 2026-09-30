@@ -1,0 +1,82 @@
+# Phase B · 12 — every "no figure" state names its own reason.
+#
+# Fresh account. The Dashboard shows the EmptyDashboard card while NOTHING is
+# logged (analytics.isEmpty), so the real "no fills" blocker text is only
+# reachable once some other record exists — an expense of 50 is logged first
+# to lift the empty card without touching mileage.
+#
+#   no fills            → "Log your first fill and Revora starts measuring from there."
+#   one (partial) fill  → "One fill is a starting point, not a measurement. …"
+#   partial 4,900 4 L + partial 5,100 5 L →
+#       provisional estimate = (5,100 − 4,900) km / 5 L  (fuel after the
+#       opening fill only) = 200 / 5 = 40.0 km/L, CONFIDENCE "ESTIMATED",
+#       hint "Estimated across 200 km from 5.0 L. … Mark your next one Full …"
+appId: app.revora.android.dev
+---
+- runFlow: lib/fresh-anon-bike.yaml
+
+# ---------- nothing logged: empty card, and the Fuel tab's own empty state ----------
+- assertVisible: "No rides logged yet"
+- tapOn:
+    id: "tab-fuel"
+- assertVisible:
+    id: "empty-fuel"
+- assertVisible: "Your fills will live here"
+
+# ---------- one expense so the Dashboard renders its cards ----------
+- tapOn:
+    id: "tab-expenses"
+- tapOn:
+    id: "cta-add-expense"
+- assertVisible:
+    id: "screen-expense-add"
+- tapOn:
+    id: "input-amount"
+- inputText: "50"
+- tapOn:
+    id: "input-expense-note"
+- inputText: "Audit parking"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "cta-save-expense"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-expense"
+- assertVisible:
+    id: "screen-expenses"
+
+# ---------- no fills ----------
+- tapOn:
+    id: "tab-dashboard"
+- assertVisible: "No mileage yet"
+- assertVisible: ".*Log your first fill and Revora starts measuring from there.*"
+
+# ---------- one fill ----------
+- runFlow:
+    file: lib/add-fill.yaml
+    env:
+      ODO: "4900"
+      LITRES: "4"
+      PRICE: "145"
+      FILL: "Partial"
+      STATION: ""
+- assertVisible: "No mileage yet"
+- assertVisible: ".*One fill is a starting point, not a measurement.*"
+
+# ---------- partial-only pair → labelled estimate ----------
+- runFlow:
+    file: lib/add-fill.yaml
+    env:
+      ODO: "5100"
+      LITRES: "5"
+      PRICE: "145"
+      FILL: "Partial"
+      STATION: ""
+- assertVisible: "ESTIMATED"
+- assertVisible: "40.0"
+- assertVisible:
+    id: "hint-mileage-estimated"
+- assertVisible: ".*Estimated across 200 km from 5.0 L.*"
+- assertVisible: ".*Mark your next one Full.*"
+- assertVisible: ".*estimated across the whole log.*"

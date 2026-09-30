@@ -2,7 +2,6 @@ import React from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   RefreshControl,
   ScrollView,
   View,
@@ -12,8 +11,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
-import { HIT_SIZE, useTheme } from '@/theme';
-import { Icon } from './Icon';
+import { fontFamily, useTheme } from '@/theme';
+import { IconSquareButton } from './IconButton';
 import { Txt } from './Text';
 
 /**
@@ -26,7 +25,7 @@ import { Txt } from './Text';
  *    bar and the navigation bar on every Android configuration (requirement 40).
  *  · Keyboard — the scroll view keeps the focused field and the Save button
  *    reachable, and a tap outside dismisses the keyboard (requirement 39).
- *  · Padding — the design's `6px 16px 100px` for tabs and `10px 20px 32px` for
+ *  · Padding — the boards' `20px 20px 24px` for tabs and `20px 24px 24px` for
  *    pushed screens, so 39 screens share one rhythm.
  */
 
@@ -44,6 +43,9 @@ export type ScreenProps = {
   scrollProps?: Partial<ScrollViewProps>;
   testID?: string;
 };
+
+/** Horizontal gutters from the boards: tab screens 20px, pushed screens 24px. */
+export const SCREEN_GUTTER = { tab: 20, stack: 24 } as const;
 
 export function Screen({
   children,
@@ -71,10 +73,10 @@ export function Screen({
   }, [onRefresh]);
 
   const padding: ViewStyle = {
-    paddingHorizontal: variant === 'tab' ? spacing.screenX : spacing.stackX,
-    paddingTop: variant === 'tab' ? 6 : 10,
+    paddingHorizontal: SCREEN_GUTTER[variant],
+    paddingTop: variant === 'tab' ? 12 : 8,
     paddingBottom:
-      (variant === 'tab' ? spacing.tabBarClearance : 32) + bottomInset + (variant === 'tab' ? 0 : insets.bottom),
+      (variant === 'tab' ? spacing.tabBarClearance : 24) + bottomInset + (variant === 'tab' ? 0 : insets.bottom),
   };
 
   const body = scroll ? (
@@ -119,23 +121,29 @@ export function Screen({
 }
 
 /**
- * The pushed-screen header: a 44×44 back target pulled 12px left so the glyph
- * lines up with the content edge, then the title.
+ * The pushed-screen header from the boards: a 44px row pulled 10px left
+ * (`margin-left:-10px; gap:8px`) so the 22px back chevron lines up with the
+ * content edge, then the `700 20px` title with an optional `500 13px` muted
+ * suffix ("Edit fill · 13 Sep"), and a `500 13px / 1.5` muted subtitle 6px under.
  */
 export function ScreenHeader({
   title,
+  titleSuffix,
   subtitle,
   action,
   onBack,
   badge,
+  backTestID,
   style,
 }: {
   title: string;
+  titleSuffix?: string;
   subtitle?: string;
   action?: React.ReactNode;
   /** Defaults to `router.back()`. */
   onBack?: () => void;
   badge?: React.ReactNode;
+  backTestID?: string;
   style?: ViewStyle;
 }) {
   const { c } = useTheme();
@@ -153,31 +161,26 @@ export function ScreenHeader({
   return (
     <View style={[{ marginBottom: 14 }, style]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, flex: 1 }}>
-          <Pressable
-            accessibilityRole="button"
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, marginLeft: -10, height: 44 }}>
+          <IconSquareButton
+            icon="chevronLeft"
+            variant="plain"
             accessibilityLabel="Back"
             onPress={handleBack}
-            style={({ pressed }) => ({
-              width: HIT_SIZE,
-              height: HIT_SIZE,
-              marginLeft: -12,
-              alignItems: 'flex-start',
-              justifyContent: 'center',
-              opacity: pressed ? 0.6 : 1,
-            })}
-          >
-            <Icon name="chevronLeft" size={22} color={c.ink} strokeWidth={2.2} />
-          </Pressable>
+            {...(backTestID === undefined ? {} : { testID: backTestID })}
+          />
           <Txt role="screenTitle" numberOfLines={1} style={{ flexShrink: 1 }}>
             {title}
+            {titleSuffix ? (
+              <Txt style={{ fontFamily: fontFamily[500], fontSize: 13, color: c.mut }}> {titleSuffix}</Txt>
+            ) : null}
           </Txt>
           {badge}
         </View>
         {action}
       </View>
       {subtitle ? (
-        <Txt role="bodySmall" tone="mut" style={{ marginTop: 4 }}>
+        <Txt role="body" tone="mut" style={{ marginTop: 6, lineHeight: 19.5 }}>
           {subtitle}
         </Txt>
       ) : null}
@@ -185,41 +188,60 @@ export function ScreenHeader({
   );
 }
 
-/** The root-tab header: a 24px title with an optional action on the right. */
+/**
+ * The root-tab header: `padding:4px 4px 0`, a `700 24px` title with an
+ * optional `500 12px` muted line 2px under it (the Dashboard's bike and
+ * date), and on the right either the accent action pill or the 44px icon
+ * squares (`gap:8px`).
+ */
 export function TabHeader({
   title,
+  subtitle,
   action,
   style,
+  testID,
 }: {
   title: string;
+  subtitle?: string;
   action?: React.ReactNode;
   style?: ViewStyle;
+  testID?: string;
 }) {
   return (
     <View
+      testID={testID}
       style={[
         {
           flexDirection: 'row',
-          alignItems: 'center',
+          alignItems: subtitle ? 'flex-end' : 'center',
           justifyContent: 'space-between',
           gap: 10,
-          marginBottom: 14,
+          paddingHorizontal: 4,
+          paddingTop: 4,
+          marginBottom: 16,
         },
         style,
       ]}
     >
-      <Txt role="tabTitle" numberOfLines={1} style={{ flexShrink: 1 }}>
-        {title}
-      </Txt>
-      {action}
+      <View style={{ flexShrink: 1 }}>
+        <Txt role="tabTitle" numberOfLines={1}>
+          {title}
+        </Txt>
+        {subtitle ? (
+          <Txt role="meta" tone="mut" numberOfLines={1} style={{ marginTop: 2 }}>
+            {subtitle}
+          </Txt>
+        ) : null}
+      </View>
+      {action ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 0 }}>{action}</View> : null}
     </View>
   );
 }
 
-/** Vertical rhythm between cards: the design's 16px section gap. */
+/** Vertical rhythm between cards: the boards' 12px within a section, 16px between. */
 export function Stack({
   children,
-  gap = 16,
+  gap = 12,
   style,
 }: {
   children: React.ReactNode;
@@ -227,4 +249,16 @@ export function Stack({
   style?: ViewStyle;
 }) {
   return <View style={[{ gap }, style]}>{children}</View>;
+}
+
+/**
+ * The `500 11.5px / 1.5` muted footnote under a card or list
+ * (`margin:10px 4px 0`) — "Status is recomputed from the current odometer…".
+ */
+export function Footnote({ children, style, testID }: { children: React.ReactNode; style?: ViewStyle; testID?: string }) {
+  return (
+    <Txt role="helper" tone="mut" style={[{ marginTop: 10, marginHorizontal: 4 }, style]} testID={testID}>
+      {children}
+    </Txt>
+  );
 }

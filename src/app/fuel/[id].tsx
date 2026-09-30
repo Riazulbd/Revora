@@ -3,31 +3,31 @@ import { Image, Modal, Pressable, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import {
-  Badge,
   Button,
   ButtonRow,
   Card,
   Dialog,
   DividedList,
   ErrorState,
-  Icon,
   KeyValueRow,
-  LinkButton,
   Screen,
   ScreenHeader,
   SkeletonList,
-  Stack,
+  StatRow,
   StatTile,
   Txt,
 } from '@/components';
-import { ADJUSTMENT_REASON_LABEL } from '@/calculations/fuel';
-import { confidenceLabel } from '@/calculations/mileage';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
-import { MileageExplainSheet } from '@/features/fuel/MileageExplainSheet';
+import {
+  FuelAdjustmentsCard,
+  FuelMileageBreakdown,
+  FuelNoMileageCard,
+  FuelReceiptRow,
+} from '@/features/fuel/ui/FuelBreakdown';
 import { useDeleteFuel } from '@/features/fuel/useFuelMutations';
 import { useImageUrl } from '@/features/shared/useImageUrl';
-import { formatInstant, formatLongDate, formatShortDate } from '@/utils/date';
+import { formatShortDate } from '@/utils/date';
 import {
   formatCurrency,
   formatDistance,
@@ -37,17 +37,22 @@ import {
   NO_VALUE,
 } from '@/utils/format';
 import { volumeUnitLabel } from '@/calculations/units';
-import { useTheme } from '@/theme';
 
-const FILL_LABEL = { full: 'Full tank', partial: 'Partial fill', unknown: 'Unknown level' } as const;
+const FILL_LABEL = { full: 'Full tank', partial: 'Partial', unknown: 'Unknown level' } as const;
 
+/**
+ * One fill.
+ *
+ * The board's order is the argument it makes: the three figures first, then —
+ * immediately — how the mileage figure was reached, or why there isn't one. A
+ * number a rider can't audit is a number they won't trust, so the arithmetic is
+ * not hidden behind a link.
+ */
 export default function FuelDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { c, radius } = useTheme();
   const { units } = useGarage();
   const { analytics, isPending, error } = useGarageData();
-  const [explainOpen, setExplainOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
 
@@ -80,12 +85,8 @@ export default function FuelDetail() {
   if (error) {
     return (
       <Screen testID="screen-fuel-detail">
-        <ScreenHeader title="Fuel log" />
-        <ErrorState
-          message={error.message}
-          onRetry={undefined}
-          variant="page"
-        />
+        <ScreenHeader title="Fill" />
+        <ErrorState message={error.message} onRetry={undefined} variant="page" />
       </Screen>
     );
   }
@@ -93,7 +94,7 @@ export default function FuelDetail() {
   if (isPending && analytics === null) {
     return (
       <Screen testID="screen-fuel-detail">
-        <ScreenHeader title="Fuel log" />
+        <ScreenHeader title="Fill" />
         <SkeletonList count={3} height={120} />
       </Screen>
     );
@@ -102,7 +103,7 @@ export default function FuelDetail() {
   if (!entry) {
     return (
       <Screen testID="screen-fuel-detail">
-        <ScreenHeader title="Fuel log" />
+        <ScreenHeader title="Fill" />
         <ErrorState
           title="This fuel log is gone"
           message="It may have been deleted on another device. Your remaining logs are unaffected."
@@ -113,161 +114,81 @@ export default function FuelDetail() {
     );
   }
 
-  const adjustedMl = ownAdjustments.reduce((sum, a) => sum + a.millilitres, 0);
-
   return (
     <Screen testID="screen-fuel-detail">
-      <ScreenHeader title={`Fuel log · ${formatShortDate(entry.date)}`} style={{ marginBottom: 8 }} />
+      <ScreenHeader title="Fill" titleSuffix={`· ${formatShortDate(entry.date)}`} />
 
-      <Stack>
-        <Card style={{ paddingVertical: 20, alignItems: 'center' }}>
-          <Txt role="figure" numberOfLines={1} adjustsFontSizeToFit>
-            {formatCurrency(entry.totalCostMinor, entry.currency)}
-          </Txt>
-          <Txt role="mediumStrong" tone="mut" align="center" style={{ marginTop: 4 }}>
-            {formatVolume(entry.litresMl, units.volume)} ·{' '}
-            {formatPricePerVolume(entry.pricePerLitreMinor, entry.currency)}/{volumeUnitLabel(units.volume)} ·{' '}
-            {FILL_LABEL[entry.fillType]}
-          </Txt>
-
-          <View style={{ flexDirection: 'row', gap: 10, marginTop: 16, alignSelf: 'stretch' }}>
-            <StatTile label="ODOMETER" value={formatDistance(entry.odometerMetres, units.distance)} />
-            <StatTile
-              label="DISTANCE"
-              value={interval ? formatDistance(interval.distanceMetres, units.distance) : NO_VALUE}
-            />
-            <StatTile
-              label="MILEAGE"
-              variant="accent"
-              value={interval ? formatMileage(interval.efficiency, units.mileage) : NO_VALUE}
-            />
-          </View>
-
-          {interval ? (
-            <View style={{ marginTop: 14 }}>
-              <LinkButton
-                label="How was this calculated?"
-                size="large"
-                onPress={() => setExplainOpen(true)}
-                testID="link-explain"
-              />
-            </View>
-          ) : (
-            <Txt role="helper" tone="mut" align="center" style={{ marginTop: 12 }}>
-              {entry.fillType === 'full'
-                ? 'Mileage for this fill appears once there is a full tank before it to measure from.'
-                : 'Partial fills carry their fuel into the next full-tank interval rather than reporting a figure of their own.'}
-            </Txt>
-          )}
-        </Card>
-
-        {entry.receiptPath ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="View pump receipt"
-            onPress={() => setViewerOpen(true)}
-            testID="row-receipt"
-            style={({ pressed }) => ({ opacity: pressed ? 0.75 : 1 })}
-          >
-            <Card variant="list" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 16 }}>
-              <View
-                style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: 12,
-                  backgroundColor: c.sur2,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  overflow: 'hidden',
-                }}
-              >
-                {receiptUrl ? (
-                  <Image source={{ uri: receiptUrl }} style={{ width: '100%', height: '100%' }} />
-                ) : (
-                  <Icon name="document" size={22} color={c.mut} strokeWidth={1.8} />
-                )}
-              </View>
-              <View style={{ flex: 1, gap: 2 }}>
-                <Txt role="mediumStrong">Pump receipt</Txt>
-                <Txt role="metaSmall" tone="mut">
-                  Attached {formatShortDate(entry.date)}
-                </Txt>
-              </View>
-              <Txt role="smallStrong" tone="acc">
-                View
-              </Txt>
-            </Card>
-          </Pressable>
-        ) : null}
-
-        <Card variant="list">
-          <DividedList>
-            <KeyValueRow label="Date" value={formatLongDate(entry.date)} />
-            <KeyValueRow label="Station" value={entry.station ?? 'Not recorded'} />
-            <KeyValueRow
-              label="Adjustments"
-              value={
-                adjustedMl === 0
-                  ? 'None'
-                  : `${adjustedMl > 0 ? '+' : '−'}${formatVolume(Math.abs(adjustedMl), units.volume)}`
-              }
-            />
-            {interval ? (
-              <KeyValueRow label="Confidence" value={confidenceLabel(interval.confidence)} />
-            ) : null}
-            {entry.notes ? <KeyValueRow label="Notes" value={entry.notes} /> : null}
-            <KeyValueRow label="Logged" value={formatInstant(entry.createdAt)} />
-          </DividedList>
-        </Card>
-
-        {ownAdjustments.length > 0 ? (
-          <Card>
-            <Txt role="eyebrow" tone="mut" uppercase>
-              ADJUSTMENT DETAIL
-            </Txt>
-            <View style={{ gap: 10, marginTop: 12 }}>
-              {ownAdjustments.map((adjustment) => (
-                <View
-                  key={adjustment.id}
-                  style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}
-                >
-                  <Txt role="kv" tone="mut" style={{ flex: 1 }}>
-                    {adjustment.note ?? ADJUSTMENT_REASON_LABEL[adjustment.reason]}
-                  </Txt>
-                  <Badge
-                    label={`${adjustment.millilitres > 0 ? '+' : '−'}${formatVolume(
-                      Math.abs(adjustment.millilitres),
-                      units.volume,
-                    )}`}
-                    tone={adjustment.millilitres > 0 ? 'good' : 'warn'}
-                  />
-                </View>
-              ))}
-            </View>
-          </Card>
-        ) : null}
-
-        <ButtonRow>
-          <Button
-            label="Edit"
-            variant="secondary"
-            size="medium"
-            onPress={() => router.push({ pathname: '/fuel/add', params: { id: entry.id } })}
-            style={{ flex: 1 }}
-            testID="cta-edit"
+      <StatRow>
+        <StatTile
+          label="Odometer"
+          variant="outlined"
+          value={formatDistance(entry.odometerMetres, units.distance)}
+        />
+        <StatTile
+          label="Distance"
+          variant="outlined"
+          value={interval ? formatDistance(interval.distanceMetres, units.distance) : NO_VALUE}
+        />
+        {interval ? (
+          <StatTile
+            label="Mileage"
+            variant="accent"
+            value={formatMileage(interval.efficiency, units.mileage)}
           />
-          <Button
-            label="Delete"
-            variant="secondary"
-            size="medium"
-            onPress={() => setConfirmDelete(true)}
-            style={{ flex: 1, borderRadius: radius.input }}
-            testID="cta-delete"
-          />
-        </ButtonRow>
-      </Stack>
+        ) : (
+          <StatTile label="Mileage" variant="outlined" value={NO_VALUE} />
+        )}
+      </StatRow>
 
-      <MileageExplainSheet visible={explainOpen} onClose={() => setExplainOpen(false)} analytics={analytics} />
+      {interval ? (
+        <FuelMileageBreakdown entry={entry} interval={interval} units={units} style={{ marginTop: 12 }} />
+      ) : (
+        <FuelNoMileageCard entry={entry} units={units} style={{ marginTop: 12 }} />
+      )}
+
+      {ownAdjustments.length > 0 ? (
+        <FuelAdjustmentsCard adjustments={ownAdjustments} units={units} style={{ marginTop: 12 }} />
+      ) : null}
+
+      <Card variant="list" style={{ marginTop: 12 }}>
+        <DividedList>
+          <KeyValueRow
+            label={volumeUnitLabel(units.volume) === 'L' ? 'Litres' : 'Volume'}
+            value={`${formatVolume(entry.litresMl, units.volume)} · ${FILL_LABEL[entry.fillType]}`}
+          />
+          <KeyValueRow
+            label="Price"
+            value={`${formatPricePerVolume(entry.pricePerLitreMinor, entry.currency)} / ${volumeUnitLabel(
+              units.volume,
+            )} · ${formatCurrency(entry.totalCostMinor, entry.currency)} total`}
+          />
+          {entry.station ? <KeyValueRow label="Station" value={entry.station} /> : null}
+          {entry.notes ? <KeyValueRow label="Notes" value={entry.notes} /> : null}
+          {entry.receiptPath ? (
+            <FuelReceiptRow uri={receiptUrl} onPress={() => setViewerOpen(true)} testID="row-receipt" />
+          ) : null}
+        </DividedList>
+      </Card>
+
+      <ButtonRow style={{ marginTop: 16 }}>
+        <Button
+          label="Edit"
+          variant="secondary"
+          size="medium"
+          flex
+          onPress={() => router.push({ pathname: '/fuel/add', params: { id: entry.id } })}
+          testID="cta-edit"
+        />
+        <Button
+          label="Delete"
+          variant="ghost"
+          tone="bad"
+          size="medium"
+          flex
+          onPress={() => setConfirmDelete(true)}
+          testID="cta-delete"
+        />
+      </ButtonRow>
 
       <Dialog
         visible={confirmDelete}
@@ -292,17 +213,19 @@ export default function FuelDetail() {
             <Image
               source={{ uri: receiptUrl }}
               accessibilityLabel="Pump receipt"
+              accessibilityIgnoresInvertColors
               style={{ width: '92%', height: '80%' }}
               resizeMode="contain"
             />
           ) : (
-            <Txt role="body" color="#FFFFFF">
-              That receipt is not available offline yet.
-            </Txt>
+            <View>
+              <Txt role="body" color="#FFFFFF">
+                That receipt is not available offline yet.
+              </Txt>
+            </View>
           )}
         </Pressable>
       </Modal>
     </Screen>
   );
 }
-

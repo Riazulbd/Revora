@@ -1,0 +1,88 @@
+# Phase B · 30 — the five starter rules, and Mark done through the sheet.
+#
+# Fresh account. Adding a bike seeds DEFAULT_RULES with lastCompleted =
+# opening odometer (4,845 km) and today, so on day one every rule is GOOD:
+#   Engine oil & filter          every 3,000 km / 180 d   → "in 3,000 km · every 3,000 km · or 180 days"
+#   Chain clean, lube & tension  every   500 km /  14 d   → "in 500 km · every 500 km · or 14 days"
+#   Tyre pressure & tread        every 1,000 km /  30 d
+#   Air filter                   every 6,000 km / 365 d
+#   Brake pads & fluid           every 8,000 km / 365 d
+#   counts → "5 good", nothing OVERDUE.
+#
+# Mark done on Engine oil at 5,000 km:
+#   sheet preview: 5,000 + 3,000 = 8,000 → "The next due point moves to 8,000 km."
+#   the completion is saved as a service at 5,000 km, which becomes the current
+#   odometer, so every OTHER rule's status text moves:
+#     Chain: 4,845 + 500 − 5,000 = 345 km → "in 345 km · every 500 km · or 14 days"
+#     Tyre : 4,845 + 1,000 − 5,000 = 845 km → "in 845 km"
+#   Engine oil itself: 5,000 + 3,000 − 5,000 = 3,000 → still "in 3,000 km".
+#   Still all GOOD (345 > 2 × 100 warn-ahead; 845 > 2 × 200).
+#   Dashboard current odometer → "5,000".
+appId: app.revora.android.dev
+---
+- runFlow: lib/fresh-anon-bike.yaml
+
+- tapOn:
+    id: "tab-garage"
+- tapOn:
+    id: "cta-profile"
+- assertVisible:
+    id: "screen-bike-profile"
+- tapOn:
+    id: "hub-maintenance"
+- assertVisible:
+    id: "screen-maintenance"
+
+# ---------- five starter rules, none overdue ----------
+- assertVisible: "Engine oil & filter"
+- assertVisible: "Chain clean, lube & tension"
+- assertVisible: "Tyre pressure & tread"
+- assertVisible: "Air filter"
+- assertVisible: "Brake pads & fluid"
+- assertVisible: "5 good"
+- assertNotVisible: "OVERDUE"
+- assertNotVisible: "DUE SOON"
+- assertVisible: ".*in 3,000 km · every 3,000 km · or 180 days.*"
+- assertVisible: ".*in 500 km · every 500 km · or 14 days.*"
+- assertVisible:
+    id: "hint-status-live"
+
+# ---------- Mark done via the completion sheet ----------
+- tapOn: "Engine oil & filter"
+- assertVisible:
+    id: "screen-rule"
+- scrollUntilVisible:
+    element:
+      id: "cta-mark-done"
+    direction: DOWN
+- assertVisible: ".*Mark completed at 4,845 km.*"
+- tapOn:
+    id: "cta-mark-done"
+- assertVisible:
+    id: "sheet-complete"
+- tapOn:
+    id: "input-completion-odometer"
+- eraseText
+- inputText: "5000"
+- hideKeyboard
+- assertVisible: ".*next due point moves to 8,000 km.*"
+- tapOn:
+    id: "cta-confirm-complete"
+- assertNotVisible:
+    id: "sheet-complete"
+
+# ---------- status text updated ----------
+- back
+- assertVisible:
+    id: "screen-maintenance"
+- assertVisible: ".*in 345 km · every 500 km · or 14 days.*"
+- assertVisible: ".*in 845 km.*"
+- assertVisible: ".*in 3,000 km · every 3,000 km.*"
+- assertVisible: "5 good"
+- assertNotVisible: "OVERDUE"
+
+- back
+- back
+- tapOn:
+    id: "tab-dashboard"
+- assertVisible: "5,000"

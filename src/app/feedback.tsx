@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
-import { Platform, View } from 'react-native';
+import { Platform } from 'react-native';
 import * as Application from 'expo-application';
 
 import {
   Banner,
   Button,
-  Card,
+  ChipGroup,
   Field,
-  Input,
   Screen,
   ScreenHeader,
-  Segmented,
-  Stack,
   TextArea,
   Txt,
   type SegmentedOption,
@@ -21,15 +18,16 @@ import { useGarage } from '@/features/bikes/GarageProvider';
 import { useSubmitFeedback } from '@/features/feedback/useFeedbackMutations';
 import type { FeedbackKind } from '@/types';
 
+/** Board order: Problem first, because that is what most messages are. */
 const KINDS: readonly SegmentedOption<FeedbackKind>[] = [
-  { value: 'idea', label: 'Idea' },
   { value: 'problem', label: 'Problem' },
+  { value: 'idea', label: 'Feature request' },
   { value: 'question', label: 'Question' },
 ];
 
 const PROMPT: Record<FeedbackKind, string> = {
+  problem: 'What happened, and what did you expect instead?',
   idea: 'What would make Revora more useful for you?',
-  problem: 'What happened, and what did you expect instead? If it involves a particular record, say which.',
   question: 'What would you like to know?',
 };
 
@@ -46,23 +44,26 @@ function androidModel(): string {
 }
 
 /**
- * Feedback, problems and questions — open to every rider, on any plan.
+ * Feedback & support — account--04.
  *
- * The plan and the device details ride along with the message because "it
- * crashes on my phone" is unanswerable without them, and asking afterwards
- * almost never gets a reply.
+ * Three chips, one box, one button, and a line that names everything that
+ * travels with the message. The board writes that line out in full rather than
+ * linking to a policy, because "what else are you sending?" is the question
+ * that stops people writing in.
  */
 export default function FeedbackScreen() {
   const { user } = useAuth();
   const { isPro } = useGarage();
-  const [kind, setKind] = useState<FeedbackKind>('idea');
+  const [kind, setKind] = useState<FeedbackKind>('problem');
   const [message, setMessage] = useState('');
-  const [email, setEmail] = useState(user?.email ?? '');
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const submit = useSubmitFeedback({ onSent: () => { setSent(true); setMessage(''); } });
   const trimmed = message.trim();
+
+  const version = Application.nativeApplicationVersion ?? 'unknown';
+  const model = androidModel();
 
   const send = () => {
     if (trimmed.length === 0) {
@@ -74,12 +75,14 @@ export default function FeedbackScreen() {
     void submit.submit({
       kind,
       message: trimmed,
-      contactEmail: email.trim() || null,
+      // The board shows no address field: a signed-in rider already has one,
+      // and an anonymous account has none to offer.
+      contactEmail: user?.email ?? null,
       tier: isPro ? 'pro' : 'free',
-      appVersion: Application.nativeApplicationVersion ?? 'unknown',
+      appVersion: version,
       platform: Platform.OS,
       osVersion: String(Platform.Version),
-      deviceModel: androidModel(),
+      deviceModel: model,
     });
   };
 
@@ -87,75 +90,54 @@ export default function FeedbackScreen() {
     <Screen testID="screen-feedback">
       <ScreenHeader title="Feedback & support" />
 
-      <Stack>
-        <Txt role="helper" tone="mut">
-          Every message reaches the people who build Revora. Tell us what is wrong, what is missing, or what you
-          would like to see next.
-        </Txt>
+      {sent ? (
+        <Banner
+          tone="good"
+          message="Thanks — your message is on its way. If your account has an email address we will reply to it."
+          style={{ marginBottom: 12 }}
+          testID="banner-feedback-sent"
+        />
+      ) : null}
 
-        {sent ? (
-          <Banner
-            tone="good"
-            icon="check"
-            message="Thanks — your message is on its way. If you left an email address we will reply to it."
-            testID="banner-feedback-sent"
-          />
-        ) : null}
+      <ChipGroup
+        options={KINDS}
+        value={kind}
+        onChange={(next) => {
+          setKind(next);
+          setError(null);
+        }}
+        wrap={false}
+        testID="segmented-feedback-kind"
+      />
 
-        <Card>
-          <Field label="What is this about?">
-            <Segmented options={KINDS} value={kind} onChange={setKind} testID="segmented-feedback-kind" />
-          </Field>
+      <Field error={error ?? undefined} style={{ marginTop: 12 }}>
+        <TextArea
+          value={message}
+          onChangeText={(next) => setMessage(next.slice(0, MAX))}
+          placeholder={PROMPT[kind]}
+          rows={4}
+          invalid={Boolean(error)}
+          testID="input-feedback-message"
+        />
+      </Field>
 
-          <Field
-            label="Your message"
-            error={error ?? undefined}
-            helper={`${trimmed.length} / ${MAX}`}
-            style={{ marginTop: 16 }}
-          >
-            <TextArea
-              value={message}
-              onChangeText={(next) => setMessage(next.slice(0, MAX))}
-              placeholder={PROMPT[kind]}
-              rows={6}
-              invalid={Boolean(error)}
-              testID="input-feedback-message"
-            />
-          </Field>
+      <Txt role="helper" tone="mut" style={{ marginTop: 12 }}>
+        Sent with your report: app version {version} and device model ({model}). Nothing else — no records, no
+        location.
+      </Txt>
 
-          <Field
-            label="Email for a reply"
-            helper="Optional. Without it we cannot answer, only read."
-            style={{ marginTop: 16 }}
-          >
-            <Input
-              value={email}
-              onChangeText={setEmail}
-              placeholder="you@example.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              testID="input-feedback-email"
-            />
-          </Field>
+      <Button
+        label="Send"
+        onPress={send}
+        loading={submit.isPending}
+        style={{ marginTop: 12 }}
+        testID="cta-send-feedback"
+      />
 
-          <Button
-            label="Send"
-            onPress={send}
-            loading={submit.isPending}
-            disabled={trimmed.length === 0}
-            style={{ marginTop: 18 }}
-            testID="cta-send-feedback"
-          />
-        </Card>
-
-        <View>
-          <Txt role="micro" tone="mut">
-            Sent with your Revora account, app version and device model so we can reproduce problems. Your fuel
-            logs, documents and photos are never attached.
-          </Txt>
-        </View>
-      </Stack>
+      <Txt role="helper" tone="mut" align="center" style={{ marginTop: 10 }}>
+        We read everything. We reply when there&rsquo;s something to say — usually within a week. Offline? It
+        queues and sends itself.
+      </Txt>
     </Screen>
   );
 }

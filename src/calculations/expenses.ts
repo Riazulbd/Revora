@@ -21,6 +21,25 @@ import { sumMinor } from './money';
  * so it contributes no line of its own; the same holds for an accessory fitted
  * during a service and for a maintenance completion recorded against one
  * (requirement 28 / 76).
+ *
+ * ## Currency
+ *
+ * Every line carries the currency of the record it came from, and **nothing in
+ * this file ever adds two lines in different currencies**. Changing a bike's
+ * currency in Settings relabels the bike and leaves historical records in the
+ * currency they were paid in, so a mixed ledger is reachable, and adding BDT
+ * 1,000.00 to USD 50.00 produces 105,000 — a figure in no currency at all, and
+ * one a screen would confidently label with the wrong symbol.
+ *
+ * So the totals here are currency-scoped. `totalMinor` and `breakdown` take the
+ * currency they are reporting in and count only the lines that match it;
+ * `totalsByCurrency` gives every total side by side when a caller wants the
+ * whole picture. When no currency is named the reporting currency is inferred —
+ * the one carrying the most lines, ties broken by code order — which is exact
+ * for the single-currency ledger every rider actually has and, for a mixed one,
+ * is at least a real amount of a real currency rather than a sum of neither.
+ * `analyseBike` always names the bike's own currency, so the app never relies on
+ * the inference.
  */
 
 export type LedgerInput = {
@@ -70,6 +89,14 @@ export function accessoryTotalMinor(a: Accessory): number {
  *
  * Note what is deliberately *not* here: any record whose cost is already carried
  * by another record it links to.
+ *
+ * Zero-cost records are treated differently by kind, on purpose. A fill and a
+ * service are events in the bike's life and belong in the ledger whether or not
+ * they cost anything — a warranty job or a tank someone else paid for really
+ * happened, and its line carries the litres and the workshop. A part or an
+ * accessory has no line of its own except as a cost, so one recorded at zero is
+ * a blank the rider left, not a free part, and it is skipped rather than filling
+ * the Ledger screen with noise.
  */
 export function buildLedger(input: LedgerInput): LedgerEntry[] {
   const lines: LedgerEntry[] = [];
@@ -152,6 +179,49 @@ export function buildLedger(input: LedgerInput): LedgerEntry[] {
   });
 }
 
+/**
+ * Every currency present in a ledger, in ISO code order.
+ *
+ * More than one means the rider changed the bike's currency partway through, or
+ * a record arrived from the web product in another one.
+ */
+export function ledgerCurrencies(lines: readonly LedgerEntry[]): CurrencyCode[] {
+  const seen = new Set<CurrencyCode>();
+  for (const l of lines) seen.add(l.currency);
+  return [...seen].sort();
+}
+
+/**
+ * The reporting currency for a set of lines when the caller did not name one:
+ * the currency carrying the most lines, ties broken by ISO code order so the
+ * answer never depends on the order records happened to load in.
+ */
+function inferredCurrency(lines: readonly LedgerEntry[]): CurrencyCode | null {
+  const counts = new Map<CurrencyCode, number>();
+  for (const l of lines) counts.set(l.currency, (counts.get(l.currency) ?? 0) + 1);
+  let best: CurrencyCode | null = null;
+  let bestCount = 0;
+  for (const code of [...counts.keys()].sort()) {
+    const count = counts.get(code) ?? 0;
+    if (count > bestCount) {
+      best = code;
+      bestCount = count;
+    }
+  }
+  return best;
+}
+
+export type CurrencyTotal = { currency: CurrencyCode; totalMinor: number };
+
+/** One total per currency, in code order, so nothing is ever added across codes. */
+export function totalsByCurrency(lines: readonly LedgerEntry[]): CurrencyTotal[] {
+  const totals = new Map<CurrencyCode, number>();
+  for (const l of lines) totals.set(l.currency, (totals.get(l.currency) ?? 0) + l.amountMinor);
+  return [...totals.keys()]
+    .sort()
+    .map((currency) => ({ currency, totalMinor: totals.get(currency) ?? 0 }));
+}
+
 /** Ledger badge text, matching the design's `LINKED · FUEL` / `MANUAL` tags. */
 export function ledgerTag(source: LedgerSource): string {
   switch (source) {
@@ -181,9 +251,18 @@ export type SpendBreakdown = {
   total: number;
 };
 
-export function breakdown(lines: readonly LedgerEntry[]): SpendBreakdown {
+/**
+ * Spending by source, in one currency.
+ *
+ * `currency` is the currency being reported in; lines in any other are left out
+ * entirely rather than added in at face value. Omitting it infers one — see the
+ * currency note at the top of this file.
+ */
+export function breakdown(lines: readonly LedgerEntry[], currency?: CurrencyCode): SpendBreakdown {
   const out: SpendBreakdown = { fuel: 0, services: 0, parts: 0, accessories: 0, other: 0, total: 0 };
+  const reporting = currency ?? inferredCurrency(lines);
   for (const l of lines) {
+    if (l.currency !== reporting) continue;
     switch (l.source) {
       case 'fuel':
         out.fuel += l.amountMinor;
@@ -206,8 +285,13 @@ export function breakdown(lines: readonly LedgerEntry[]): SpendBreakdown {
   return out;
 }
 
-export function totalMinor(lines: readonly LedgerEntry[]): number {
-  return sumMinor(lines.map((l) => l.amountMinor));
+/**
+ * The total of the lines in one currency. Lines in any other are not added in —
+ * see the currency note at the top of this file.
+ */
+export function totalMinor(lines: readonly LedgerEntry[], currency?: CurrencyCode): number {
+  const reporting = currency ?? inferredCurrency(lines);
+  return sumMinor(lines.filter((l) => l.currency === reporting).map((l) => l.amountMinor));
 }
 
 export function filterByMonth(lines: readonly LedgerEntry[], key: string): LedgerEntry[] {
@@ -220,10 +304,15 @@ export function filterByRange(lines: readonly LedgerEntry[], from: IsoDate, to: 
 
 export type MonthlyTotal = { key: string; totalMinor: number };
 
-/** Totals per calendar month, oldest first. */
-export function monthlyTotals(lines: readonly LedgerEntry[]): MonthlyTotal[] {
+/**
+ * Totals per calendar month, oldest first — in one currency, like every other
+ * total here. Lines in any other currency are left out rather than added in.
+ */
+export function monthlyTotals(lines: readonly LedgerEntry[], currency?: CurrencyCode): MonthlyTotal[] {
+  const reporting = currency ?? inferredCurrency(lines);
   const map = new Map<string, number>();
   for (const l of lines) {
+    if (l.currency !== reporting) continue;
     const key = monthKey(l.date);
     map.set(key, (map.get(key) ?? 0) + l.amountMinor);
   }

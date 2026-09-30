@@ -1,46 +1,48 @@
 import React, { useState } from 'react';
+import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import {
   Button,
   DateField,
   Dialog,
-  Segmented,
-  Field,
-  FieldRow,
   Input,
   Screen,
   ScreenHeader,
   SkeletonList,
-  Stack,
   Txt,
 } from '@/components';
+import { accessorySpendMinor } from '@/calculations/accessorySpend';
 import { currencySymbol, currencyDecimals } from '@/calculations/money';
-import { formatDistance } from '@/utils/format';
+import { distanceUnitLabel } from '@/calculations/units';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useRecategorise } from '@/features/parts/useRecategorise';
-import type { SegmentedOption } from '@/components';
-import { conversionLosses } from '@/calculations/recategorise';
+import { PartsDialog } from '@/features/parts/ui/PartsDialog';
+import { PartsField } from '@/features/parts/ui/PartsField';
+import { PartsTypeSwitch } from '@/features/parts/ui/PartsTypeSwitch';
+import { AccessoryPhotoField } from '@/features/accessories/ui/AccessoryPhotoField';
 import {
   useDeleteAccessory,
   useNewAccessoryId,
   useSaveAccessory,
 } from '@/features/accessories/useAccessoryMutations';
-import { PhotoField } from '@/features/shared/PhotoField';
-import { fromMinor, toMinor, toTrimmed } from '@/features/shared/formValues';
+import { fromMinor, toMetres, toMinor, toTrimmed } from '@/features/shared/formValues';
 import { useGarageContext } from '@/features/shared/useGarageContext';
 import { useStableId } from '@/features/shared/useStableId';
 import { uploadImageOrKeepLocal } from '@/services/storage';
 import type { BikeAnalytics } from '@/calculations/analytics';
 import type { Accessory } from '@/types';
 import { accessorySchema } from '@/validation/schemas';
-import { todayIso } from '@/utils/date';
+import { formatCurrency } from '@/utils/format';
+import { formatShortDate, todayIso } from '@/utils/date';
 
-const TYPE_OPTIONS: readonly SegmentedOption<'part' | 'accessory'>[] = [
-  { value: 'part', label: 'Part' },
-  { value: 'accessory', label: 'Accessory' },
-];
-
+/**
+ * Add / edit an accessory.
+ *
+ * Purchase and fitting are two fields and one figure: they are added together
+ * once in Costs, and the helper under them prints that total as it is typed so
+ * nobody has to wonder whether both were counted.
+ */
 export default function AccessoryEditorRoute() {
   const { id: editingId } = useLocalSearchParams<{ id?: string }>();
   const { analytics } = useGarageData();
@@ -59,13 +61,7 @@ export default function AccessoryEditorRoute() {
   return <AccessoryForm key={existing?.id ?? 'new'} existing={existing} analytics={analytics} />;
 }
 
-function AccessoryForm({
-  existing,
-  analytics,
-}: {
-  existing: Accessory | null;
-  analytics: BikeAnalytics;
-}) {
+function AccessoryForm({ existing, analytics }: { existing: Accessory | null; analytics: BikeAnalytics }) {
   const router = useRouter();
   const garage = useGarageContext();
 
@@ -75,6 +71,7 @@ function AccessoryForm({
 
   const currency = existing?.currency ?? analytics.currency;
   const decimals = currencyDecimals(currency);
+  const distanceLabel = distanceUnitLabel(analytics.units.distance);
 
   const [name, setName] = useState(existing?.name ?? '');
   const [purchaseCost, setPurchaseCost] = useState(
@@ -89,8 +86,9 @@ function AccessoryForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [convertOpen, setConvertOpen] = useState(false);
+  const [fittedOdometer, setFittedOdometer] = useState('');
+  const [fittedError, setFittedError] = useState<string | null>(null);
   const recategorise = useRecategorise({ onDone: () => setConvertOpen(false) });
-  const currentOdometer = analytics.odometer.currentMetres;
 
   const saveAccessory = useSaveAccessory();
   const deleteAccessory = useDeleteAccessory({
@@ -101,32 +99,67 @@ function AccessoryForm({
     },
   });
 
+  // The one figure Costs counts, as it is typed. Null until something is.
+  const spendMinor = accessorySpendMinor(toMinor(purchaseCost, currency), toMinor(installCost, currency));
+  const spendHelper =
+    spendMinor === null
+      ? 'Added together once in Costs, never counted twice.'
+      : `Added together once in Costs — ${formatCurrency(spendMinor, currency)}, never counted twice.`;
+
+  const paidSoFar = existing === null ? null : existing.purchaseCostMinor + existing.installationCostMinor;
+
+  const chooseType = (next: 'part' | 'accessory') => {
+    if (next === 'accessory') return;
+    if (existing) {
+      setFittedError(null);
+      setConvertOpen(true);
+      return;
+    }
+    router.replace('/parts/add');
+  };
+
+  const convert = () => {
+    if (!existing) return;
+    const metres = toMetres(fittedOdometer, analytics.units.distance);
+    if (metres === null) {
+      setFittedError('Enter the reading it was fitted at.');
+      return;
+    }
+    setFittedError(null);
+    void recategorise.submit({ direction: 'accessoryToPart', accessory: existing, odometerMetres: metres });
+  };
+
   const submit = async () => {
+    const next: Record<string, string> = {};
+    const purchaseMinor = toMinor(purchaseCost, currency);
+    if (purchaseMinor === null) next.purchaseCostMinor = 'Enter what it cost.';
+
     const result = accessorySchema.safeParse({
       name: name.trim(),
-      purchaseCostMinor: toMinor(purchaseCost, currency) ?? 0,
+      purchaseCostMinor: purchaseMinor ?? 0,
       installationCostMinor: toMinor(installCost, currency) ?? 0,
       date,
       notes: toTrimmed(notes),
     });
 
     if (!result.success) {
-      const next: Record<string, string> = {};
       for (const issue of result.error.issues) next[String(issue.path[0] ?? 'form')] = issue.message;
-      setErrors(next);
-      return;
     }
-    setErrors({});
+
+    setErrors(next);
+    if (Object.keys(next).length > 0 || !result.success) return;
 
     // Keep the local URI if the upload fails — the photo stays on this device.
     let photoPath = photoUri;
     if (photoUri && photoUri.startsWith('file://') && garage) {
-      photoPath = (await uploadImageOrKeepLocal({
-        uid: garage.uid,
-        kind: 'accessory',
-        recordId,
-        localUri: photoUri,
-      })).path;
+      photoPath = (
+        await uploadImageOrKeepLocal({
+          uid: garage.uid,
+          kind: 'accessory',
+          recordId,
+          localUri: photoUri,
+        })
+      ).path;
     }
 
     await saveAccessory.submit({
@@ -144,134 +177,166 @@ function AccessoryForm({
 
   return (
     <Screen testID="screen-accessory-add">
-      <ScreenHeader title={existing ? 'Edit accessory' : 'Add accessory'} />
+      <ScreenHeader title={existing ? existing.name : 'Add accessory'} />
 
-      <Stack gap={14}>
-        {existing ? (
-          <Field
-            label="Type"
-            helper="Moving this keeps the cost in your history. An accessory is bought once and stays; a part wears out and is tracked against distance."
-          >
-            <Segmented
-              options={TYPE_OPTIONS}
-              value="accessory"
-              onChange={(next) => { if (next === 'part') setConvertOpen(true); }}
-              testID="segmented-record-type"
-            />
-          </Field>
-        ) : null}
+      <PartsTypeSwitch
+        value="accessory"
+        pending={convertOpen ? 'part' : null}
+        onChange={chooseType}
+        testID="segmented-record-type"
+      />
 
-        <Field label="Accessory" error={errors.name ?? null}>
-          <Input
-            value={name}
-            onChangeText={setName}
-            placeholder="Givi 27L tail box"
-            autoCapitalize="sentences"
-            invalid={Boolean(errors.name)}
-            testID="input-accessory-name"
-          />
-        </Field>
-
-        <FieldRow>
-          <Field label={`Purchase (${currencySymbol(currency)})`} flex={1}>
-            <Input
-              value={purchaseCost}
-              onChangeText={setPurchaseCost}
-              placeholder="0"
-              keyboardType="decimal-pad"
-              size="compact"
-              testID="input-purchase-cost"
-            />
-          </Field>
-          <Field label={`Fitting (${currencySymbol(currency)})`} flex={1}>
-            <Input
-              value={installCost}
-              onChangeText={setInstallCost}
-              placeholder="0"
-              keyboardType="decimal-pad"
-              size="compact"
-              testID="input-install-cost"
-            />
-          </Field>
-        </FieldRow>
-
-        <FieldRow>
-          <Field label="Added on" flex={1}>
-            <DateField value={date} onChange={setDate} maximumDate={new Date()} testID="field-accessory-date" />
-          </Field>
-        </FieldRow>
-
-        <Field label="Notes (optional)">
-          <Input
-            value={notes}
-            onChangeText={setNotes}
-            placeholder="Fitted with the original brackets"
-            size="compact"
-            testID="input-accessory-notes"
-          />
-        </Field>
-
-        <PhotoField label="Add a photo (optional)" uri={photoUri} onChange={setPhotoUri} testID="field-accessory-photo" />
-
-        <Button
-          label={existing ? 'Save changes' : 'Save accessory'}
-          onPress={submit}
-          loading={saveAccessory.isPending}
-          testID="cta-save-accessory"
+      <PartsField label="Name" error={errors.name ?? null} style={{ marginTop: 16 }}>
+        <Input
+          value={name}
+          onChangeText={setName}
+          placeholder="Givi 27L tail box"
+          autoCapitalize="sentences"
+          padX={14}
+          invalid={Boolean(errors.name)}
+          testID="input-accessory-name"
         />
+      </PartsField>
 
-        {existing ? (
-          <Button
-            label="Remove accessory"
-            variant="secondary"
-            size="medium"
-            onPress={() => setDeleteOpen(true)}
-            testID="cta-delete-accessory"
+      <View style={{ flexDirection: 'row', gap: 12, marginTop: 14 }}>
+        <PartsField label="Purchase" flex={1} error={errors.purchaseCostMinor ?? null}>
+          <Input
+            value={purchaseCost}
+            onChangeText={setPurchaseCost}
+            placeholder="0"
+            keyboardType="decimal-pad"
+            prefix={currencySymbol(currency)}
+            padX={14}
+            invalid={Boolean(errors.purchaseCostMinor)}
+            testID="input-purchase-cost"
           />
-        ) : null}
+        </PartsField>
+        <PartsField label="Fitting" optional flex={1}>
+          <Input
+            value={installCost}
+            onChangeText={setInstallCost}
+            placeholder="0"
+            keyboardType="decimal-pad"
+            prefix={currencySymbol(currency)}
+            padX={14}
+            testID="input-install-cost"
+          />
+        </PartsField>
+      </View>
 
-        <Txt role="helper" tone="mut" align="center">
-          Purchase and fitting are added together in your ledger, once.
-        </Txt>
-      </Stack>
+      <Txt role="helper" tone="mut" style={{ marginTop: 8 }} testID="note-accessory-total">
+        {spendHelper}
+      </Txt>
+
+      <View style={{ flexDirection: 'row', gap: 12, marginTop: 14 }}>
+        <PartsField label="Added on" flex={1}>
+          <DateField
+            value={date}
+            onChange={setDate}
+            maximumDate={new Date()}
+            todayLabel={null}
+            format={formatShortDate}
+            padX={14}
+            testID="field-accessory-date"
+          />
+        </PartsField>
+        <PartsField label="Photo" optional flex={1}>
+          <AccessoryPhotoField uri={photoUri} onChange={setPhotoUri} testID="field-accessory-photo" />
+        </PartsField>
+      </View>
+
+      <PartsField label="Notes" optional style={{ marginTop: 14 }}>
+        <Input
+          value={notes}
+          onChangeText={setNotes}
+          placeholder="Givi, fitted at Bike Point"
+          padX={14}
+          testID="input-accessory-notes"
+        />
+      </PartsField>
+
+      <Txt role="helper" tone="mut" style={{ marginTop: 12 }}>
+        {`Counts in your totals, stays out of cost / ${distanceLabel} — a one-off charged against distance would make that figure swing.`}
+      </Txt>
+
+      <Button
+        label={existing ? 'Save changes' : 'Save accessory'}
+        onPress={submit}
+        loading={saveAccessory.isPending}
+        style={{ marginTop: 14 }}
+        testID="cta-save-accessory"
+      />
 
       {existing ? (
-        <>
+        <Button
+          label="Remove accessory"
+          variant="dangerSubtle"
+          radius={13}
+          onPress={() => setDeleteOpen(true)}
+          style={{ marginTop: 14 }}
+          testID="cta-delete-accessory"
+        />
+      ) : null}
 
-          <Dialog
-            visible={convertOpen}
-            onClose={() => setConvertOpen(false)}
-            title="Make this a part?"
-            message={
-              currentOdometer === null
-                ? 'A part measures wear from the odometer reading it was fitted at, and this motorcycle has no reading yet. Add one first.'
-                : `A part wears, so it needs one thing an accessory never had: the reading when it was fitted. It goes in at ${formatDistance(currentOdometer, analytics.units.distance)}, today's reading — edit that afterwards if it went on earlier.${
-                    conversionLosses('accessoryToPart', existing).length > 0
-                      ? ` This discards ${conversionLosses('accessoryToPart', existing).join(', ')}.`
-                      : ''
-                  }`
-            }
-            confirmLabel={currentOdometer === null ? 'Close' : 'Move it'}
-            busy={recategorise.isPending}
-            onConfirm={() => {
-              if (currentOdometer === null) { setConvertOpen(false); return; }
-              void recategorise.submit({
-                direction: 'accessoryToPart',
-                accessory: existing,
-                odometerMetres: currentOdometer,
-              });
-            }}
-            testID="dialog-convert-accessory"
-          />
-        </>
+      {existing ? (
+        <PartsDialog
+          visible={convertOpen}
+          onClose={() => setConvertOpen(false)}
+          title="Make this a part?"
+          confirmLabel="Convert"
+          cancelLabel="Keep accessory"
+          busy={recategorise.isPending}
+          onConfirm={convert}
+          testID="dialog-convert-accessory"
+        >
+          <Txt role="body" tone="mut" style={{ marginTop: 8, lineHeight: 20.15 }}>
+            A part wears, so it needs one thing an accessory never had:
+          </Txt>
+          <PartsField
+            label="Fitted at odometer — required"
+            error={fittedError}
+            style={{ marginTop: 12 }}
+          >
+            <Input
+              value={fittedOdometer}
+              onChangeText={(next) => {
+                setFittedOdometer(next);
+                if (fittedError !== null) setFittedError(null);
+              }}
+              placeholder="Reading when fitted"
+              keyboardType="decimal-pad"
+              unit={distanceLabel}
+              padX={14}
+              invalid={fittedError !== null}
+              testID="input-fitted-odometer"
+            />
+          </PartsField>
+          <Txt role="body" tone="mut" style={{ marginTop: 12, lineHeight: 20.15 }}>
+            {`It also joins cost / ${distanceLabel} from that reading, and you can give it an expected life. ${
+              paidSoFar === null || paidSoFar === 0
+                ? 'Nothing was recorded as paid, so Costs is unchanged either way.'
+                : `The ${formatCurrency(paidSoFar, currency)} you paid stays in Costs either way.`
+            }`}
+          </Txt>
+          {existing.photoPath === null ? null : (
+            <Txt role="body" tone="mut" style={{ marginTop: 8, lineHeight: 20.15 }}>
+              Its photo is discarded — a part has nowhere to keep one.
+            </Txt>
+          )}
+        </PartsDialog>
       ) : null}
 
       <Dialog
         visible={deleteOpen}
         onClose={() => setDeleteOpen(false)}
-        title="Remove this accessory?"
-        message="Its cost comes out of your ledger. This can't be undone."
+        title={existing ? `Remove ${existing.name}?` : 'Remove this accessory?'}
+        message={`The record${existing?.photoPath ? ' and its photo are' : ' is'} deleted. ${
+          paidSoFar === null || paidSoFar === 0
+            ? 'Nothing was recorded as paid, so Costs is unchanged.'
+            : `The ${formatCurrency(paidSoFar, currency)} stays in Costs — you paid it, so it stays counted.`
+        } This can't be undone.`}
         confirmLabel="Remove"
+        cancelLabel="Keep"
         destructive
         busy={deleteAccessory.isPending}
         onConfirm={() => existing && deleteAccessory.submit(existing.id)}

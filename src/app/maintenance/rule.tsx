@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import {
   Badge,
   Button,
   Card,
-  DateField,
   Dialog,
   DividedList,
   Field,
@@ -15,26 +13,29 @@ import {
   KeyValueRow,
   Screen,
   ScreenHeader,
-  Sheet,
   SkeletonList,
   Stack,
   ToggleRow,
-  Txt,
-  Segmented,
-  type SegmentedOption,
 } from '@/components';
 import type { BikeAnalytics, RuleWithStatus } from '@/calculations/analytics';
-import { defaultWarnAheadDays, defaultWarnAheadMetres, STATUS_LABEL } from '@/calculations/maintenance';
-import { distanceUnitLabel } from '@/calculations/units';
+import { brandChoices } from '@/calculations/brandChoices';
+import { defaultWarnAheadDays, defaultWarnAheadMetres } from '@/calculations/maintenance';
 import { currencySymbol } from '@/calculations/money';
+import { placeholdersFor } from '@/calculations/products';
+import { distanceUnitLabel, volumeUnitLabel } from '@/calculations/units';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
-import { describeLastCompleted } from '@/features/maintenance/describeRule';
-import type { CompletionReason } from '@/features/maintenance/useMaintenanceMutations';
+import { describeLastCompleted, describeStatusPill } from '@/features/maintenance/describeRule';
+import { glyphForRule } from '@/features/maintenance/ui/MaintenanceGlyph';
+import {
+  MaintenanceCompletionSheet,
+  type CompletionPlace,
+} from '@/features/maintenance/ui/MaintenanceCompletionSheet';
+import type { PickerOption } from '@/features/maintenance/ui/MaintenancePicker';
 import { useCompleteRule, useDeleteRule, useNewRuleId, useSaveRule } from '@/features/maintenance/useMaintenanceMutations';
-import { fromMetres, toInteger, toMetres, toMinor, toTrimmed } from '@/features/shared/formValues';
+import { fromMetres, toInteger, toMetres, toMinor, toMl, toTrimmed } from '@/features/shared/formValues';
 import { useStableId } from '@/features/shared/useStableId';
-import type { UnitPreferences } from '@/types';
+import type { ServiceItemUnit, UnitPreferences } from '@/types';
 import { maintenanceRuleSchema } from '@/validation/schemas';
 import { formatDistance } from '@/utils/format';
 import { todayIso } from '@/utils/date';
@@ -46,11 +47,6 @@ import { todayIso } from '@/utils/date';
  * point. A cost entered here lands in the ledger exactly once, because the
  * completion is not linked to a service (requirement 23).
  */
-const REASON_OPTIONS: readonly SegmentedOption<CompletionReason>[] = [
-  { value: 'routine', label: 'Routine' },
-  { value: 'unscheduled', label: 'Off-schedule' },
-];
-
 export default function RuleEditorRoute() {
   const { id: editingId, complete } = useLocalSearchParams<{ id?: string; complete?: string }>();
   const { units } = useGarage();
@@ -105,6 +101,19 @@ function RuleForm({
 
   const currency = analytics.currency;
   const currentOdometer = analytics.odometer.currentMetres;
+  const ruleName = existing?.name ?? '';
+  const glyph = glyphForRule(ruleName);
+
+  // Everything offered in the completion sheet comes from the rider's own
+  // history — the workshops they have used and the products they have fitted.
+  // There is no catalogue behind either list, which is what lets the sheet
+  // promise that nothing is suggested that they have not used.
+  const workshopOptions: PickerOption[] = analytics.workshops.map((name) => ({
+    key: name,
+    label: name,
+    note: 'from your history',
+  }));
+  const brandOptions = brandChoices(analytics.products, ruleName, analytics.today);
 
   const [name, setName] = useState(existing?.name ?? '');
   const [intervalDistance, setIntervalDistance] = useState(
@@ -128,10 +137,12 @@ function RuleForm({
     fromMetres(currentOdometer, units.distance),
   );
   const [completionCost, setCompletionCost] = useState('');
-  const [completionWorkshop, setCompletionWorkshop] = useState('');
-  const [completionReason, setCompletionReason] = useState<CompletionReason>('routine');
-  const [completionBrand, setCompletionBrand] = useState('');
-  const [completionSpec, setCompletionSpec] = useState('');
+  const [completionQuantity, setCompletionQuantity] = useState('');
+  const [place, setPlace] = useState<CompletionPlace>(workshopOptions.length > 0 ? 'workshop' : 'self');
+  const [workshopKey, setWorkshopKey] = useState<string | null>(workshopOptions[0]?.key ?? null);
+  const [workshopCustom, setWorkshopCustom] = useState('');
+  const [brandKey, setBrandKey] = useState<string | null>(brandOptions[0]?.key ?? null);
+  const [brandCustom, setBrandCustom] = useState('');
 
   const saveRule = useSaveRule();
   const deleteRule = useDeleteRule({
@@ -197,31 +208,60 @@ function RuleForm({
     });
   };
 
+  // Fluids are recorded in litres, everything else in pieces — the unit the
+  // rider would write on the receipt.
+  const fluid = glyph === 'oil';
+  const itemUnit: ServiceItemUnit = fluid ? 'litre' : 'piece';
+  const quantityUnit = fluid ? volumeUnitLabel(units.volume) : 'pcs';
+
+  const chosenBrand = brandOptions.find((choice) => choice.key === brandKey) ?? null;
+
   const confirmComplete = async () => {
     if (!existing) return;
     const metres = toMetres(completionOdometer, units.distance);
+    const costMinor = toMinor(completionCost, currency);
+
+    const workshop = place === 'self' ? null : (workshopKey ?? toTrimmed(workshopCustom));
+
+    const typedBrand = toTrimmed(brandCustom);
+    const item =
+      chosenBrand !== null
+        ? {
+            brand: chosenBrand.product.brand,
+            product: chosenBrand.product.product,
+            spec: chosenBrand.product.spec,
+          }
+        : typedBrand !== null
+          ? { brand: typedBrand, product: null, spec: null }
+          : null;
+
+    const quantity = fluid
+      ? (toMl(completionQuantity, units.volume) ?? 0) / 1000
+      : (toInteger(completionQuantity) ?? 0);
+
     await completeRule.submit({
       rule: existing,
       date: completionDate,
       odometerMetres: metres ?? currentOdometer ?? 0,
-      costMinor: toMinor(completionCost, currency),
-      workshop: toTrimmed(completionWorkshop),
+      costMinor,
+      workshop,
       notes: null,
       serviceId: null,
-      reason: completionReason,
       items:
-        completionBrand.trim() === '' && completionSpec.trim() === ''
+        item === null
           ? []
-          : [{
-              ruleId: existing.id,
-              category: existing.name,
-              brand: completionBrand.trim() || null,
-              product: null,
-              spec: completionSpec.trim() || null,
-              quantity: 1,
-              unit: 'piece' as const,
-              costMinor: toMinor(completionCost, currency),
-            }],
+          : [
+              {
+                ruleId: existing.id,
+                category: existing.name,
+                brand: item.brand,
+                product: item.product,
+                spec: item.spec,
+                quantity: quantity > 0 ? quantity : 1,
+                unit: itemUnit,
+                costMinor,
+              },
+            ],
     });
   };
 
@@ -232,11 +272,13 @@ function RuleForm({
     return `The next due point moves to ${formatDistance(metres + existing.intervalMetres, units.distance)}.`;
   })();
 
+  const pill = entry ? describeStatusPill(entry.rule, entry.status, units) : null;
+
   return (
     <Screen testID="screen-rule">
       <ScreenHeader
         title={existing ? 'Maintenance rule' : 'New rule'}
-        badge={entry ? <Badge label={STATUS_LABEL[entry.status.kind]} tone="neutral" /> : undefined}
+        badge={pill ? <Badge label={pill.label} tone={pill.tone} variant="outlined" /> : undefined}
       />
 
       <Stack gap={14}>
@@ -384,128 +426,39 @@ function RuleForm({
         testID="dialog-delete-rule"
       />
 
-      <CompletionSheet
+      <MaintenanceCompletionSheet
         visible={completeOpen}
         onClose={() => setCompleteOpen(false)}
-        ruleName={existing?.name ?? ''}
-        nextDueLine={nextDueLine}
+        ruleName={ruleName}
+        glyph={glyph}
         date={completionDate}
         onDateChange={setCompletionDate}
         odometer={completionOdometer}
         onOdometerChange={setCompletionOdometer}
+        distanceLabel={distanceUnitLabel(units.distance)}
+        place={place}
+        onPlaceChange={setPlace}
+        workshopOptions={workshopOptions}
+        workshopKey={workshopKey}
+        onWorkshopKeyChange={setWorkshopKey}
+        workshopCustom={workshopCustom}
+        onWorkshopCustomChange={setWorkshopCustom}
+        brandOptions={brandOptions}
+        brandKey={brandKey}
+        onBrandKeyChange={setBrandKey}
+        brandCustom={brandCustom}
+        onBrandCustomChange={setBrandCustom}
+        brandPlaceholder={placeholdersFor(ruleName).brand}
+        quantity={completionQuantity}
+        onQuantityChange={setCompletionQuantity}
+        quantityUnit={quantityUnit}
         cost={completionCost}
         onCostChange={setCompletionCost}
-        workshop={completionWorkshop}
-        onWorkshopChange={setCompletionWorkshop}
         currencyLabel={currencySymbol(currency)}
-        distanceLabel={distanceUnitLabel(units.distance)}
+        nextDueLine={nextDueLine}
         busy={completeRule.isPending}
-        reason={completionReason}
-        onReasonChange={setCompletionReason}
-        brand={completionBrand}
-        onBrandChange={setCompletionBrand}
-        spec={completionSpec}
-        onSpecChange={setCompletionSpec}
         onConfirm={confirmComplete}
       />
     </Screen>
-  );
-}
-
-function CompletionSheet(props: {
-  visible: boolean;
-  onClose: () => void;
-  ruleName: string;
-  nextDueLine: string | null;
-  date: string;
-  onDateChange: (next: string) => void;
-  odometer: string;
-  onOdometerChange: (next: string) => void;
-  cost: string;
-  onCostChange: (next: string) => void;
-  workshop: string;
-  onWorkshopChange: (next: string) => void;
-  currencyLabel: string;
-  distanceLabel: string;
-  busy: boolean;
-  reason: CompletionReason;
-  onReasonChange: (next: CompletionReason) => void;
-  brand: string;
-  onBrandChange: (next: string) => void;
-  spec: string;
-  onSpecChange: (next: string) => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <Sheet visible={props.visible} onClose={props.onClose} title="Mark completed" testID="sheet-complete">
-      <View style={{ gap: 14 }}>
-        <Txt role="body" tone="mut">
-          &ldquo;{props.ruleName}&rdquo; will be recorded as done.{' '}
-          {props.nextDueLine ?? 'The next due point moves forward by the rule’s interval.'}
-        </Txt>
-
-        <FieldRow>
-          <Field label="Date" flex={1}>
-            <DateField value={props.date} onChange={props.onDateChange} maximumDate={new Date()} />
-          </Field>
-          <Field label={`Odometer (${props.distanceLabel})`} flex={1}>
-            <Input
-              value={props.odometer}
-              onChangeText={props.onOdometerChange}
-              keyboardType="decimal-pad"
-              size="compact"
-              testID="input-completion-odometer"
-            />
-          </Field>
-        </FieldRow>
-
-        <FieldRow>
-          <Field label={`Cost (${props.currencyLabel}, optional)`} flex={1}>
-            <Input
-              value={props.cost}
-              onChangeText={props.onCostChange}
-              placeholder="0"
-              keyboardType="decimal-pad"
-              size="compact"
-              testID="input-completion-cost"
-            />
-          </Field>
-          <Field label="Workshop (optional)" flex={1}>
-            <Input
-              value={props.workshop}
-              onChangeText={props.onWorkshopChange}
-              placeholder="Self-service"
-              size="compact"
-              testID="input-completion-workshop"
-            />
-          </Field>
-        </FieldRow>
-
-        <Field label="Why">
-          <Segmented options={REASON_OPTIONS} value={props.reason} onChange={props.onReasonChange} testID="segmented-reason" />
-        </Field>
-
-        <FieldRow>
-          <Field label="Brand (optional)" flex={1}>
-            <Input value={props.brand} onChangeText={props.onBrandChange} placeholder="AMSOIL" size="compact" autoCapitalize="words" testID="input-completion-brand" />
-          </Field>
-          <Field label="Grade (optional)" flex={1}>
-            <Input value={props.spec} onChangeText={props.onSpecChange} placeholder="10W-30" size="compact" testID="input-completion-spec" />
-          </Field>
-        </FieldRow>
-
-        <Txt role="helper" tone="mut">
-          This is saved to your service history, so an oil change done outside the schedule is recorded like any
-          other work. Its cost appears once in the ledger.
-        </Txt>
-
-        <Button
-          label="Mark done"
-          onPress={props.onConfirm}
-          loading={props.busy}
-          testID="cta-confirm-complete"
-        />
-      </View>
-    </Sheet>
   );
 }

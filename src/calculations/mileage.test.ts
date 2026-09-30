@@ -1,6 +1,6 @@
 import type { FuelAdjustment, FuelAdjustmentReason, FillType, FuelEntry } from '@/types';
 import { formatMileageValue } from '@/utils/format';
-import { calculateMileageIntervals, calculateMileageSummary } from './mileage';
+import { calculateMileageIntervals, calculateMileageSummary, mileageBlockerMessage } from './mileage';
 
 let seq = 0;
 
@@ -399,5 +399,126 @@ describe('the blocker says which rule was tripped', () => {
 
   it('says there are no fills at all rather than blaming the rider', () => {
     expect(calculateMileageSummary([]).blockedBy).toBe('no_fills');
+  });
+});
+
+describe('an adjustment lands in exactly one interval, and never in none', () => {
+  it('counts an adjustment dated on a same-day opener and closer', () => {
+    // A rider who fills up twice on one day and logs the spill against the
+    // second fill: p 1,000 km and q 1,400 km both on 2026-03-05, q buys 10 L,
+    // 1 L spilled. Distance 400,000 m; fuel 10,000 − 1,000 = 9,000 ml.
+    // 400,000 / 9,000 = 44.44… m/ml. Charging the full 10,000 ml gives 40 —
+    // the spill vanishing made the bike look 11% thriftier than it was.
+    const entries = [
+      fuel({ odoKm: 1000, litres: 10, date: '2026-03-05', id: 'p' }),
+      fuel({ odoKm: 1400, litres: 10, date: '2026-03-05', id: 'q' }),
+    ];
+    const only = calculateMileageIntervals(entries, [adjust({ litres: -1, date: '2026-03-05' })])[0]!;
+    expect(only.rawFuelMl).toBe(10_000);
+    expect(only.adjustmentMl).toBe(-1000);
+    expect(only.fuelMl).toBe(9000);
+    expect(only.efficiency.metresPerMl).toBeCloseTo(400_000 / 9000, 10);
+  });
+
+  it('gives an adjustment on a shared boundary day to the earlier interval only', () => {
+    // o 03-01, p 03-05, q 03-05. The spill on 03-05 sits in both [03-01, 03-05]
+    // and the degenerate [03-05, 03-05], so it must be counted once: the
+    // earlier interval owns it.
+    const entries = [
+      fuel({ odoKm: 1000, litres: 10, date: '2026-03-01', id: 'o' }),
+      fuel({ odoKm: 1400, litres: 10, date: '2026-03-05', id: 'p' }),
+      fuel({ odoKm: 1800, litres: 10, date: '2026-03-05', id: 'q' }),
+    ];
+    const [first, second] = calculateMileageIntervals(entries, [adjust({ litres: -1, date: '2026-03-05' })]);
+    expect(first!.adjustmentMl).toBe(-1000);
+    expect(first!.fuelMl).toBe(9000);
+    expect(second!.adjustmentMl).toBe(0);
+    expect(second!.fuelMl).toBe(10_000);
+    // Netted across the log the spill is charged exactly once.
+    expect(first!.adjustmentMl + second!.adjustmentMl).toBe(-1000);
+  });
+
+  it('still gives a boundary adjustment to the earlier of two ordinary intervals', () => {
+    // The long-standing rule, unchanged: an adjustment dated on the fill that
+    // closes one interval and opens the next belongs to the one that closed.
+    const entries = [
+      fuel({ odoKm: 1000, litres: 10, date: '2026-01-01' }),
+      fuel({ odoKm: 1400, litres: 10, date: '2026-01-05' }),
+      fuel({ odoKm: 1800, litres: 10, date: '2026-01-10' }),
+    ];
+    const [first, second] = calculateMileageIntervals(entries, [adjust({ litres: -2, date: '2026-01-05' })]);
+    expect(first!.adjustmentMl).toBe(-2000);
+    expect(second!.adjustmentMl).toBe(0);
+  });
+});
+
+describe('blockers name what the rider actually has to fix', () => {
+  it('says there is no distance when two full fills share an odometer reading', () => {
+    // Both ends ARE full tanks, so telling the rider to mark one Full is a lie
+    // about their own log. The reading is what is wrong.
+    const summary = calculateMileageSummary([
+      fuel({ odoKm: 1000, litres: 10, date: '2026-03-01' }),
+      fuel({ odoKm: 1000, litres: 10, date: '2026-03-05' }),
+    ]);
+    expect(summary.count).toBe(0);
+    expect(summary.blockedBy).toBe('no_distance');
+    expect(summary.provisional).toBeNull();
+    expect(mileageBlockerMessage('no_distance')).toContain('odometer');
+  });
+
+  it('says the adjustments exceed the fuel when they cancel the interval out', () => {
+    // 10 L bought, 12 L logged as leaked: fuel that did work is −2,000 ml, so
+    // there is nothing to divide. 'Mark your next one Full' would be nonsense.
+    const summary = calculateMileageSummary(
+      [
+        fuel({ odoKm: 1000, litres: 10, date: '2026-03-01' }),
+        fuel({ odoKm: 1400, litres: 10, date: '2026-03-10' }),
+      ],
+      [adjust({ litres: -12, date: '2026-03-05', reason: 'leak' })],
+    );
+    expect(summary.count).toBe(0);
+    expect(summary.blockedBy).toBe('adjustment_exceeds_fuel');
+    expect(summary.provisional).toBeNull();
+    expect(mileageBlockerMessage('adjustment_exceeds_fuel')).toContain('adjustment');
+  });
+});
+
+describe('precedence between a measured figure, an estimate and a blocker', () => {
+  it('a measured interval wins outright: no estimate and no blocker beside it', () => {
+    const summary = calculateMileageSummary([
+      fuel({ odoKm: 1000, litres: 10, date: '2026-01-01' }),
+      fuel({ odoKm: 1400, litres: 10, date: '2026-01-10' }),
+    ]);
+    expect(summary.count).toBe(1);
+    expect(summary.provisional).toBeNull();
+    expect(summary.blockedBy).toBeNull();
+  });
+
+  it('withholds the estimate when the span admits its own fuel is unknown', () => {
+    // The closing fill follows one the rider never logged, so the litres across
+    // this span are incomplete by the rider's own admission. Spreading them over
+    // the distance would produce a figure built on a known gap.
+    const summary = calculateMileageSummary([
+      fuel({ odoKm: 5000, litres: 10, date: '2026-09-01' }),
+      fuel({ odoKm: 5300, litres: 7, date: '2026-09-08', missedPreviousFill: true }),
+    ]);
+    expect(summary.count).toBe(0);
+    expect(summary.blockedBy).toBe('missed_fill');
+    expect(summary.provisional).toBeNull();
+  });
+
+  it('still offers the estimate when nothing about the span is untrustworthy', () => {
+    // Three partials: no full-to-full pair exists, but every litre is accounted
+    // for, so the estimate stands beside a blocker that says how to measure.
+    const summary = calculateMileageSummary([
+      fuel({ odoKm: 5000, litres: 10, fillType: 'partial', date: '2026-09-01' }),
+      fuel({ odoKm: 5300, litres: 7, fillType: 'partial', date: '2026-09-08' }),
+      fuel({ odoKm: 5600, litres: 8, fillType: 'partial', date: '2026-09-15' }),
+    ]);
+    expect(summary.count).toBe(0);
+    expect(summary.blockedBy).toBe('no_closing_full_tank');
+    // 5,600,000 − 5,000,000 = 600,000 m on 7,000 + 8,000 = 15,000 ml → 40 m/ml
+    expect(summary.provisional!.efficiency.metresPerMl).toBe(40);
+    expect(summary.provisional!.confidence).toBe('estimated');
   });
 });

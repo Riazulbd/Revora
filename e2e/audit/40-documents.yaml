@@ -1,0 +1,83 @@
+# Phase B · 40 — a time-limited document is refused undated, then VALID dated.
+#
+# Fresh account. Tax token is time-limited (isTimeLimited), so saving with no
+# valid-until date is refused with "A tax token runs out — add the date …".
+# The reference number gets a Copy button both in the form and on the vault row.
+#
+# Expiry is picked in the Android date dialog: "Next month" twice, then the
+# 15th, then OK. Two months ahead is always ≥ 45 days out, which is past the
+# 30-day DOCUMENT_WARNING_DAYS window → status "VALID", not "EXPIRING".
+# Run on 2026-09-16 that is 2026-11-15: 60 days → banner "Valid for another 60 days".
+#
+# DATE DIALOG (device-verified step): the Material DatePickerDialog exposes
+# "Previous month"/"Next month" as content descriptions, each day cell as text
+# "15", and the buttons as "OK"/"Cancel".
+appId: app.revora.android.dev
+---
+- runFlow: lib/fresh-anon-bike.yaml
+
+- tapOn:
+    id: "quick-documents"
+- assertVisible:
+    id: "screen-vault"
+- assertVisible:
+    id: "empty-vault"
+- tapOn:
+    id: "cta-add-document"
+- assertVisible:
+    id: "screen-document"
+
+# MISSING TESTID: document kind ChoiceGrid option "Tax token" (text tap).
+- tapOn: "Tax token"
+- assertVisible:
+    id: "input-document-title"
+    text: "Tax token"
+- tapOn:
+    id: "input-document-reference"
+- inputText: "AUD-TT-0001"
+- hideKeyboard
+- assertVisible:
+    id: "copy-document-reference"
+- assertVisible: "Copy"
+
+# ---------- refused without valid-until ----------
+- scrollUntilVisible:
+    element:
+      id: "cta-save-document"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-document"
+- assertVisible: ".*tax token runs out.*"
+- assertVisible:
+    id: "screen-document"
+
+# ---------- set valid-until two months ahead ----------
+- scrollUntilVisible:
+    element:
+      id: "field-document-expiry"
+    direction: UP
+- tapOn:
+    id: "field-document-expiry"
+- tapOn: "Next month"
+- tapOn: "Next month"
+- tapOn:
+    text: "15"
+- tapOn: "OK"
+- assertVisible:
+    id: "banner-expiry"
+- assertVisible: ".*Valid for another.*"
+
+- scrollUntilVisible:
+    element:
+      id: "cta-save-document"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-document"
+
+# ---------- vault: VALID badge, Copy button, reference shown ----------
+- assertVisible:
+    id: "screen-vault"
+- assertVisible: "Tax token"
+- assertVisible: "VALID"
+- assertVisible: "Copy"
+- assertVisible: ".*AUD-TT-0001.*"

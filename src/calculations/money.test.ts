@@ -52,6 +52,27 @@ describe('divideRound', () => {
     expect(divideRound(2, 3)).toBe(1);
   });
 
+  it('breaks every exact .5 away from zero, in both directions', () => {
+    // The documented policy: a derived minor unit sitting exactly on the half
+    // goes UP in magnitude, never to even. Every derived total and price/L in
+    // the app inherits this, so it is pinned in both signs.
+    expect(divideRound(1, 2)).toBe(1); //  0.5 → 1   (not 0, which banker's rounding gives)
+    expect(divideRound(-1, 2)).toBe(-1); // -0.5 → -1
+    expect(divideRound(3, 2)).toBe(2); //  1.5 → 2
+    expect(divideRound(-3, 2)).toBe(-2); // -1.5 → -2
+    expect(divideRound(5, 2)).toBe(3); //  2.5 → 3   (banker's would give 2)
+    expect(divideRound(-5, 2)).toBe(-3); // -2.5 → -3
+    expect(divideRound(7, 2)).toBe(4); //  3.5 → 4
+  });
+
+  it('rounds a hair under and a hair over the half the obvious way', () => {
+    // 2.49 → 2, 2.51 → 3, so the .5 case above is a boundary and not a bias.
+    expect(divideRound(249, 100)).toBe(2);
+    expect(divideRound(251, 100)).toBe(3);
+    expect(divideRound(-249, 100)).toBe(-2);
+    expect(divideRound(-251, 100)).toBe(-3);
+  });
+
   it('never divides by zero', () => {
     expect(divideRound(10, 0)).toBe(0);
   });
@@ -67,6 +88,19 @@ describe('formatMoney', () => {
   it('renders decimals when asked', () => {
     expect(formatMoney(130550, 'BDT', { decimals: 2 })).toBe('BDT 1,305.50');
     expect(formatMoney(48000, 'BDT', { decimals: 1 })).toBe('BDT 480.0');
+  });
+
+  it('does not move the point when asked for more decimals than the currency has', () => {
+    // JPY has no minor unit at all: 1,305 minor units IS 1,305 yen. Asking for
+    // two decimals must pad, not shift — ¥1,305 is not ¥13.05.
+    expect(formatMoney(1_305, 'JPY', { decimals: 2 })).toBe('JPY 1,305.00');
+    expect(formatMoney(150, 'JPY', { decimals: 2 })).toBe('JPY 150.00');
+  });
+
+  it('renders a three-decimal currency at its own exponent', () => {
+    // KWD has exponent 3: 1,305 fils = 1.305 KWD, and 300 fils = 0.300 KWD.
+    expect(formatMoney(1_305, 'KWD', { decimals: 3 })).toBe('KWD 1.305');
+    expect(formatMoney(300, 'KWD', { decimals: 3 })).toBe('KWD 0.300');
   });
 
   it('renders the symbol form', () => {

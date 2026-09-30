@@ -1,0 +1,72 @@
+# Phase B · 50 — search ignores hyphens and case: "10w40" finds "10W-40".
+#
+# Fresh account (the starter rules give the service form its item chips).
+# A self-service record ticks "Engine oil & filter" and records the grade
+# "10W-40" on that item; the item becomes a "Products fitted" search result
+# titled by describeProduct() — with only a spec set, the title is "10W-40".
+#
+# The item's grade box has a dynamic testID (input-spec-<ruleId>), so it is
+# reached by its hint text "10W-30" (the oil-specific placeholder).
+appId: app.revora.android.dev
+---
+- runFlow: lib/fresh-anon-bike.yaml
+
+- tapOn:
+    id: "tab-garage"
+- tapOn:
+    id: "cta-profile"
+- tapOn:
+    id: "hub-services"
+- assertVisible:
+    id: "screen-services"
+- tapOn:
+    id: "cta-add-service"
+- assertVisible:
+    id: "screen-service-add"
+
+- tapOn:
+    id: "input-service-title"
+- inputText: "Audit oil change"
+- hideKeyboard
+- tapOn:
+    id: "toggle-self-service"
+
+- scrollUntilVisible:
+    element: "MAINTENANCE ITEMS COMPLETED"
+    direction: DOWN
+- tapOn: "Engine oil & filter"
+# The ticked item's own row (index 1; index 0 is the chip).
+- tapOn:
+    text: "Engine oil & filter"
+    index: 1
+# MISSING TESTID (dynamic): input-spec-<ruleId> — reached by hint text.
+- tapOn: "10W-30"
+- inputText: "10W-40"
+- hideKeyboard
+
+- scrollUntilVisible:
+    element:
+      id: "cta-save-service"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-service"
+- assertVisible:
+    id: "screen-services"
+- assertVisible: "Audit oil change"
+
+# ---------- search ----------
+- back
+- back
+- tapOn:
+    id: "tab-dashboard"
+- tapOn:
+    id: "cta-search"
+- assertVisible:
+    id: "screen-search"
+- tapOn:
+    id: "input-search"
+- inputText: "10w40"
+- assertNotVisible: ".*Nothing in your records matches.*"
+- assertVisible: ".*Products fitted.*"
+- assertVisible: "10W-40"
+- assertVisible: "Engine oil & filter"

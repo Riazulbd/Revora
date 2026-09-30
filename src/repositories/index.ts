@@ -1,3 +1,4 @@
+export { accountRepository } from './account';
 export { bikeRepository, bikeOdometerKm, FREE_PLAN_BIKE_LIMIT } from './bikes';
 export { profileRepository } from './profile';
 export {

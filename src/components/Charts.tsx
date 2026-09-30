@@ -1,91 +1,100 @@
 import React from 'react';
 import { View, type ViewStyle } from 'react-native';
-import Svg, { Path, Polygon, Polyline, Circle, Text as SvgText } from 'react-native-svg';
+import Svg, { Path, Polyline, Circle, Rect, Text as SvgText } from 'react-native-svg';
 
-import { useTheme } from '@/theme';
+import { fontFamily, useTheme } from '@/theme';
+import { NO_VALUE } from '@/utils/format';
 import { Txt } from './Text';
 
 /**
- * Charts, drawn with the design's own SVG geometry.
+ * Charts, drawn with the boards' own SVG geometry.
  *
  * Every one of them refuses to render on empty or degenerate data and shows the
  * "not enough data" state instead — an empty array must never reach a chart
  * (mistake 11).
  */
 
+const GAUGE_W = 170;
+const GAUGE_H = 100;
+const GAUGE_R = 70;
+const GAUGE_CX = 85;
+const GAUGE_CY = 95;
+
 /**
- * The dashboard mileage gauge: a 180° arc from (25,118) to (205,118) with a
- * 90px radius and a 15px round cap, exactly as the design draws it.
+ * The Dashboard mileage gauge (board "Latest mileage"): a 170×100 box, a 180°
+ * arc of radius 70 from (15,95) to (155,95) at stroke 12 with round caps, the
+ * accent arc over it to the measured fraction, and the figure (`700 34px`)
+ * sitting 57px down, with the `500 12px` muted caption under the box.
  */
 export function Gauge({
   value,
   max,
   caption,
   label,
+  formatted,
+  estimated = false,
+  testID,
 }: {
   /** The figure printed in the middle. Null renders an em dash. */
   value: number | null;
   max: number;
   caption: string;
+  /** A second muted line under the caption. */
   label?: string;
+  /** Overrides the printed figure (already formatted by the screen). */
+  formatted?: string;
+  /** Prefixes the figure with ≈, as the estimated board draws it. */
+  estimated?: boolean;
+  testID?: string;
 }) {
-  const { c, text } = useTheme();
+  const { c } = useTheme();
 
-  const fraction = value === null || max <= 0 ? 0 : Math.max(0, Math.min(1, value / max));
-  // The arc is a half-circle of radius 90, so its length is exactly pi x 90.
-  const ARC_LENGTH = Math.PI * 90;
-  const dash = `${(fraction * ARC_LENGTH).toFixed(2)} ${ARC_LENGTH.toFixed(2)}`;
-  const printed = value === null ? '—' : value.toFixed(1);
+  const fraction = value === null || max <= 0 || !Number.isFinite(value) ? 0 : Math.max(0, Math.min(1, value / max));
+  const angle = Math.PI * fraction;
+  const endX = GAUGE_CX - GAUGE_R * Math.cos(angle);
+  const endY = GAUGE_CY - GAUGE_R * Math.sin(angle);
+  const printed = value === null || !Number.isFinite(value) ? NO_VALUE : (formatted ?? value.toFixed(1));
 
   return (
-    <View style={{ alignItems: 'center' }}>
-      <Svg width={230} height={132} viewBox="0 0 230 132">
-        <Path
-          d="M25 118 A 90 90 0 0 1 205 118"
-          fill="none"
-          stroke={c.sur2}
-          strokeWidth={15}
-          strokeLinecap="round"
-        />
-        {fraction > 0 ? (
+    <View style={{ alignItems: 'center', gap: 8 }} testID={testID} accessibilityLabel={`${printed} ${caption}`}>
+      <View style={{ width: GAUGE_W, height: GAUGE_H }}>
+        <Svg width={GAUGE_W} height={GAUGE_H} viewBox={`0 0 ${GAUGE_W} ${GAUGE_H}`}>
           <Path
-            d="M25 118 A 90 90 0 0 1 205 118"
+            d={`M15 95 A ${GAUGE_R} ${GAUGE_R} 0 0 1 155 95`}
             fill="none"
-            stroke={c.acc}
-            strokeWidth={15}
+            stroke={c.sur2}
+            strokeWidth={12}
             strokeLinecap="round"
-            strokeDasharray={dash}
           />
-        ) : null}
-        <SvgText
-          x={115}
-          y={98}
-          textAnchor="middle"
-          fill={c.ink}
-          fontSize={38}
-          fontFamily={text('hero').fontFamily}
-        >
-          {printed}
-        </SvgText>
-        <SvgText
-          x={115}
-          y={120}
-          textAnchor="middle"
-          fill={c.mut}
-          fontSize={12}
-          fontFamily={text('smallStrong').fontFamily}
-        >
-          {caption}
-        </SvgText>
-        <SvgText x={24} y={131} textAnchor="middle" fill={c.mut} fontSize={9} fontFamily={text('smallStrong').fontFamily}>
-          0
-        </SvgText>
-        <SvgText x={206} y={131} textAnchor="middle" fill={c.mut} fontSize={9} fontFamily={text('smallStrong').fontFamily}>
-          {String(max)}
-        </SvgText>
-      </Svg>
+          {fraction > 0 ? (
+            <Path
+              d={`M15 95 A ${GAUGE_R} ${GAUGE_R} 0 0 1 ${endX.toFixed(2)} ${endY.toFixed(2)}`}
+              fill="none"
+              stroke={c.acc}
+              strokeWidth={12}
+              strokeLinecap="round"
+            />
+          ) : null}
+        </Svg>
+        <View style={{ position: 'absolute', left: 0, right: 0, top: 57, alignItems: 'center' }}>
+          <Txt
+            numberOfLines={1}
+            style={{
+              fontFamily: fontFamily[700],
+              fontSize: 34,
+              lineHeight: 36,
+              color: printed === NO_VALUE ? c.mut : c.ink,
+            }}
+          >
+            {estimated && printed !== NO_VALUE ? `≈ ${printed}` : printed}
+          </Txt>
+        </View>
+      </View>
+      <Txt role="meta" tone="mut" align="center">
+        {caption}
+      </Txt>
       {label ? (
-        <Txt role="metaSmall" tone="mut">
+        <Txt role="metaSmall" tone="mut" align="center">
           {label}
         </Txt>
       ) : null}
@@ -95,20 +104,28 @@ export function Gauge({
 
 export type TrendPoint = { value: number; label: string };
 
+const AXIS_FONT = { fontSize: 10, fontWeight: '600' as const };
+
 /**
- * The mileage trend line. The design plots five points across a 320×110 box with
- * a soft fill beneath the line and the value printed above each dot.
+ * The Analytics "Mileage trend", transcribed from the board's own SVG
+ * (`M36 10v92M36 102h296`): a 340×120 box with a hairline y-axis at x=36 and a
+ * baseline at y=102, three tick labels (max / mid / min) on the left, a dashed
+ * midline at y=58, the accent line at stroke 2.5 with a 3.5px dot on the last
+ * point, and three period labels at y=117.
  */
 export function TrendChart({
   points,
-  width = 320,
-  height = 110,
+  width = 340,
+  height = 120,
   formatValue,
+  xLabels,
 }: {
   points: readonly TrendPoint[];
   width?: number;
   height?: number;
   formatValue?: (value: number) => string;
+  /** First / middle / last period labels; defaults to the points' own labels. */
+  xLabels?: readonly [string, string, string];
 }) {
   const { c, text } = useTheme();
 
@@ -118,24 +135,39 @@ export function TrendChart({
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = max - min || 1;
+  const fmt = formatValue ?? ((v: number) => v.toFixed(1));
 
-  const left = 24;
-  const right = width - 24;
-  const top = 16;
+  const axisX = 36;
+  const left = 48;
+  const right = width - 10;
+  const top = 10;
   const bottom = height - 18;
+  const midY = (top + bottom) / 2;
 
   const coords = points.map((point, index) => {
-    const x = points.length === 1 ? (left + right) / 2 : left + (index * (right - left)) / (points.length - 1);
+    const x = left + (index * (right - left)) / (points.length - 1);
     const y = bottom - ((point.value - min) / span) * (bottom - top);
-    return { x, y, point };
+    return { x, y };
   });
-
   const line = coords.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
-  const area = `${line} ${right},${bottom + 6} ${left},${bottom + 6}`;
+  const last = coords[coords.length - 1];
+  const middleIndex = Math.floor((points.length - 1) / 2);
+  const labels = xLabels ?? [points[0]?.label ?? '', points[middleIndex]?.label ?? '', points[points.length - 1]?.label ?? ''];
+  const family = text('smallStrong').fontFamily;
 
   return (
     <Svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
-      <Polygon points={area} fill={c.accS} />
+      <Path d={`M${axisX} ${top - 2}v${bottom - top + 2}M${axisX} ${bottom}h${right - axisX}`} stroke={c.brd} strokeWidth={1} />
+      <SvgText x={axisX - 6} y={top + 6} textAnchor="end" fill={c.mut} fontFamily={family} {...AXIS_FONT}>
+        {fmt(max)}
+      </SvgText>
+      <SvgText x={axisX - 6} y={midY + 2} textAnchor="end" fill={c.mut} fontFamily={family} {...AXIS_FONT}>
+        {fmt((max + min) / 2)}
+      </SvgText>
+      <SvgText x={axisX - 6} y={bottom + 2} textAnchor="end" fill={c.mut} fontFamily={family} {...AXIS_FONT}>
+        {fmt(min)}
+      </SvgText>
+      <Path d={`M${axisX} ${midY}h${right - axisX}`} stroke={c.brd} strokeWidth={1} strokeDasharray="3 4" />
       <Polyline
         points={line}
         fill="none"
@@ -144,65 +176,109 @@ export function TrendChart({
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      {coords.map((p, index) => (
-        <React.Fragment key={index}>
-          <Circle cx={p.x} cy={p.y} r={3.5} fill={c.acc} />
-          <SvgText
-            x={p.x}
-            y={p.y - 9}
-            textAnchor="middle"
-            fill={c.ink}
-            fontSize={10}
-            fontFamily={text('smallStrong').fontFamily}
-          >
-            {formatValue ? formatValue(p.point.value) : p.point.value.toFixed(1)}
-          </SvgText>
-        </React.Fragment>
-      ))}
+      {last ? <Circle cx={last.x} cy={last.y} r={3.5} fill={c.acc} /> : null}
+      <SvgText x={left} y={height - 3} textAnchor="start" fill={c.mut} fontFamily={family} {...AXIS_FONT}>
+        {labels[0]}
+      </SvgText>
+      <SvgText x={(left + right) / 2} y={height - 3} textAnchor="middle" fill={c.mut} fontFamily={family} {...AXIS_FONT}>
+        {labels[1]}
+      </SvgText>
+      <SvgText x={right} y={height - 3} textAnchor="end" fill={c.mut} fontFamily={family} {...AXIS_FONT}>
+        {labels[2]}
+      </SvgText>
     </Svg>
   );
 }
 
 export type BarDatum = { label: string; value: number; caption: string };
 
-/** The monthly spending bars from the Analytics screen. */
+/**
+ * The Analytics "Monthly spending" bars: a 340×110 box, y-axis at x=36 with
+ * the top tick and "0", 30px bars (`rx:4`) on a 48px pitch — `--sur2` for
+ * past months and `--acc` for the current one — and the first and last
+ * month labelled underneath.
+ */
 export function BarChart({
   data,
-  maxHeight = 100,
+  width = 340,
+  height = 110,
+  highlightLast = true,
+  topLabel,
   style,
+  maxHeight: _legacyMaxHeight,
 }: {
   data: readonly BarDatum[];
-  maxHeight?: number;
+  width?: number;
+  height?: number;
+  highlightLast?: boolean;
+  /** The top tick's label, already formatted ("6k"); omitted when not given. */
+  topLabel?: string;
   style?: ViewStyle;
+  /** Kept for existing callers; the board fixes the chart's geometry. */
+  maxHeight?: number;
 }) {
-  const { c } = useTheme();
+  const { c, text } = useTheme();
+  if (data.length === 0) return null;
+
   const max = Math.max(...data.map((d) => d.value), 1);
+  const axisX = 36;
+  const top = 8;
+  const bottom = height - 16;
+  const plotLeft = axisX + 8;
+  const plotRight = width - 8;
+  const slot = (plotRight - plotLeft) / data.length;
+  const barWidth = Math.min(30, slot * 0.625);
+  const family = text('smallStrong').fontFamily;
+  const first = data[0];
+  const last = data[data.length - 1];
 
   return (
-    <View style={[{ flexDirection: 'row', alignItems: 'flex-end', gap: 10 }, style]}>
-      {data.map((datum) => {
-        const height = datum.value <= 0 ? 4 : Math.max(6, (datum.value / max) * maxHeight);
-        return (
-          <View key={datum.label} style={{ flex: 1, alignItems: 'center', gap: 6 }}>
-            <Txt role="micro" tone="mut" numberOfLines={1}>
-              {datum.caption}
-            </Txt>
-            <View
-              accessibilityLabel={`${datum.label}: ${datum.caption}`}
-              style={{
-                width: '100%',
-                height,
-                borderRadius: 8,
-                backgroundColor: datum.value <= 0 ? c.sur2 : c.acc,
-                opacity: datum.value <= 0 ? 1 : 0.9,
-              }}
+    <View style={style}>
+      <Svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
+        <Path d={`M${axisX} ${top}v${bottom - top}M${axisX} ${bottom}h${plotRight - axisX}`} stroke={c.brd} strokeWidth={1} />
+        {topLabel ? (
+          <SvgText x={axisX - 6} y={top + 6} textAnchor="end" fill={c.mut} fontFamily={family} {...AXIS_FONT}>
+            {topLabel}
+          </SvgText>
+        ) : null}
+        <SvgText x={axisX - 6} y={bottom + 2} textAnchor="end" fill={c.mut} fontFamily={family} {...AXIS_FONT}>
+          0
+        </SvgText>
+        {data.map((datum, index) => {
+          const barHeight = datum.value <= 0 ? 0 : Math.max(4, (datum.value / max) * (bottom - top));
+          const x = plotLeft + index * slot + (slot - barWidth) / 2;
+          const isCurrent = highlightLast && index === data.length - 1;
+          return (
+            <Rect
+              key={`${datum.label}-${index}`}
+              x={x.toFixed(1)}
+              y={(bottom - barHeight).toFixed(1)}
+              width={barWidth.toFixed(1)}
+              height={barHeight.toFixed(1)}
+              rx={4}
+              fill={isCurrent ? c.acc : c.sur2}
             />
-            <Txt role="micro" tone="mut">
-              {datum.label}
-            </Txt>
-          </View>
-        );
-      })}
+          );
+        })}
+        {first ? (
+          <SvgText x={plotLeft + (slot - barWidth) / 2 + 3} y={height - 4} textAnchor="start" fill={c.mut} fontFamily={family} {...AXIS_FONT}>
+            {first.label}
+          </SvgText>
+        ) : null}
+        {last && data.length > 1 ? (
+          <SvgText
+            x={plotLeft + (data.length - 1) * slot + (slot - barWidth) / 2 + 5}
+            y={height - 4}
+            textAnchor="start"
+            fill={c.mut}
+            fontFamily={family}
+            {...AXIS_FONT}
+          >
+            {last.label}
+          </SvgText>
+        ) : null}
+      </Svg>
+      <View accessible accessibilityLabel={data.map((d) => `${d.label}: ${d.caption}`).join(', ')} />
     </View>
   );
 }
@@ -252,7 +328,7 @@ export function SpendBar({
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-      <Txt role="smallStrong" style={{ width: 64 }} numberOfLines={1}>
+      <Txt role="smallStrong" style={{ width: 72 }} numberOfLines={1}>
         {category}
       </Txt>
       <View style={{ flex: 1, height: 7, borderRadius: 4, backgroundColor: c.sur2, overflow: 'hidden' }}>
@@ -266,7 +342,7 @@ export function SpendBar({
           }}
         />
       </View>
-      <Txt role="smallStrong" style={{ width: 78, textAlign: 'right' }} numberOfLines={1}>
+      <Txt role="rowTitleDense" style={{ width: 82, textAlign: 'right' }} numberOfLines={1}>
         {amount}
       </Txt>
     </View>

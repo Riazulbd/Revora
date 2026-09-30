@@ -11,13 +11,16 @@ import { resolveOwner, verifyPurchase } from './billing';
 import { play } from './play';
 
 export { askAssistant } from './assistant';
+// Erasure. `firestore.rules` closes every client delete path to `users/{uid}`
+// and points here; without this deployed, deletion cannot complete at all.
+export { deleteMyAccount } from './account';
 
-// Deployed separately, once Slack is set up. The Firebase CLI resolves every
-// `defineSecret` in the codebase during analysis — including for functions the
-// --only filter excludes — so exporting this before the Secret Manager API is
-// enabled and SLACK_FEEDBACK_WEBHOOK_URL exists blocks EVERY other deploy.
-// Re-enable with:  docs/slack.md
-// export { relayFeedbackToSlack } from './feedback';
+// Rider feedback, relayed to Slack. Safe to deploy before Slack exists: the
+// webhook is read from the environment at call time, not declared as a
+// `defineSecret` the CLI must resolve during analysis, so an unset secret makes
+// this one function no-op rather than blocking EVERY deploy in the codebase.
+// Bind the secret with REVORA_SLACK_SECRET=1 when it is set up — docs/slack.md.
+export { relayFeedbackToSlack } from './feedback';
 
 initializeApp();
 // Must match the Play Console app, never a package name supplied by a client.

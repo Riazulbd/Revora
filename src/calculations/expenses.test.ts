@@ -1,5 +1,12 @@
 import type { Accessory, Expense, FuelEntry, Part, ServiceRecord } from '@/types';
-import { breakdown, buildLedger, monthlyTotals, totalMinor } from './expenses';
+import {
+  breakdown,
+  buildLedger,
+  ledgerCurrencies,
+  monthlyTotals,
+  totalMinor,
+  totalsByCurrency,
+} from './expenses';
 
 const base = { userId: 'u1', bikeId: 'b1', createdAt: 1, updatedAt: 1, currency: 'BDT' as const };
 
@@ -203,6 +210,96 @@ describe('ledger composition', () => {
     expect(ledger).toEqual([]);
     expect(totalMinor(ledger)).toBe(0);
     expect(monthlyTotals(ledger)).toEqual([]);
+  });
+});
+
+describe('a ledger is never totalled across currencies', () => {
+  // A rider who logs in BDT and then switches the bike to USD keeps every old
+  // record in BDT: Settings relabels, it never converts. BDT 1,000.00 and
+  // $50.00 must never be added into the number 105,000, which is money in no
+  // currency at all.
+  const mixed = () =>
+    buildLedger({
+      ...empty,
+      fuelEntries: [fuel({ id: 'f1', totalCostMinor: 100_000, currency: 'BDT' })],
+      services: [service({ id: 's1', totalCostMinor: 5_000, currency: 'USD' })],
+    });
+
+  it('stamps each line with its own record’s currency', () => {
+    expect(ledgerCurrencies(mixed())).toEqual(['BDT', 'USD']);
+  });
+
+  it('totals per currency, each in its own', () => {
+    expect(totalsByCurrency(mixed())).toEqual([
+      { currency: 'BDT', totalMinor: 100_000 },
+      { currency: 'USD', totalMinor: 5_000 },
+    ]);
+  });
+
+  it('totals only the currency asked for', () => {
+    expect(totalMinor(mixed(), 'BDT')).toBe(100_000);
+    expect(totalMinor(mixed(), 'USD')).toBe(5_000);
+    expect(totalMinor(mixed(), 'EUR')).toBe(0);
+  });
+
+  it('never returns the blind sum, even with no currency named', () => {
+    expect(totalMinor(mixed())).not.toBe(105_000);
+    expect(breakdown(mixed()).total).not.toBe(105_000);
+  });
+
+  it('breaks down only the reporting currency, and leaves the rest out', () => {
+    const b = breakdown(mixed(), 'BDT');
+    expect(b.fuel).toBe(100_000);
+    expect(b.services).toBe(0); // the USD service is not BDT 50.00
+    expect(b.total).toBe(100_000);
+  });
+
+  it('behaves exactly as before on a ledger in one currency', () => {
+    const single = buildLedger({ ...empty, fuelEntries: [fuel()], services: [service()] });
+    expect(ledgerCurrencies(single)).toEqual(['BDT']);
+    expect(totalMinor(single)).toBe(130_500 + 240_000);
+    expect(totalMinor(single, 'BDT')).toBe(130_500 + 240_000);
+    expect(breakdown(single).total).toBe(370_500);
+  });
+
+  it('groups a month’s spending in one currency too', () => {
+    const lines = buildLedger({
+      ...empty,
+      fuelEntries: [fuel({ id: 'f1', date: '2026-09-01', totalCostMinor: 100_000, currency: 'BDT' })],
+      services: [service({ id: 's1', date: '2026-09-05', totalCostMinor: 5_000, currency: 'USD' })],
+    });
+    expect(monthlyTotals(lines, 'BDT')).toEqual([{ key: '2026-09', totalMinor: 100_000 }]);
+    expect(monthlyTotals(lines, 'USD')).toEqual([{ key: '2026-09', totalMinor: 5_000 }]);
+    expect(monthlyTotals(lines)[0]!.totalMinor).not.toBe(105_000);
+  });
+
+  it('reports nothing for an empty ledger rather than a currency it invented', () => {
+    expect(ledgerCurrencies([])).toEqual([]);
+    expect(totalsByCurrency([])).toEqual([]);
+    expect(totalMinor([])).toBe(0);
+  });
+});
+
+describe('which zero-cost records earn a ledger line', () => {
+  it('keeps a free service and a free fill, which are events in their own right', () => {
+    // A warranty job or a tank filled on someone else's card really happened,
+    // and the ledger is the record of what happened as well as what it cost.
+    const ledger = buildLedger({
+      ...empty,
+      fuelEntries: [fuel({ id: 'f0', totalCostMinor: 0 })],
+      services: [service({ id: 's0', totalCostMinor: 0, labourCostMinor: 0, partsCostMinor: 0 })],
+    });
+    expect(ledger).toHaveLength(2);
+    expect(ledger.map((l) => l.amountMinor)).toEqual([0, 0]);
+  });
+
+  it('drops a zero-cost part and accessory, which have no other reason to be there', () => {
+    const ledger = buildLedger({
+      ...empty,
+      parts: [part({ costMinor: 0 })],
+      accessories: [accessory({ purchaseCostMinor: 0, installationCostMinor: 0 })],
+    });
+    expect(ledger).toHaveLength(0);
   });
 });
 

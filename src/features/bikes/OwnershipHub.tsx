@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Badge, Card, DividedList, Eyebrow, MenuRow, Txt } from '@/components';
+import { Badge, ListCard, MenuRow, SectionEyebrow, Txt } from '@/components';
 import { useAttention } from '@/features/dashboard/useAttention';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useDocuments, useWarranties } from '@/features/records/useRecordQueries';
@@ -22,6 +22,10 @@ import { useDocuments, useWarranties } from '@/features/records/useRecordQueries
  * can be in a bad state carries that state, so the hub doubles as a status
  * page — a rider who opens it to find the Proof Pack still learns their tax
  * token is expiring.
+ *
+ * The board draws each row behind a 36px tinted square and puts the trouble in
+ * an outlined pill; a row with something to say drops its chevron so the pill
+ * has the right-hand edge to itself.
  */
 export function OwnershipHub() {
   const router = useRouter();
@@ -37,105 +41,125 @@ export function OwnershipHub() {
   const serviceCount = analytics?.services.all.length ?? 0;
   const documentCount = documents.data?.length ?? 0;
 
+  /** The board's `500 12px` tabular count on the right of a quiet row. */
+  const count = (value: number) =>
+    value > 0 ? (
+      <Txt role="meta" tone="mut">
+        {String(value)}
+      </Txt>
+    ) : undefined;
+
   return (
-    <View style={{ gap: 18 }}>
-      <View style={{ gap: 10 }}>
-        <Eyebrow>PAPERS</Eyebrow>
-        <Card variant="list" style={{ paddingVertical: 4 }}>
-          <DividedList>
-            <MenuRow
-              label="Documents"
-              badge={
-                expiringDocuments > 0 ? (
-                  <Badge label={`${expiringDocuments} EXPIRING`} tone="warn" size="chip" />
-                ) : documentCount > 0 ? (
-                  <Txt role="micro" tone="mut">
-                    {String(documentCount)}
-                  </Txt>
-                ) : undefined
-              }
-              onPress={() => router.push('/records/vault')}
-              testID="hub-documents"
-            />
-            <MenuRow
-              label="Warranties"
-              badge={openClaims > 0 ? <Badge label="CLAIM OPEN" tone="warn" size="chip" /> : undefined}
-              onPress={() => router.push('/records/warranties')}
-              testID="hub-warranties"
-            />
-            <MenuRow
-              label="Proof Pack"
-              onPress={() => router.push('/records/proof-pack')}
-              testID="hub-proof-pack"
-            />
-          </DividedList>
-        </Card>
-      </View>
+    <View>
+      <SectionEyebrow top={14}>Papers</SectionEyebrow>
+      <ListCard>
+        <MenuRow
+          label="Documents"
+          icon="document"
+          iconTone="accent"
+          right={
+            expiringDocuments > 0 ? (
+              <Badge label={`${expiringDocuments} EXPIRING`} tone="warn" variant="outlined" />
+            ) : (
+              count(documentCount)
+            )
+          }
+          chevron={expiringDocuments === 0 && documentCount === 0}
+          onPress={() => router.push('/records/vault')}
+          testID="hub-documents"
+        />
+        <MenuRow
+          label="Warranties"
+          icon="shield"
+          iconTone="good"
+          right={openClaims > 0 ? <Badge label="CLAIM OPEN" tone="warn" variant="outlined" /> : undefined}
+          chevron={openClaims === 0}
+          onPress={() => router.push('/records/warranties')}
+          testID="hub-warranties"
+        />
+        <MenuRow
+          label="Proof Pack"
+          icon="file"
+          iconTone="accent"
+          onPress={() => router.push('/records/proof-pack')}
+          testID="hub-proof-pack"
+        />
+      </ListCard>
 
-      <View style={{ gap: 10 }}>
-        <Eyebrow>HEALTH</Eyebrow>
-        <Card variant="list" style={{ paddingVertical: 4 }}>
-          <DividedList>
-            <MenuRow
-              label="Service history"
-              badge={
-                serviceCount > 0 ? (
-                  <Txt role="micro" tone="mut">
-                    {String(serviceCount)}
-                  </Txt>
-                ) : undefined
-              }
-              onPress={() => router.push('/services')}
-              testID="hub-services"
-            />
-            <MenuRow
-              label="Maintenance"
-              badge={overdueRules > 0 ? <Badge label={`${overdueRules} OVERDUE`} tone="bad" size="chip" /> : undefined}
-              onPress={() => router.push('/maintenance')}
-              testID="hub-maintenance"
-            />
-            <MenuRow
-              label="Safety & condition"
-              badge={safetyActions > 0 ? <Badge label="ACTION" tone="bad" size="chip" /> : undefined}
-              onPress={() => router.push('/records/safety')}
-              testID="hub-safety"
-            />
-            <MenuRow
-              label="Parts & accessories"
-              onPress={() => router.push('/parts')}
-              testID="hub-parts"
-            />
-            <MenuRow
-              label="Workshop records"
-              onPress={() => router.push('/services/workshop')}
-              testID="hub-workshop"
-            />
-          </DividedList>
-        </Card>
-      </View>
+      <SectionEyebrow top={14}>Health</SectionEyebrow>
+      <ListCard>
+        <MenuRow
+          label="Service history"
+          icon="wrench"
+          iconTone="accent"
+          right={count(serviceCount)}
+          chevron={serviceCount === 0}
+          onPress={() => router.push('/services')}
+          testID="hub-services"
+        />
+        <MenuRow
+          label="Maintenance"
+          icon="settings"
+          iconTone="warn"
+          right={overdueRules > 0 ? <Badge label={`${overdueRules} OVERDUE`} tone="bad" variant="outlined" /> : undefined}
+          chevron={overdueRules === 0}
+          onPress={() => router.push('/maintenance')}
+          testID="hub-maintenance"
+        />
+        <MenuRow
+          label="Safety & condition"
+          icon="shield"
+          iconTone="bad"
+          right={safetyActions > 0 ? <Badge label="ACTION" tone="bad" variant="outlined" /> : undefined}
+          chevron={safetyActions === 0}
+          onPress={() => router.push('/records/safety')}
+          testID="hub-safety"
+        />
+        <MenuRow
+          label="Parts & accessories"
+          icon="settings"
+          iconTone="neutral"
+          onPress={() => router.push('/parts')}
+          testID="hub-parts"
+        />
+        {/* Not on the artboard, which draws four rows; the workshop ledger has
+            no other way in, and an unreachable screen is a defect, not a
+            simplification. */}
+        <MenuRow
+          label="Workshop records"
+          icon="building"
+          iconTone="neutral"
+          onPress={() => router.push('/services/workshop')}
+          testID="hub-workshop"
+        />
+      </ListCard>
 
-      <View style={{ gap: 10 }}>
-        <Eyebrow>THE MACHINE</Eyebrow>
-        <Card variant="list" style={{ paddingVertical: 4 }}>
-          <DividedList>
-            <MenuRow
-              label="Odometer history"
-              onPress={() => router.push('/garage/odometer')}
-              testID="hub-odometer"
-            />
-            <MenuRow
-              label="Company allowance"
-              onPress={() => router.push('/garage/company')}
-              testID="hub-company"
-            />
-            <MenuRow
-              label="Edit motorcycle"
-              onPress={() => router.push('/garage/edit')}
-              testID="hub-edit"
-            />
-          </DividedList>
-        </Card>
-      </View>
+      <SectionEyebrow top={14}>The machine</SectionEyebrow>
+      <ListCard>
+        <MenuRow
+          label="Odometer history"
+          icon="odometer"
+          iconTone="accent"
+          onPress={() => router.push('/garage/odometer')}
+          testID="hub-odometer"
+        />
+        {/* Same reason as Workshop records: the employer allowance is edited
+            nowhere else. */}
+        <MenuRow
+          label="Company allowance"
+          icon="banknote"
+          iconTone="neutral"
+          onPress={() => router.push('/garage/company')}
+          testID="hub-company"
+        />
+        <MenuRow
+          label="Edit motorcycle"
+          icon="pencil"
+          iconTone="neutral"
+          onPress={() => router.push('/garage/edit')}
+          testID="hub-edit"
+        />
+      </ListCard>
     </View>
   );
 }

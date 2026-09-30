@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
+import * as Sharing from 'expo-sharing';
 
 import {
+  Banner,
   Button,
+  ButtonRow,
   Card,
   Dialog,
   Divider,
   Eyebrow,
+  Footnote,
   Icon,
+  LoadingState,
+  PhotoThumb,
   Screen,
   ScreenHeader,
   Stack,
@@ -15,22 +21,26 @@ import {
   Txt,
   useToast,
 } from '@/components';
+import { proofPackSummary } from '@/calculations/proofPack';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useDocuments } from '@/features/records/useRecordQueries';
 import { generateProofPack } from '@/features/records/proofPack';
 import { messageFor } from '@/services/errors';
-import { useTheme } from '@/theme';
+import { fontFamily, useTheme } from '@/theme';
+import { NO_VALUE } from '@/utils/format';
 
 /**
  * The Proof Pack.
  *
  * The PDF is rendered on the device and handed straight to the share sheet —
  * nothing leaves the phone unless the rider sends it, which is exactly what the
- * screen says.
+ * screen says. The stamp on it claims only what Revora can honestly claim:
+ * how many records it was built from, the dates they cover, and a fingerprint
+ * of exactly those records. It is not an inspection and the screen says that
+ * too, because a certificate that overclaims is worse than none.
  */
 export default function ProofPack() {
-  const { c } = useTheme();
   const toast = useToast();
   const { activeBike } = useGarage();
   const { analytics } = useGarageData();
@@ -40,43 +50,32 @@ export default function ProofPack() {
   const [consent, setConsent] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [readyUri, setReadyUri] = useState<string | null>(null);
 
-  const included = analytics
-    ? [
-        {
-          label: `Service history · ${analytics.services.all.length} record${analytics.services.all.length === 1 ? '' : 's'}`,
-          on: analytics.services.all.length > 0,
-        },
-        {
-          label: `Fuel & mileage log · ${analytics.fuel.entries.length} fill${analytics.fuel.entries.length === 1 ? '' : 's'}`,
-          on: analytics.fuel.entries.length > 0,
-        },
-        {
-          label: `Parts & odometer history · ${analytics.odometer.points.length} reading${analytics.odometer.points.length === 1 ? '' : 's'}`,
-          on: analytics.odometer.points.length > 0,
-        },
-        {
-          label: `Document validity · ${(documents.data ?? []).length} document${(documents.data ?? []).length === 1 ? '' : 's'}`,
-          on: (documents.data ?? []).length > 0,
-        },
-        {
-          label: buyerSafe ? 'Costs & prices — hidden by buyer-safe mode' : 'Costs & prices — included',
-          on: !buyerSafe,
-        },
-      ]
-    : [];
+  const loaded = documents.data;
+  const documentList = useMemo(() => loaded ?? [], [loaded]);
+
+  const summary = useMemo(
+    () => (analytics === null ? null : proofPackSummary({ analytics, documents: documentList })),
+    [analytics, documentList],
+  );
+
+  const bikeName = activeBike === null ? NO_VALUE : activeBike.nickname.trim() === ''
+    ? `${activeBike.manufacturer} ${activeBike.model}`.trim()
+    : activeBike.nickname;
 
   const generate = async () => {
     if (!activeBike || !analytics) return;
     setBusy(true);
+    setConfirmOpen(false);
     try {
-      await generateProofPack({
+      const uri = await generateProofPack({
         bike: activeBike,
         analytics,
-        documents: documents.data ?? [],
+        documents: documentList,
         options: { buyerSafe, consentGiven: consent },
       });
-      setConfirmOpen(false);
+      setReadyUri(uri);
       toast.show('Proof Pack generated on this device');
     } catch (error) {
       toast.show(messageFor(error, "Couldn't generate the Proof Pack."), 'error');
@@ -85,38 +84,116 @@ export default function ProofPack() {
     }
   };
 
+  const hand = async (dialogTitle: string) => {
+    if (readyUri === null) return;
+    try {
+      if (!(await Sharing.isAvailableAsync())) {
+        toast.show('This device has no app that can take a PDF.', 'error');
+        return;
+      }
+      await Sharing.shareAsync(readyUri, {
+        mimeType: 'application/pdf',
+        dialogTitle,
+        UTI: 'com.adobe.pdf',
+      });
+    } catch (error) {
+      toast.show(messageFor(error, "Couldn't hand over the PDF."), 'error');
+    }
+  };
+
+  const header = (
+    <ScreenHeader
+      title="Proof Pack"
+      subtitle="A printable ownership history for a buyer. Rendered on this phone — nothing is uploaded."
+      style={{ marginBottom: 14 }}
+    />
+  );
+
+  if (busy) {
+    return (
+      <Screen testID="screen-proof-pack">
+        {header}
+        <LoadingState
+          variant="card"
+          title="Building your Proof Pack…"
+          message={`Rendering on this phone — ${summary?.certificate.recordCount ?? 0} records, nothing uploaded.`}
+          testID="state-proof-generating"
+        />
+      </Screen>
+    );
+  }
+
+  if (readyUri !== null && summary !== null) {
+    return (
+      <Screen testID="screen-proof-pack">
+        {header}
+        <View style={{ gap: 14, marginTop: 4 }} testID="state-proof-ready">
+          <Card style={{ padding: 20, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+            <PhotoThumb width={56} height={72} radius={8} bordered tone="acc" accessibilityLabel="Proof Pack" />
+            <View style={{ flex: 1 }}>
+              <Txt role="tileValue">Proof Pack · {bikeName}</Txt>
+              <Txt role="meta" tone="mut" style={{ marginTop: 3 }}>
+                {summary.certificate.recordCount} record{summary.certificate.recordCount === 1 ? '' : 's'} ·{' '}
+                {summary.coverage ?? NO_VALUE} · {buyerSafe ? 'buyer-safe' : 'full costs'}
+              </Txt>
+              <Txt role="micro" tone="mut" style={{ marginTop: 3 }}>
+                Ref {summary.certificate.reference} — fingerprints exactly these records
+              </Txt>
+            </View>
+          </Card>
+
+          <ButtonRow>
+            <Button
+              label="Share PDF"
+              onPress={() => void hand('Revora Proof Pack')}
+              size="large"
+              flex
+              testID="cta-share-proof"
+            />
+            <Button
+              label="Open"
+              variant="secondary"
+              onPress={() => void hand('Open the Proof Pack')}
+              size="large"
+              flex
+              testID="cta-open-proof"
+            />
+          </ButtonRow>
+
+          <Button
+            label="Build it again"
+            variant="ghost"
+            tone="mut"
+            size="medium"
+            onPress={() => setReadyUri(null)}
+            testID="cta-rebuild-proof"
+          />
+        </View>
+      </Screen>
+    );
+  }
+
+  const empty = summary === null || summary.isEmpty;
+
   return (
     <Screen testID="screen-proof-pack">
-      <ScreenHeader
-        title="Proof pack"
-        subtitle="A printable ownership history for a buyer. Rendered on this phone — nothing is uploaded."
-        style={{ marginBottom: 16 }}
-      />
+      {header}
 
-      <Stack>
-        <Card>
+      <Stack gap={10}>
+        <Card style={{ gap: 10 }}>
           <Eyebrow>INCLUDED</Eyebrow>
-          <View style={{ gap: 10, marginTop: 12 }}>
-            {included.map((item) => (
-              <View key={item.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
-                <Icon
-                  name={item.on ? 'checkCircle' : 'cross'}
-                  size={16}
-                  color={item.on ? c.good : c.mut}
-                  strokeWidth={1.8}
-                />
-                <Txt role="smallStrong" tone={item.on ? 'ink' : 'mut'} style={{ flex: 1 }}>
-                  {item.label}
-                </Txt>
-              </View>
-            ))}
-          </View>
+          <Txt
+            style={{ fontFamily: fontFamily[500], fontSize: 13, lineHeight: 24.7 }}
+            testID="proof-included"
+          >
+            {(summary?.included ?? ['Motorcycle details']).join(' · ')}
+          </Txt>
         </Card>
 
-        <Card variant="list">
+        <Card variant="list" style={{ paddingVertical: 4 }}>
           <ToggleRow
             title="Buyer-safe mode"
-            description="Hides what you paid — shows only care & condition"
+            description="Every price is left out of the PDF, not hidden"
             value={buyerSafe}
             onChange={setBuyerSafe}
             testID="toggle-buyer-safe"
@@ -131,18 +208,35 @@ export default function ProofPack() {
           />
         </Card>
 
+        <ProvenanceNote />
+
+        {summary !== null && summary.isThin && summary.monthsCovered !== null ? (
+          <Banner
+            tone="warn"
+            icon="alertTriangle"
+            compact
+            lead="Thin log:"
+            message={`only ${summary.monthsCovered} month${
+              summary.monthsCovered === 1 ? '' : 's'
+            } of records. The pack will say so — a buyer can see the coverage dates.`}
+            testID="banner-thin-log"
+          />
+        ) : null}
+
         <Button
           label="Generate PDF"
           onPress={() => setConfirmOpen(true)}
-          disabled={!analytics || analytics.isEmpty}
+          size="large"
+          disabled={empty}
+          style={{ marginTop: 6 }}
           testID="cta-generate-proof"
         />
 
-        <Txt role="helper" tone="mut" align="center">
-          {analytics && analytics.isEmpty
-            ? 'Log a fill-up or a service first — a Proof Pack with nothing in it proves nothing.'
-            : 'Generated on this device. Nothing is uploaded; you choose who to send it to.'}
-        </Txt>
+        {empty ? (
+          <Footnote style={{ marginTop: 2 }}>
+            Log a fill-up or a service first — a Proof Pack with nothing in it proves nothing.
+          </Footnote>
+        ) : null}
       </Stack>
 
       <Dialog
@@ -158,5 +252,41 @@ export default function ProofPack() {
         testID="dialog-generate-proof"
       />
     </Screen>
+  );
+}
+
+/**
+ * What the stamp is, and what it is not.
+ *
+ * Worth a block of its own because it is the one claim Revora makes on a
+ * document a stranger will read, and the wording has to survive being read by
+ * someone about to hand over money.
+ */
+function ProvenanceNote() {
+  const { c, radius } = useTheme();
+
+  return (
+    <View
+      style={{
+        borderRadius: radius.card,
+        backgroundColor: c.sur2,
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: 12,
+      }}
+    >
+      <View style={{ marginTop: 2, flexShrink: 0 }}>
+        <Icon name="shield" size={22} color={c.mut} strokeWidth={2} />
+      </View>
+      <Txt style={{ flex: 1, fontFamily: fontFamily[500], fontSize: 12, lineHeight: 18.6 }}>
+        <Txt style={{ fontFamily: fontFamily[700], fontSize: 12, lineHeight: 18.6 }}>
+          The stamp certifies provenance only
+        </Txt>
+        {
+          ' — record count, dates covered, and a reference that fingerprints exactly these records so a buyer can ask for a fresh copy and compare. Revora has never seen the motorcycle; this is not an inspection.'
+        }
+      </Txt>
+    </View>
   );
 }

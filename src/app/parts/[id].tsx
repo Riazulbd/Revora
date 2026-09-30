@@ -13,6 +13,7 @@ import {
   ErrorState,
   Field,
   FieldRow,
+  Footnote,
   Input,
   KeyValueRow,
   ProgressBar,
@@ -25,16 +26,26 @@ import {
   Txt,
 } from '@/components';
 import { partHealth } from '@/calculations/parts';
+import { partUsedFraction, partUsedPercent } from '@/calculations/partWear';
 import { distanceUnitLabel } from '@/calculations/units';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useDeletePart, useRemovePart } from '@/features/parts/usePartMutations';
 import { useRecategorise } from '@/features/parts/useRecategorise';
-import { conversionLosses } from '@/calculations/recategorise';
+import { PartsDialog } from '@/features/parts/ui/PartsDialog';
+import { partToAccessoryBullets } from '@/features/parts/ui/PartsConversionBullets';
 import { fromMetres, toMetres } from '@/features/shared/formValues';
-import { formatCurrency, formatDistance, formatPercent, NO_VALUE } from '@/utils/format';
+import { fontFamily } from '@/theme';
+import { formatCurrency, formatDistance, NO_VALUE } from '@/utils/format';
 import { formatLongDate, todayIso } from '@/utils/date';
 
+/**
+ * One part: what it was fitted at, what it has run, what it was expected to do.
+ *
+ * The three tiles are the whole story the board tells, and none of them is
+ * stored — used distance is the current odometer minus the fitting reading,
+ * recomputed every time this screen reads.
+ */
 export default function PartDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -69,11 +80,7 @@ export default function PartDetail() {
     return (
       <Screen testID="screen-part-detail">
         <ScreenHeader title="Part" />
-        <ErrorState
-          message={error.message}
-          onRetry={undefined}
-          variant="page"
-        />
+        <ErrorState message={error.message} variant="page" />
       </Screen>
     );
   }
@@ -103,8 +110,26 @@ export default function PartDetail() {
 
   const { part, life } = entry;
   const health = partHealth(life);
+  const tone = health === 'bad' ? 'bad' : health === 'warn' ? 'warn' : health === 'good' ? 'good' : 'mut';
+  const usedPercent = partUsedPercent(life);
+  const usedFraction = partUsedFraction(life);
   const linkedService = analytics?.services.all.find((s) => s.id === part.linkedServiceId) ?? null;
   const current = analytics?.odometer.currentMetres ?? null;
+
+  const statusLine = life.isRemoved
+    ? life.actualLifeMetres === null
+      ? 'Removed. Nothing was recorded to measure what it lasted.'
+      : `Removed after ${formatDistance(life.actualLifeMetres, units.distance)}`
+    : life.isOverdue
+      ? `Over its expected life by ${formatDistance(life.overdueMetres, units.distance)}`
+      : usedPercent === null
+        ? 'No expected life recorded, so there is nothing to measure this against.'
+        : `${usedPercent}% used · ${formatDistance(life.remainingMetres, units.distance)} left`;
+
+  const paid =
+    part.costMinor === 0
+      ? 'Nothing was recorded as paid for this part, so Costs is unchanged.'
+      : `The ${formatCurrency(part.costMinor, part.currency)} you paid stays in Costs — as an accessory it leaves cost / ${distanceUnitLabel(units.distance)}.`;
 
   const openRemove = () => {
     setRemoveOdometer(fromMetres(current, units.distance));
@@ -115,63 +140,55 @@ export default function PartDetail() {
     <Screen testID="screen-part-detail">
       <ScreenHeader
         title={part.name}
-        badge={<Badge label={life.isRemoved ? "REMOVED" : "ACTIVE"} tone={life.isRemoved ? "neutral" : "good"} />}
+        badge={
+          <Badge
+            label={life.isRemoved ? 'REMOVED' : 'ACTIVE'}
+            tone={life.isRemoved ? 'neutral' : 'good'}
+            variant="outlined"
+          />
+        }
       />
+
+      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
+        <StatTile
+          label="INSTALLED"
+          value={formatDistance(part.installedOdometerMetres, units.distance)}
+          variant="outlined"
+        />
+        <StatTile
+          label="USED"
+          value={formatDistance(life.usedMetres, units.distance)}
+          tone={tone}
+          variant="outlined"
+        />
+        <StatTile
+          label="EXPECTED"
+          value={
+            part.expectedLifeMetres === null
+              ? NO_VALUE
+              : formatDistance(part.expectedLifeMetres, units.distance)
+          }
+          variant="outlined"
+        />
+      </View>
 
       <Stack>
         <Card>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 10,
-              marginBottom: 10,
-            }}
-          >
-            <Txt role="smallStrong" tone="mut">
-              {life.isRemoved ? 'Actual life' : 'Remaining life'}
+          <Txt role="mediumStrong" tone={tone} numberOfLines={2}>
+            {statusLine}
+          </Txt>
+          {usedFraction === null ? (
+            <Txt role="helper" tone="mut" style={{ marginTop: 8 }}>
+              No bar where no life was recorded — nothing is invented.
             </Txt>
-            <Txt
-              role="rowTitle"
-              tone={health === 'bad' ? 'bad' : health === 'warn' ? 'warn' : 'good'}
-              numberOfLines={1}
-            >
-              {life.isRemoved
-                ? life.actualLifeMetres === null
-                  ? NO_VALUE
-                  : formatDistance(life.actualLifeMetres, units.distance)
-                : life.isOverdue
-                  ? `Overdue by ${formatDistance(life.overdueMetres, units.distance)}`
-                  : life.remainingPercent === null
-                    ? 'No expected life set'
-                    : `${formatPercent(life.remainingPercent)} · ${formatDistance(life.remainingMetres, units.distance)}`}
-            </Txt>
-          </View>
-
-          {life.remainingPercent === null ? null : (
+          ) : (
             <ProgressBar
-              fraction={life.remainingPercent / 100}
+              fraction={usedFraction}
               tone={health === 'bad' ? 'bad' : health === 'warn' ? 'warn' : 'good'}
-              style={{ marginBottom: 14 }}
+              height={6}
+              style={{ marginTop: 10 }}
             />
           )}
-
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            <StatTile
-              label="INSTALLED"
-              value={formatDistance(part.installedOdometerMetres, units.distance)}
-            />
-            <StatTile label="USED" value={formatDistance(life.usedMetres, units.distance)} />
-            <StatTile
-              label="EXPECTED"
-              value={
-                part.expectedLifeMetres === null
-                  ? NO_VALUE
-                  : formatDistance(part.expectedLifeMetres, units.distance)
-              }
-            />
-          </View>
         </Card>
 
         <Card variant="list">
@@ -186,7 +203,9 @@ export default function PartDetail() {
             <KeyValueRow label="Fitted by" value={part.fittedBy ?? 'Self-service'} />
             <KeyValueRow
               label="Linked service"
-              value={linkedService ? `${linkedService.title} · ${formatLongDate(linkedService.date)}` : 'None'}
+              value={
+                linkedService ? `${linkedService.title} · ${formatLongDate(linkedService.date)}` : 'None'
+              }
               onPress={
                 linkedService
                   ? () => router.push({ pathname: '/services/add', params: { id: linkedService.id } })
@@ -204,9 +223,9 @@ export default function PartDetail() {
         </Card>
 
         {part.linkedServiceId !== null ? (
-          <Txt role="helper" tone="mut">
+          <Footnote>
             This part&apos;s cost sits on the linked service, so it appears once in your ledger.
-          </Txt>
+          </Footnote>
         ) : null}
 
         <ButtonRow>
@@ -214,17 +233,17 @@ export default function PartDetail() {
             label="Edit"
             variant="secondary"
             size="medium"
+            flex
             onPress={() => router.push({ pathname: '/parts/add', params: { id: part.id } })}
-            style={{ flex: 1 }}
             testID="cta-edit-part"
           />
           {life.isRemoved ? (
             <Button
               label="Delete"
-              variant="secondary"
+              variant="dangerSubtle"
               size="medium"
+              flex
               onPress={() => setDeleteOpen(true)}
-              style={{ flex: 1 }}
               testID="cta-delete-part"
             />
           ) : (
@@ -232,12 +251,21 @@ export default function PartDetail() {
               label="Mark removed"
               variant="secondary"
               size="medium"
+              flex
               onPress={openRemove}
-              style={{ flex: 1 }}
               testID="cta-remove-part"
             />
           )}
         </ButtonRow>
+
+        <Button
+          label="This is an accessory, not a part"
+          variant="ghost"
+          size="medium"
+          tone="mut"
+          onPress={() => setConvertOpen(true)}
+          testID="cta-convert-to-accessory"
+        />
       </Stack>
 
       <Sheet visible={removeOpen} onClose={() => setRemoveOpen(false)} title="Mark part removed">
@@ -276,24 +304,34 @@ export default function PartDetail() {
         </View>
       </Sheet>
 
-      <Button
-        label="This is an accessory, not a part"
-        variant="ghost"
-        size="medium"
-        onPress={() => setConvertOpen(true)}
-        testID="cta-convert-to-accessory"
-      />
-
-      <Dialog
+      <PartsDialog
         visible={convertOpen}
         onClose={() => setConvertOpen(false)}
         title="Move to accessories?"
-        message={`An accessory is bought once and stays on the bike, so it is left out of cost per ${units.distance} and of part-wear tracking. This discards ${conversionLosses('partToAccessory', part).join(', ')}. The cost stays in your history.`}
-        confirmLabel="Move"
+        confirmLabel="Move it"
+        cancelLabel="Keep as part"
         busy={recategorise.isPending}
         onConfirm={() => void recategorise.submit({ direction: 'partToAccessory', part })}
         testID="dialog-convert-part"
-      />
+      >
+        <Txt role="body" tone="mut" style={{ marginTop: 8, lineHeight: 20.15 }}>
+          An accessory doesn&rsquo;t wear, so these are{' '}
+          <Txt role="body" tone="bad" style={{ fontFamily: fontFamily[700] }}>
+            discarded
+          </Txt>
+          :
+        </Txt>
+        <View style={{ gap: 8, marginTop: 12 }}>
+          {partToAccessoryBullets(part, units.distance).map((bullet) => (
+            <Txt key={bullet} role="body">
+              &bull; {bullet}
+            </Txt>
+          ))}
+        </View>
+        <Txt role="body" tone="mut" style={{ marginTop: 12, lineHeight: 19.5 }}>
+          {paid}
+        </Txt>
+      </PartsDialog>
 
       <Dialog
         visible={deleteOpen}
@@ -301,12 +339,12 @@ export default function PartDetail() {
         title="Delete this part?"
         message="The record and its cost are removed from your history. This can't be undone."
         confirmLabel="Delete"
+        cancelLabel="Keep"
         destructive
         busy={deletePart.isPending}
         onConfirm={() => deletePart.submit(part.id)}
         testID="dialog-delete-part"
       />
-
     </Screen>
   );
 }

@@ -6,6 +6,7 @@ import { useAuth } from '@/features/auth/AuthProvider';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { bikeRepository, profileRepository } from '@/repositories';
 import { searchCurrencies } from '@/calculations/currencies';
+import { mileageUnitForChoice, type MileageChoice } from '@/calculations/unitChoices';
 import type { CostBasis, DistanceUnit, MileageUnit, UnitPreferences, VolumeUnit } from '@/types';
 
 /**
@@ -231,5 +232,12 @@ export function useUnitsSettings() {
     openVolume: () => setOpen('volume'),
     openMileage: () => setOpen('mileage'),
     openCostBasis: () => setOpen('costBasis'),
+    // The Settings board puts the common choices inline, on a segmented track
+    // per row, and only falls back to the sheets for the ones a three-way
+    // control cannot hold.
+    setDistance: (distance: DistanceUnit) => void apply({ distance }),
+    setCostBasis: (costBasis: CostBasis) => void apply({ costBasis }),
+    setMileageChoice: (choice: MileageChoice) =>
+      void apply({ mileage: mileageUnitForChoice(choice, units.volume) }),
   };
 }

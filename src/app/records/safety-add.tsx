@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import {
   Button,
-  ChoiceGrid,
+  ChipGroup,
   DateField,
   Dialog,
   Field,
@@ -17,34 +17,36 @@ import {
   TextArea,
   Txt,
 } from '@/components';
+import { SAFETY_AREA_LABEL, SAFETY_AREAS } from '@/calculations/safety';
+import { SAFETY_STATUS_LABEL } from '@/calculations/safetySessions';
+import { useGarage } from '@/features/bikes/GarageProvider';
+import { useGarageData } from '@/features/bikes/useGarageData';
 import { useSafetyChecks } from '@/features/records/useRecordQueries';
 import {
   useDeleteSafetyCheck,
   useNewRecordIds,
   useSaveSafetyCheck,
 } from '@/features/records/useRecordsMutations';
+import { RecordsWalkaroundRow } from '@/features/records/ui/RecordsWalkaroundRow';
+import { useSaveWalkaround, type WalkaroundMark } from '@/features/records/ui/RecordsWrites';
 import { PhotoField } from '@/features/shared/PhotoField';
 import { toTrimmed } from '@/features/shared/formValues';
 import { useGarageContext } from '@/features/shared/useGarageContext';
 import { useStableId } from '@/features/shared/useStableId';
 import { uploadImageOrKeepLocal } from '@/services/storage';
 import { safetyCheckSchema } from '@/validation/schemas';
+import { formatDistance } from '@/utils/format';
 import { todayIso } from '@/utils/date';
 import type { SafetyArea, SafetyCheck, SafetyStatus } from '@/types';
 
-const AREAS: readonly { value: SafetyArea; label: string }[] = [
-  { value: 'tyres', label: 'Tyres' },
-  { value: 'chain', label: 'Chain' },
-  { value: 'brakes', label: 'Brakes' },
-  { value: 'battery', label: 'Battery' },
-  { value: 'lights', label: 'Lights' },
-];
+const AREAS: readonly { value: SafetyArea; label: string }[] = SAFETY_AREAS.map((value) => ({
+  value,
+  label: SAFETY_AREA_LABEL[value],
+}));
 
-const STATUSES: readonly { value: SafetyStatus; label: string }[] = [
-  { value: 'ok', label: 'OK' },
-  { value: 'watch', label: 'Watch' },
-  { value: 'action', label: 'Action' },
-];
+const STATUSES: readonly { value: SafetyStatus; label: string }[] = (
+  ['ok', 'watch', 'action'] as const
+).map((value) => ({ value, label: SAFETY_STATUS_LABEL[value] }));
 
 export default function SafetyCheckEditorRoute() {
   const { id: editingId } = useLocalSearchParams<{ id?: string }>();
@@ -61,29 +63,144 @@ export default function SafetyCheckEditorRoute() {
 
   const existing = editingId ? ((checks.data ?? []).find((c) => c.id === editingId) ?? null) : null;
 
-  return <SafetyCheckForm key={existing?.id ?? 'new'} existing={existing} />;
+  // A new check is a walk-around — one pass of the bike, every area on one
+  // screen. Opening an existing one is a different job: correcting a single
+  // record, which is the only place a date, a measurement or a photo belongs.
+  if (existing === null) return <WalkaroundForm />;
+
+  return <SingleCheckForm key={existing.id} existing={existing} />;
 }
 
-function SafetyCheckForm({ existing }: { existing: SafetyCheck | null }) {
+type Mark = { status: SafetyStatus | null; summary: string };
+
+function WalkaroundForm() {
+  const { units } = useGarage();
+  const { analytics } = useGarageData();
+  const ids = useNewRecordIds();
+  const { area: focusArea } = useLocalSearchParams<{ area?: string }>();
+
+  // One id per area, chosen once, so a retry rewrites the same five documents
+  // rather than adding five more.
+  const [markIds] = useState<Record<SafetyArea, string>>(() => {
+    const out = {} as Record<SafetyArea, string>;
+    for (const area of SAFETY_AREAS) out[area] = ids.safety();
+    return out;
+  });
+
+  const [marks, setMarks] = useState<Record<SafetyArea, Mark>>(() => {
+    const out = {} as Record<SafetyArea, Mark>;
+    for (const area of SAFETY_AREAS) out[area] = { status: null, summary: '' };
+    return out;
+  });
+  const [errors, setErrors] = useState<Partial<Record<SafetyArea, string>>>({});
+
+  const saveWalkaround = useSaveWalkaround();
+
+  const marked = SAFETY_AREAS.filter((area) => marks[area].status !== null);
+  const odometer = formatDistance(analytics?.odometer.currentMetres ?? null, units.distance);
+
+  // The board orders the rows the way a rider walks the bike, but a tap that
+  // came from a "never checked" tile belongs at the top of the list.
+  const ordered =
+    focusArea !== undefined && SAFETY_AREAS.includes(focusArea as SafetyArea)
+      ? [focusArea as SafetyArea, ...SAFETY_AREAS.filter((a) => a !== focusArea)]
+      : [...SAFETY_AREAS];
+
+  const submit = async () => {
+    const next: Partial<Record<SafetyArea, string>> = {};
+    const drafts: WalkaroundMark[] = [];
+
+    for (const area of marked) {
+      const mark = marks[area];
+      const status = mark.status;
+      if (status === null) continue;
+
+      // An area marked watch or action is a claim about the motorcycle, and a
+      // claim with no words behind it helps nobody in three months' time.
+      const summary = status === 'ok' ? SAFETY_STATUS_LABEL.ok : mark.summary.trim();
+      const parsed = safetyCheckSchema.safeParse({
+        area,
+        date: todayIso(),
+        status,
+        summary,
+        note: null,
+      });
+
+      if (!parsed.success) {
+        next[area] = parsed.error.issues[0]?.message ?? 'Describe what you found.';
+        continue;
+      }
+
+      drafts.push({ id: markIds[area], area, status, summary: parsed.data.summary });
+    }
+
+    setErrors(next);
+    if (Object.keys(next).length > 0 || drafts.length === 0) return;
+
+    await saveWalkaround.submit({ date: todayIso(), marks: drafts });
+  };
+
+  return (
+    <Screen testID="screen-safety-add">
+      <ScreenHeader title="Walk-around check" style={{ marginBottom: 4 }} />
+
+      <Txt role="meta" tone="mut" style={{ marginBottom: 14 }}>
+        Today · {odometer} · tap one per row, top to bottom
+      </Txt>
+
+      <Stack gap={10}>
+        {ordered.map((area) => (
+          <RecordsWalkaroundRow
+            key={area}
+            area={area}
+            label={SAFETY_AREA_LABEL[area]}
+            status={marks[area].status}
+            onStatus={(status) => setMarks((prev) => ({ ...prev, [area]: { ...prev[area], status } }))}
+            summary={marks[area].summary}
+            onSummary={(summary) => setMarks((prev) => ({ ...prev, [area]: { ...prev[area], summary } }))}
+            error={errors[area] ?? null}
+            testID={`safety-mark-${area}`}
+          />
+        ))}
+      </Stack>
+
+      <Button
+        label="Save check"
+        onPress={submit}
+        size="large"
+        loading={saveWalkaround.isPending}
+        disabled={marked.length === 0}
+        accessibilityHint={marked.length === 0 ? 'Mark at least one area first' : undefined}
+        style={{ marginTop: 16 }}
+        testID="cta-save-check"
+      />
+
+      <Txt role="helper" tone="mut" align="center" style={{ marginTop: 12 }}>
+        An area you leave alone records nothing — it stays whatever the last check said.
+      </Txt>
+    </Screen>
+  );
+}
+
+/** Correcting one stored check: the only place a date, a measurement or a photo belongs. */
+function SingleCheckForm({ existing }: { existing: SafetyCheck }) {
   const router = useRouter();
   const garage = useGarageContext();
-  const ids = useNewRecordIds();
 
-  const generatedId = useStableId(ids.safety);
-  const recordId = existing?.id ?? generatedId;
+  const recordId = useStableId(() => existing.id);
 
-  const [area, setArea] = useState<SafetyArea>(existing?.area ?? 'tyres');
-  const [status, setStatus] = useState<SafetyStatus>(existing?.status ?? 'ok');
-  const [date, setDate] = useState(existing?.date ?? todayIso());
-  const [summary, setSummary] = useState(existing?.summary ?? '');
+  const [area, setArea] = useState<SafetyArea>(existing.area);
+  const [status, setStatus] = useState<SafetyStatus>(existing.status);
+  const [date, setDate] = useState(existing.date);
+  const [summary, setSummary] = useState(existing.summary);
   const [front, setFront] = useState(
-    typeof existing?.measurements?.frontPsi === 'number' ? String(existing.measurements.frontPsi) : '',
+    typeof existing.measurements?.frontPsi === 'number' ? String(existing.measurements.frontPsi) : '',
   );
   const [rear, setRear] = useState(
-    typeof existing?.measurements?.rearPsi === 'number' ? String(existing.measurements.rearPsi) : '',
+    typeof existing.measurements?.rearPsi === 'number' ? String(existing.measurements.rearPsi) : '',
   );
-  const [note, setNote] = useState(existing?.note ?? '');
-  const [photoUri, setPhotoUri] = useState<string | null>(existing?.photoPath ?? null);
+  const [note, setNote] = useState(existing.note ?? '');
+  const [photoUri, setPhotoUri] = useState<string | null>(existing.photoPath ?? null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -140,17 +257,17 @@ function SafetyCheckForm({ existing }: { existing: SafetyCheck | null }) {
       measurements: Object.keys(measurements).length > 0 ? measurements : null,
       note: result.data.note,
       photoPath,
-      ...(existing ? { existing } : {}),
+      existing,
     });
   };
 
   return (
     <Screen testID="screen-safety-add">
-      <ScreenHeader title={existing ? 'Condition check' : 'Log condition check'} />
+      <ScreenHeader title="Condition check" />
 
       <Stack gap={14}>
         <Field label="What did you check">
-          <ChoiceGrid options={AREAS} value={area} onChange={setArea} />
+          <ChipGroup options={AREAS} value={area} onChange={setArea} testID="chips-check-area" />
         </Field>
 
         <Field label="How is it">
@@ -161,7 +278,7 @@ function SafetyCheckForm({ existing }: { existing: SafetyCheck | null }) {
           <Input
             value={summary}
             onChangeText={setSummary}
-            placeholder="F 29 / R 33 psi"
+            placeholder="Front lever spongy"
             autoCapitalize="sentences"
             invalid={Boolean(errors.summary)}
             testID="input-summary"
@@ -176,7 +293,7 @@ function SafetyCheckForm({ existing }: { existing: SafetyCheck | null }) {
                 onChangeText={setFront}
                 placeholder="29"
                 keyboardType="decimal-pad"
-                size="compact"
+                size="mini"
                 testID="input-front-psi"
               />
             </Field>
@@ -186,18 +303,16 @@ function SafetyCheckForm({ existing }: { existing: SafetyCheck | null }) {
                 onChangeText={setRear}
                 placeholder="33"
                 keyboardType="decimal-pad"
-                size="compact"
+                size="mini"
                 testID="input-rear-psi"
               />
             </Field>
           </FieldRow>
         ) : null}
 
-        <FieldRow>
-          <Field label="Date" flex={1}>
-            <DateField value={date} onChange={setDate} maximumDate={new Date()} testID="field-check-date" />
-          </Field>
-        </FieldRow>
+        <Field label="Date">
+          <DateField value={date} onChange={setDate} maximumDate={new Date()} testID="field-check-date" />
+        </Field>
 
         <Field label="Note (optional)">
           <TextArea
@@ -212,21 +327,20 @@ function SafetyCheckForm({ existing }: { existing: SafetyCheck | null }) {
         <PhotoField label="Attach photo" uri={photoUri} onChange={setPhotoUri} testID="field-check-photo" />
 
         <Button
-          label={existing ? 'Save changes' : 'Save check'}
+          label="Save changes"
           onPress={submit}
+          size="large"
           loading={saveCheck.isPending}
           testID="cta-save-check"
         />
 
-        {existing ? (
-          <Button
-            label="Delete check"
-            variant="secondary"
-            size="medium"
-            onPress={() => setDeleteOpen(true)}
-            testID="cta-delete-check"
-          />
-        ) : null}
+        <Button
+          label="Delete check"
+          variant="secondary"
+          size="medium"
+          onPress={() => setDeleteOpen(true)}
+          testID="cta-delete-check"
+        />
 
         <Txt role="helper" tone="mut" align="center">
           This is your own condition log, not a mechanical diagnosis.
@@ -241,7 +355,7 @@ function SafetyCheckForm({ existing }: { existing: SafetyCheck | null }) {
         confirmLabel="Delete"
         destructive
         busy={deleteCheck.isPending}
-        onConfirm={() => existing && deleteCheck.submit(existing.id)}
+        onConfirm={() => deleteCheck.submit(existing.id)}
         testID="dialog-delete-check"
       />
     </Screen>

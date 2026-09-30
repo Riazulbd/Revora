@@ -2,13 +2,20 @@ import React, { useEffect } from 'react';
 import { Pressable, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { useTheme } from '@/theme';
+import { HIT_SIZE, useTheme } from '@/theme';
 import { Icon } from './Icon';
 import { Txt } from './Text';
 
+const TRACK_WIDTH = 52;
+const TRACK_HEIGHT = 32;
+const KNOB = 26;
+const PAD = 3;
+
 /**
- * The switch from the design: a 46×26 track with a 22px white knob that slides
- * between 2px and 22px, over 150 ms.
+ * The switch from the Company allowance board: a `52×32` track
+ * (`border-radius:16px; padding:3px`) with a 26px knob that slides between
+ * 3px and 23px, over 150 ms. On, the track is `--acc`; the knob is white in
+ * light and `--bg` in dark, as the board draws it.
  */
 export function Toggle({
   value,
@@ -23,12 +30,13 @@ export function Toggle({
   disabled?: boolean;
   testID?: string;
 }) {
-  const { c } = useTheme();
-  const offset = useSharedValue(value ? 22 : 2);
+  const { c, dark } = useTheme();
+  const on = TRACK_WIDTH - KNOB - PAD;
+  const offset = useSharedValue(value ? on : PAD);
 
   useEffect(() => {
-    offset.value = withTiming(value ? 22 : 2, { duration: 150 });
-  }, [value, offset]);
+    offset.value = withTiming(value ? on : PAD, { duration: 150 });
+  }, [value, offset, on]);
 
   const knobStyle = useAnimatedStyle(() => ({ left: offset.value }));
 
@@ -39,40 +47,52 @@ export function Toggle({
       accessibilityLabel={accessibilityLabel}
       disabled={disabled}
       onPress={() => onChange(!value)}
-      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      hitSlop={{ left: 10, right: 10 }}
       testID={testID}
       style={{
-        width: 46,
-        height: 26,
-        borderRadius: 13,
-        backgroundColor: value ? c.acc : c.sur2,
-        opacity: disabled ? 0.5 : 1,
+        // The track is 52×32 on the board; the target is 44 high (requirement 58).
+        height: HIT_SIZE,
+        marginVertical: -(HIT_SIZE - TRACK_HEIGHT) / 2,
         justifyContent: 'center',
+        opacity: disabled ? 0.5 : 1,
       }}
     >
-      <Animated.View
-        style={[
-          {
-            position: 'absolute',
-            top: 2,
-            width: 22,
-            height: 22,
-            borderRadius: 11,
-            backgroundColor: '#FFFFFF',
-            shadowColor: '#000',
-            shadowOpacity: 0.25,
-            shadowRadius: 3,
-            shadowOffset: { width: 0, height: 1 },
-            elevation: 2,
-          },
-          knobStyle,
-        ]}
-      />
+      <View
+        style={{
+          width: TRACK_WIDTH,
+          height: TRACK_HEIGHT,
+          borderRadius: TRACK_HEIGHT / 2,
+          backgroundColor: value ? c.acc : c.sur2,
+          justifyContent: 'center',
+        }}
+      >
+        <Animated.View
+          style={[
+            {
+              position: 'absolute',
+              top: PAD,
+              width: KNOB,
+              height: KNOB,
+              borderRadius: KNOB / 2,
+              backgroundColor: dark ? c.bg : '#FFFFFF',
+              shadowColor: '#000',
+              shadowOpacity: 0.2,
+              shadowRadius: 3,
+              shadowOffset: { width: 0, height: 1 },
+              elevation: 2,
+            },
+            knobStyle,
+          ]}
+        />
+      </View>
     </Pressable>
   );
 }
 
-/** Label + description on the left, switch on the right — the settings row. */
+/**
+ * `700 14px` title and `500 12px` description on the left, the switch on the
+ * right — the "This is a company bike" card row.
+ */
 export function ToggleRow({
   title,
   description,
@@ -96,13 +116,13 @@ export function ToggleRow({
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 14,
-        paddingVertical: 8,
+        paddingVertical: 6,
       }}
     >
-      <View style={{ flex: 1, gap: 1 }}>
+      <View style={{ flex: 1, gap: 2 }}>
         <Txt role="rowTitle">{title}</Txt>
         {description ? (
-          <Txt role="metaSmall" tone="mut">
+          <Txt role="meta" tone="mut">
             {description}
           </Txt>
         ) : null}

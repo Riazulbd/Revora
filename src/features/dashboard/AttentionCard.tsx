@@ -1,10 +1,11 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import Svg, { Circle, Path } from 'react-native-svg';
 
-import { Card, Divider, Eyebrow, Icon, Txt } from '@/components';
+import { Button, Card, Divider, Eyebrow, Icon, RowIcon, Txt, type IconName } from '@/components';
 import type { AttentionItem } from '@/calculations/attention';
-import { useTheme } from '@/theme';
+import { fontFamily, useTheme } from '@/theme';
 
 /**
  * What is wrong with the motorcycle, at the top of the Dashboard.
@@ -18,71 +19,132 @@ import { useTheme } from '@/theme';
  * enough that an empty card is believed. A row that lingers after the rider
  * fixed it, or a severity that overstates, and they stop reading it — after
  * which the depth of those screens is a straightforward regression.
+ *
+ * Silence is the answer riders act on, so the boards draw three different ways
+ * of being silent and this renders all three. "Nothing is wrong" is a finding
+ * (the green board); "nothing to watch yet" is a new garage, not a clean bill
+ * of health; "I could not check" is neither, and painting a green tick the app
+ * cannot stand behind is the one failure that would make this card worse than
+ * no card at all.
  */
+
+const ROW_ICON: Record<AttentionItem['kind'], IconName> = {
+  safety: 'target',
+  maintenance: 'drop',
+  document: 'documents',
+};
+
 export function AttentionCard({
   items,
   isPending = false,
   hasError = false,
+  hasRecords = true,
 }: {
   items: readonly AttentionItem[];
   isPending?: boolean;
   hasError?: boolean;
+  /** False on a brand-new garage: nothing is wrong, but nothing is watched yet. */
+  hasRecords?: boolean;
 }) {
   const router = useRouter();
   const { c, radius } = useTheme();
 
-  // Silence is the answer riders act on, so the three ways of being silent must
-  // not look alike. "Nothing is wrong" is a finding; "I could not check" is
-  // not, and rendering a green tick the app cannot stand behind is the one
-  // failure that would make this card worse than no card.
   if (hasError) {
     return (
-      <Card style={{ paddingVertical: 16, gap: 4 }}>
-        <Eyebrow>NEEDS ATTENTION</Eyebrow>
-        <Txt role="rowTitle" style={{ marginTop: 6 }}>
-          Can&apos;t check what needs attention
+      <View
+        testID="attention-error"
+        style={{
+          borderRadius: radius.listCard,
+          backgroundColor: c.warnS,
+          paddingVertical: 13,
+          paddingHorizontal: 16,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 11,
+        }}
+      >
+        <Icon name="alertTriangle" size={18} color={c.warn} strokeWidth={1.8} />
+        <Txt role="meta" style={{ flex: 1, lineHeight: 18 }}>
+          <Txt role="meta" tone="warn" style={{ fontFamily: fontFamily[700] }}>
+            Can&rsquo;t check what needs attention
+          </Txt>{' '}
+          until your records load — not showing a green tick it can&rsquo;t stand behind.
         </Txt>
-        <Txt role="metaSmall" tone="mut">
-          Your records didn&apos;t load — not showing a green tick it can&apos;t stand behind.
-        </Txt>
-      </Card>
+      </View>
     );
   }
 
   if (isPending && items.length === 0) return null;
 
+  if (items.length === 0 && !hasRecords) {
+    return (
+      <View
+        testID="attention-unwatched"
+        style={{
+          borderRadius: radius.listCard,
+          backgroundColor: c.sur2,
+          paddingVertical: 13,
+          paddingHorizontal: 16,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 11,
+        }}
+      >
+        <Icon name="bell" size={18} color={c.mut} strokeWidth={1.8} />
+        <View style={{ flex: 1, gap: 2 }}>
+          <Txt role="rowTitleDense">Nothing to watch yet</Txt>
+          <Txt role="metaSmall" tone="mut">
+            Expiring documents and due rules will appear here once you add them.
+          </Txt>
+        </View>
+      </View>
+    );
+  }
+
   if (items.length === 0) {
     return (
-      <Card style={{ paddingVertical: 16, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <View
-          style={{
-            width: 34,
-            height: 34,
-            borderRadius: radius.tile,
-            backgroundColor: c.goodS,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Icon name="check" size={17} color={c.good} strokeWidth={2.6} />
-        </View>
+      <View
+        testID="attention-clear"
+        style={{
+          borderRadius: radius.listCard,
+          backgroundColor: c.goodS,
+          paddingVertical: 13,
+          paddingHorizontal: 16,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 11,
+        }}
+      >
+        {/* The boards draw this one as a filled disc rather than a line glyph:
+            it is the only mark on the Dashboard that reports good news. */}
+        <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+          <Circle cx={12} cy={12} r={10} fill={c.good} />
+          <Path
+            d="m7.5 12.5 3 3 6-6.5"
+            stroke="#FFFFFF"
+            strokeWidth={2.4}
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
         <View style={{ flex: 1, gap: 2 }}>
           <Txt role="rowTitleDense">Nothing needs your attention</Txt>
           <Txt role="metaSmall" tone="mut">
             No documents expiring, no rules due. Go ride.
           </Txt>
         </View>
-      </Card>
+      </View>
     );
   }
 
   return (
-    <Card style={{ paddingVertical: 14 }}>
-      <Eyebrow>NEEDS ATTENTION</Eyebrow>
-      <View style={{ marginTop: 10 }}>
+    <Card style={{ paddingTop: 16, paddingBottom: 6, paddingHorizontal: 16 }} testID="card-attention">
+      <Eyebrow tone="bad">NEEDS ATTENTION</Eyebrow>
+      <View style={{ marginTop: 4 }}>
         {items.map((item, index) => {
-          const tone = item.severity === 'critical' ? c.bad : c.warn;
-          const soft = item.severity === 'critical' ? c.badS : c.warnS;
+          const tone = item.severity === 'critical' ? 'bad' : 'warn';
+          const ink = item.severity === 'critical' ? c.bad : c.warn;
 
           return (
             <View key={item.id}>
@@ -100,65 +162,45 @@ export function AttentionCard({
                 style={({ pressed }) => ({
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: 12,
-                  paddingVertical: 12,
+                  gap: 11,
+                  paddingVertical: 11,
                   opacity: pressed ? 0.7 : 1,
                 })}
                 testID={`attention-${item.id}`}
               >
-                <View
-                  style={{
-                    width: 34,
-                    height: 34,
-                    borderRadius: radius.tile,
-                    backgroundColor: soft,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Icon
-                    name={item.kind === 'document' ? 'document' : 'alert'}
-                    size={16}
-                    color={tone}
-                    strokeWidth={2}
-                  />
-                </View>
+                <RowIcon size={32} tone={tone}>
+                  <Icon name={ROW_ICON[item.kind]} size={15} color={ink} strokeWidth={1.8} />
+                </RowIcon>
 
                 <View style={{ flex: 1, gap: 2 }}>
                   <Txt role="rowTitleDense" numberOfLines={2}>
                     {item.title}
                   </Txt>
-                  <Txt role="metaSmall" tone="mut" numberOfLines={2}>
+                  {/* The evidence carries the severity in colour, and the words
+                      carry it too — "310 km past" reads as a problem in grey. */}
+                  <Txt
+                    role="metaSmall"
+                    tone={item.kind === 'document' && item.severity === 'warning' ? 'mut' : tone}
+                    numberOfLines={2}
+                  >
                     {item.detail}
                   </Txt>
                 </View>
 
                 {item.action ? (
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={`${item.action.label}: ${item.title}`}
-                    hitSlop={6}
+                  <Button
+                    label={item.action.label}
+                    variant="tinted"
+                    size="micro"
                     onPress={() =>
                       router.push({
                         pathname: '/maintenance/rule',
                         params: { id: item.action?.ruleId ?? '', complete: '1' },
                       } as never)
                     }
-                    style={({ pressed }) => ({
-                      minHeight: 34,
-                      justifyContent: 'center',
-                      paddingHorizontal: 12,
-                      borderRadius: radius.input,
-                      borderWidth: 1,
-                      borderColor: c.brd,
-                      backgroundColor: pressed ? c.sur2 : 'transparent',
-                    })}
+                    accessibilityHint={item.title}
                     testID={`attention-action-${item.id}`}
-                  >
-                    <Txt role="micro" tone="acc" numberOfLines={1}>
-                      {item.action.label}
-                    </Txt>
-                  </Pressable>
+                  />
                 ) : (
                   <Icon name="chevronRight" size={15} color={c.mut} strokeWidth={2} />
                 )}

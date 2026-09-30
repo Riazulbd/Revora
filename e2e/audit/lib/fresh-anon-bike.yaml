@@ -1,0 +1,41 @@
+# An anonymous rider with one motorcycle reading 4,845 km.
+#
+# 4,845 rather than 0 on purpose: it is the fixture that proves Revora never
+# assumes a bike starts new, and every distance, mileage and cost figure is
+# measured from it rather than from the odometer's whole life.
+#
+# The redesign made nickname, year, tank and purchase optional and folded them
+# behind "More details", so only manufacturer, model and the reading are typed.
+appId: app.revora.android.dev
+---
+- launchApp:
+    clearState: true
+
+- assertVisible:
+    id: "screen-welcome"
+- tapOn:
+    id: "cta-signin"
+- assertVisible:
+    id: "screen-signin"
+- tapOn:
+    id: "cta-anonymous"
+
+- assertVisible:
+    id: "screen-onboarding"
+- tapOn:
+    id: "input-manufacturer"
+- inputText: "Audit"
+- tapOn:
+    id: "input-model"
+- inputText: "Bike"
+- tapOn:
+    id: "input-odometer"
+- inputText: "4845"
+- hideKeyboard
+
+- scrollUntilVisible:
+    element:
+      id: "cta-add-bike"
+    direction: DOWN
+- tapOn:
+    id: "cta-add-bike"

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import {
   Banner,
@@ -9,7 +9,6 @@ import {
   CheckRow,
   DateField,
   Divider,
-  Eyebrow,
   Field,
   FieldRow,
   Input,
@@ -17,6 +16,7 @@ import {
   ScreenHeader,
   Segmented,
   SkeletonList,
+  TextArea,
   Txt,
   useToast,
 } from '@/components';
@@ -27,6 +27,7 @@ import { validateOdometer } from '@/calculations/odometer';
 import { distanceUnitLabel, volumeUnitLabel } from '@/calculations/units';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
+import { FuelDisclosure } from '@/features/fuel/ui/FuelDisclosure';
 import { useNewFuelId, useSaveFuel, type AdjustmentDraft } from '@/features/fuel/useFuelMutations';
 import { fromMetres, fromMinor, fromMl, toMetres, toMinor, toMl, toTrimmed } from '@/features/shared/formValues';
 import { PhotoField } from '@/features/shared/PhotoField';
@@ -36,8 +37,8 @@ import { uploadImageOrKeepLocal } from '@/services/storage';
 import { useConnectivity } from '@/services/connectivity';
 import type { FuelAdjustmentReason, FuelEntry, UnitPreferences } from '@/types';
 import { fuelEntrySchema } from '@/validation/schemas';
-import { formatDistance, formatVolume } from '@/utils/format';
-import { todayIso } from '@/utils/date';
+import { formatDistance, formatDistanceValue, formatVolume, NO_VALUE } from '@/utils/format';
+import { formatShortDate, todayIso } from '@/utils/date';
 
 /**
  * Add / edit a fuel log — the screen that has to work with cold hands, gloves on,
@@ -45,7 +46,8 @@ import { todayIso } from '@/utils/date';
  *
  * Three properties it guarantees:
  *  · Litres, price and total stay consistent: fill in any two and the third is
- *    derived exactly, in integers (requirement 14).
+ *    derived exactly, in integers (requirement 14). The derived box says so, in
+ *    the board's inset grey with a "⟳ derived" line, so nobody retypes it.
  *  · The raw litres the rider paid for are stored untouched; adjustments are a
  *    separate list (requirement 16).
  *  · Nothing is lost. The save is accepted locally the moment it is made, and if
@@ -66,6 +68,33 @@ const ADJUSTMENT_ROWS: readonly { reason: FuelAdjustmentReason; label: string; a
 
 /** Top to bottom on the form, so the toast names the first thing they will see. */
 const FIELD_ORDER = ['odometer', 'litres', 'total', 'adjustments', 'form'] as const;
+
+/**
+ * The board's failure banner: a bold red opening that names what stopped the
+ * save, then the sentence that gets the rider out of it.
+ */
+const FAILURE_COPY: Record<(typeof FIELD_ORDER)[number], { lead: string; message: string }> = {
+  odometer: {
+    lead: 'Not saved — the odometer is empty.',
+    message: 'Enter the reading at the pump, exactly as it shows.',
+  },
+  litres: {
+    lead: 'Not saved — litres is empty.',
+    message: 'Enter litres, or litres will be worked out if you give price and total.',
+  },
+  total: {
+    lead: 'Not saved — the money does not add up.',
+    message: 'Give any two of litres, price and total; the third is worked out.',
+  },
+  adjustments: {
+    lead: 'Not saved — an adjustment has no amount.',
+    message: 'Enter how much fuel each adjustment accounts for, or clear it.',
+  },
+  form: {
+    lead: 'Not saved.',
+    message: 'Check the highlighted fields and try again.',
+  },
+};
 
 const FILL_OPTIONS = [
   { value: 'full' as const, label: 'Full tank' },
@@ -91,7 +120,7 @@ export default function AddFuelRoute() {
   if (analytics === null) {
     return (
       <Screen testID="screen-fuel-add">
-        <ScreenHeader title={editingId ? 'Edit fuel log' : 'Add fuel'} />
+        <ScreenHeader title={editingId ? 'Edit fill' : 'Add fuel'} />
         <SkeletonList count={4} height={72} />
       </Screen>
     );
@@ -114,6 +143,7 @@ function FuelForm({
   units: UnitPreferences;
 }) {
   const garage = useGarageContext();
+  const router = useRouter();
   const connectivity = useConnectivity();
   const toast = useToast();
 
@@ -124,6 +154,7 @@ function FuelForm({
   const currency = existing?.currency ?? analytics.currency;
   const decimals = currencyDecimals(currency);
   const currentOdometer = analytics.odometer.currentMetres;
+  const volumeLabel = volumeUnitLabel(units.volume);
 
   const [date, setDate] = useState(existing?.date ?? todayIso());
   const [odometer, setOdometer] = useState(
@@ -132,6 +163,7 @@ function FuelForm({
   const [litres, setLitres] = useState(existing ? fromMl(existing.litresMl, units.volume) : '');
   // A new fill starts at the price of the last one — at a pump it is almost
   // always the same, and pre-filling removes a step without inventing anything.
+  // The board marks that box "last fill" so the rider knows where it came from.
   const [price, setPrice] = useState(
     existing
       ? fromMinor(existing.pricePerLitreMinor, decimals)
@@ -139,7 +171,13 @@ function FuelForm({
         ? fromMinor(analytics.fuel.latest.pricePerLitreMinor, decimals)
         : '',
   );
+  const [priceFromLastFill, setPriceFromLastFill] = useState(
+    existing === null && analytics.fuel.latest !== null,
+  );
   const [total, setTotal] = useState(existing ? fromMinor(existing.totalCostMinor, decimals) : '');
+  // Which box the app filled in for the rider, so only that one is drawn inset
+  // and captioned "⟳ derived".
+  const [derived, setDerived] = useState<'price' | 'total' | null>(existing ? null : 'total');
   const [fillType, setFillType] = useState<'full' | 'partial' | 'unknown'>(existing?.fillType ?? 'full');
   // Adjustments logged with this fill are their own records on the timeline,
   // recognisable by a clientRef stamped with this entry's id.
@@ -160,6 +198,8 @@ function FuelForm({
   const [notes, setNotes] = useState(existing?.notes ?? '');
   const [receiptUri, setReceiptUri] = useState<string | null>(existing?.receiptPath ?? null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [adjustmentsOpen, setAdjustmentsOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const lastEdited = useRef<'litres' | 'price' | 'total' | null>(null);
 
   /** Derive whichever money field the rider has not just typed into. */
@@ -168,7 +208,7 @@ function FuelForm({
     values: { litres: string; price: string; total: string },
   ) => {
     lastEdited.current = source;
-    const derived = deriveFuelAmounts(
+    const result = deriveFuelAmounts(
       {
         litresMl: toMl(values.litres, units.volume),
         pricePerLitreMinor: toMinor(values.price, currency),
@@ -177,11 +217,14 @@ function FuelForm({
       source,
     );
 
-    if (source !== 'total' && derived.totalCostMinor !== null) {
-      setTotal(fromMinor(derived.totalCostMinor, decimals));
+    if (source !== 'total' && result.totalCostMinor !== null) {
+      setTotal(fromMinor(result.totalCostMinor, decimals));
+      setDerived('total');
     }
-    if (source === 'total' && derived.pricePerLitreMinor !== null) {
-      setPrice(fromMinor(derived.pricePerLitreMinor, decimals));
+    if (source === 'total' && result.pricePerLitreMinor !== null) {
+      setPrice(fromMinor(result.pricePerLitreMinor, decimals));
+      setPriceFromLastFill(false);
+      setDerived('price');
     }
   };
 
@@ -195,10 +238,20 @@ function FuelForm({
 
   const litresMl = toMl(litres, units.volume);
   const effectiveMl = litresMl === null ? null : Math.max(0, litresMl + adjustmentMlTotal);
+  const adjustmentCount = ADJUSTMENT_ROWS.filter((row) => adjustments[row.reason] !== undefined).length;
 
   const odometerMetres = toMetres(odometer, units.distance);
   const odometerCheck =
     odometerMetres === null ? null : validateOdometer(odometerMetres, existing ? null : currentOdometer);
+  const odometerWarning = odometerCheck !== null && !odometerCheck.ok;
+
+  const failureKey = FIELD_ORDER.find((key) => errors[key] !== undefined) ?? null;
+
+  const detailSummary = [
+    toTrimmed(station),
+    toTrimmed(notes) === null ? null : 'notes',
+    receiptUri === null ? null : '1 photo',
+  ].filter((part): part is string => part !== null);
 
   const saveFuel = useSaveFuel();
 
@@ -265,8 +318,10 @@ function FuelForm({
     if (Object.keys(next).length > 0) {
       // The Save button sits below the fold, so the field it highlighted is
       // often off-screen: the rider taps, nothing visibly happens, and they tap
-      // again. Say what is wrong where the thumb already is.
+      // again. Say what is wrong where the thumb already is — in the toast and
+      // in the banner directly above Save.
       const first = FIELD_ORDER.find((key) => next[key] !== undefined);
+      if (next.adjustments !== undefined) setAdjustmentsOpen(true);
       toast.show(first === undefined ? 'Check the highlighted fields.' : (next[first] as string), 'error');
       return;
     }
@@ -304,114 +359,151 @@ function FuelForm({
   };
 
   return (
-    <Screen testID="screen-fuel-add">
-      <ScreenHeader title={existing ? 'Edit fuel log' : 'Add fuel'} />
+    <Screen testID="screen-fuel-add" contentStyle={{ flexGrow: 1 }}>
+      <ScreenHeader
+        title={existing ? 'Edit fill' : 'Add fuel'}
+        {...(existing ? { titleSuffix: `· ${formatShortDate(existing.date)}` } : {})}
+      />
 
-      <View style={{ gap: 14 }}>
-        <FieldRow>
-          <Field label="Date" flex={1}>
-            <DateField
-              value={date}
-              onChange={setDate}
-              maximumDate={new Date()}
-              accessibilityLabel="Date of this fill"
-              testID="field-date"
-            />
-          </Field>
-          <Field
-            label={`Odometer (${distanceUnitLabel(units.distance)})`}
-            flex={1}
-            error={errors.odometer ?? null}
-          >
-            <Input
-              value={odometer}
-              onChangeText={setOdometer}
-              placeholder={
-                currentOdometer === null ? '0' : `${fromMetres(currentOdometer, units.distance)} last`
-              }
-              keyboardType="decimal-pad"
-              size="compact"
-              invalid={Boolean(errors.odometer)}
-              testID="input-odometer"
-            />
-          </Field>
-        </FieldRow>
-
-        {odometerCheck && !odometerCheck.ok ? (
-          <Banner
-            icon="alert"
-            message={
-              odometerCheck.reason === 'below_current'
-                ? `That is below your last reading of ${formatDistance(odometerCheck.currentMetres, units.distance)}. Revora keeps the higher figure as the current odometer.`
-                : `That is more than 5,000 ${distanceUnitLabel(units.distance)} past your last reading — worth double-checking.`
-            }
-            testID="banner-odometer"
+      <FieldRow gap={12}>
+        <Field label="Date" icon="calendar" flex={1}>
+          <DateField
+            value={date}
+            onChange={setDate}
+            maximumDate={new Date()}
+            size="numeric"
+            format={formatShortDate}
+            accessibilityLabel="Date of this fill"
+            testID="field-date"
           />
-        ) : null}
+        </Field>
+        <Field label="Odometer" icon="odometer" flex={1.3} error={errors.odometer ?? null}>
+          <Input
+            value={odometer}
+            onChangeText={setOdometer}
+            placeholder={
+              currentOdometer === null ? NO_VALUE : formatDistanceValue(currentOdometer, units.distance)
+            }
+            keyboardType="decimal-pad"
+            size="numeric"
+            unit={distanceUnitLabel(units.distance)}
+            tone={odometerWarning ? 'warn' : 'default'}
+            invalid={Boolean(errors.odometer)}
+            accessibilityLabel={`Odometer reading in ${distanceUnitLabel(units.distance)}`}
+            testID="input-odometer"
+          />
+        </Field>
+      </FieldRow>
 
-        <FieldRow>
-          <Field
-            label={volumeUnitLabel(units.volume) === 'L' ? 'Litres' : 'Volume'}
-            flex={1}
-            error={errors.litres ?? null}
-          >
-            <Input
-              value={litres}
-              onChangeText={(t) => {
-                setLitres(t);
-                recalculate('litres', { litres: t, price, total });
-              }}
-              placeholder="0.0"
-              keyboardType="decimal-pad"
-              size="numeric"
-              invalid={Boolean(errors.litres)}
-              testID="input-litres"
-            />
-          </Field>
-          <Field label={`Price / ${volumeUnitLabel(units.volume)} (${currencySymbol(currency)})`} flex={1}>
-            <Input
-              value={price}
-              onChangeText={(t) => {
-                setPrice(t);
-                recalculate('price', { litres, price: t, total });
-              }}
-              placeholder="0"
-              keyboardType="decimal-pad"
-              size="numeric"
-              testID="input-price"
-            />
-          </Field>
-          <Field label={`Total (${currencySymbol(currency)})`} flex={1} error={errors.total ?? null}>
-            <Input
-              value={total}
-              onChangeText={(t) => {
-                setTotal(t);
-                recalculate('total', { litres, price, total: t });
-              }}
-              placeholder="auto"
-              keyboardType="decimal-pad"
-              size="numeric"
-              inset
-              invalid={Boolean(errors.total)}
-              testID="input-total"
-            />
-          </Field>
-        </FieldRow>
+      {odometerCheck && !odometerCheck.ok ? (
+        <Banner
+          icon="alertTriangle"
+          compact
+          lead={
+            odometerCheck.reason === 'below_current'
+              ? `Below your last reading (${formatDistance(odometerCheck.currentMetres, units.distance)}).`
+              : `More than 5,000 ${distanceUnitLabel(units.distance)} past your last reading.`
+          }
+          message={
+            odometerCheck.reason === 'below_current'
+              ? 'You can still save — if an earlier entry is the wrong one, fix it in'
+              : 'You can still save — worth double-checking the reading, or fix an earlier entry in'
+          }
+          link={{
+            label: 'Odometer history',
+            onPress: () => router.push('/garage/odometer'),
+            testID: 'link-odometer-history',
+          }}
+          style={{ marginTop: 10 }}
+          testID="banner-odometer"
+        />
+      ) : null}
 
-        <View style={{ gap: 8 }}>
-          <Txt role="fieldLabel" tone="mut">
-            Fill type
-          </Txt>
+      <FieldRow gap={10} style={{ marginTop: 16 }}>
+        <Field label={volumeLabel === 'L' ? 'Litres' : 'Volume'} icon="drop" flex={1}>
+          <Input
+            value={litres}
+            onChangeText={(t) => {
+              setLitres(t);
+              recalculate('litres', { litres: t, price, total });
+            }}
+            placeholder={NO_VALUE}
+            keyboardType="decimal-pad"
+            size="numeric"
+            invalid={Boolean(errors.litres)}
+            accessibilityLabel={`How much fuel, in ${volumeLabel}`}
+            testID="input-litres"
+          />
+        </Field>
+        <Field label={`${currencySymbol(currency)} / ${volumeLabel.toLowerCase()}`} flex={1}>
+          <Input
+            value={price}
+            onChangeText={(t) => {
+              setPrice(t);
+              setPriceFromLastFill(false);
+              if (derived === 'price') setDerived(null);
+              recalculate('price', { litres, price: t, total });
+            }}
+            placeholder={NO_VALUE}
+            keyboardType="decimal-pad"
+            size="numeric"
+            inset={derived === 'price'}
+            {...(derived === 'price'
+              ? { hint: '⟳ derived' as const }
+              : priceFromLastFill
+                ? { hint: 'last fill' as const, hintTone: 'acc' as const }
+                : {})}
+            accessibilityLabel={`Price per ${volumeLabel}`}
+            testID="input-price"
+          />
+        </Field>
+        <Field label="Total" icon="banknote" flex={1} error={errors.total ?? null}>
+          <Input
+            value={total}
+            onChangeText={(t) => {
+              setTotal(t);
+              if (derived === 'total') setDerived(null);
+              recalculate('total', { litres, price, total: t });
+            }}
+            placeholder={NO_VALUE}
+            keyboardType="decimal-pad"
+            size="numeric"
+            inset={derived === 'total'}
+            {...(derived === 'total' ? { hint: '⟳ derived' as const } : {})}
+            invalid={Boolean(errors.total)}
+            accessibilityLabel={`Total paid, in ${currencySymbol(currency)}`}
+            testID="input-total"
+          />
+        </Field>
+      </FieldRow>
+
+      <Txt role="helper" tone="mut" style={{ marginTop: 8 }}>
+        Fill any two — the third is derived.
+      </Txt>
+
+      <View style={{ gap: 8, marginTop: 18 }}>
+        <Field label="Fill type" icon="fuel">
           <Segmented options={FILL_OPTIONS} value={fillType} onChange={setFillType} testID="segment-fill" />
-          <Txt role="helper" tone="mut">
-            Mark a fill Full when you filled the tank to the top. Revora measures between two full tanks;
-            until it has a pair it shows an estimate across everything you have logged.
-          </Txt>
-        </View>
+        </Field>
+        <Txt role="helper" tone="mut">
+          {existing
+            ? 'Editing this fill recalculates every figure after it.'
+            : 'Only a full tank can close a mileage interval.'}
+        </Txt>
+      </View>
 
-        <Card variant="flush" style={{ paddingHorizontal: 16, paddingVertical: 6 }}>
-          <Eyebrow>ADJUSTMENTS · OPTIONAL</Eyebrow>
-          <View style={{ height: 4 }} />
+      <Card variant="list" style={{ borderRadius: 13, marginTop: 18 }}>
+        <FuelDisclosure
+          title="Adjustment"
+          summary={
+            adjustmentCount === 0
+              ? 'Spillage, leak, drained — its own record'
+              : `${adjustmentCount} logged · kept as their own records`
+          }
+          open={adjustmentsOpen}
+          onToggle={() => setAdjustmentsOpen((open) => !open)}
+          testID="disclosure-adjustment"
+        >
           {ADJUSTMENT_ROWS.map((row, index) => {
             const entry = adjustments[row.reason];
             const checked = entry !== undefined;
@@ -428,7 +520,10 @@ function FuelForm({
                         copy[row.reason] = { value: '' };
                       } else {
                         const removed = copy[row.reason];
-                        if (removed?.id) setRemovedAdjustmentIds((ids) => [...ids, removed.id!]);
+                        if (removed?.id !== undefined) {
+                          const removedId = removed.id;
+                          setRemovedAdjustmentIds((ids) => [...ids, removedId]);
+                        }
                         delete copy[row.reason];
                       }
                       return copy;
@@ -446,9 +541,10 @@ function FuelForm({
                           [row.reason]: { ...(prev[row.reason] ?? {}), value: t },
                         }))
                       }
-                      placeholder={`How much fuel (${volumeUnitLabel(units.volume)})`}
+                      placeholder={`How much fuel (${volumeLabel})`}
                       keyboardType="decimal-pad"
-                      size="compact"
+                      size="mini"
+                      padX={14}
                       accessibilityLabel={`${row.label} amount`}
                       testID={`adjust-amount-${row.reason}`}
                     />
@@ -457,73 +553,94 @@ function FuelForm({
               </View>
             );
           })}
+
           {errors.adjustments ? (
-            <Txt role="helper" tone="bad" style={{ paddingBottom: 12 }}>
+            <Txt role="helper" tone="bad">
               {errors.adjustments}
             </Txt>
           ) : null}
-        </Card>
 
-        {adjustmentMlTotal !== 0 && litresMl !== null ? (
-          <Banner
-            tone="neutral"
-            message={
-              adjustmentMlTotal < 0
-                ? `Logged ${formatVolume(litresMl, units.volume)}, of which ${formatVolume(
-                    -adjustmentMlTotal,
-                    units.volume,
-                  )} was adjusted out. Mileage for this interval will use ${formatVolume(
-                    effectiveMl,
-                    units.volume,
-                  )}; your original entry is kept as-is.`
-                : `${formatVolume(adjustmentMlTotal, units.volume)} of unlogged fuel will be counted into this interval alongside the ${formatVolume(litresMl, units.volume)} you logged.`
-            }
-            testID="banner-adjusted"
+          {adjustmentMlTotal !== 0 && litresMl !== null ? (
+            <Banner
+              variant="inset"
+              message={
+                adjustmentMlTotal < 0
+                  ? `Logged ${formatVolume(litresMl, units.volume)}, of which ${formatVolume(
+                      -adjustmentMlTotal,
+                      units.volume,
+                    )} was adjusted out. Mileage for this interval will use ${formatVolume(
+                      effectiveMl,
+                      units.volume,
+                    )}; your original entry is kept as-is.`
+                  : `${formatVolume(adjustmentMlTotal, units.volume)} of unlogged fuel will be counted into this interval alongside the ${formatVolume(litresMl, units.volume)} you logged.`
+              }
+              testID="banner-adjusted"
+            />
+          ) : null}
+        </FuelDisclosure>
+
+        <Divider />
+
+        <FuelDisclosure
+          title="Details"
+          summary={detailSummary.length === 0 ? 'Station, notes, receipt photo' : detailSummary.join(' · ')}
+          open={detailsOpen}
+          onToggle={() => setDetailsOpen((open) => !open)}
+          testID="disclosure-details"
+        >
+          <Field label="Station">
+            <Input
+              value={station}
+              onChangeText={setStation}
+              placeholder="Padma Oil, Mirpur 10"
+              autoCapitalize="words"
+              size="compact"
+              padX={14}
+              testID="input-station"
+            />
+          </Field>
+
+          <Field label="Notes">
+            <TextArea
+              value={notes}
+              onChangeText={setNotes}
+              placeholder="Anything worth remembering"
+              testID="input-notes"
+            />
+          </Field>
+
+          <PhotoField
+            label="Attach pump receipt"
+            uri={receiptUri}
+            onChange={setReceiptUri}
+            testID="field-receipt"
           />
-        ) : null}
+        </FuelDisclosure>
+      </Card>
 
-        <Field label="Station (optional)">
-          <Input
-            value={station}
-            onChangeText={setStation}
-            placeholder="Padma Oil, Mirpur 10"
-            autoCapitalize="words"
-            size="compact"
-            testID="input-station"
-          />
-        </Field>
+      {/* The board pins Save to the bottom of the screen, whatever the form
+          above it happens to be tall enough to fill. */}
+      <View style={{ flex: 1, minHeight: 24 }} />
 
-        <Field label="Notes (optional)">
-          <Input
-            value={notes}
-            onChangeText={setNotes}
-            placeholder="Anything worth remembering"
-            size="compact"
-            testID="input-notes"
-          />
-        </Field>
-
-        <PhotoField
-          label="Attach pump receipt"
-          uri={receiptUri}
-          onChange={setReceiptUri}
-          testID="field-receipt"
+      {failureKey !== null ? (
+        <Banner
+          tone="bad"
+          icon="alertCircle"
+          lead={FAILURE_COPY[failureKey].lead}
+          message={FAILURE_COPY[failureKey].message}
+          style={{ marginBottom: 12 }}
+          testID="banner-save-failed"
         />
+      ) : null}
 
-        <Button
-          label={existing ? 'Save changes' : 'Save fuel log'}
-          onPress={submit}
-          loading={saveFuel.isPending}
-          style={{ height: 54 }}
-          testID="cta-save-fuel"
-        />
-
-        <Txt role="helper" tone="mut" align="center">
-          {connectivity.isOnline
-            ? 'Saves instantly and syncs to your account.'
-            : "You're offline — this saves on your phone now and syncs by itself later."}
-        </Txt>
-      </View>
+      <Button
+        label={existing ? 'Save changes' : 'Save fill'}
+        size="xlarge"
+        onPress={submit}
+        loading={saveFuel.isPending}
+        {...(connectivity.isOnline ? {} : { subLabel: 'offline — saves on phone, syncs later' })}
+        testID="cta-save-fuel"
+      />
     </Screen>
   );
 }

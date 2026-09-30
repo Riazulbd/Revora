@@ -78,6 +78,15 @@ service cloud.firestore {
         || (incoming()[field] is string && incoming()[field].size() <= maxLength);
     }
 
+    // An enum that may be absent or null, but must be one of the listed values
+    // when present. Absent is legal because older documents predate the field;
+    // a value outside the vocabulary is not, because every reader defaults it
+    // silently and the rider would never see that their data was discarded.
+    function optionalEnum(field, values) {
+      return !(field in incoming()) || incoming()[field] == null
+        || incoming()[field] in values;
+    }
+
     function requiredText(field, maxLength) {
       return incoming()[field] is string
         && incoming()[field].size() > 0
@@ -106,12 +115,24 @@ service cloud.firestore {
         && optionalText('displayName', 120)
         && optionalText('email', 320)
         && requiredText('currency', 8);
+      // The same caps as create. Validating only `displayName` on update left
+      // `email` and `currency` uncapped for the whole life of the account,
+      // which is the one write every signed-in rider can always make.
       allow update: if signedIn()
         && request.auth.uid == userId
         && ownsExisting()
         && keepsImmutableFields()
-        && optionalText('displayName', 120);
-      allow delete: if false; // Deletion goes through deleteMyAccount.
+        && optionalText('displayName', 120)
+        && optionalText('email', 320)
+        && optionalText('currency', 8);
+      // Closed to every client, including the owner. Deletion goes through the
+      // `deleteMyAccount` callable in functions/src/account.ts, which runs with
+      // the Admin SDK and so bypasses this ruleset entirely. It has to: erasure
+      // reaches the Cloud Storage prefix, the server-written collections below
+      // and the Firebase identity itself, none of which a client token can
+      // finish. A client deleting this document alone would only strand the
+      // rest. Proven by functions/test/account.integration.cjs.
+      allow delete: if false;
     }
 
     /* -------------------------------------------------------------- */
@@ -133,7 +154,8 @@ service cloud.firestore {
           && optionalNumber('engineCc')
           // Registration plates identify a vehicle and therefore a person;
           // they are stored, never exported to analytics or the AI gateway.
-          && optionalText('registrationNumber', 32);
+          && optionalText('registrationNumber', 32)
+          && optionalText('photoPath', 512);
       }
 
       allow read: if ownsExisting();
@@ -166,7 +188,8 @@ service cloud.firestore {
           && optionalNonNegativeNumber('totalCost')
           && optionalText('notes', 2000)
           && optionalText('stationName', 120)
-          && optionalText('receiptPath', 512);
+          && optionalText('receiptPath', 512)
+          && optionalText('clientRef', 256);
       }
 
       allow read: if ownsExisting();
@@ -190,7 +213,8 @@ service cloud.firestore {
             'transferred', 'added_unlogged', 'other'
           ]
           && incoming().approximate is bool
-          && optionalText('note', 2000);
+          && optionalText('note', 2000)
+          && optionalText('clientRef', 256);
       }
 
       allow read: if ownsExisting();
@@ -207,7 +231,8 @@ service cloud.firestore {
           && isDateLike(incoming().date)
           && isNumber(incoming().odometer)
           && incoming().odometer >= 0
-          && incoming().source in ['manual', 'fuel', 'service', 'expense'];
+          && incoming().source in ['manual', 'fuel', 'service', 'expense']
+          && optionalText('clientRef', 256);
       }
 
       allow read: if ownsExisting();
@@ -219,18 +244,23 @@ service cloud.firestore {
     }
 
     match /gaugeSamples/{sampleId} {
+      function validSample() {
+        return requiredText('bikeId', 128)
+          && isNumber(incoming().bars)
+          && incoming().bars >= 0
+          && isNumber(incoming().totalBars)
+          && incoming().totalBars >= 2
+          && isNumber(incoming().litersToFill)
+          && incoming().litersToFill >= 0
+          && incoming().filledToFull is bool
+          && optionalText('clientRef', 256);
+      }
+
       allow read: if ownsExisting();
-      allow create: if claimsOwn()
-        && hasOwnerTimestamps()
-        && requiredText('bikeId', 128)
-        && isNumber(incoming().bars)
-        && incoming().bars >= 0
-        && isNumber(incoming().totalBars)
-        && incoming().totalBars >= 2
-        && isNumber(incoming().litersToFill)
-        && incoming().litersToFill >= 0
-        && incoming().filledToFull is bool;
-      allow update: if ownsExisting() && keepsImmutableFields();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validSample();
+      // Validated on update as well: a sample that passes on create and is then
+      // edited into nonsense calibrates every later gauge reading from it.
+      allow update: if ownsExisting() && keepsImmutableFields() && validSample();
       allow delete: if ownsExisting();
     }
 
@@ -248,7 +278,8 @@ service cloud.firestore {
           && optionalNonNegativeNumber('totalCost')
           && optionalNonNegativeNumber('laborCost')
           && optionalText('notes', 4000)
-          && optionalText('performedBy', 120);
+          && optionalText('performedBy', 120)
+          && optionalText('clientRef', 256);
       }
 
       allow read: if ownsExisting();
@@ -275,7 +306,8 @@ service cloud.firestore {
           && optionalText('spec', 60)
           && (!('unit' in incoming()) || incoming().unit in ['piece', 'litre'])
           && optionalNonNegativeNumber('unitCost')
-          && optionalNonNegativeNumber('totalCost');
+          && optionalNonNegativeNumber('totalCost')
+          && optionalText('clientRef', 256);
       }
 
       allow read: if ownsExisting();
@@ -294,7 +326,8 @@ service cloud.firestore {
           && isNumber(incoming().warnAheadKm)
           && isNumber(incoming().warnAheadDays)
           && incoming().enabled is bool
-          && optionalText('notes', 2000);
+          && optionalText('notes', 2000)
+          && optionalText('clientRef', 256);
       }
 
       allow read: if ownsExisting();
@@ -304,28 +337,43 @@ service cloud.firestore {
     }
 
     match /parts/{partId} {
+      function validPart() {
+        return requiredText('bikeId', 128)
+          && requiredText('name', 120)
+          && optionalNonNegativeNumber('installedOdometer')
+          && optionalNonNegativeNumber('expectedLifeKm')
+          && optionalNonNegativeNumber('removedOdometer')
+          && optionalNonNegativeNumber('cost')
+          && optionalText('installedDate', 40)
+          && optionalText('removedDate', 40)
+          && optionalText('fittedBy', 120)
+          && optionalText('serviceId', 128)
+          && optionalText('notes', 2000)
+          && optionalText('clientRef', 256);
+      }
+
       allow read: if ownsExisting();
-      allow create: if claimsOwn()
-        && hasOwnerTimestamps()
-        && requiredText('bikeId', 128)
-        && requiredText('name', 120)
-        && optionalNonNegativeNumber('installedOdometer')
-        && optionalNonNegativeNumber('expectedLifeKm')
-        && optionalNonNegativeNumber('cost')
-        && optionalText('notes', 2000);
-      allow update: if ownsExisting() && keepsImmutableFields();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validPart();
+      allow update: if ownsExisting() && keepsImmutableFields() && validPart();
       allow delete: if ownsExisting();
     }
 
     match /accessories/{accessoryId} {
+      function validAccessory() {
+        return requiredText('bikeId', 128)
+          && requiredText('name', 120)
+          && optionalNonNegativeNumber('cost')
+          && optionalNonNegativeNumber('installationCost')
+          && optionalText('date', 40)
+          && optionalText('photoPath', 512)
+          && optionalText('serviceId', 128)
+          && optionalText('notes', 2000)
+          && optionalText('clientRef', 256);
+      }
+
       allow read: if ownsExisting();
-      allow create: if claimsOwn()
-        && hasOwnerTimestamps()
-        && requiredText('bikeId', 128)
-        && requiredText('name', 120)
-        && optionalNonNegativeNumber('cost')
-        && optionalText('notes', 2000);
-      allow update: if ownsExisting() && keepsImmutableFields();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validAccessory();
+      allow update: if ownsExisting() && keepsImmutableFields() && validAccessory();
       allow delete: if ownsExisting();
     }
 
@@ -342,7 +390,8 @@ service cloud.firestore {
           ]
           && optionalNonNegativeNumber('odometer')
           && optionalText('notes', 2000)
-          && optionalText('receiptPath', 512);
+          && optionalText('receiptPath', 512)
+          && optionalText('clientRef', 256);
       }
 
       allow read: if ownsExisting();
@@ -353,15 +402,23 @@ service cloud.firestore {
       allow delete: if ownsExisting();
     }
 
+    // The notification row the app reads back. `kind` steers which screen the
+    // row opens, so an unlisted value is a row the rider cannot act on: the
+    // parser would silently fall back to 'system'.
     match /reminders/{reminderId} {
+      function validReminder() {
+        return requiredText('bikeId', 128)
+          && requiredText('title', 120)
+          && isDateLike(incoming().dueAt)
+          && optionalEnum('kind', ['maintenance', 'document', 'sync', 'system'])
+          && optionalNumber('readAt')
+          && optionalText('href', 512)
+          && optionalText('body', 1000);
+      }
+
       allow read: if ownsExisting();
-      allow create: if claimsOwn()
-        && hasOwnerTimestamps()
-        && requiredText('bikeId', 128)
-        && requiredText('title', 120)
-        && isDateLike(incoming().dueAt)
-        && optionalText('body', 1000);
-      allow update: if ownsExisting() && keepsImmutableFields();
+      allow create: if claimsOwn() && hasOwnerTimestamps() && validReminder();
+      allow update: if ownsExisting() && keepsImmutableFields() && validReminder();
       allow delete: if ownsExisting();
     }
 
@@ -517,7 +574,8 @@ service cloud.firestore {
           && optionalText('issuedOn', 40)
           && optionalText('expiresOn', 40)
           && optionalText('filePath', 512)
-          && optionalText('notes', 2000);
+          && optionalText('notes', 2000)
+          && optionalText('clientRef', 256);
       }
 
       allow read: if ownsExisting();
@@ -535,7 +593,8 @@ service cloud.firestore {
           && optionalText('purchasedFrom', 80)
           && optionalText('coverage', 200)
           && optionalText('validUntil', 40)
-          && optionalNonNegativeNumber('reminderDaysBefore');
+          && optionalNonNegativeNumber('reminderDaysBefore')
+          && optionalText('clientRef', 256);
       }
 
       allow read: if ownsExisting();
@@ -552,7 +611,8 @@ service cloud.firestore {
           && incoming().status in ['ok', 'watch', 'action']
           && isDateLike(incoming().date)
           && optionalText('note', 2000)
-          && optionalText('photoPath', 512);
+          && optionalText('photoPath', 512)
+          && optionalText('clientRef', 256);
       }
 
       allow read: if ownsExisting();
@@ -568,7 +628,10 @@ service cloud.firestore {
           && incoming().kind in ['fuel', 'receipt', 'odometer', 'note']
           && incoming().status in ['queued', 'completed']
           && optionalText('detail', 500)
-          && optionalText('photoPath', 512);
+          && optionalText('photoPath', 512)
+          && optionalText('completedRecordId', 128)
+          && optionalText('completedRecordType', 40)
+          && optionalText('clientRef', 256);
       }
 
       allow read: if ownsExisting();

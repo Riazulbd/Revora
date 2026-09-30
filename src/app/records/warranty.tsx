@@ -2,33 +2,39 @@ import React, { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import {
-  Banner,
   Button,
   ButtonRow,
+  ChipGroup,
   DateField,
   Dialog,
   Field,
   FieldRow,
+  Footnote,
   Input,
   Screen,
   ScreenHeader,
   SkeletonList,
   Stack,
   TextArea,
-  Txt,
 } from '@/components';
 import { useWarranties } from '@/features/records/useRecordQueries';
 import {
   useDeleteWarranty,
   useNewRecordIds,
   useSaveWarranty,
-  useStartWarrantyClaim,
 } from '@/features/records/useRecordsMutations';
+import { useSetClaimStatus, type ClaimStatus } from '@/features/records/ui/RecordsWrites';
 import { toInteger, toTrimmed } from '@/features/shared/formValues';
 import { useStableId } from '@/features/shared/useStableId';
 import { warrantySchema } from '@/validation/schemas';
 import type { Warranty } from '@/types';
-import { daysBetween, todayIso } from '@/utils/date';
+
+const CLAIM_OPTIONS: readonly { value: ClaimStatus; label: string }[] = [
+  { value: 'none', label: 'None' },
+  { value: 'open', label: 'Open' },
+  { value: 'settled', label: 'Settled' },
+  { value: 'rejected', label: 'Rejected' },
+];
 
 export default function WarrantyEditorRoute() {
   const { id: editingId } = useLocalSearchParams<{ id?: string }>();
@@ -71,7 +77,7 @@ function WarrantyForm({ existing }: { existing: Warranty | null }) {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const saveWarranty = useSaveWarranty();
-  const startClaim = useStartWarrantyClaim();
+  const setClaim = useSetClaimStatus();
   const deleteWarranty = useDeleteWarranty({
     onDeleted: () => {
       setDeleteOpen(false);
@@ -79,8 +85,6 @@ function WarrantyForm({ existing }: { existing: Warranty | null }) {
       else router.replace('/records/warranties');
     },
   });
-
-  const days = validUntil === null ? null : daysBetween(todayIso(), validUntil);
 
   const submit = async () => {
     const result = warrantySchema.safeParse({
@@ -109,19 +113,33 @@ function WarrantyForm({ existing }: { existing: Warranty | null }) {
 
   return (
     <Screen testID="screen-warranty">
-      <ScreenHeader title={existing ? existing.title : 'Add warranty'} />
+      <ScreenHeader title="Warranty" />
 
-      <Stack gap={14}>
-        <Field label="What is covered" error={errors.title ?? null}>
-          <Input
-            value={title}
-            onChangeText={setTitle}
-            placeholder="Battery — Hamko HB12"
-            autoCapitalize="sentences"
-            invalid={Boolean(errors.title)}
-            testID="input-warranty-title"
-          />
-        </Field>
+      <Stack gap={12}>
+        <FieldRow>
+          <Field label="What is covered" error={errors.title ?? null} flex={1.4}>
+            <Input
+              value={title}
+              onChangeText={setTitle}
+              placeholder="Battery · Hamko MF9"
+              autoCapitalize="sentences"
+              size="compact"
+              padX={14}
+              invalid={Boolean(errors.title)}
+              testID="input-warranty-title"
+            />
+          </Field>
+          <Field label="Valid until" flex={1}>
+            <DateField
+              value={validUntil}
+              onChange={setValidUntil}
+              placeholder="No expiry"
+              size="compact"
+              padX={14}
+              testID="field-valid-until"
+            />
+          </Field>
+        </FieldRow>
 
         <FieldRow>
           <Field label="Provider" flex={1}>
@@ -131,20 +149,35 @@ function WarrantyForm({ existing }: { existing: Warranty | null }) {
               placeholder="Hamko"
               autoCapitalize="words"
               size="compact"
+              padX={14}
               testID="input-provider"
             />
           </Field>
-          <Field label="Purchased from" flex={1}>
+          <Field label="Remind before" flex={1}>
             <Input
-              value={purchasedFrom}
-              onChangeText={setPurchasedFrom}
-              placeholder="Rahim Moto Care"
-              autoCapitalize="words"
+              value={reminderDays}
+              onChangeText={setReminderDays}
+              placeholder="30"
+              keyboardType="number-pad"
               size="compact"
-              testID="input-purchased-from"
+              padX={14}
+              unit="days"
+              testID="input-reminder-days"
             />
           </Field>
         </FieldRow>
+
+        <Field label="Purchased from">
+          <Input
+            value={purchasedFrom}
+            onChangeText={setPurchasedFrom}
+            placeholder="Motor House Dhanmondi"
+            autoCapitalize="words"
+            size="compact"
+            padX={14}
+            testID="input-purchased-from"
+          />
+        </Field>
 
         <Field label="Coverage (optional)">
           <TextArea
@@ -156,69 +189,44 @@ function WarrantyForm({ existing }: { existing: Warranty | null }) {
           />
         </Field>
 
-        <FieldRow>
-          <Field label="Valid until" flex={1}>
-            <DateField value={validUntil} onChange={setValidUntil} placeholder="No expiry" testID="field-valid-until" />
-          </Field>
-          <Field label="Remind (days before)" flex={1}>
-            <Input
-              value={reminderDays}
-              onChangeText={setReminderDays}
-              placeholder="30"
-              keyboardType="number-pad"
-              size="compact"
-              testID="input-reminder-days"
+        {existing ? (
+          <Field label="Claim status">
+            <ChipGroup
+              options={CLAIM_OPTIONS}
+              value={existing.claimStatus}
+              onChange={(next) => void setClaim.submit({ id: existing.id, claimStatus: next })}
+              tone="warn"
+              testID="chips-claim-status"
             />
           </Field>
-        </FieldRow>
-
-        {days !== null ? (
-          <Banner
-            tone={days < 0 ? 'bad' : days <= 30 ? 'warn' : 'good'}
-            icon={days < 0 ? 'alert' : 'check'}
-            message={
-              days < 0
-                ? `This warranty expired ${Math.abs(days)} days ago.`
-                : `Covered for another ${days} days.`
-            }
-          />
         ) : null}
+
+        {/* Riders ask why a lapsed warranty is still listed. It is listed
+            because a buyer asking what was covered and when is exactly the
+            question it answers. */}
+        <Footnote style={{ marginTop: 2 }}>
+          Expired warranties are kept — evidence of cover matters at resale.
+        </Footnote>
 
         <Button
           label={existing ? 'Save changes' : 'Save warranty'}
           onPress={submit}
+          size="large"
           loading={saveWarranty.isPending}
           testID="cta-save-warranty"
         />
 
         {existing ? (
-          <>
-            {existing.claimStatus === 'none' ? (
-              <Button
-                label="Start a claim"
-                variant="secondary"
-                onPress={() => startClaim.submit(existing.id)}
-                loading={startClaim.isPending}
-                testID="cta-start-claim"
-              />
-            ) : (
-              <Txt role="helper" tone="mut" align="center">
-                Claim status: {existing.claimStatus}. Gather the purchase receipt, the warranty card and a photo
-                of the serial number.
-              </Txt>
-            )}
-
-            <ButtonRow>
-              <Button
-                label="Delete"
-                variant="secondary"
-                size="medium"
-                onPress={() => setDeleteOpen(true)}
-                style={{ flex: 1 }}
-                testID="cta-delete-warranty"
-              />
-            </ButtonRow>
-          </>
+          <ButtonRow>
+            <Button
+              label="Delete"
+              variant="secondary"
+              size="medium"
+              onPress={() => setDeleteOpen(true)}
+              flex
+              testID="cta-delete-warranty"
+            />
+          </ButtonRow>
         ) : null}
       </Stack>
 

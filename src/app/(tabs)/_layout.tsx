@@ -6,14 +6,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, Txt, type IconName } from '@/components';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { useGarage } from '@/features/bikes/GarageProvider';
-import { useTheme } from '@/theme';
+import { fontFamily, useTheme } from '@/theme';
 
 /**
- * The bottom tab bar, transcribed from the design:
- * `background:var(--sur); border-top:1px solid var(--brd); padding:6px 8px 18px`,
- * a 22px icon over a 10px bold label, active in `--acc` and inactive in `--mut`.
+ * The bottom tab bar, transcribed from the Dashboard board's bottom band:
+ * `background:var(--sur); border-top:1px solid var(--brd); padding:8px 10px 12px`,
+ * each tab `gap:3px; padding:6px 0` with a 20px glyph over a 10.5px label —
+ * `700` in `--acc` when active, `500` in `--mut` otherwise.
  *
- * The 18px bottom padding in the design becomes 18px plus the device's own
+ * The 12px bottom padding in the design becomes 12px plus the device's own
  * gesture inset, so the labels clear the navigation bar on every Android
  * configuration (requirement 40).
  */
@@ -31,10 +32,10 @@ import { useTheme } from '@/theme';
  * expected receipts, not the running cost of the motorcycle.
  */
 const TABS: readonly { name: string; label: string; icon: IconName; href: Href }[] = [
-  { name: 'dashboard', label: 'Dashboard', icon: 'dashboard', href: '/(tabs)/dashboard' },
-  { name: 'fuel', label: 'Fuel', icon: 'fuelTab', href: '/(tabs)/fuel' },
-  { name: 'expenses', label: 'Costs', icon: 'expenses', href: '/(tabs)/expenses' },
-  { name: 'garage', label: 'Garage', icon: 'garage', href: '/(tabs)/garage' },
+  { name: 'dashboard', label: 'Dashboard', icon: 'home', href: '/(tabs)/dashboard' },
+  { name: 'fuel', label: 'Fuel', icon: 'fuelPump', href: '/(tabs)/fuel' },
+  { name: 'expenses', label: 'Costs', icon: 'wallet', href: '/(tabs)/expenses' },
+  { name: 'garage', label: 'Garage', icon: 'garageTab', href: '/(tabs)/garage' },
 ];
 
 export default function TabsLayout() {
@@ -54,14 +55,15 @@ export default function TabsLayout() {
       }}
       tabBar={({ state, navigation }) => (
         <View
+          testID="tab-bar"
           style={{
             flexDirection: 'row',
             backgroundColor: c.sur,
             borderTopWidth: 1,
             borderTopColor: c.brd,
-            paddingTop: 6,
-            paddingHorizontal: 8,
-            paddingBottom: 18 + insets.bottom,
+            paddingTop: 8,
+            paddingHorizontal: 10,
+            paddingBottom: 12 + insets.bottom,
           }}
         >
           {TABS.map((tab) => {
@@ -99,8 +101,11 @@ export default function TabsLayout() {
                   opacity: pressed ? 0.7 : 1,
                 })}
               >
-                <Icon name={tab.icon} size={22} color={focused ? c.acc : c.mut} strokeWidth={1.9} />
-                <Txt role="tabLabel" color={focused ? c.acc : c.mut}>
+                <Icon name={tab.icon} size={20} color={focused ? c.acc : c.mut} strokeWidth={focused ? 2 : 1.8} />
+                <Txt
+                  numberOfLines={1}
+                  style={{ fontFamily: fontFamily[focused ? 700 : 500], fontSize: 10.5, color: focused ? c.acc : c.mut }}
+                >
                   {tab.label}
                 </Txt>
               </Pressable>

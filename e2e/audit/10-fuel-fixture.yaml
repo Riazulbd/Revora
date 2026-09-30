@@ -1,0 +1,120 @@
+# Phase B · 10 — the core fuel fixture, end to end on a device.
+#
+#   A  4,845 km  Full     9 L  @ 145   (opening tank; its fuel does not count)
+#   B  4,965 km  Partial  3 L  @ 145
+#   C  5,118 km  Full     4 L  @ 145
+#
+# Interval A→C: 5,118 − 4,845 = 273 km ; fuel B + C = 3 + 4 = 7 L
+#   273 / 7 = 39.0 km/L   (badge on row C, AVERAGE on Dashboard, INTERVALS 1,
+#   CONFIDENCE MEDIUM because one partial fill sits inside the interval)
+# Edit B to 3.5 L: fuel = 3.5 + 4 = 7.5 L ; 273 / 7.5 = 36.4 km/L
+#   B's total follows the edit: 3.5 × 145 = 507.50 → shown as "BDT 508"
+#   (0-decimal display, half-up).
+# The explain sheet shows the arithmetic: "273 km ÷ 7.5 L = 36.4 km/L".
+#
+# Self-contained (runs the fresh-account prologue). All three fills are dated
+# today — see lib/add-fill.yaml for why that measures identically.
+appId: app.revora.android.dev
+---
+- runFlow: lib/fresh-anon-bike.yaml
+
+# ---------- A ----------
+- runFlow:
+    file: lib/add-fill.yaml
+    env:
+      ODO: "4845"
+      LITRES: "9"
+      PRICE: "145"
+      FILL: "Full tank"
+      STATION: "Audit Pump A"
+
+# One fill: a starting point, not a measurement.
+- assertVisible: ".*One fill is a starting point.*"
+
+# ---------- B ----------
+- runFlow:
+    file: lib/add-fill.yaml
+    env:
+      ODO: "4965"
+      LITRES: "3"
+      PRICE: "145"
+      FILL: "Partial"
+      STATION: "Audit Pump B"
+
+# ---------- C ----------
+- runFlow:
+    file: lib/add-fill.yaml
+    env:
+      ODO: "5118"
+      LITRES: "4"
+      PRICE: "145"
+      FILL: "Full tank"
+      STATION: "Audit Pump C"
+
+# Dashboard: 273 km / 7 L = 39.0 ; one interval ; medium confidence.
+- assertVisible: "39.0"
+- assertVisible: "MEDIUM"
+- assertVisible: "5,118"
+
+# Fuel tab: row C carries the badge; rows A and B carry none.
+- tapOn:
+    id: "tab-fuel"
+- assertVisible:
+    id: "screen-fuel"
+- assertVisible: "39.0 km/L"
+- assertVisible: ".*5,118 km · 4.0 L · Full.*"
+- assertVisible: ".*4,965 km · 3.0 L · Partial.*"
+- assertVisible: "BDT 1,305"
+
+# ---------- edit B: 3 L → 3.5 L ----------
+- tapOn: ".*4,965 km · 3.0 L · Partial.*"
+- assertVisible:
+    id: "screen-fuel-detail"
+- tapOn:
+    id: "cta-edit"
+- assertVisible:
+    id: "screen-fuel-add"
+- tapOn:
+    id: "input-litres"
+- eraseText
+- inputText: "3.5"
+- hideKeyboard
+# 3.5 × 145 = 507.5 — the total field follows the litres edit.
+- assertVisible:
+    id: "input-total"
+    text: "507.5"
+- scrollUntilVisible:
+    element:
+      id: "cta-save-fuel"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-fuel"
+
+# Save returns to the detail screen, which now shows 3.5 L.
+- assertVisible:
+    id: "screen-fuel-detail"
+- assertVisible: ".*3.5 L.*"
+- back
+
+# Fuel row: 273 / 7.5 = 36.4 on row C; the old badge is gone; B's total is 508.
+- assertVisible:
+    id: "screen-fuel"
+- assertVisible: "36.4 km/L"
+- assertNotVisible: "39.0 km/L"
+- assertVisible: "BDT 508"
+
+# Dashboard reads the same analyseBike() field.
+- tapOn:
+    id: "tab-dashboard"
+- assertVisible: "36.4"
+- assertNotVisible: "39.0"
+
+# "How is this calculated?" shows the real arithmetic.
+- tapOn:
+    id: "link-explain"
+- assertVisible:
+    id: "sheet-explain"
+- assertVisible: "273 km"
+- assertVisible: "7.5 L"
+- assertVisible: "36.4 km/L"
+- back

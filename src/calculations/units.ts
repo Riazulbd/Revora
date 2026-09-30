@@ -146,8 +146,18 @@ export function mileageGaugeMax(unit: MileageUnit): number {
  */
 export const RATE_SCALE = 100;
 
+/**
+ * One mile in integer millimetres, so the km→mi step of a cost rate stays in
+ * integer arithmetic. `Math.round(METRES_PER_MILE)` used to stand in here and
+ * dropped 0.344 m from every mile, putting every mile-basis rate 0.021% low.
+ */
+const MILLIMETRES_PER_MILE = 1_609_344;
+const MILLIMETRES_PER_METRE = 1_000;
+
 export function costPerDistance(totalMinor: number, metres: number, unit: DistanceUnit): number | null {
   if (metres <= 0) return null;
   const perMetreScaled = divideRound(totalMinor * RATE_SCALE * METRES_PER_KM, metres);
-  return unit === 'mi' ? divideRound(perMetreScaled * Math.round(METRES_PER_MILE), METRES_PER_KM) : perMetreScaled;
+  return unit === 'mi'
+    ? divideRound(perMetreScaled * MILLIMETRES_PER_MILE, METRES_PER_KM * MILLIMETRES_PER_METRE)
+    : perMetreScaled;
 }

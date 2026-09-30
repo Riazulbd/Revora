@@ -1,100 +1,53 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Icon, Txt, type IconName } from '@/components';
-import { HIT_SIZE, useTheme } from '@/theme';
+import { ActionTile, ActionTileRow, IconSquareButton, SearchBar } from '@/components';
 
 /**
  * The band above the Dashboard: a notification bell, an overflow, a search
- * field, and three destinations that have to be reachable in one tap.
+ * field, and the destinations that have to be reachable in one tap.
  *
- * Those three are not chosen by importance. They are chosen by the conditions
- * they are used in. Fast Capture is opened standing at a pump with gloves on;
- * the document vault is opened at a traffic stop, one-handed, on whatever
- * signal is left. Both were three taps deep behind a menu, which is a
- * reasonable depth for a screen you browse to and the wrong depth for one you
- * need right now. Add fuel is here because it is simply the most-used action in
- * the app.
+ * Those are not chosen by importance. They are chosen by the conditions they
+ * are used in. Fast Capture is opened standing at a pump with gloves on; the
+ * document vault is opened at a traffic stop, one-handed, on whatever signal is
+ * left. Both were three taps deep behind a menu, which is a reasonable depth
+ * for a screen you browse to and the wrong depth for one you need right now.
+ * Add fuel is here because it is simply the most-used action in the app.
  *
  * Everything else the old fifth tab reached is found through search or arrives
  * by itself in the attention list.
  */
+
+/**
+ * The 44px rounded square with the board's red count badge. The badge counts
+ * the same list the attention card renders, so the two can never disagree — a
+ * bell reading 3 above an empty card is the kind of thing that makes a rider
+ * stop believing both.
+ */
 export function AttentionBell({ count }: { count: number }) {
   const router = useRouter();
-  const { c } = useTheme();
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={
-        count === 0 ? 'Notifications, nothing pending' : `Notifications, ${count} needing attention`
-      }
+    <IconSquareButton
+      icon="bell"
+      count={count}
+      accessibilityLabel={count === 0 ? 'Notifications, nothing pending' : 'Notifications'}
       onPress={() => router.push('/notifications')}
-      hitSlop={8}
-      style={({ pressed }) => ({
-        width: HIT_SIZE - 4,
-        height: HIT_SIZE - 4,
-        alignItems: 'center',
-        justifyContent: 'center',
-        opacity: pressed ? 0.6 : 1,
-      })}
       testID="cta-notifications"
-    >
-      <Icon name="bell" size={20} color={c.ink} strokeWidth={2} />
-      {/* The badge counts the same list the attention card renders, so the two
-          can never disagree — a bell reading 3 above an empty card is the kind
-          of thing that makes a rider stop believing both. */}
-      {count > 0 ? (
-        <View
-          style={{
-            position: 'absolute',
-            top: 4,
-            right: 4,
-            minWidth: 17,
-            height: 17,
-            paddingHorizontal: 4,
-            borderRadius: 999,
-            backgroundColor: c.acc,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderWidth: 2,
-            borderColor: c.bg,
-          }}
-        >
-          <Txt role="pro" style={{ color: '#FFFFFF' }} numberOfLines={1}>
-            {count > 9 ? '9+' : String(count)}
-          </Txt>
-        </View>
-      ) : null}
-    </Pressable>
+    />
   );
 }
 
+/** The ⋮ square. Four rows live behind it, opened a few times a year. */
 export function OverflowButton({ onPress }: { onPress: () => void }) {
-  const { c } = useTheme();
-
   return (
-    <Pressable
-      accessibilityRole="button"
+    <IconSquareButton
+      icon="dotsVertical"
       accessibilityLabel="More"
       onPress={onPress}
-      hitSlop={8}
-      style={({ pressed }) => ({
-        width: HIT_SIZE - 4,
-        height: HIT_SIZE - 4,
-        alignItems: 'center',
-        justifyContent: 'center',
-        opacity: pressed ? 0.6 : 1,
-      })}
       testID="cta-overflow"
-    >
-      <View style={{ gap: 3, alignItems: 'center' }}>
-        {[0, 1, 2].map((i) => (
-          <View key={i} style={{ width: 3.5, height: 3.5, borderRadius: 999, backgroundColor: c.ink }} />
-        ))}
-      </View>
-    </Pressable>
+    />
   );
 }
 
@@ -103,75 +56,64 @@ export function OverflowButton({ onPress }: { onPress: () => void }) {
  * lives — a live input here would need the Dashboard to hold search state it
  * has no other use for, and would put a keyboard over the odometer.
  */
-export function SearchBar() {
+export function DashboardSearchBar() {
   const router = useRouter();
-  const { c, radius } = useTheme();
+  return <SearchBar onPress={() => router.push('/search')} testID="cta-search" />;
+}
+
+/**
+ * The three tiles. Documents turns accent and grows an amber dot when a
+ * document expires inside 30 days — the one case where the vault is worth
+ * opening before anything else on the screen.
+ *
+ * `variant="degraded"` is the load-error board: only the two glove-and-signal
+ * screens, because they are the two that still work without the server.
+ */
+export function QuickTiles({
+  documentsExpiring = false,
+  variant = 'default',
+}: {
+  documentsExpiring?: boolean;
+  variant?: 'default' | 'degraded';
+}) {
+  const router = useRouter();
 
   return (
-    <Pressable
-      accessibilityRole="search"
-      accessibilityLabel="Search records, documents and workshops"
-      onPress={() => router.push('/search')}
-      style={({ pressed }) => ({
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 9,
-        minHeight: HIT_SIZE,
-        paddingHorizontal: 14,
-        borderRadius: radius.input,
-        backgroundColor: pressed ? c.sur2 : c.sur,
-        borderWidth: 1,
-        borderColor: c.brd,
-      })}
-      testID="cta-search"
-    >
-      <Icon name="search" size={16} color={c.mut} strokeWidth={2} />
-      <Txt role="input" tone="mut" numberOfLines={1}>
-        Search records, documents, workshops…
-      </Txt>
-    </Pressable>
+    <ActionTileRow>
+      <ActionTile
+        label="Fast Capture"
+        icon="camera"
+        emphasis="solid"
+        onPress={() => router.push('/capture')}
+        testID="quick-capture"
+      />
+      <ActionTile
+        label="Documents"
+        icon="documents"
+        emphasis={documentsExpiring ? 'accent' : 'default'}
+        dot={documentsExpiring}
+        {...(documentsExpiring ? { accessibilityHint: 'A document expires within 30 days' } : {})}
+        onPress={() => router.push('/records/vault')}
+        testID="quick-documents"
+      />
+      {variant === 'degraded' ? null : (
+        <ActionTile
+          label="Add fuel"
+          icon="fuelPump"
+          onPress={() => router.push('/fuel/add')}
+          testID="quick-add-fuel"
+        />
+      )}
+    </ActionTileRow>
   );
 }
 
-export function QuickTiles() {
-  const router = useRouter();
-  const { c, radius } = useTheme();
-
-  const tiles: { label: string; icon: IconName; route: string; testID: string }[] = [
-    { label: 'Fast Capture', icon: 'camera', route: '/capture', testID: 'quick-capture' },
-    { label: 'Documents', icon: 'document', route: '/records/vault', testID: 'quick-documents' },
-    { label: 'Add fuel', icon: 'fuel', route: '/fuel/add', testID: 'quick-add-fuel' },
-  ];
-
+/** Bell and overflow together, in the tab header's action slot. */
+export function EntryActions({ count, onOverflow }: { count: number; onOverflow: () => void }) {
   return (
-    <View style={{ flexDirection: 'row', gap: 10 }}>
-      {tiles.map((tile) => (
-        <Pressable
-          key={tile.route}
-          accessibilityRole="button"
-          accessibilityLabel={tile.label}
-          onPress={() => router.push(tile.route as never)}
-          style={({ pressed }) => ({
-            flex: 1,
-            minHeight: 62,
-            gap: 6,
-            paddingVertical: 11,
-            paddingHorizontal: 10,
-            borderRadius: radius.input,
-            backgroundColor: pressed ? c.sur2 : c.sur,
-            borderWidth: 1,
-            borderColor: c.brd,
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-          })}
-          testID={tile.testID}
-        >
-          <Icon name={tile.icon} size={17} color={c.acc} strokeWidth={2} />
-          <Txt role="micro" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>
-            {tile.label}
-          </Txt>
-        </Pressable>
-      ))}
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+      <AttentionBell count={count} />
+      <OverflowButton onPress={onOverflow} />
     </View>
   );
 }

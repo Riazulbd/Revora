@@ -1,4 +1,4 @@
-import { getDoc, setDoc, deleteDoc } from '@react-native-firebase/firestore';
+import { getDoc, setDoc } from '@react-native-firebase/firestore';
 
 import { toAppError } from '@/services/errors';
 import type { SubscribeFn } from '@/services/liveQuery';
@@ -122,16 +122,11 @@ export const profileRepository = {
     return profileRepository.update(uid, { activeBikeId: bikeId });
   },
 
-  /**
-   * Used only by account deletion. The shared ruleset forbids deleting the
-   * profile from a client — that goes through the server's deleteMyAccount
-   * function — so a denial here is expected and is not treated as a failure.
+  /*
+   * There is deliberately no `remove` here. The shared ruleset sets
+   * `allow delete: if false` on `users/{uid}`, so a client delete is always
+   * refused — a method that can only ever throw is a trap, not an API.
+   * Deletion goes through `accountRepository.deleteEverything`, which calls the
+   * server's `deleteMyAccount`.
    */
-  async remove(uid: string): Promise<void> {
-    try {
-      await deleteDoc(userDoc(uid));
-    } catch (error) {
-      throw toAppError(error);
-    }
-  },
 };

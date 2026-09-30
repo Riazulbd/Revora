@@ -5,6 +5,45 @@ import { ML_PER_LITRE } from './units';
 
 /**
  * Fuel arithmetic. All of it is integer-exact: millilitres in, minor units out.
+ *
+ * ## Rounding
+ *
+ * Every derived figure here goes through `divideRound`, which breaks an exact
+ * half AWAY FROM ZERO (2.5 → 3, −2.5 → −3), never to even. See the policy note
+ * on `divideRound` in `./money.ts`.
+ *
+ * ## Which adjustment reasons take fuel away, and which add it
+ *
+ * `FuelAdjustment.millilitres` is signed, and the sign — not the reason — is
+ * what the engine arithmetic uses. The reason exists so the rider can see why,
+ * and so the form can pick the sign for them. The agreed meaning of each:
+ *
+ * | reason             | sign | what it means for the fuel that did work      |
+ * | ------------------ | ---- | --------------------------------------------- |
+ * | `maintenance_loss` |  −   | burned idling or drained during a service      |
+ * | `leak`             |  −   | escaped the tank or the line                   |
+ * | `drained`          |  −   | deliberately emptied out of the tank           |
+ * | `theft`            |  −   | siphoned off by someone else                   |
+ * | `transferred`      |  −   | moved into another tank, can or machine        |
+ * | `added_unlogged`   |  +   | went in without a fill being logged            |
+ * | `other`            |  −   | spillage, waste, anything else that left       |
+ *
+ * `drained`, `theft` and `transferred` are three different stories about the
+ * same arithmetic: fuel the rider bought that never propelled the bike. They
+ * are kept apart so the rider's log reads truthfully, and `REMOVING_REASONS`
+ * lists all three. Nothing downstream branches on which one it was.
+ *
+ * `added_unlogged` is the only reason that normally carries a positive volume.
+ * It is fuel in the tank that no fill accounts for, so it INCREASES the fuel
+ * charged to the interval — mileage measured over that stretch would otherwise
+ * be flattered by distance covered on fuel nobody counted.
+ *
+ * The Android form (`src/app/fuel/add.tsx`) offers five of the seven rows:
+ * `other`, `leak`, `maintenance_loss`, `transferred` and `added_unlogged`. Its
+ * "Drained or transferred out" row writes `transferred`. `drained` and `theft`
+ * therefore only ever arrive from the shared backend's web product; the engine
+ * nets them exactly like the rest, and `ADJUSTMENT_REASON_LABEL` names them so
+ * a record written there still reads properly here.
  */
 
 /**
@@ -28,6 +67,45 @@ export function adjustmentMlInRange(
     if (compareIso(a.date, through) > 0) continue;
     total += a.millilitres;
   }
+  return total;
+}
+
+/**
+ * Which adjustments fall inside the **closed** range `[from, through]`, by index.
+ *
+ * The half-open form above silently drops an adjustment whenever `after` and
+ * `through` are the same day — a rider who fills up twice on one day and logs a
+ * spill against the second fill had it counted nowhere at all, and the mileage
+ * over that stretch came out flattered.
+ *
+ * The closed form cannot drop one, but on its own it would count a boundary day
+ * twice, because consecutive intervals share the fill that ends one and opens
+ * the next. So the caller claims: it walks its intervals oldest first and takes
+ * only the adjustments no earlier interval has already taken. The rule that
+ * falls out is *the earliest interval containing an adjustment's date owns it*,
+ * which is the same attribution the half-open range made everywhere it worked,
+ * and a real one everywhere it did not.
+ */
+export function adjustmentIndicesInRange(
+  adjustments: readonly FuelAdjustment[],
+  from: IsoDate,
+  through: IsoDate,
+): number[] {
+  const out: number[] = [];
+  for (let i = 0; i < adjustments.length; i++) {
+    const a = adjustments[i];
+    if (a === undefined) continue;
+    if (compareIso(a.date, from) < 0) continue;
+    if (compareIso(a.date, through) > 0) continue;
+    out.push(i);
+  }
+  return out;
+}
+
+/** Nets the adjustments at the given indices. */
+export function adjustmentMlAt(adjustments: readonly FuelAdjustment[], indices: readonly number[]): number {
+  let total = 0;
+  for (const i of indices) total += adjustments[i]?.millilitres ?? 0;
   return total;
 }
 
@@ -92,6 +170,20 @@ export function deriveFuelAmounts(
 /**
  * The single place a fuel entry's three money/volume fields are reconciled
  * before saving, so a stored record is always internally consistent.
+ *
+ * **The total wins.** When both a total and a price per litre arrive, the total
+ * is the money that left the rider's pocket and the price is a rate derived
+ * from it, so the total is stored untouched and the price is whatever divides
+ * into it. Preferring the price instead re-multiplied it back out and stored a
+ * different number from the receipt: 7 L at a derived BDT 142.86/L re-derives to
+ * BDT 1,000.02 against the BDT 1,000.00 the rider actually paid, and every
+ * litre count that does not divide its total evenly did the same.
+ *
+ * A trio that already agrees to the minor unit is stored exactly as entered, so
+ * the ordinary "9 L × BDT 145 = BDT 1,305" case never has its rate rewritten by
+ * a rounding trip it did not need.
+ *
+ * Only when no total was entered is one derived from the price.
  */
 export function normaliseFuelAmounts(input: {
   litresMl: number;
@@ -101,17 +193,24 @@ export function normaliseFuelAmounts(input: {
   const { litresMl } = input;
   if (litresMl <= 0) return null;
 
-  if (input.pricePerLitreMinor !== null && input.pricePerLitreMinor > 0) {
-    return {
-      litresMl,
-      pricePerLitreMinor: input.pricePerLitreMinor,
-      totalCostMinor: totalFromLitresAndPrice(litresMl, input.pricePerLitreMinor),
-    };
+  const price = input.pricePerLitreMinor !== null && input.pricePerLitreMinor > 0
+    ? input.pricePerLitreMinor
+    : null;
+  const total = input.totalCostMinor !== null && input.totalCostMinor > 0 ? input.totalCostMinor : null;
+
+  if (total !== null) {
+    // An entered rate that already produces exactly this total is kept, so the
+    // rate the rider read off the pump survives the save unchanged.
+    if (price !== null && totalFromLitresAndPrice(litresMl, price) === total) {
+      return { litresMl, pricePerLitreMinor: price, totalCostMinor: total };
+    }
+    const derived = priceFromLitresAndTotal(litresMl, total);
+    if (derived === null) return null;
+    return { litresMl, pricePerLitreMinor: derived, totalCostMinor: total };
   }
-  if (input.totalCostMinor !== null && input.totalCostMinor > 0) {
-    const price = priceFromLitresAndTotal(litresMl, input.totalCostMinor);
-    if (price === null) return null;
-    return { litresMl, pricePerLitreMinor: price, totalCostMinor: input.totalCostMinor };
+
+  if (price !== null) {
+    return { litresMl, pricePerLitreMinor: price, totalCostMinor: totalFromLitresAndPrice(litresMl, price) };
   }
   return null;
 }

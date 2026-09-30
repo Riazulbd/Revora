@@ -1,0 +1,120 @@
+# Phase B · 41 — a brakes check marked Action reaches the Dashboard, and only
+# a LATER check clears it.
+#
+# Fresh account plus one fill, because the Dashboard shows its attention card
+# only once analytics.isEmpty is false.
+#
+# Attention uses the latest check PER AREA with a strict date comparison
+# (compareIso(check.date, held.date) > 0), so the clearing OK check must carry
+# a later date than the Action check. The Action check is dated the 15th of
+# LAST month via the date dialog; the OK check keeps today's date.
+#
+# Expected:
+#   after Action  → safety row Brakes "ACTION" + "Shows on the Dashboard until
+#                   cleared"; other areas "NOT CHECKED"; Dashboard attention
+#                   "Brakes marked action" with detail "Spongy lever · …"
+#   after OK      → Dashboard: "Nothing needs your attention", no "Brakes marked action"
+appId: app.revora.android.dev
+---
+- runFlow: lib/fresh-anon-bike.yaml
+- runFlow:
+    file: lib/add-fill.yaml
+    env:
+      ODO: "4900"
+      LITRES: "5"
+      PRICE: "145"
+      FILL: "Full tank"
+      STATION: ""
+
+# Nothing wrong yet.
+- assertVisible: "Nothing needs your attention"
+
+# ---------- Brakes → Action, dated last month ----------
+- tapOn:
+    id: "tab-garage"
+- tapOn:
+    id: "cta-profile"
+- tapOn:
+    id: "hub-safety"
+- assertVisible:
+    id: "screen-safety"
+- assertVisible:
+    id: "empty-safety"
+- tapOn:
+    id: "cta-add-check"
+- assertVisible:
+    id: "screen-safety-add"
+# MISSING TESTID: safety area ChoiceGrid option "Brakes" (text tap).
+- tapOn: "Brakes"
+# MISSING TESTID: segment-status option "Action" (text tap inside segment-status).
+- tapOn: "Action"
+- tapOn:
+    id: "input-summary"
+- inputText: "Spongy lever"
+- hideKeyboard
+- tapOn:
+    id: "field-check-date"
+- tapOn: "Previous month"
+- tapOn:
+    text: "15"
+- tapOn: "OK"
+- scrollUntilVisible:
+    element:
+      id: "cta-save-check"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-check"
+
+- assertVisible:
+    id: "screen-safety"
+- assertVisible:
+    id: "safety-area-brakes"
+- assertVisible: "ACTION"
+- assertVisible: ".*Shows on the Dashboard until cleared.*"
+- assertVisible:
+    id: "safety-area-tyres"
+- assertVisible: "NOT CHECKED"
+
+# ---------- Dashboard shows it ----------
+- back
+- back
+- tapOn:
+    id: "tab-dashboard"
+- assertVisible: "NEEDS ATTENTION"
+- assertVisible: ".*Brakes marked action.*"
+- assertVisible: ".*Spongy lever.*"
+
+# ---------- Brakes → OK, today ----------
+- tapOn:
+    id: "tab-garage"
+- tapOn:
+    id: "cta-profile"
+- tapOn:
+    id: "hub-safety"
+- tapOn:
+    id: "cta-add-check"
+- assertVisible:
+    id: "screen-safety-add"
+- tapOn: "Brakes"
+- tapOn: "OK"
+- tapOn:
+    id: "input-summary"
+- inputText: "Lever firm after bleed"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "cta-save-check"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-check"
+- assertVisible:
+    id: "screen-safety"
+- assertNotVisible: ".*Shows on the Dashboard until cleared.*"
+
+# ---------- cleared ----------
+- back
+- back
+- tapOn:
+    id: "tab-dashboard"
+- assertNotVisible: ".*Brakes marked action.*"
+- assertVisible: "Nothing needs your attention"

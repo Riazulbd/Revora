@@ -1,5 +1,5 @@
 import type { FuelAdjustment, FuelEntry } from '@/types';
-import { adjustmentMlInRange } from './fuel';
+import { adjustmentIndicesInRange, adjustmentMlAt } from './fuel';
 import { efficiencyFrom, type Efficiency } from './units';
 
 /**
@@ -35,7 +35,9 @@ export type MileageBlocker =
   | 'one_fill'
   | 'no_closing_full_tank'
   | 'missed_fill'
-  | 'dates_out_of_order';
+  | 'dates_out_of_order'
+  | 'no_distance'
+  | 'adjustment_exceeds_fuel';
 
 export type MileageInterval = {
   /** The fill that opened the interval (a full tank). */
@@ -100,6 +102,11 @@ function measureMileage(
   const intervals: MileageInterval[] = [];
   let discardedBy: MileageBlocker | null = null;
 
+  // Adjustments are claimed as the intervals are walked, oldest first, so an
+  // adjustment on the day two intervals share belongs to the earlier one and to
+  // that one only. See `adjustmentIndicesInRange` in ./fuel.ts.
+  const claimed = new Set<number>();
+
   let anchor: FuelEntry | null = null;
   let rawFuelMl = 0;
   let partialFills = 0;
@@ -130,8 +137,14 @@ function measureMileage(
       const distanceMetres = entry.odometerMetres - start.odometerMetres;
 
       // Adjustments dated inside the interval, signed: fuel that left the tank
-      // without covering distance reduces the fuel that did the work.
-      const adjustmentMl = adjustmentMlInRange(adjustments, start.date, entry.date);
+      // without covering distance reduces the fuel that did the work. Claiming
+      // them makes the attribution total — every adjustment lands in exactly one
+      // interval, including when an interval opens and closes on the same day.
+      const mine = adjustmentIndicesInRange(adjustments, start.date, entry.date).filter(
+        (i) => !claimed.has(i),
+      );
+      for (const i of mine) claimed.add(i);
+      const adjustmentMl = adjustmentMlAt(adjustments, mine);
       const fuelMl = rawFuelMl + adjustmentMl;
       const efficiency = efficiencyFrom(distanceMetres, fuelMl);
 
@@ -145,8 +158,11 @@ function measureMileage(
       // A fill the rider has flagged as following an unlogged one cannot close a
       // trustworthy interval — the fuel in between was never recorded.
       if (efficiency === null) {
-        // Zero distance or zero fuel — nothing to divide, and nothing the
-        // rider did wrong that naming a blocker would help with.
+        // Nothing to divide. Which half is missing decides what the rider is
+        // told: falling through to 'no closing full tank' told them to mark a
+        // fill Full when both ends already were.
+        discardedBy =
+          discardedBy ?? (distanceMetres <= 0 ? 'no_distance' : 'adjustment_exceeds_fuel');
       } else if (missedFill) {
         discardedBy = discardedBy ?? 'missed_fill';
       } else if (!coherent) {
@@ -183,6 +199,26 @@ function measureMileage(
   return { intervals, discardedBy };
 }
 
+/**
+ * What the summary reports, and in what order of precedence.
+ *
+ * The three things a rider can be shown — a measured figure, an estimate, and an
+ * explanation — are not alternatives to be picked over by whichever screen gets
+ * there first. The order is fixed here, once:
+ *
+ *  1. **A measured interval always wins.** The moment one full-to-full interval
+ *     exists, `provisional` is null and `blockedBy` is null. A later pair that
+ *     was discarded does not drag an explanation back onto a screen that already
+ *     has a real figure, and an estimate never sits beside a measurement.
+ *  2. **With no measured interval, the estimate is offered only if the span is
+ *     safe.** `provisional` is withheld when the log contradicts itself — a fill
+ *     flagged as following an unlogged one, a span running backwards in time, or
+ *     nothing to divide. An estimate is still a number the rider will act on.
+ *  3. **`blockedBy` is set whenever there is no measured interval**, safe
+ *     estimate or not, because it answers a different question: not "roughly
+ *     how much fuel" but "why is this not measured, and what do I do about it".
+ *     Its message is written to sit beside an estimate when one exists.
+ */
 export type MileageSummary = {
   intervals: MileageInterval[];
   /**
@@ -236,6 +272,12 @@ function provisionalInterval(
   if (start === undefined || end === undefined) return null;
   if (end.date < start.date) return null;
 
+  // An estimate is still a figure the rider will read as theirs, so it is only
+  // offered over a span the log does not itself contradict. A fill flagged as
+  // following an unlogged one says the litres across this span are incomplete;
+  // spreading them over the distance would put a number on a known gap.
+  if (ordered.slice(1).some((e) => e.missedPreviousFill)) return null;
+
   const distanceMetres = end.odometerMetres - start.odometerMetres;
   // Every litre bought after the opening fill, the closing one included — the
   // opening fill's own fuel was burned before this span began.
@@ -248,7 +290,12 @@ function provisionalInterval(
     else if (entry.fillType !== 'full') unknownFills += 1;
   }
 
-  const adjustmentMl = adjustmentMlInRange(adjustments, start.date, end.date);
+  // Closed range: nothing else can claim these, so an adjustment dated on the
+  // opening fill counts here rather than nowhere.
+  const adjustmentMl = adjustmentMlAt(
+    adjustments,
+    adjustmentIndicesInRange(adjustments, start.date, end.date),
+  );
   const fuelMl = rawFuelMl + adjustmentMl;
   const efficiency = efficiencyFrom(distanceMetres, fuelMl);
   if (efficiency === null) return null;
@@ -306,6 +353,10 @@ export function calculateMileageSummary(
   const { intervals, discardedBy } = measureMileage(entries, adjustments);
   const count = intervals.length;
 
+  // Step 1 of the precedence documented on MileageSummary: one measured interval
+  // is enough, and it wins outright. Steps 2 and 3 only run when there is none —
+  // the estimate if the span is safe, and always an explanation of why nothing
+  // was measured.
   if (count === 0) {
     return {
       intervals,
@@ -338,6 +389,8 @@ export function calculateMileageSummary(
 
   return {
     intervals,
+    // A measured figure is on screen, so neither an estimate nor an explanation
+    // of a later discarded pair belongs beside it.
     provisional: null,
     blockedBy: null,
     latest,
@@ -375,6 +428,10 @@ export function mileageBlockerMessage(blocker: MileageBlocker): string {
       return 'A fill is marked as following one that was never logged, so the fuel in between is unknown. Clear that flag, or log the missing fill, and the figure returns.';
     case 'dates_out_of_order':
       return 'Two fills disagree: the later odometer reading carries the earlier date. Correct whichever is wrong and the figure returns.';
+    case 'no_distance':
+      return 'Two fills marked Full share the same odometer reading, so there is no distance to measure across. Correct whichever reading is wrong and the figure returns.';
+    case 'adjustment_exceeds_fuel':
+      return 'The fuel adjustments logged over this stretch come to more than the fuel bought in it, so there is nothing left to divide. Check the amounts you logged as lost or added.';
     case 'no_closing_full_tank':
     default:
       return 'Measuring needs a fill marked Full tank at both ends of a stretch. Mark your next one Full and the measured figure replaces the estimate.';

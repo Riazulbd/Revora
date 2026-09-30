@@ -1,5 +1,12 @@
-import type { Bike, CostBasis, DistanceUnit, LedgerEntry } from '@/types';
-import { breakdown, totalMinor, type SpendBreakdown } from './expenses';
+import type { Bike, CostBasis, CurrencyCode, DistanceUnit, LedgerEntry } from '@/types';
+import {
+  breakdown,
+  ledgerCurrencies,
+  totalMinor,
+  totalsByCurrency,
+  type CurrencyTotal,
+  type SpendBreakdown,
+} from './expenses';
 import { costPerDistance } from './units';
 
 /**
@@ -7,6 +14,13 @@ import { costPerDistance } from './units';
  *
  * Purchase price and running cost are kept strictly apart (requirement 32). The
  * purchase price is capital; it never inflates cost/km or monthly spending.
+ *
+ * Every money figure below is in exactly one currency — the reporting currency,
+ * which is the bike's. A ledger can hold more than one, because changing a
+ * bike's currency relabels the bike and leaves old records in what they were
+ * paid in; lines in any other currency are reported separately in
+ * `totalsByCurrency` and never added into the headline. See the currency note in
+ * ./expenses.ts.
  */
 
 export type OwnershipCost = {
@@ -38,6 +52,18 @@ export type OwnershipCost = {
    */
   costPerDistanceSettled: boolean;
   distanceMetres: number;
+  /** The single currency every money figure above is in. Null on an empty ledger. */
+  currency: CurrencyCode | null;
+  /** Every currency the ledger holds, in code order. */
+  currencies: CurrencyCode[];
+  /**
+   * True when the ledger holds records in more than one currency, so the
+   * headline figures cover only part of what was spent. A screen showing them
+   * owes the rider that sentence.
+   */
+  mixedCurrencies: boolean;
+  /** What was spent in each currency, side by side and never added together. */
+  totalsByCurrency: CurrencyTotal[];
 };
 
 /**
@@ -65,8 +91,18 @@ export function calculateOwnershipCost(input: {
   distanceUnit: DistanceUnit;
   /** Which figure the screens headline, and what cost-per-distance divides. */
   costBasis?: CostBasis;
+  /**
+   * The currency to report in — the bike's. Lines in any other are left out of
+   * every figure below rather than added in at face value. Omitting it infers
+   * one from the ledger (see ./expenses.ts).
+   */
+  currency?: CurrencyCode;
 }): OwnershipCost {
-  const runningCostMinor = totalMinor(input.ledger);
+  const currencies = ledgerCurrencies(input.ledger);
+  const reporting = input.currency ?? currencies[0] ?? null;
+  const inReporting = input.ledger.filter((e) => e.currency === reporting);
+
+  const runningCostMinor = totalMinor(inReporting, reporting ?? undefined);
   const purchasePriceMinor = input.bike.purchasePriceMinor;
   const totalOwnershipMinor = purchasePriceMinor === null ? null : purchasePriceMinor + runningCostMinor;
 
@@ -79,7 +115,10 @@ export function calculateOwnershipCost(input: {
    * 6,000 accessory turned BDT ~3/km of real running cost into BDT 26.5/km.
    * They stay in the totals above, which is where a one-off belongs.
    */
-  const consumptionMinor = totalMinor(input.ledger.filter((e) => e.source !== 'accessory'));
+  const consumptionMinor = totalMinor(
+    inReporting.filter((e) => e.source !== 'accessory'),
+    reporting ?? undefined,
+  );
 
   // `total` only differs once a purchase price exists; without one there is
   // nothing to add, and silently showing running cost under a "total" label
@@ -101,10 +140,14 @@ export function calculateOwnershipCost(input: {
     costBasis: basis,
     consumptionCostMinor: consumptionMinor,
     headlineCostMinor: headlineMinor,
-    breakdown: breakdown(input.ledger),
+    breakdown: breakdown(inReporting, reporting ?? undefined),
     costPerDistanceScaled: costPerDistance(perDistanceMinor, input.distanceMetres, input.distanceUnit),
     costPerDistanceSettled: input.distanceMetres >= SETTLED_DISTANCE_FOR_COST_PER_UNIT,
     distanceMetres: input.distanceMetres,
+    currency: reporting,
+    currencies,
+    mixedCurrencies: currencies.length > 1,
+    totalsByCurrency: totalsByCurrency(input.ledger),
   };
 }
 

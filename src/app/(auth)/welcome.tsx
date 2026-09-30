@@ -1,69 +1,67 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Button, Icon, Logo, Screen, Txt, type IconName } from '@/components';
-import { useTheme } from '@/theme';
+import { Button, Screen, Txt, useToast } from '@/components';
+import { useAuth } from '@/features/auth/AuthProvider';
+import { AuthGoogleButton, AuthGoogleOfflineNote } from '@/features/auth/ui/AuthGoogleButton';
+import { AuthLegalLine } from '@/features/auth/ui/AuthChrome';
+import { AuthLockup } from '@/features/auth/ui/AuthLockup';
+import { messageFor } from '@/services/errors';
+import { useConnectivity } from '@/services/connectivity';
+import { fontFamily, useTheme } from '@/theme';
 
 /**
- * Welcome — the approved first screen.
+ * Welcome — the first screen a rider ever sees.
  *
- * Layout is the design's: the lockup centred in a flexed column, three benefit
- * rows with 30px accent-soft icon plates, then the two 52px actions pinned to the
- * bottom with the reassurance line beneath.
+ * The board is one centred lockup block over three pinned actions: create,
+ * sign in, and Google. Offline the Google button greys out and says why, rather
+ * than failing silently on a tap — it is the one action here that cannot work
+ * without a connection.
  */
-const BENEFITS: readonly { icon: IconName; label: string }[] = [
-  { icon: 'fuel', label: 'Accurate km/L from real fill-ups' },
-  { icon: 'wrench', label: 'Never miss a service interval' },
-  { icon: 'shield', label: "Prove your bike's history at resale" },
-];
-
 export default function Welcome() {
   const router = useRouter();
+  const toast = useToast();
   const { c } = useTheme();
+  const { isOnline } = useConnectivity();
+  const { signInWithGoogle } = useAuth();
+  const [busy, setBusy] = useState(false);
+
+  const continueWithGoogle = async () => {
+    setBusy(true);
+    try {
+      const signedIn = await signInWithGoogle();
+      if (signedIn) router.replace('/');
+    } catch (error) {
+      toast.show(messageFor(error), 'error');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <Screen
-      contentStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingTop: 28, paddingBottom: 32 }}
+      scroll={false}
+      contentStyle={{ paddingTop: 32, paddingHorizontal: 24 }}
       testID="screen-welcome"
     >
-      <View style={{ flex: 1, justifyContent: 'center', gap: 22 }}>
-        <Logo width={230} style={{ alignSelf: 'center' }} />
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 28 }}>
+        <AuthLockup caption="The motorcycle logbook." />
 
-        <View style={{ gap: 8 }}>
-          <Txt role="micro" tone="mut" uppercase style={{ letterSpacing: 1.1 }}>
-            The motorcycle logbook
+        <View style={{ alignItems: 'center', gap: 14 }}>
+          <Txt
+            align="center"
+            style={{ fontFamily: fontFamily[700], fontSize: 22, lineHeight: 29.7, color: c.ink, maxWidth: 300 }}
+          >
+            Know what your bike really costs — and how it&rsquo;s really running.
           </Txt>
-          <Txt role="heroLine">Know what your bike really costs — and how it&apos;s really running.</Txt>
-          <Txt role="metaSmall" tone="mut">
+          <Txt role="eyebrow" tone="acc" uppercase align="center">
             Fuel · Service · Documents · Resale
           </Txt>
         </View>
-
-        <View style={{ gap: 12 }}>
-          {BENEFITS.map((benefit) => (
-            <View key={benefit.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 11 }}>
-              <View
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 9,
-                  backgroundColor: c.accS,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Icon name={benefit.icon} size={15} color={c.acc} strokeWidth={2.2} />
-              </View>
-              <Txt role="bullet" style={{ flex: 1 }}>
-                {benefit.label}
-              </Txt>
-            </View>
-          ))}
-        </View>
       </View>
 
-      <View style={{ gap: 10 }}>
+      <View style={{ gap: 12 }}>
         <Button label="Create account" onPress={() => router.push('/(auth)/signup')} testID="cta-signup" />
         <Button
           label="Sign in"
@@ -71,9 +69,22 @@ export default function Welcome() {
           onPress={() => router.push('/(auth)/signin')}
           testID="cta-signin"
         />
-        <Txt role="metaSmall" tone="mut" align="center" style={{ marginTop: 2 }}>
-          Works fully offline. Everything syncs to your account when you reconnect.
-        </Txt>
+
+        {isOnline ? (
+          <AuthGoogleButton onPress={continueWithGoogle} loading={busy} testID="cta-google" />
+        ) : (
+          <View style={{ gap: 8 }}>
+            <AuthGoogleButton onPress={continueWithGoogle} disabled testID="cta-google" />
+            <AuthGoogleOfflineNote />
+          </View>
+        )}
+
+        <AuthLegalLine
+          prompt="By continuing you agree to the"
+          onTerms={() => router.push('/legal/terms')}
+          onPrivacy={() => router.push('/legal/privacy')}
+          style={{ marginTop: 4 }}
+        />
       </View>
     </Screen>
   );

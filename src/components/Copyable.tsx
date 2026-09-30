@@ -5,7 +5,6 @@ import * as Clipboard from 'expo-clipboard';
 import { HIT_SIZE, useTheme } from '@/theme';
 import { Icon } from './Icon';
 import { KeyValueRow } from './Rows';
-import { Txt } from './Text';
 import { useToast } from './Toast';
 
 /**
@@ -78,29 +77,26 @@ export function CopyButton({
   const { c, radius } = useTheme();
   const copy = useCopy();
 
+  // The Records board: `width:44px; height:44px; border-radius:11px;
+  // background:var(--accS)` with the copy glyph in `--acc`, beside the number.
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`Copy ${label}`}
       onPress={() => void copy(label, value)}
-      hitSlop={8}
       style={({ pressed }) => ({
-        minHeight: HIT_SIZE - 12,
-        flexDirection: 'row',
+        width: HIT_SIZE,
+        height: HIT_SIZE,
+        minHeight: HIT_SIZE,
         alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 10,
-        borderRadius: radius.input,
-        borderWidth: 1,
-        borderColor: c.brd,
-        backgroundColor: pressed ? c.sur2 : 'transparent',
+        justifyContent: 'center',
+        borderRadius: radius.tile,
+        backgroundColor: c.accS,
+        opacity: pressed ? 0.7 : 1,
       })}
       testID={testID}
     >
-      <Icon name="copy" size={13} color={c.acc} strokeWidth={2} />
-      <Txt role="micro" tone="acc" numberOfLines={1}>
-        Copy
-      </Txt>
+      <Icon name="copy" size={17} color={c.acc} strokeWidth={2} />
     </Pressable>
   );
 }

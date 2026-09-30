@@ -171,10 +171,12 @@ export function analyseBike(data: GarageData): BikeAnalytics {
     currency,
   });
 
-  const spend = breakdown(ledger);
-  const monthly = monthlyTotals(ledger);
+  // Every total is reported in the bike's own currency. A record paid for in
+  // another one is never added into it — see the currency note in ./expenses.ts.
+  const spend = breakdown(ledger, currency);
+  const monthly = monthlyTotals(ledger, currency);
   const thisMonthLines = filterByMonth(ledger, thisMonth);
-  const thisMonthMinor = totalMinor(thisMonthLines);
+  const thisMonthMinor = totalMinor(thisMonthLines, currency);
 
   const ownership = calculateOwnershipCost({
     bike: data.bike,
@@ -182,6 +184,7 @@ export function analyseBike(data: GarageData): BikeAnalytics {
     distanceMetres: totalDistanceMetres(points),
     distanceUnit: data.units.distance,
     costBasis: data.units.costBasis,
+    currency,
   });
 
   const fuelSorted = [...data.fuelEntries].sort(byDateDesc);

@@ -1,0 +1,122 @@
+# Phase B · 20 — running cost and cost per km, with the early-log caveat.
+#
+# Fresh account, opening odometer 4,845. Tracked distance comes from the
+# odometer history (max − min), so one fill at 4,945 tracks 100 km.
+#
+# Ledger (all eligible for cost/km unless it is an accessory):
+#   fuel      5 L × 100  =   500   (eligible)
+#   expense   parking    =   500   (eligible)      → eligible total 1,000
+#   accessory tail box   =   500   (in totals, NOT in cost/km)
+#
+#   TOTAL SPENT = 500 + 500 + 500 = 1,500            → "BDT 1,500"
+#   COST / KM   = 1,000 / 100 km = 10.0 per km        → "BDT 10.0"
+#   caveat: tracked 100 km < 1,000 km settle point   → hint-cost-per-distance
+#           "Based on 100 km so far, … It settles around 1,000 km."
+#
+# The Parts screen has no parts, so its empty state's secondary action
+# "Accessories" (text, no testID) is the route to the accessory list.
+appId: app.revora.android.dev
+---
+- runFlow: lib/fresh-anon-bike.yaml
+
+# ---------- the fill: 100 km tracked, 500 spent ----------
+- runFlow:
+    file: lib/add-fill.yaml
+    env:
+      ODO: "4945"
+      LITRES: "5"
+      PRICE: "100"
+      FILL: "Full tank"
+      STATION: ""
+- assertVisible: "4,945"
+
+# ---------- expense 500 ----------
+- tapOn:
+    id: "tab-expenses"
+- tapOn:
+    id: "cta-add-expense"
+- assertVisible:
+    id: "screen-expense-add"
+- tapOn:
+    id: "input-amount"
+- inputText: "500"
+- tapOn:
+    id: "input-expense-note"
+- inputText: "Audit parking"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "cta-save-expense"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-expense"
+- assertVisible:
+    id: "screen-expenses"
+- assertVisible: "Audit parking"
+
+# ---------- accessory 500 ----------
+- tapOn:
+    id: "tab-garage"
+- tapOn:
+    id: "cta-profile"
+- assertVisible:
+    id: "screen-bike-profile"
+- scrollUntilVisible:
+    element:
+      id: "hub-parts"
+    direction: DOWN
+- tapOn:
+    id: "hub-parts"
+- assertVisible:
+    id: "screen-parts"
+# MISSING TESTID: Parts empty state secondary action "Accessories".
+- tapOn: "Accessories"
+- assertVisible:
+    id: "screen-accessories"
+- tapOn:
+    id: "cta-add-accessory"
+- assertVisible:
+    id: "screen-accessory-add"
+- tapOn:
+    id: "input-accessory-name"
+- inputText: "Audit tail box"
+- tapOn:
+    id: "input-purchase-cost"
+- inputText: "500"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "cta-save-accessory"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-accessory"
+- assertVisible:
+    id: "screen-accessories"
+- assertVisible: "Audit tail box"
+
+# ---------- Costs tab ----------
+- back
+- back
+- back
+- tapOn:
+    id: "tab-expenses"
+- assertVisible:
+    id: "screen-expenses"
+- assertVisible: "TOTAL SPENT"
+- assertVisible: "BDT 1,500"
+- assertVisible: "COST / KM"
+- assertVisible: "BDT 10.0"
+- assertVisible:
+    id: "hint-cost-per-distance"
+- assertVisible: ".*Based on 100 km so far.*"
+- assertVisible: ".*settles around 1,000 km.*"
+# The ledger footer states the accessory rule.
+- scrollUntilVisible:
+    element: ".*Accessories count in totals but not in cost / km.*"
+    direction: DOWN
+
+# ---------- Dashboard agrees (same analyseBike() field) ----------
+- tapOn:
+    id: "tab-dashboard"
+- assertVisible: "BDT 10.0"
+- assertVisible: ".*Based on 100 km so far.*"

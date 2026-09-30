@@ -79,4 +79,14 @@ describe('cost per distance', () => {
   it('is null with no distance to divide by', () => {
     expect(costPerDistance(2_472_000, 0, 'km')).toBeNull();
   });
+
+  it('converts to miles with the exact mile, not a rounded one', () => {
+    // BDT 1,000.00 (100_000 minor) over 100 km = BDT 10.00/km = 1,000 minor/km,
+    // which is 100_000 at RATE_SCALE 100.
+    expect(costPerDistance(100_000, 100_000, 'km')).toBe(100_000);
+    // One mile is 1,609.344 m exactly, so 1,000 minor/km is 1,609.344 minor/mi
+    // → 160,934.4 scaled → 160,934. Rounding the mile to 1,609 m gives 160,900,
+    // a rate 0.021% low on every mile-basis figure in the app.
+    expect(costPerDistance(100_000, 100_000, 'mi')).toBe(160_934);
+  });
 });

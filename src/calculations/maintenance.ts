@@ -7,6 +7,26 @@ import { addDays, daysBetween, todayIso } from '@/utils/date';
  * A rule can be distance-based, time-based, or both. When both are set the rule
  * falls due at whichever comes first, and the reported status is the more urgent
  * of the two.
+ *
+ * ## Where the boundaries fall
+ *
+ * `remaining` is what is left to run — metres on the distance side, days on the
+ * time side — and the same four bands apply to both:
+ *
+ * | remaining                          | status      |
+ * | ---------------------------------- | ----------- |
+ * | `< 0`                              | `overdue`   |
+ * | `0` … `warnAhead`                  | `due_soon`  |
+ * | `warnAhead + 1` … `2 × warnAhead`  | `upcoming`  |
+ * | beyond that                        | `good`      |
+ *
+ * **Exactly zero is `due_soon`, not `overdue`**, and that is a decision rather
+ * than an accident of the comparison. A rule with zero remaining has run its
+ * interval and not a metre or a day more: it is due *now*. Calling that overdue
+ * would put 'OVERDUE' on a rider's screen on the very kilometre the service came
+ * due, accusing them of neglect for something they are not yet late for. Overdue
+ * begins at −1: the first metre ridden, or the first day passed, beyond the due
+ * point. Both boundaries are pinned in maintenance.test.ts.
  */
 
 export type MaintenanceStatus = {
@@ -37,6 +57,7 @@ function worse(a: MaintenanceStatusKind, b: MaintenanceStatusKind): MaintenanceS
 }
 
 function kindFromRemaining(remaining: number, warnAhead: number): MaintenanceStatusKind {
+  // Strictly less than zero: standing exactly on the due point is due, not late.
   if (remaining < 0) return 'overdue';
   if (remaining <= warnAhead) return 'due_soon';
   if (remaining <= warnAhead * UPCOMING_MULTIPLIER) return 'upcoming';

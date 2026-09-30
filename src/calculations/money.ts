@@ -59,8 +59,27 @@ export function parseMoney(input: string, currency: CurrencyCode): number | null
 }
 
 /**
- * Divides two integers and rounds half-away-from-zero, staying in integer space.
- * Used everywhere a derived integer (total, price/L) is produced.
+ * Divides two integers and rounds **half away from zero**, staying in integer
+ * space. Used everywhere a derived integer (total, price/L, cost/km) is produced.
+ *
+ * The rounding policy, stated once because every derived money figure in the app
+ * inherits it:
+ *
+ *  · A quotient landing exactly on .5 goes UP in magnitude — `5/2 → 3`,
+ *    `-5/2 → -3`, `1/2 → 1`, `-1/2 → -1`. It is never rounded to even
+ *    (banker's rounding), and it is never truncated toward zero.
+ *  · The rule is symmetric about zero, so negating an input negates the result.
+ *    A refund and a charge of the same size round by the same amount.
+ *  · Half-up-on-magnitude is what a rider reading a fuel receipt expects: a
+ *    derived total of 1,000.015 is charged as 1,000.02, not 1,000.01.
+ *
+ * The consequence to know about is that derivation is not always reversible.
+ * `total = round(litres × price)` then `price' = round(total ÷ litres)` returns
+ * the original price for any fill of a litre or more, but for a fraction of a
+ * litre the half that was rounded away is spread over too little volume to
+ * recover. `normaliseFuelAmounts` (src/calculations/fuel.ts) is built around
+ * that: the money the rider typed is what is stored, and the per-litre rate is
+ * the figure allowed to move.
  */
 export function divideRound(numerator: number, denominator: number): number {
   if (denominator === 0) return 0;
@@ -88,7 +107,12 @@ export function formatMoney(
   const negative = minor < 0;
   const abs = Math.abs(minor);
 
-  const shown = decimals >= scale ? abs : divideRound(abs, pow10(scale - decimals));
+  // Asking for more decimals than the currency has must PAD, not shift the
+  // point: JPY has exponent 0, so 1,305 minor units are ¥1,305 and rendering
+  // them at 2 dp is '1,305.00'. Leaving the figure unscaled and then dividing by
+  // 10^decimals moved every 0-exponent price a hundredfold down the line.
+  const shown =
+    decimals >= scale ? abs * pow10(decimals - scale) : divideRound(abs, pow10(scale - decimals));
   const divisor = pow10(decimals);
   const whole = Math.floor(shown / divisor);
   const frac = shown - whole * divisor;

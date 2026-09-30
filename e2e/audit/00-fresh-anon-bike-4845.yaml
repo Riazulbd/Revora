@@ -1,0 +1,18 @@
+# Phase B · 00 — fresh anonymous account, one bike, opening odometer 4,845.
+#
+# Self-contained. Needs the device ONLINE (anonymous sign-in is a network call).
+# Expected: Dashboard hero odometer reads "4,845" with the unit "km" beside it
+# (formatDistanceValue(4_845_000, 'km') = "4,845"), the greeting names the bike,
+# and the empty-dashboard card invites the first fill.
+appId: app.revora.android.dev
+---
+- runFlow: lib/fresh-anon-bike.yaml
+
+- assertVisible:
+    id: "screen-dashboard"
+# The opening reading is the current odometer: 4845 km → "4,845".
+- assertVisible: ".*Audit Bike.*"
+# No fills yet → the empty card, not a zero.
+- assertVisible: "No rides logged yet"
+- assertVisible:
+    id: "cta-first-fill"

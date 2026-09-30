@@ -1,0 +1,78 @@
+# Phase B · 70 — a fill logged with no network survives a force-stop.
+#
+# NOT self-contained: it keeps state (clearState: false) and needs a bike that
+# an earlier flow created (00 or any later one). The runner turns the radios
+# OFF before this flow and back ON afterwards:
+#     adb -s $SERIAL shell svc wifi disable && adb -s $SERIAL shell svc data disable
+#     … flow …
+#     adb -s $SERIAL shell svc wifi enable  && adb -s $SERIAL shell svc data enable
+# Maestro itself cannot toggle the network. (`svc data` needs a SIM/data
+# device; on wifi-only devices the wifi toggle alone is sufficient.)
+#
+# 9,999 km sits above every odometer the other flows reach (max 5,118), so
+# the fill is the new current reading. 6 L × 150 = 900 → "BDT 900".
+appId: app.revora.android.dev
+---
+- launchApp:
+    clearState: false
+- assertVisible:
+    id: "screen-dashboard"
+- assertVisible:
+    id: "banner-offline"
+
+- tapOn:
+    id: "quick-add-fuel"
+- assertVisible:
+    id: "screen-fuel-add"
+- tapOn:
+    id: "input-odometer"
+- inputText: "9999"
+- tapOn:
+    id: "input-litres"
+- inputText: "6"
+- tapOn:
+    id: "input-price"
+- eraseText
+- inputText: "150"
+- hideKeyboard
+- assertVisible:
+    id: "input-total"
+    text: "900"
+- scrollUntilVisible:
+    element:
+      id: "input-station"
+    direction: DOWN
+- tapOn:
+    id: "input-station"
+- inputText: "Offline Audit Pump"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "cta-save-fuel"
+    direction: DOWN
+- assertVisible: ".*You're offline.*"
+- tapOn:
+    id: "cta-save-fuel"
+
+# Accepted locally at once.
+- assertVisible:
+    id: "screen-dashboard"
+- assertVisible: "9,999"
+- tapOn:
+    id: "tab-fuel"
+- assertVisible: "Offline Audit Pump"
+- assertVisible: "BDT 900"
+
+# ---------- force-stop and relaunch, still offline ----------
+- stopApp
+- launchApp:
+    clearState: false
+- assertVisible:
+    id: "screen-dashboard"
+- assertVisible: "9,999"
+- tapOn:
+    id: "tab-fuel"
+- assertVisible:
+    id: "screen-fuel"
+- assertVisible: "Offline Audit Pump"
+- assertVisible: "BDT 900"

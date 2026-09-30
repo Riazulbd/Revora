@@ -1,24 +1,18 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import {
   Button,
   Card,
-  Dialog,
-  Segmented,
   DateField,
   Divider,
-  Field,
-  FieldRow,
   Input,
   MenuRow,
-  PickerField,
   Screen,
   ScreenHeader,
   Sheet,
   SkeletonList,
-  Stack,
   Txt,
 } from '@/components';
 import { currencySymbol, currencyDecimals } from '@/calculations/money';
@@ -26,28 +20,31 @@ import { distanceUnitLabel } from '@/calculations/units';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useRecategorise } from '@/features/parts/useRecategorise';
-import type { SegmentedOption } from '@/components';
-import { conversionLosses } from '@/calculations/recategorise';
+import { PartsDialog } from '@/features/parts/ui/PartsDialog';
+import { PartsField } from '@/features/parts/ui/PartsField';
+import { PartsLinkRow } from '@/features/parts/ui/PartsLinkRow';
+import { PartsTypeSwitch } from '@/features/parts/ui/PartsTypeSwitch';
+import { partToAccessoryBullets } from '@/features/parts/ui/PartsConversionBullets';
 import { useNewPartId, useSavePart } from '@/features/parts/usePartMutations';
 import { fromMetres, fromMinor, toMetres, toMinor, toTrimmed } from '@/features/shared/formValues';
 import { useStableId } from '@/features/shared/useStableId';
+import { fontFamily } from '@/theme';
 import type { BikeAnalytics } from '@/calculations/analytics';
 import type { Part, UnitPreferences } from '@/types';
 import { partSchema } from '@/validation/schemas';
 import { formatCurrency } from '@/utils/format';
-import { formatLongDate, todayIso } from '@/utils/date';
+import { formatLongDate, formatShortDate, todayIso } from '@/utils/date';
 
 /**
  * Add / edit a part.
  *
+ * The route waits for data and the form is keyed on the record id, so every
+ * field initialises from its final value on the first render — there is no
+ * hydration effect anywhere in here.
+ *
  * Linking a part to a service is how the ledger stays honest: a linked part's
- * cost lives on the service and produces no second line (requirement 28).
+ * cost lives on the service and produces no second line.
  */
-const TYPE_OPTIONS: readonly SegmentedOption<'part' | 'accessory'>[] = [
-  { value: 'part', label: 'Part' },
-  { value: 'accessory', label: 'Accessory' },
-];
-
 export default function PartEditorRoute() {
   const { id: editingId } = useLocalSearchParams<{ id?: string }>();
   const { units } = useGarage();
@@ -79,12 +76,14 @@ function PartForm({
   analytics: BikeAnalytics;
   units: UnitPreferences;
 }) {
+  const router = useRouter();
   const newPartId = useNewPartId();
   const generatedId = useStableId(newPartId);
   const recordId = existing?.id ?? generatedId;
 
   const currency = existing?.currency ?? analytics.currency;
   const decimals = currencyDecimals(currency);
+  const distanceLabel = distanceUnitLabel(units.distance);
 
   const [name, setName] = useState(existing?.name ?? '');
   const [installedOdometer, setInstalledOdometer] = useState(
@@ -106,6 +105,21 @@ function PartForm({
   const savePart = useSavePart();
   const services = analytics.services.all;
   const linkedService = services.find((s) => s.id === linkedServiceId) ?? null;
+
+  const paid =
+    existing === null || existing.costMinor === 0
+      ? 'Nothing was recorded as paid for this part, so Costs is unchanged.'
+      : `The ${formatCurrency(existing.costMinor, existing.currency)} you paid stays in Costs — as an accessory it leaves cost / ${distanceLabel}.`;
+
+  /** Switching kind: a new part just changes form, an existing one has to be moved. */
+  const chooseType = (next: 'part' | 'accessory') => {
+    if (next === 'part') return;
+    if (existing) {
+      setConvertOpen(true);
+      return;
+    }
+    router.replace('/accessories/add');
+  };
 
   const submit = async () => {
     const next: Record<string, string> = {};
@@ -162,147 +176,153 @@ function PartForm({
     <Screen testID="screen-part-add">
       <ScreenHeader title={existing ? 'Edit part' : 'Add part'} />
 
-      <Stack gap={14}>
-        {existing ? (
-          <Field
-            label="Type"
-            helper="Moving this keeps the cost in your history. A part wears out and is tracked against distance; an accessory is bought once and stays."
-          >
-            <Segmented
-              options={TYPE_OPTIONS}
-              value="part"
-              onChange={(next) => { if (next === 'accessory') setConvertOpen(true); }}
-              testID="segmented-record-type"
-            />
-          </Field>
-        ) : null}
+      <PartsTypeSwitch
+        value="part"
+        pending={convertOpen ? 'accessory' : null}
+        onChange={chooseType}
+        testID="segmented-record-type"
+      />
 
-        <Field label="Part name" error={errors.name ?? null}>
-          <Input
-            value={name}
-            onChangeText={setName}
-            placeholder="e.g. DID chain kit"
-            autoCapitalize="sentences"
-            invalid={Boolean(errors.name)}
-            testID="input-part-name"
-          />
-        </Field>
-
-        <FieldRow>
-          <Field
-            label={`Installed at (${distanceUnitLabel(units.distance)})`}
-            flex={1}
-            error={errors.installedOdometer ?? null}
-          >
-            <Input
-              value={installedOdometer}
-              onChangeText={setInstalledOdometer}
-              keyboardType="decimal-pad"
-              size="compact"
-              invalid={Boolean(errors.installedOdometer)}
-              testID="input-installed-odometer"
-            />
-          </Field>
-          <Field
-            label={`Expected life (${distanceUnitLabel(units.distance)})`}
-            flex={1}
-            error={errors.expectedLife ?? null}
-          >
-            <Input
-              value={expectedLife}
-              onChangeText={setExpectedLife}
-              placeholder="8000"
-              keyboardType="decimal-pad"
-              size="compact"
-              invalid={Boolean(errors.expectedLife)}
-              testID="input-expected-life"
-            />
-          </Field>
-        </FieldRow>
-
-        <FieldRow>
-          <Field label="Fitted on" flex={1}>
-            <DateField
-              value={installedDate}
-              onChange={setInstalledDate}
-              maximumDate={new Date()}
-              testID="field-part-date"
-            />
-          </Field>
-          <Field label={`Cost (${currencySymbol(currency)})`} flex={1}>
-            <Input
-              value={cost}
-              onChangeText={setCost}
-              placeholder="0"
-              keyboardType="decimal-pad"
-              size="compact"
-              testID="input-part-cost"
-            />
-          </Field>
-        </FieldRow>
-
-        <Field label="Fitted by (optional)">
-          <Input
-            value={fittedBy}
-            onChangeText={setFittedBy}
-            placeholder="Rahim Moto Care"
-            autoCapitalize="words"
-            size="compact"
-            testID="input-fitted-by"
-          />
-        </Field>
-
-        <Field
-          label="Link to a service (optional)"
-          helper="Linking keeps the cost on that service so it is never counted twice."
-        >
-          <PickerField
-            value={
-              linkedService
-                ? `${linkedService.title} · ${formatLongDate(linkedService.date)}`
-                : null
-            }
-            placeholder={services.length === 0 ? 'No services recorded yet' : 'Not linked'}
-            onPress={() => services.length > 0 && setLinkOpen(true)}
-            accessibilityLabel="Link this part to a service"
-            testID="field-link-service"
-          />
-        </Field>
-
-        <Field label="Notes (optional)">
-          <Input
-            value={notes}
-            onChangeText={setNotes}
-            placeholder="Batch number, supplier…"
-            size="compact"
-            testID="input-part-notes"
-          />
-        </Field>
-
-        <Button
-          label={existing ? 'Save changes' : 'Save part'}
-          onPress={submit}
-          loading={savePart.isPending}
-          testID="cta-save-part"
+      <PartsField label="Name" error={errors.name ?? null} style={{ marginTop: 16 }}>
+        <Input
+          value={name}
+          onChangeText={setName}
+          placeholder="e.g. DID chain kit"
+          autoCapitalize="sentences"
+          padX={14}
+          invalid={Boolean(errors.name)}
+          testID="input-part-name"
         />
+      </PartsField>
 
-        <Txt role="helper" tone="mut" align="center">
-          Linked part costs appear once in the ledger — never double counted.
-        </Txt>
+      <View style={{ flexDirection: 'row', gap: 12, marginTop: 14 }}>
+        <PartsField label="Installed odometer" flex={1} error={errors.installedOdometer ?? null}>
+          <Input
+            value={installedOdometer}
+            onChangeText={setInstalledOdometer}
+            keyboardType="decimal-pad"
+            unit={distanceLabel}
+            padX={14}
+            invalid={Boolean(errors.installedOdometer)}
+            testID="input-installed-odometer"
+          />
+        </PartsField>
+        <PartsField label="Installed date" flex={1}>
+          <DateField
+            value={installedDate}
+            onChange={setInstalledDate}
+            maximumDate={new Date()}
+            todayLabel={null}
+            format={formatShortDate}
+            padX={14}
+            testID="field-part-date"
+          />
+        </PartsField>
+      </View>
 
-      </Stack>
+      <Txt role="helper" tone="mut" style={{ marginTop: 8 }}>
+        Required — wear is measured from this reading. A guessed one makes the life projection worthless.
+      </Txt>
+
+      <View style={{ flexDirection: 'row', gap: 12, marginTop: 14 }}>
+        <PartsField label="Expected life" optional flex={1} error={errors.expectedLife ?? null}>
+          <Input
+            value={expectedLife}
+            onChangeText={setExpectedLife}
+            placeholder="8,000"
+            keyboardType="decimal-pad"
+            unit={distanceLabel}
+            padX={14}
+            invalid={Boolean(errors.expectedLife)}
+            testID="input-expected-life"
+          />
+        </PartsField>
+        <PartsField label="Cost" optional flex={1}>
+          <Input
+            value={cost}
+            onChangeText={setCost}
+            placeholder="0"
+            keyboardType="decimal-pad"
+            prefix={currencySymbol(currency)}
+            padX={14}
+            testID="input-part-cost"
+          />
+        </PartsField>
+      </View>
+
+      <PartsLinkRow
+        value={
+          linkedService ? `${linkedService.title} · ${formatLongDate(linkedService.date)}` : null
+        }
+        onPress={() => setLinkOpen(true)}
+        disabled={services.length === 0}
+        style={{ marginTop: 14 }}
+        testID="field-link-service"
+      />
+
+      {/* Not on the Add board — a part only acquires a fitter and notes once it
+          exists, and the detail screen reads both back. */}
+      {existing ? (
+        <>
+          <PartsField label="Fitted by" optional style={{ marginTop: 14 }}>
+            <Input
+              value={fittedBy}
+              onChangeText={setFittedBy}
+              placeholder="Rahim Moto Care"
+              autoCapitalize="words"
+              padX={14}
+              testID="input-fitted-by"
+            />
+          </PartsField>
+          <PartsField label="Notes" optional style={{ marginTop: 14 }}>
+            <Input
+              value={notes}
+              onChangeText={setNotes}
+              placeholder="Batch number, supplier…"
+              padX={14}
+              testID="input-part-notes"
+            />
+          </PartsField>
+        </>
+      ) : null}
+
+      <Button
+        label={existing ? 'Save changes' : 'Save part'}
+        onPress={submit}
+        loading={savePart.isPending}
+        style={{ marginTop: 18 }}
+        testID="cta-save-part"
+      />
 
       {existing ? (
-        <Dialog
+        <PartsDialog
           visible={convertOpen}
           onClose={() => setConvertOpen(false)}
-          title="Make this an accessory?"
-          message={`An accessory doesn't wear, so these are discarded: ${conversionLosses('partToAccessory', existing).join(', ')}. It also leaves cost per distance, because a one-off charged against kilometres makes that figure swing. The cost stays in your history.`}
+          title="Move to accessories?"
           confirmLabel="Move it"
+          cancelLabel="Keep as part"
           busy={recategorise.isPending}
           onConfirm={() => void recategorise.submit({ direction: 'partToAccessory', part: existing })}
           testID="dialog-convert-part"
-        />
+        >
+          <Txt role="body" tone="mut" style={{ marginTop: 8, lineHeight: 20.15 }}>
+            An accessory doesn&rsquo;t wear, so these are{' '}
+            <Txt role="body" tone="bad" style={{ fontFamily: fontFamily[700] }}>
+              discarded
+            </Txt>
+            :
+          </Txt>
+          <View style={{ gap: 8, marginTop: 12 }}>
+            {partToAccessoryBullets(existing, units.distance).map((bullet) => (
+              <Txt key={bullet} role="body">
+                &bull; {bullet}
+              </Txt>
+            ))}
+          </View>
+          <Txt role="body" tone="mut" style={{ marginTop: 12, lineHeight: 19.5 }}>
+            {paid}
+          </Txt>
+        </PartsDialog>
       ) : null}
 
       <Sheet visible={linkOpen} onClose={() => setLinkOpen(false)} title="Link to a service">

@@ -7,171 +7,292 @@ import {
   Banner,
   Button,
   Card,
+  Eyebrow,
   Icon,
+  LinkButton,
+  ProBadge,
   Screen,
   ScreenHeader,
-  Stack,
   Txt,
 } from '@/components';
 import { useGarage } from '@/features/bikes/GarageProvider';
-import { FREE_PLAN_BIKE_LIMIT } from '@/repositories';
-import { formatLongDate , dateToIso } from '@/utils/date';
-import { useTheme } from '@/theme';
+import { formatLongDate, dateToIso } from '@/utils/date';
+import { NO_VALUE } from '@/utils/format';
+import { fontFamily, useTheme } from '@/theme';
 import { useBilling } from '@/features/billing/BillingProvider';
+import { ASSISTANT_COMING_SOON, proFeatureLabel } from '@/features/premium/comingSoon';
 import { billingAvailable } from '@/features/billing/googlePlay';
-import { offerPrice } from '@/features/billing/presentation';
+import {
+  offerHasIntroductoryPhase,
+  offerHeadlinePrice,
+  offerPrice,
+  offerTermLabel,
+  planNotice,
+} from '@/features/billing/presentation';
+import type { PlayOffer } from '@/features/billing/googlePlay';
 
-const FREE_FEATURES = [
-  `${FREE_PLAN_BIKE_LIMIT} motorcycle`,
-  'Ad-supported',
-  'Fuel tracking & full-to-full mileage',
-  'Maintenance rules and reminders',
-  'Expense ledger and standard charts',
-  'Document vault, warranties and safety log',
-  'Proof Pack export',
-];
-
+/**
+ * Your plan (`money---expense-allowance-pro--03` and `--04`).
+ *
+ * Two rules the whole screen is built around:
+ *  · Pro comes from `entitlements/{uid}` — the screen reflects the entitlement,
+ *    it never decides it. Nothing here writes a Pro flag.
+ *  · Every amount is Google's own `formattedPrice`. We never format, convert or
+ *    hardcode a price, and a plan whose price Play has not sent yet shows `—`
+ *    rather than a number we made up.
+ *
+ * The three failures the board draws all render in one Banner slot above the
+ * plan cards, in the order `planNotice()` ranks them.
+ */
 const PRO_FEATURES = [
   'Multiple motorcycles',
-  'Advanced statistics & consumption charts',
-  'CSV export of your fuel history',
-  'Assistant',
+  'Advanced statistics and consumption charts',
+  'CSV export of fuel history',
   'No ads',
+  // Named, but honestly: a rider deciding whether to subscribe must not be
+  // sold something they cannot use today.
+  proFeatureLabel('The Assistant', ASSISTANT_COMING_SOON),
 ];
 
-/** Prices come from Play; the current plan comes from the server entitlement. */
 export default function Plan() {
-  const { isPro, profile, bikes, isPending } = useGarage();
+  const { isPro, profile, isPending } = useGarage();
   const billing = useBilling();
   const router = useRouter();
   const { c } = useTheme();
   const [selectedToken, setSelectedToken] = useState<string | null>(null);
+
   const offers = billing.product?.offers ?? [];
-  const selected = offers.find(offer => offer.offerToken === selectedToken) ?? offers[0];
+  const selected = offers.find((offer) => offer.offerToken === selectedToken) ?? offers[0];
   const expiry = profile?.entitlement.expiresAt ?? null;
   const status = profile?.entitlement.subscriptionStatus;
   const googleSubscriber = profile?.entitlement.source === 'google_play';
-  const subscriptionMessage = status === 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD'
-    ? 'There is a payment problem. Pro remains available during your grace period. Update your payment method in Google Play.'
-    : status === 'SUBSCRIPTION_STATE_ON_HOLD'
-      ? 'Your subscription is on hold. Update your payment method in Google Play to restore Pro.'
-      : status === 'SUBSCRIPTION_STATE_PAUSED' ? 'Your subscription is paused. Resume it in Google Play to restore Pro.'
-        : status === 'SUBSCRIPTION_STATE_CANCELED' && isPro ? 'Renewal is canceled. Pro remains available until the date shown.'
-          : null;
+
+  const subscriptionMessage =
+    status === 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD'
+      ? 'There is a payment problem. Pro remains available during your grace period. Update your payment method in Google Play.'
+      : status === 'SUBSCRIPTION_STATE_ON_HOLD'
+        ? 'Your subscription is on hold. Update your payment method in Google Play to restore Pro.'
+        : status === 'SUBSCRIPTION_STATE_PAUSED'
+          ? 'Your subscription is paused. Resume it in Google Play to restore Pro.'
+          : status === 'SUBSCRIPTION_STATE_CANCELED' && isPro
+            ? 'Renewal is canceled. Pro remains available until the date shown.'
+            : null;
+
+  const notice = planNotice({ pending: billing.pending, error: billing.error });
+  const noticeText = { fontFamily: fontFamily[500], fontSize: 12.5, lineHeight: 18.75, color: c.ink };
 
   return (
     <Screen testID="screen-plan">
-      <ScreenHeader title="Free / Pro" />
+      <ScreenHeader title="Your plan" />
 
-      <Stack>
-        {isPending ? <Txt role="helper" tone="mut">Loading your account plan…</Txt> : null}
-        <Card>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 10,
-              marginBottom: 12,
-            }}
-          >
-            <Txt role="cardTitle">Free</Txt>
-            {isPro || isPending ? null : <Badge label="CURRENT PLAN" tone="neutral" />}
-          </View>
-          <FeatureList features={FREE_FEATURES} />
-          <Txt role="micro" tone="mut" style={{ marginTop: 10 }}>
-            You have {bikes.length} motorcycle{bikes.length === 1 ? '' : 's'} in your garage.
-          </Txt>
-        </Card>
-
-        <Card>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 10,
-              marginBottom: 12,
-            }}
-          >
-            <Txt role="cardTitle">{billing.product?.title ?? 'Revora Pro'}</Txt>
-            {isPro ? <Badge label="CURRENT PLAN" tone="accent" /> : null}
-          </View>
-          <FeatureList features={PRO_FEATURES} accent />
-
-          {isPro ? (
-            <Banner
-              tone="good"
-              icon="check"
-              message={
-                expiry === null
-                  ? 'Pro is active on your account.'
-                  : `Pro is active until ${formatLongDate(dateToIso(new Date(expiry)))}.`
+      {notice ? (
+        <Banner
+          tone={notice.kind === 'account_mismatch' ? 'bad' : 'warn'}
+          icon={notice.kind === 'account_mismatch' ? 'alertCircle' : notice.kind === 'pending' ? 'clock' : 'alertTriangle'}
+          compact
+          lead={notice.lead}
+          message={notice.message}
+          style={{ marginBottom: 12 }}
+          testID={notice.kind === 'pending' ? 'banner-payment-pending' : 'billing-error'}
+          {...(notice.retry
+            ? {
+                action: (
+                  <>
+                    <Txt
+                      accessibilityRole="link"
+                      onPress={billing.reload}
+                      testID="link-play-retry"
+                      style={{ ...noticeText, fontFamily: fontFamily[700], color: c.acc }}
+                    >
+                      try again
+                    </Txt>
+                    <Txt style={noticeText}>. Your current plan is unaffected.</Txt>
+                  </>
+                ),
               }
-              style={{ marginTop: 14 }}
-            />
-          ) : (
-            <>
-              {billing.product?.description ? <Txt role="helper" tone="mut" style={{ marginTop: 14 }}>{billing.product.description}</Txt> : null}
-              {billing.loading ? <Txt role="helper" tone="mut" style={{ marginTop: 14 }}>Loading Google Play plans and prices…</Txt> : null}
-              {offers.map(offer => (
-                <Pressable
-                  key={offer.offerToken}
-                  accessibilityRole="radio"
-                  accessibilityState={{ checked: offer.offerToken === selected?.offerToken }}
-                  accessibilityLabel={offerPrice(offer)}
-                  onPress={() => setSelectedToken(offer.offerToken)}
-                  style={{ padding: 14, marginTop: 12, borderWidth: 1, borderRadius: 12,
-                    borderColor: offer.offerToken === selected?.offerToken ? c.acc : c.brd }}
-                >
-                  <Txt role="smallStrong">{offerPrice(offer)}</Txt>
-                  <Txt role="micro" tone="mut">
-                    {offer.phases.at(-1)?.recurrenceMode === 1 ? 'Automatically renews. Cancel in Google Play.' : 'Prepaid access. Does not automatically renew.'}
-                  </Txt>
-                </Pressable>
-              ))}
-              <Button
-                label={billing.pending ? 'Payment pending' : 'Upgrade to Pro'}
-                loading={billing.busy}
-                disabled={!billing.canPurchase || !selected || billing.loading || billing.pending || isPending}
-                style={{ marginTop: 14 }}
-                onPress={() => selected ? billing.upgrade(selected.offerToken) : undefined}
-                testID="cta-upgrade"
-              />
-              {!billingAvailable ? <Txt role="helper" tone="mut" style={{ marginTop: 10 }}>Subscribe using the Revora Android app from Google Play.</Txt>
-                : !billing.canPurchase ? <Button label="Sign in or create an account" variant="secondary" style={{ marginTop: 10 }} onPress={() => router.push('/settings')} /> : null}
-            </>
-          )}
-          {subscriptionMessage ? <Txt role="helper" style={{ marginTop: 12 }}>{subscriptionMessage}</Txt> : null}
-          {googleSubscriber ? <Button label="Manage Subscription" variant="secondary" onPress={billing.manage} style={{ marginTop: 12 }} testID="cta-manage-subscription" /> : null}
-          {billing.message ? <Txt role="helper" style={{ marginTop: 12 }} testID="billing-status">{billing.message}</Txt> : null}
-          {billing.error ? <Txt role="helper" style={{ marginTop: 12 }} testID="billing-error">{billing.error}</Txt> : null}
-          {billing.canPurchase ? <Button label="Restore purchases" variant="secondary" onPress={billing.restore} loading={billing.busy} style={{ marginTop: 12 }} testID="cta-restore-purchases" /> : null}
-          {billingAvailable && !isPro ? <Button label="Reload plans and prices" variant="ghost" onPress={billing.reload} disabled={billing.loading || billing.busy} style={{ marginTop: 10 }} /> : null}
-          <Txt role="helper" tone="mut" style={{ marginTop: 12 }}>Payment is handled by Google Play. Review the price and billing terms in checkout before confirming.</Txt>
-        </Card>
+            : {})}
+        />
+      ) : null}
 
-        <Txt role="helper" tone="mut">
-          Your plan lives on your Revora account, not on this phone — so it follows you to the web and to a new
-          device, and no amount of reinstalling changes it either way.
-        </Txt>
-      </Stack>
+      {billing.message ? (
+        <Banner
+          variant="plain"
+          message={billing.message}
+          style={{ marginBottom: 12 }}
+          testID="billing-status"
+        />
+      ) : null}
+
+      {!billingAvailable ? (
+        <Banner
+          variant="plain"
+          message="Subscribe using the Revora Android app from Google Play."
+          style={{ marginBottom: 12 }}
+          testID="banner-play-unavailable"
+        />
+      ) : null}
+
+      <Card>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+          <View style={{ flexShrink: 1 }}>
+            <Eyebrow>Current plan</Eyebrow>
+            <Txt role="cardTitle" style={{ marginTop: 4 }} testID="text-current-plan">
+              {isPro ? 'Pro · every motorcycle' : 'Free · one motorcycle'}
+            </Txt>
+            {isPro && expiry !== null ? (
+              <Txt role="meta" tone="mut" style={{ marginTop: 2 }}>
+                Active until {formatLongDate(dateToIso(new Date(expiry)))}
+              </Txt>
+            ) : null}
+          </View>
+          {isPro ? <ProBadge wide /> : <Badge label="FREE" tone="neutral" size="wide" />}
+        </View>
+      </Card>
+
+      {subscriptionMessage ? (
+        <Banner tone="warn" compact message={subscriptionMessage} style={{ marginTop: 12 }} testID="banner-subscription-state" />
+      ) : null}
+
+      <Card style={{ marginTop: 12, gap: 11 }}>
+        <Eyebrow>Pro adds</Eyebrow>
+        {PRO_FEATURES.map((feature) => (
+          <View key={feature} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View
+              style={{
+                width: 15,
+                height: 15,
+                borderRadius: 7.5,
+                backgroundColor: c.accS,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Icon name="check" size={9} color={c.acc} strokeWidth={3} />
+            </View>
+            <Txt role="body" style={{ flex: 1 }}>
+              {feature}
+            </Txt>
+          </View>
+        ))}
+      </Card>
+
+      {isPro ? (
+        <>
+          <Banner
+            tone="good"
+            compact
+            message={
+              expiry === null
+                ? 'Pro is active on your account.'
+                : `Pro is active until ${formatLongDate(dateToIso(new Date(expiry)))}.`
+            }
+            style={{ marginTop: 12 }}
+            testID="banner-pro-active"
+          />
+          {googleSubscriber ? (
+            <Button
+              label="Manage subscription"
+              variant="secondary"
+              onPress={billing.manage}
+              style={{ marginTop: 12 }}
+              testID="cta-manage-subscription"
+            />
+          ) : null}
+        </>
+      ) : (
+        <>
+          {billing.loading ? (
+            <Txt role="meta" tone="mut" align="center" style={{ marginTop: 16 }} testID="text-prices-loading">
+              Loading Google Play plans and prices…
+            </Txt>
+          ) : (
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+              {offers.map((offer) => (
+                <OfferCard
+                  key={offer.offerToken}
+                  offer={offer}
+                  selected={offer.offerToken === selected?.offerToken}
+                  onPress={() => setSelectedToken(offer.offerToken)}
+                />
+              ))}
+            </View>
+          )}
+
+          <Button
+            label={billing.pending ? 'Payment pending' : 'Upgrade to Pro'}
+            loading={billing.busy}
+            disabled={!billing.canPurchase || !selected || billing.loading || billing.pending || isPending}
+            style={{ marginTop: 14 }}
+            onPress={() => (selected ? billing.upgrade(selected.offerToken) : undefined)}
+            testID="cta-upgrade"
+          />
+
+          {billingAvailable && !billing.canPurchase ? (
+            <Button
+              label="Sign in or create an account"
+              variant="secondary"
+              style={{ marginTop: 10 }}
+              onPress={() => router.push('/settings')}
+              testID="cta-sign-in-to-subscribe"
+            />
+          ) : null}
+        </>
+      )}
+
+      <Txt role="meta" tone="mut" align="center" style={{ marginTop: 12 }}>
+        Your plan lives on your Revora account, not this phone.
+      </Txt>
+
+      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 24, marginTop: 10 }}>
+        {billing.canPurchase ? (
+          <LinkButton label="Restore purchases" size="large" onPress={billing.restore} testID="cta-restore-purchases" />
+        ) : null}
+        {billingAvailable && !isPro ? (
+          <LinkButton label="Reload prices" size="large" onPress={billing.reload} testID="cta-reload-prices" />
+        ) : null}
+      </View>
+
+      <Txt role="helper" tone="mut" align="center" style={{ marginTop: 12 }}>
+        Payment is handled by Google Play. Review the price and billing terms in checkout before confirming.
+      </Txt>
     </Screen>
   );
 }
 
-function FeatureList({ features, accent = false }: { features: readonly string[]; accent?: boolean }) {
-  const { c } = useTheme();
+/** One price tile from the board: 16px radius, 14px padding, the chosen one outlined in the accent at 1.5px. */
+function OfferCard({ offer, selected: isSelected, onPress }: { offer: PlayOffer; selected: boolean; onPress: () => void }) {
+  const { c, radius } = useTheme();
+  const term = offerTermLabel(offer);
+  const price = offerHeadlinePrice(offer);
+
   return (
-    <View style={{ gap: 9 }}>
-      {features.map((feature) => (
-        <View key={feature} style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
-          <Icon name="checkLarge" size={15} color={accent ? c.acc : c.good} strokeWidth={2.4} />
-          <Txt role="smallStrong" style={{ flex: 1 }}>
-            {feature}
-          </Txt>
-        </View>
-      ))}
-    </View>
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityState={{ checked: isSelected }}
+      accessibilityLabel={`${term}, ${offerPrice(offer)}`}
+      onPress={onPress}
+      testID={`offer-${offer.basePlanId}`}
+      style={({ pressed }) => ({
+        flex: 1,
+        minHeight: 44,
+        borderRadius: radius.listCard,
+        backgroundColor: c.sur,
+        borderWidth: isSelected ? 1.5 : 1,
+        borderColor: isSelected ? c.acc : c.brd,
+        padding: 14,
+        alignItems: 'center',
+        opacity: pressed ? 0.75 : 1,
+      })}
+    >
+      <Txt role="linkLarge" align="center">
+        {term}
+      </Txt>
+      <Txt role="cardTitle" align="center" style={{ marginTop: 4 }}>
+        {price ?? NO_VALUE}
+      </Txt>
+      <Txt role="micro" tone="mut" align="center" style={{ marginTop: 2 }}>
+        {offerHasIntroductoryPhase(offer) ? offerPrice(offer) : 'from Google Play'}
+      </Txt>
+    </Pressable>
   );
 }

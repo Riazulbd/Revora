@@ -1,7 +1,7 @@
 import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
-  deleteUser,
+  getIdToken,
   onAuthStateChanged,
   reauthenticateWithCredential,
   sendEmailVerification,
@@ -264,14 +264,21 @@ export const authService = {
   },
 
   /**
-   * Deletes the Firebase identity. The caller deletes the rider's records first
-   * — an account deletion that only signs the rider out is not a deletion
-   * (mistake 32).
+   * Proves, right now, that the rider is who they say they are.
    *
-   * Firebase requires a recent sign-in; `password` re-authenticates when the
-   * session has aged out.
+   * Deletion itself is the server's `deleteMyAccount` — the rider's records
+   * reach further than a client token can, and once the identity is gone the
+   * client has no token left to finish with. But moving the work to a server
+   * would drop the protection Firebase's own `deleteUser` gives for free: an ID
+   * token stays valid for an hour, so a phone left unlocked on a table would
+   * otherwise be enough to erase somebody's logbook.
+   *
+   * So the rider re-authenticates first, with whichever provider their account
+   * actually carries — asking a Google-only rider for a password they never set
+   * is a locked door — and the ID token is then force-refreshed so the server
+   * sees the new `auth_time` rather than the cached one.
    */
-  async deleteAccount(reauth: { password?: string; viaGoogle?: boolean }): Promise<void> {
+  async reauthenticate(reauth: { password?: string; viaGoogle?: boolean }): Promise<void> {
     const user = auth().currentUser;
     if (!user) throw new AppError('auth', 'Sign in again to delete your account.');
     try {
@@ -283,7 +290,10 @@ export const authService = {
         const credential = EmailAuthProvider.credential(user.email, reauth.password);
         await reauthenticateWithCredential(user, credential);
       }
-      await deleteUser(user);
+      // An anonymous rider has no credential to present and falls through both
+      // branches. That is correct: their session *is* the account, and the
+      // server waives the recency check for exactly that reason.
+      await getIdToken(user, true);
     } catch (error) {
       throw toAppError(error);
     }

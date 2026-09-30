@@ -7,40 +7,47 @@ import {
   Badge,
   Button,
   Card,
-  ChipGroup,
   EmptyState,
   ErrorState,
-  LinkButton,
+  Footnote,
   Screen,
+  Segmented,
   SkeletonList,
+  StatRow,
   StatTile,
   TabHeader,
   Txt,
+  type BadgeTone,
 } from '@/components';
-import { ledgerTag } from '@/calculations/expenses';
+import { ledgerRowTag } from '@/calculations/costs';
 import { SETTLED_DISTANCE_FOR_COST_PER_UNIT } from '@/calculations/ownership';
-import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { formatMonthLong, formatShortDate, monthKey } from '@/utils/date';
 import { costPerDistanceHint, formatCurrency, formatRate } from '@/utils/format';
-import type { LedgerEntry } from '@/types';
+import type { LedgerEntry, LedgerSource } from '@/types';
 import { useTheme } from '@/theme';
 
 type Range = 'month' | 'all';
 
 /**
- * The ledger.
+ * The ledger — the Costs tab of the redesign (`costs-tab--01/02/03`).
  *
  * Every line here comes from a real record, and each record contributes exactly
  * one line — a part fitted during a service is inside that service's total and
  * has no line of its own (requirement 28). The footnote says so, and the
  * calculation guarantees it.
+ *
+ * The board draws the whole history as one `--sur` card with hairlines between
+ * its rows. A `FlatList` cannot wrap only its data rows in a card, so each row
+ * carries the card's own chrome: side borders always, the top edge and top
+ * radii on the first row, the bottom edge and bottom radii on the last. The
+ * hairline sits on the row's inner content box, so it is inset by the card's
+ * 16px padding exactly as the artboard draws it.
  */
 export default function ExpensesTab() {
   const router = useRouter();
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
-  const { activeBike } = useGarage();
   const { analytics, isPending, error, refetch } = useGarageData();
   const [range, setRange] = useState<Range>('month');
   const [refreshing, setRefreshing] = useState(false);
@@ -63,10 +70,20 @@ export default function ExpensesTab() {
     }
   };
 
+  const addExpense = (
+    <Button
+      label="Add expense"
+      icon="plus"
+      size="compact"
+      onPress={() => router.push('/expenses/add')}
+      testID="cta-add-expense"
+    />
+  );
+
   if (error) {
     return (
       <Screen variant="tab" testID="screen-expenses">
-        <TabHeader title="Costs" />
+        <TabHeader title="Costs" action={addExpense} />
         <ErrorState message={error.message} onRetry={() => void refetch()} variant="page" />
       </Screen>
     );
@@ -75,7 +92,7 @@ export default function ExpensesTab() {
   if (isPending && analytics === null) {
     return (
       <Screen variant="tab" testID="screen-expenses">
-        <TabHeader title="Expenses" />
+        <TabHeader title="Costs" action={addExpense} />
         <SkeletonList count={5} height={64} />
       </Screen>
     );
@@ -89,99 +106,78 @@ export default function ExpensesTab() {
     analytics.units.distance,
   );
 
+  // Nothing logged at all: the board drops the figures and the filter with
+  // them — there is nothing to filter and no figure that is not a dash.
+  if (analytics.ledger.length === 0) {
+    return (
+      <Screen variant="tab" testID="screen-expenses">
+        <TabHeader title="Costs" action={addExpense} />
+        <EmptyState
+          icon="wallet"
+          title="Every taka, one line each"
+          message="Fuel fills, services, parts and accessories add their own lines here automatically. Add expense is for everything else — parking, a wash, a fine, insurance paid separately."
+          testID="empty-expenses"
+        />
+      </Screen>
+    );
+  }
+
   const header = (
     <View>
-      <TabHeader
-        title="Expenses"
-        action={
-          <Button
-            label="Add expense"
-            icon="plus"
-            size="small"
-            onPress={() => router.push('/expenses/add')}
-            testID="cta-add-expense"
+      <TabHeader title="Costs" action={addExpense} />
+
+      <Card style={{ gap: 10 }}>
+        <StatRow>
+          <StatTile
+            label={analytics.ownership.costBasis === 'total' ? 'ALL-IN' : 'TOTAL SPENT'}
+            value={formatCurrency(analytics.ownership.headlineCostMinor, analytics.currency)}
+            testID="tile-total-spent"
           />
-        }
-      />
+          <StatTile
+            label={`COST / ${analytics.units.distance.toUpperCase()}`}
+            value={formatRate(analytics.ownership.costPerDistanceScaled, analytics.currency)}
+            testID="tile-cost-per-distance"
+          />
+          <StatTile
+            label="THIS MONTH"
+            value={formatCurrency(analytics.thisMonthMinor, analytics.currency)}
+            testID="tile-this-month"
+          />
+        </StatRow>
 
-      <Txt role="helper" tone="mut" style={{ marginBottom: 10 }}>
-        Every taka, one line each.
-      </Txt>
+        {analytics.ownership.costBasis === 'total' ? (
+          <Txt role="helper" tone="mut" testID="hint-cost-basis">
+            All-in includes the purchase price — set in Settings › Cost basis.
+          </Txt>
+        ) : null}
 
-      <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
-        <StatTile
-          label={analytics.ownership.costBasis === 'total' ? 'ALL-IN' : 'TOTAL SPENT'}
-          value={formatCurrency(analytics.ownership.headlineCostMinor, analytics.currency)}
-        />
-        <StatTile
-          label={`COST / ${analytics.units.distance.toUpperCase()}`}
-          value={formatRate(analytics.ownership.costPerDistanceScaled, analytics.currency)}
-        />
-        <StatTile label="THIS MONTH" value={formatCurrency(analytics.thisMonthMinor, analytics.currency)} />
-      </View>
+        {costHint ? (
+          <Txt role="helper" tone="mut" testID="hint-cost-per-distance">
+            {costHint}
+          </Txt>
+        ) : null}
+      </Card>
 
-      {analytics.ownership.costBasis === 'total' ? (
-        <Txt role="helper" tone="mut" style={{ marginBottom: 10 }} testID="hint-cost-basis">
-          All-in includes the purchase price — set in Settings › Cost basis.
-        </Txt>
-      ) : null}
-
-      {costHint ? (
-        <Txt role="helper" tone="mut" style={{ marginBottom: 14 }} testID="hint-cost-per-distance">
-          {costHint}
-        </Txt>
-      ) : null}
-
-      {activeBike?.company.enabled ? (
-        <Card variant="flush" style={{ paddingHorizontal: 14, paddingVertical: 12, marginBottom: 14 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
-            <Txt role="smallStrong" tone="mut" style={{ flexShrink: 1 }}>
-              After {activeBike.company.companyName || 'company'} allowance
-            </Txt>
-            <Txt role="smallStrong" numberOfLines={1}>
-              Rider cost{' '}
-              {formatCurrency(
-                Math.max(0, analytics.thisMonthMinor - analytics.allowance.usedMinor),
-                analytics.currency,
-              )}
-            </Txt>
-          </View>
-        </Card>
-      ) : null}
-
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 10,
-          marginBottom: 10,
-        }}
-      >
-        <Txt role="eyebrow" tone="mut" uppercase>
-          {range === 'month' ? `LEDGER · ${formatMonthLong(thisMonth)}` : 'LEDGER · ALL TIME'}
-        </Txt>
-        <LinkButton label="Analytics" onPress={() => router.push('/analytics')} />
-      </View>
-
-      <ChipGroup
+      <Segmented
         options={[
           { value: 'month' as const, label: 'This month' },
           { value: 'all' as const, label: 'All time' },
         ]}
         value={range}
         onChange={setRange}
-        style={{ marginBottom: 12 }}
+        size="compact"
+        style={{ marginTop: 14, marginBottom: 14 }}
+        testID="segment-costs-range"
       />
     </View>
   );
 
   const footer =
     lines.length > 0 ? (
-      <Txt role="helper" tone="mut" style={{ marginTop: 16 }}>
+      <Footnote style={{ marginTop: 12 }} testID="footnote-ledger">
         Parts fitted during a service are inside that service&apos;s total. Accessories count in totals but
         not in cost / km — a one-off would make that figure swing.
-      </Txt>
+      </Footnote>
     ) : null;
 
   return (
@@ -193,29 +189,24 @@ export default function ExpensesTab() {
         ListHeaderComponent={header}
         ListFooterComponent={footer}
         ListEmptyComponent={
-          analytics.ledger.length === 0 ? (
-            <EmptyState
-              icon="expenses"
-              title="Nothing logged yet"
-              message="Fuel, services, parts and accessories add themselves here. Anything else — parking, tolls, insurance — you can add by hand."
-              primaryAction={{ label: 'Add an expense', onPress: () => router.push('/expenses/add') }}
-              variant="page"
-              testID="empty-expenses"
-            />
-          ) : (
-            <Card style={{ alignItems: 'center', paddingVertical: 28 }}>
-              <Txt role="mediumStrong" align="center">
-                Nothing spent in {formatMonthLong(thisMonth)}
-              </Txt>
-              <Txt role="metaSmall" tone="mut" align="center" style={{ marginTop: 6 }}>
-                Switch to All time to see the full ledger.
-              </Txt>
-            </Card>
-          )
+          <Card style={{ alignItems: 'center', paddingVertical: 28 }} testID="empty-expenses-month">
+            <Txt role="cardTitle" align="center">
+              Nothing spent in {formatMonthLong(thisMonth)}
+            </Txt>
+            <Txt role="body" tone="mut" align="center" style={{ marginTop: 6 }}>
+              Switch to All time to see the full ledger.
+            </Txt>
+          </Card>
         }
-        renderItem={({ item }) => <LedgerRow entry={item} onPress={() => openLedgerEntry(router, item)} />}
-        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 6, paddingBottom: 100 }}
+        renderItem={({ item, index }) => (
+          <LedgerRow
+            entry={item}
+            first={index === 0}
+            last={index === lines.length - 1}
+            onPress={() => openLedgerEntry(router, item)}
+          />
+        )}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -258,44 +249,83 @@ function openLedgerEntry(router: ReturnType<typeof useRouter>, entry: LedgerEntr
   }
 }
 
-function LedgerRow({ entry, onPress }: { entry: LedgerEntry; onPress: () => void }) {
+/**
+ * The board tags fuel in the accent and a hand-entered expense in green; the
+ * blue it gives a service and the teal it gives an accessory have no token in
+ * the palette, so those tags take the neutral pill. The tag's own word carries
+ * the category either way — colour is never the only signal.
+ */
+const TAG_TONE: Record<LedgerSource, BadgeTone> = {
+  fuel: 'accent',
+  manual: 'good',
+  service: 'neutral',
+  part: 'neutral',
+  accessory: 'neutral',
+  maintenance: 'neutral',
+};
+
+function LedgerRow({
+  entry,
+  first,
+  last,
+  onPress,
+}: {
+  entry: LedgerEntry;
+  first: boolean;
+  last: boolean;
+  onPress: () => void;
+}) {
   const { c, radius } = useTheme();
+  const tag = ledgerRowTag(entry.source);
+  const amount = formatCurrency(entry.amountMinor, entry.currency);
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${entry.label}, ${formatShortDate(entry.date)}, ${formatCurrency(
-        entry.amountMinor,
-        entry.currency,
-      )}`}
+      accessibilityLabel={`${entry.label}, ${formatShortDate(entry.date)}, ${tag}, ${amount}`}
       onPress={onPress}
       testID={`ledger-row-${entry.id}`}
       style={({ pressed }) => ({
         backgroundColor: c.sur,
-        borderWidth: 1,
         borderColor: c.brd,
-        borderRadius: radius.smallCard,
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
+        borderTopWidth: first ? 1 : 0,
+        borderBottomWidth: last ? 1 : 0,
+        borderTopLeftRadius: first ? radius.listCard : 0,
+        borderTopRightRadius: first ? radius.listCard : 0,
+        borderBottomLeftRadius: last ? radius.listCard : 0,
+        borderBottomRightRadius: last ? radius.listCard : 0,
         paddingHorizontal: 15,
-        paddingVertical: 13,
-        minHeight: 56,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
         opacity: pressed ? 0.75 : 1,
       })}
     >
-      <View style={{ flex: 1, gap: 2 }}>
-        <Txt role="mediumStrong" numberOfLines={2}>
-          {entry.label}
-        </Txt>
-        <Txt role="metaSmall" tone="mut">
-          {formatShortDate(entry.date)}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
+          paddingVertical: 13,
+          minHeight: 44,
+          borderBottomWidth: last ? 0 : 1,
+          borderBottomColor: c.brd,
+        }}
+      >
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Txt role="rowTitle" numberOfLines={2}>
+            {entry.label}
+          </Txt>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 3 }}>
+            <Txt role="meta" tone="mut">
+              {formatShortDate(entry.date)}
+            </Txt>
+            <Badge label={tag} tone={TAG_TONE[entry.source]} size="tag" />
+          </View>
+        </View>
+        <Txt role="rowTitle" numberOfLines={1}>
+          {amount}
         </Txt>
       </View>
-      <Badge label={ledgerTag(entry.source)} tone={entry.source === 'manual' ? 'neutral' : 'accent'} />
-      <Txt role="mediumStrong" numberOfLines={1}>
-        {formatCurrency(entry.amountMinor, entry.currency)}
-      </Txt>
     </Pressable>
   );
 }

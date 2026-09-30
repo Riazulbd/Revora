@@ -1,26 +1,31 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { useRouter } from 'expo-router';
 
-import { Button, Dialog, Screen, ScreenHeader, Txt } from '@/components';
-import { BikeFormFields } from '@/features/bikes/BikeFormFields';
+import { Banner, Button, Screen, ScreenHeader } from '@/components';
+import { EditBikeFields } from '@/features/bikes/ui/EditBikeFields';
 import { useBikeForm } from '@/features/bikes/useBikeForm';
-import { useDeleteBike, useUpdateBike } from '@/features/bikes/useBikeMutations';
+import { useUpdateBike } from '@/features/bikes/useBikeMutations';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { fromMinor, fromMl } from '@/features/shared/formValues';
 import { currencyDecimals } from '@/calculations/money';
-import { useRouter } from 'expo-router';
+import { useConnectivity } from '@/services/connectivity';
 
 /**
  * Editing a saved motorcycle.
  *
- * The opening odometer is not editable here — readings are history, and changing
- * the first one retroactively would silently rewrite every distance. Corrections
- * go through Odometer history instead.
+ * The opening odometer is not a field here — readings are history, and editing
+ * the first one retroactively would silently rewrite every distance since. The
+ * board says so in the card above Save, and links to where a wrong reading is
+ * actually corrected.
+ *
+ * Deleting the bike lives on the Motorcycle profile, beside the rest of the
+ * facts about it, exactly where the board puts it.
  */
 export default function EditBike() {
   const router = useRouter();
-  const { activeBike, units, bikes } = useGarage();
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const { activeBike, units } = useGarage();
+  const { isOnline } = useConnectivity();
+  const [savedOffline, setSavedOffline] = useState(false);
 
   const decimals = currencyDecimals(activeBike?.currency ?? units.currency);
 
@@ -40,12 +45,11 @@ export default function EditBike() {
     units,
   );
 
-  const updateBike = useUpdateBike();
-  const deleteBike = useDeleteBike({
-    onDeleted: () => {
-      setConfirmDelete(false);
-      router.replace('/');
-    },
+  // Offline the write is queued rather than lost, and the board says so on this
+  // screen — so the screen has to still be here to say it.
+  const updateBike = useUpdateBike({
+    stayOnScreen: !isOnline,
+    onSaved: () => setSavedOffline(!isOnline),
   });
 
   if (!activeBike) return null;
@@ -69,49 +73,39 @@ export default function EditBike() {
     <Screen testID="screen-edit-bike">
       <ScreenHeader title="Edit motorcycle" />
 
-      <BikeFormFields
-        value={form.value}
-        onChange={form.setValue}
-        errors={form.errors}
-        units={units}
-        showIdentifiers
-        showOdometer={false}
+      <EditBikeFields value={form.value} onChange={form.setValue} errors={form.errors} units={units} />
+
+      <Banner
+        variant="plain"
+        compact
+        message="The current odometer isn't edited here — it's derived from readings."
+        link={{
+          label: 'Correct a reading in Odometer history',
+          onPress: () => router.push('/garage/odometer'),
+          testID: 'cta-odometer-history',
+        }}
+        action="instead."
+        style={{ marginTop: 14 }}
+        testID="banner-odometer-derived"
       />
 
-      <View style={{ gap: 10, marginTop: 20 }}>
-        <Button
-          label="Save changes"
-          onPress={submit}
-          loading={updateBike.isPending}
-          testID="cta-save-bike"
+      <Button
+        label="Save changes"
+        onPress={submit}
+        loading={updateBike.isPending}
+        style={{ marginTop: 16 }}
+        testID="cta-save-bike"
+      />
+
+      {savedOffline ? (
+        <Banner
+          tone="good"
+          compact
+          message="Saved on this phone — offline, syncs when you're back."
+          style={{ marginTop: 10 }}
+          testID="banner-saved-offline"
         />
-        <Txt role="helper" tone="mut" align="center">
-          The odometer is a history, not a field — correct a reading from Odometer history.
-        </Txt>
-
-        {bikes.length > 1 ? (
-          <Button
-            label="Remove this motorcycle"
-            variant="secondary"
-            size="medium"
-            onPress={() => setConfirmDelete(true)}
-            style={{ marginTop: 12 }}
-            testID="cta-delete-bike"
-          />
-        ) : null}
-      </View>
-
-      <Dialog
-        visible={confirmDelete}
-        onClose={() => setConfirmDelete(false)}
-        title={`Remove ${activeBike.nickname}?`}
-        message="Every fuel log, service, part and expense for this motorcycle is deleted with it. This can't be undone."
-        confirmLabel="Remove"
-        destructive
-        busy={deleteBike.isPending}
-        onConfirm={() => deleteBike.submit(activeBike.id)}
-        testID="dialog-delete-bike"
-      />
+      ) : null}
     </Screen>
   );
 }

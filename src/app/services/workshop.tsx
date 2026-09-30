@@ -1,50 +1,45 @@
 import React from 'react';
-import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import {
-  ErrorState,
   Badge,
-  Card,
   EmptyState,
-  Icon,
+  ErrorState,
+  Footnote,
+  ListCard,
+  RecordRow,
   Screen,
   ScreenHeader,
   SkeletonList,
-  Stack,
+  StatRow,
   StatTile,
-  Txt,
 } from '@/components';
-import { useGarage } from '@/features/bikes/GarageProvider';
+import { summariseEstimates } from '@/calculations/estimateGuard';
 import { useGarageData } from '@/features/bikes/useGarageData';
-import { formatCurrency, formatDistance, NO_VALUE } from '@/utils/format';
-import { formatLongDate } from '@/utils/date';
-import { useTheme } from '@/theme';
+import { formatCurrencySymbol, NO_VALUE } from '@/utils/format';
 
 /**
  * Workshop records — the estimate guard.
  *
- * For every workshop service that recorded a quote, this shows the quote, the
+ * For every workshop visit that recorded a quote, this shows the quote, the
  * invoice and the difference between them, so a job that grew in the workshop is
- * visible rather than lost inside a single total.
+ * visible rather than lost inside a single total. Visits with no quote are
+ * counted and said out loud: a comparison over 6 of 14 visits that presented
+ * itself as "your workshops" would be a lie of omission.
  */
+
 export default function WorkshopRecords() {
   const router = useRouter();
-  const { c } = useTheme();
-  const { units } = useGarage();
   const { analytics, isPending, error, refetch } = useGarageData();
 
-  const records = (analytics?.services.all ?? []).filter((s) => !s.selfService);
+  const currency = analytics?.currency ?? 'BDT';
+  const summary = summariseEstimates(analytics?.services.all ?? []);
 
   if (error) {
     return (
       <Screen testID="screen-workshop">
         <ScreenHeader title="Workshop records" />
-        <ErrorState
-          message={error.message}
-          onRetry={() => void refetch()}
-          variant="page"
-        />
+        <ErrorState message={error.message} onRetry={() => void refetch()} variant="page" />
       </Screen>
     );
   }
@@ -53,153 +48,113 @@ export default function WorkshopRecords() {
     return (
       <Screen testID="screen-workshop">
         <ScreenHeader title="Workshop records" />
-        <SkeletonList count={3} height={160} />
+        <SkeletonList count={2} height={64} />
       </Screen>
     );
   }
 
+  /** `+৳1,700` / `−৳300` — the sign is the news, so it is never dropped. */
+  const signed = (deltaMinor: number) =>
+    `${deltaMinor > 0 ? '+' : deltaMinor < 0 ? '−' : ''}${formatCurrencySymbol(Math.abs(deltaMinor), currency)}`;
+
+  const deltaValue =
+    summary.deltaMinor === null
+      ? NO_VALUE
+      : summary.deltaMinor === 0
+        ? 'Matched'
+        : `${signed(summary.deltaMinor)} ${summary.deltaMinor > 0 ? 'over' : 'under'}`;
+
   return (
     <Screen onRefresh={refetch} testID="screen-workshop">
-      <ScreenHeader
-        title="Workshop records"
-        subtitle="Record the quote, compare the invoice"
-      />
+      <ScreenHeader title="Workshop records" backTestID="back-workshop" />
 
-      {records.length === 0 ? (
+      {summary.comparedVisits === 0 ? (
         <EmptyState
-          icon="wrench"
-          title="No workshop visits yet"
-          message="Record a service at a workshop, add the quote you were given, and Revora will show you the difference when the invoice arrives."
-          primaryAction={{ label: 'Add a service', onPress: () => router.push('/services/add') }}
+          icon="building"
+          title="Nothing to compare yet"
+          message="Record the quote you were given when you log a workshop service, and Revora will show you the difference when the invoice arrives."
+          primaryAction={{ label: 'Log a service', onPress: () => router.push('/services/add') }}
           variant="page"
           testID="empty-workshop"
         />
       ) : (
-        <Stack>
-          {records.map((service) => {
-            const estimate = service.estimate;
-            const delta =
-              estimate?.quoteMinor === null || estimate?.quoteMinor === undefined
-                ? null
-                : service.totalCostMinor - estimate.quoteMinor;
+        <>
+          <StatRow style={{ marginBottom: 8 }}>
+            <StatTile
+              label="Quoted"
+              value={formatCurrencySymbol(summary.quotedMinor, currency)}
+              variant="outlined"
+              testID="tile-quoted"
+            />
+            <StatTile
+              label="Invoiced"
+              value={formatCurrencySymbol(summary.invoicedMinor, currency)}
+              variant="outlined"
+              testID="tile-invoiced"
+            />
+          </StatRow>
+          <StatRow>
+            {/* The sign carries the meaning, so the word says it too — colour is
+                never the only signal (requirement 58). */}
+            <StatTile
+              label="Delta"
+              value={deltaValue}
+              tone={summary.severity === 'neutral' ? 'ink' : summary.severity}
+              variant="outlined"
+              testID="tile-delta"
+            />
+            <StatTile
+              label="Compared"
+              value={`${summary.comparedVisits} visit${summary.comparedVisits === 1 ? '' : 's'}`}
+              variant="outlined"
+              testID="tile-compared"
+            />
+          </StatRow>
 
-            return (
-              <Card key={service.id}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 10,
-                    marginBottom: 12,
-                  }}
-                >
-                  <Txt role="rowTitle" style={{ flex: 1 }} numberOfLines={2}>
-                    {service.title} · {service.workshop ?? 'Workshop'}
-                  </Txt>
-                  <Badge label="COMPLETED" tone="good" />
-                </View>
+          {summary.uncomparedVisits > 0 ? (
+            <Footnote testID="note-uncompared">
+              {`${summary.uncomparedVisits} other visit${
+                summary.uncomparedVisits === 1 ? ' had' : 's had'
+              } no quote recorded and ${
+                summary.uncomparedVisits === 1 ? 'is' : 'are'
+              } left out of the comparison.`}
+            </Footnote>
+          ) : null}
 
-                <View style={{ flexDirection: 'row', gap: 10 }}>
-                  <StatTile
-                    label="QUOTE"
-                    value={
-                      estimate?.quoteMinor == null
-                        ? NO_VALUE
-                        : formatCurrency(estimate.quoteMinor, service.currency)
-                    }
+          <ListCard style={{ marginTop: 14 }} testID="workshop-list">
+            {summary.byWorkshop.map((entry) => (
+              <RecordRow
+                key={entry.workshop}
+                variant="flush"
+                icon="building"
+                iconTone="neutral"
+                iconSize={40}
+                title={entry.workshop}
+                subtitle={`${entry.comparedVisits} compared visit${
+                  entry.comparedVisits === 1 ? '' : 's'
+                } · quoted ${formatCurrencySymbol(entry.quotedMinor, currency)} · invoiced ${formatCurrencySymbol(
+                  entry.invoicedMinor,
+                  currency,
+                )}`}
+                badge={
+                  <Badge
+                    label={entry.deltaMinor === 0 ? 'Matched' : signed(entry.deltaMinor)}
+                    variant="outlined"
+                    tone={entry.severity}
+                    uppercase={false}
                   />
-                  <StatTile label="INVOICE" value={formatCurrency(service.totalCostMinor, service.currency)} />
-                  <StatTile
-                    label="DELTA"
-                    value={
-                      delta === null
-                        ? NO_VALUE
-                        : `${delta > 0 ? '+' : delta < 0 ? '−' : ''}${formatCurrency(Math.abs(delta), service.currency).replace(`${service.currency} `, '')}`
-                    }
-                    tone={delta === null ? 'ink' : delta > 0 ? 'bad' : delta < 0 ? 'good' : 'ink'}
-                  />
-                </View>
+                }
+                testID={`workshop-${entry.workshop}`}
+              />
+            ))}
+          </ListCard>
 
-                {estimate?.odometerInMetres != null || estimate?.odometerOutMetres != null ? (
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: 10,
-                      marginTop: 12,
-                    }}
-                  >
-                    <Txt role="smallStrong" tone="mut">
-                      Odometer in / out
-                    </Txt>
-                    <Txt role="smallStrong" numberOfLines={1}>
-                      {estimate.odometerInMetres == null
-                        ? NO_VALUE
-                        : formatDistance(estimate.odometerInMetres, units.distance)}{' '}
-                      →{' '}
-                      {estimate.odometerOutMetres == null
-                        ? NO_VALUE
-                        : formatDistance(estimate.odometerOutMetres, units.distance)}
-                    </Txt>
-                  </View>
-                ) : null}
-
-                {estimate ? (
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 9,
-                      marginTop: 12,
-                    }}
-                  >
-                    <Icon
-                      name={estimate.askBeforeReplacing ? 'checkCircle' : 'cross'}
-                      size={16}
-                      color={estimate.askBeforeReplacing ? c.good : c.mut}
-                      strokeWidth={1.9}
-                    />
-                    <Txt role="metaSmall" tone="mut" style={{ flex: 1 }}>
-                      {estimate.askBeforeReplacing
-                        ? 'Workshop agreed to confirm extra work before doing it'
-                        : 'No confirm-before-replace agreement recorded'}
-                    </Txt>
-                  </View>
-                ) : null}
-
-                {estimate && estimate.approvedWork.length > 0 ? (
-                  <View style={{ gap: 8, marginTop: 12 }}>
-                    <Txt role="eyebrow" tone="mut" uppercase>
-                      APPROVED WORK
-                    </Txt>
-                    {estimate.approvedWork.map((item, index) => (
-                      <View key={`${item}-${index}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
-                        <Icon name="checkCircle" size={15} color={c.good} strokeWidth={1.8} />
-                        <Txt role="smallStrong" style={{ flex: 1 }}>
-                          {item}
-                        </Txt>
-                      </View>
-                    ))}
-                  </View>
-                ) : null}
-
-                <Txt role="micro" tone="mut" style={{ marginTop: 12 }}>
-                  {formatLongDate(service.date)}
-                </Txt>
-              </Card>
-            );
-          })}
-
-          {/* The Delta tile is the reason this screen exists, and its sign
-              carries the meaning. A rider who reads red as "bad news" and green
-              as "good" has read it correctly — say so once rather than leaving
-              them to infer it from one example. */}
-          <Txt role="helper" tone="mut">
+          {/* A rider who reads red as "bad news" and green as "good" has read it
+              correctly — say so once rather than leaving them to infer it. */}
+          <Footnote>
             Under-quote shows in green with a minus — over and under are different news.
-          </Txt>
-        </Stack>
+          </Footnote>
+        </>
       )}
     </Screen>
   );

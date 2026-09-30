@@ -1,5 +1,7 @@
 import type { FuelAdjustment, FuelEntry } from '@/types';
 import {
+  adjustmentIndicesInRange,
+  adjustmentMlAt,
   adjustmentMlInRange,
   deriveFuelAmounts,
   fuelTotals,
@@ -107,11 +109,59 @@ describe('adjustments on the timeline', () => {
   it('returns zero for an empty range', () => {
     expect(adjustmentMlInRange([], '2026-01-01', '2026-01-10')).toBe(0);
   });
+
+  it('selects the same adjustments by index, on a closed range', () => {
+    // The closed form is what the mileage engine uses, because it claims each
+    // adjustment for exactly one interval as it walks them in order. Here both
+    // ends are inside: 01-01, 01-05 and 01-10 → indices 0, 1, 2.
+    const list = [adj(-1, '2026-01-01'), adj(-1, '2026-01-05'), adj(-1, '2026-01-10'), adj(-1, '2026-01-11')];
+    expect(adjustmentIndicesInRange(list, '2026-01-01', '2026-01-10')).toEqual([0, 1, 2]);
+    expect(adjustmentIndicesInRange(list, '2026-01-11', '2026-01-11')).toEqual([3]);
+    expect(adjustmentIndicesInRange(list, '2026-02-01', '2026-02-10')).toEqual([]);
+  });
+
+  it('sums a set of adjustments picked out by index', () => {
+    const list = [adj(-1, '2026-01-01'), adj(2, '2026-01-05')];
+    expect(adjustmentMlAt(list, [0, 1])).toBe(1000);
+    expect(adjustmentMlAt(list, [])).toBe(0);
+  });
 });
 
 describe('normaliseFuelAmounts', () => {
-  it('prefers the entered price and recomputes the total from it', () => {
+  it('keeps a consistent trio exactly as the rider entered it', () => {
+    // 9 L at BDT 145.00 is BDT 1,305.00 to the minor unit, so nothing moves.
+    expect(normaliseFuelAmounts({ litresMl: 9000, pricePerLitreMinor: 14500, totalCostMinor: 130500 })).toEqual({
+      litresMl: 9000,
+      pricePerLitreMinor: 14500,
+      totalCostMinor: 130500,
+    });
+  });
+
+  it('stores the total the rider paid, not one re-derived from the price', () => {
+    // The receipt says BDT 1,000.00 for 7 L. The form derives BDT 142.86/L from
+    // those two (100_000 × 1000 ÷ 7000 = 14,285.71… → 14,286) and hands all
+    // three back. Re-deriving the total from that rate gives
+    // 7000 × 14_286 ÷ 1000 = 100_002 — BDT 1,000.02, two paisa the rider never
+    // paid. The money is what was typed; the rate is the derived figure.
+    expect(normaliseFuelAmounts({ litresMl: 7000, pricePerLitreMinor: 14_286, totalCostMinor: 100_000 })).toEqual({
+      litresMl: 7000,
+      pricePerLitreMinor: 14_286,
+      totalCostMinor: 100_000,
+    });
+  });
+
+  it('recomputes a price that cannot belong to the litres and the total', () => {
+    // BDT 9.99 against 9 L: the total is the money, so the rate is corrected to
+    // 999 × 1000 ÷ 9000 = 111 (BDT 1.11/L), not the total inflated to match.
     expect(normaliseFuelAmounts({ litresMl: 9000, pricePerLitreMinor: 14500, totalCostMinor: 999 })).toEqual({
+      litresMl: 9000,
+      pricePerLitreMinor: 111,
+      totalCostMinor: 999,
+    });
+  });
+
+  it('derives the total when the rider only gave a price', () => {
+    expect(normaliseFuelAmounts({ litresMl: 9000, pricePerLitreMinor: 14500, totalCostMinor: null })).toEqual({
       litresMl: 9000,
       pricePerLitreMinor: 14500,
       totalCostMinor: 130500,

@@ -142,6 +142,65 @@ The purchase token itself is **never** in this document. It lives in
 `purchaseTokens/{sha256(token)}`, which no client can read. See
 [billing.md](billing.md).
 
+## Account deletion
+
+`firestore.rules` sets `allow delete: if false` on `users/{uid}` — closed to
+every client, including the owner. Deletion runs on a server instead:
+`deleteMyAccount`, in `functions/src/account.ts`, exported from
+`functions/src/index.ts` beside the billing callables.
+
+It has to be a server. A client can delete its own logbook row by row, but it
+cannot touch the Cloud Storage prefix reliably, cannot reach `entitlements`,
+`aiUsage` or the locks at all, and — the moment the Firebase identity is gone —
+holds no token to finish with. The old client-side loop ended at
+`users/{uid}`, where the ruleset refused it, so every deletion stopped one step
+short: the rider was signed out while their profile, entitlement and photos
+stayed on a server. Half a deletion is worse than none.
+
+**What the function erases**, for `request.auth.uid` and nothing else — no uid
+is ever read from the payload:
+
+| Step | What goes                                                                     |
+| ---- | ----------------------------------------------------------------------------- |
+| 1    | every collection carrying `userId` — the logbook, plus `feedback`, `aiRequests`, `aiReports`, `aiUsage` |
+| 2    | `entitlements/{uid}`, `billingLocks/{uid}`, `garageLocks/{uid}`, `playAccounts/{accountId(uid)}` |
+| 3    | the Cloud Storage prefix `users/{uid}/` — receipts, document scans, photos    |
+| 4    | `users/{uid}`                                                                 |
+| 5    | the Firebase Auth user                                                        |
+
+The order is the recovery plan. The identity goes last because it is the only
+step a client cannot ask for again: once the rider has no account, they cannot
+sign in to retry. Every step is a delete, so the whole thing is idempotent —
+which matters, because a large logbook can outlast the client's own 115-second
+request timeout and a retry is the normal case, not the exception.
+
+**`purchaseTokens` is deliberately kept.** It is the anti-sharing control: each
+row records which account claimed a Google Play purchase, and `assertOwner`
+refuses any second claim. Erasing the rows would let one subscription be
+replayed onto a fresh account, which is the exact property `test:billing`
+exists to prove impossible. The rows hold Google's payload and a uid, not
+anything the rider wrote. `deletionRequests/{uid}` records that the account
+behind them is closed, and carries no personal detail — uid, timestamp, count.
+A rider who deletes their account and signs up again therefore cannot reclaim
+their old subscription from the app; that is a support action, and it is the
+price of the replay control.
+
+**Recency.** Firebase's client-side `deleteUser` refuses without a recent
+sign-in. Moving the work to a server would drop that for free — an ID token is
+valid for an hour, so an unlocked phone on a table would be enough to erase
+somebody's logbook. So `authService.reauthenticate()` re-authenticates with
+whichever provider the account actually carries (a Google-only rider is never
+asked for a password they never set) and force-refreshes the ID token, and the
+function refuses an `auth_time` older than ten minutes. An anonymous rider is
+exempt: they hold no credential to present, and requiring one would make their
+records permanently undeletable.
+
+`functions/test/account.integration.cjs` proves the two claims that matter: an
+unauthenticated call is refused and deletes nothing, and a real call reaches
+every one of the caller's documents while leaving another uid's untouched. It
+runs against the Firestore emulator under `npm run test:billing`, in its own
+project namespace so the two suites cannot wipe each other's fixtures.
+
 ## Web compatibility notes
 
 If the web product already writes these collections under different names or

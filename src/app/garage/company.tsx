@@ -2,34 +2,38 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 
 import {
+  Banner,
   Button,
   Card,
+  Eyebrow,
   Field,
+  FieldRow,
   Input,
-  ProgressBar,
   Screen,
   ScreenHeader,
-  Stack,
+  StatRow,
+  StatTile,
   ToggleRow,
   Txt,
 } from '@/components';
 import { currencySymbol, currencyDecimals } from '@/calculations/money';
+import { allowanceUnusedMinor } from '@/calculations/costs';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useUpdateCompanyAllowance } from '@/features/bikes/useBikeMutations';
 import { fromMinor, toMinor } from '@/features/shared/formValues';
 import { formatCurrency } from '@/utils/format';
 import { formatMonthLong, monthKey } from '@/utils/date';
-import { useTheme } from '@/theme';
 
 /**
- * The company allowance.
+ * The company allowance (`money---expense-allowance-pro--02`).
  *
  * The allowance changes what the *rider* pays. It never touches cost/km,
- * ownership cost or the ledger, and the screen states that contract plainly.
+ * ownership cost or the ledger, and the closing note states that contract
+ * plainly — which is why the board gives it a line of its own rather than a
+ * footnote.
  */
 export default function CompanyBike() {
-  const { c, radius } = useTheme();
   const { activeBike, units } = useGarage();
   const { analytics } = useGarageData();
 
@@ -63,112 +67,89 @@ export default function CompanyBike() {
 
   const summary = analytics.allowance;
   const month = formatMonthLong(monthKey(analytics.today));
+  const unused = allowanceUnusedMinor(summary);
 
   return (
     <Screen testID="screen-company">
-      <ScreenHeader title="Company bike" />
+      <ScreenHeader title="Company allowance" />
 
-      <Stack>
-        <Card variant="list" style={{ paddingVertical: 4 }}>
-          <ToggleRow
-            title="Company allowance"
-            description="Track employer contribution separately"
-            value={enabled}
-            onChange={setEnabled}
-            testID="toggle-company"
-          />
-        </Card>
+      <Card variant="list">
+        <ToggleRow
+          title="This is a company bike"
+          description="An employer covers part of the running cost"
+          value={enabled}
+          onChange={setEnabled}
+          testID="toggle-company"
+        />
+      </Card>
 
-        {enabled ? (
-          <View style={{ gap: 14 }}>
-            <Field label="Company name">
+      {enabled ? (
+        <View>
+          <FieldRow style={{ marginTop: 14 }}>
+            <Field label="Company" flex={1.4}>
               <Input
                 value={companyName}
                 onChangeText={setCompanyName}
-                placeholder="TechScape Ltd"
+                placeholder="Meghna Traders Ltd"
                 autoCapitalize="words"
+                padX={14}
                 testID="input-company"
               />
             </Field>
 
-            <Field label={`Monthly allowance (${currencySymbol(currency)})`} error={error}>
+            <Field label="Monthly allowance" flex={1} error={error}>
               <Input
                 value={allowance}
                 onChangeText={setAllowance}
                 placeholder="3000"
                 keyboardType="decimal-pad"
-                size="compact"
+                prefix={currencySymbol(currency)}
+                padX={14}
                 invalid={Boolean(error)}
                 testID="input-allowance"
               />
             </Field>
+          </FieldRow>
 
-            <Card style={{ gap: 12 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
-                <Txt role="smallStrong" tone="mut">
-                  Allowance used · {month}
-                </Txt>
-                <Txt role="rowTitle" numberOfLines={1}>
-                  {formatCurrency(summary.usedMinor, currency)} /{' '}
-                  {formatCurrency(summary.allowanceMinor, currency)}
-                </Txt>
-              </View>
+          <Card style={{ marginTop: 16, gap: 12 }} testID="card-allowance-summary">
+            <Eyebrow>{month} · After allowance</Eyebrow>
 
-              <ProgressBar fraction={summary.usedFraction} />
+            <StatRow>
+              <StatTile
+                label="FUEL SPEND"
+                value={formatCurrency(summary.fuelSpendMinor, currency)}
+                testID="tile-fuel-spend"
+              />
+              <StatTile
+                label="ALLOWANCE"
+                value={formatCurrency(summary.allowanceMinor, currency)}
+                testID="tile-allowance"
+              />
+              <StatTile
+                label="YOU PAY"
+                value={formatCurrency(summary.riderFuelCostMinor, currency)}
+                tone="good"
+                testID="tile-you-pay"
+              />
+            </StatRow>
 
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  backgroundColor: summary.riderFuelCostMinor === 0 ? c.goodS : c.sur2,
-                  borderRadius: radius.tile,
-                  paddingHorizontal: 13,
-                  paddingVertical: 10,
-                  gap: 10,
-                }}
-              >
-                <Txt role="smallStrong">Rider fuel cost this month</Txt>
-                <Txt
-                  role="mediumStrong"
-                  tone={summary.riderFuelCostMinor === 0 ? 'good' : 'ink'}
-                  numberOfLines={1}
-                >
-                  {summary.riderFuelCostMinor === 0
-                    ? `${formatCurrency(0, currency)} · covered`
-                    : formatCurrency(summary.riderFuelCostMinor, currency)}
-                </Txt>
-              </View>
+            <Txt role="meta" tone="mut" testID="text-allowance-unused">
+              {unused > 0
+                ? `${formatCurrency(unused, currency)} of allowance unused this month.`
+                : `The allowance is fully used this month — you pay ${formatCurrency(summary.riderFuelCostMinor, currency)} of the fuel.`}
+            </Txt>
+          </Card>
 
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  backgroundColor: c.sur2,
-                  borderRadius: radius.tile,
-                  paddingHorizontal: 13,
-                  paddingVertical: 10,
-                  gap: 10,
-                }}
-              >
-                <Txt role="smallStrong" tone="mut">
-                  True operating cost · {month}
-                </Txt>
-                <Txt role="mediumStrong" numberOfLines={1}>
-                  {formatCurrency(summary.trueOperatingCostMinor, currency)}
-                </Txt>
-              </View>
+          <Banner
+            variant="plain"
+            message="The allowance offsets what you pay. Cost / km and ownership cost keep using the full amount — the bike costs what it costs, whoever pays."
+            style={{ marginTop: 14 }}
+            testID="note-allowance-contract"
+          />
+        </View>
+      ) : null}
 
-              <Txt role="micro" tone="mut" style={{ lineHeight: 16 }}>
-                The allowance never hides real costs — ownership cost and cost/km always use the full amount.
-              </Txt>
-            </Card>
-          </View>
-        ) : null}
-
-        <Button label="Save" onPress={submit} loading={save.isPending} testID="cta-save-company" />
-      </Stack>
+      <Button label="Save" onPress={submit} loading={save.isPending} style={{ marginTop: 16 }} testID="cta-save-company" />
     </Screen>
   );
 }

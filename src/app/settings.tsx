@@ -3,48 +3,78 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import {
-  Avatar,
-  Badge,
   Button,
-  Card,
   Dialog,
-  Divider,
-  Eyebrow,
   Field,
   Icon,
   Input,
-  KeyValueRow,
   MenuRow,
   Screen,
-  ScreenHeader,
   Segmented,
   Sheet,
-  Stack,
+  TabHeader,
   Txt,
   useToast,
+  type SegmentedOption,
 } from '@/components';
+import { ListCard, SectionEyebrow } from '@/components/Card';
+import { Footnote } from '@/components/Screen';
 import { currencySymbol } from '@/calculations/money';
-import { mileageUnitLabel } from '@/calculations/units';
+import {
+  MILEAGE_CHOICES,
+  mileageChoiceLabel,
+  mileageChoiceOf,
+  type MileageChoice,
+} from '@/calculations/unitChoices';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { useGarage } from '@/features/bikes/GarageProvider';
+import { AccountDangerRow } from '@/features/settings/AccountDangerRow';
+import { AccountUnitRow, AccountValuePill } from '@/features/settings/AccountUnitRow';
 import { useDeleteAccount } from '@/features/settings/useAccountMutations';
 import { useUnitsSettings } from '@/features/settings/useUnitsSettings';
-import { useImagePicker } from '@/features/shared/useImagePicker';
-import { useImageUrl } from '@/features/shared/useImageUrl';
 import { authService } from '@/services/auth';
 import { messageFor } from '@/services/errors';
-import { useConnectivity } from '@/services/connectivity';
-import { useSyncState } from '@/services/syncStatus';
-import { uploadImageOrKeepLocal } from '@/services/storage';
 import { profileRepository } from '@/repositories';
+import type { CostBasis, DistanceUnit, VolumeUnit } from '@/types';
 import { useTheme, type ThemePreference } from '@/theme';
 
-const THEME_OPTIONS: readonly { value: ThemePreference; label: string }[] = [
+const THEME_OPTIONS: readonly SegmentedOption<ThemePreference>[] = [
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
   { value: 'system', label: 'System' },
 ];
 
+const DISTANCE_OPTIONS: readonly SegmentedOption<DistanceUnit>[] = [
+  { value: 'km', label: 'km' },
+  { value: 'mi', label: 'mi' },
+];
+
+const MILEAGE_OPTIONS: readonly SegmentedOption<MileageChoice>[] = MILEAGE_CHOICES.map((choice) => ({
+  value: choice,
+  label: mileageChoiceLabel(choice),
+}));
+
+const COST_BASIS_OPTIONS: readonly SegmentedOption<CostBasis>[] = [
+  { value: 'running', label: 'Running' },
+  { value: 'total', label: 'All-in' },
+];
+
+/** `volumeUnitLabel` abbreviates both gallons to "gal"; a settings row has to say which. */
+const VOLUME_LABEL: Record<VolumeUnit, string> = {
+  L: 'Litres',
+  gal_us: 'US gallons',
+  gal_uk: 'UK gallons',
+};
+
+/**
+ * Settings — account--01.
+ *
+ * Three blocks, in the board's order: Units, Appearance, Data & account. The
+ * board puts each unit's control in its own row rather than behind a sheet, so
+ * a rider can see what they are on without opening anything; the label is still
+ * a target for the full list, which is the only place both MPG gallons and the
+ * volume unit can live.
+ */
 export default function Settings() {
   const router = useRouter();
   const { c, preference, setPreference } = useTheme();
@@ -52,10 +82,7 @@ export default function Settings() {
   const { user, signOut } = useAuth();
   const usesPassword = user?.providers.includes('password') ?? false;
   const usesGoogle = user?.providers.includes('google.com') ?? false;
-  const { profile, units, isPro } = useGarage();
-  const connectivity = useConnectivity();
-  const syncState = useSyncState();
-  const picker = useImagePicker();
+  const { profile, units } = useGarage();
   const unitSettings = useUnitsSettings();
   const deleteAccount = useDeleteAccount();
 
@@ -64,30 +91,6 @@ export default function Settings() {
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
-  const [uploading, setUploading] = useState(false);
-
-  const avatarUrl = useImageUrl(profile?.photoPath ?? null);
-
-  const changeAvatar = async () => {
-    if (!user) return;
-    const uri = await picker.choose('Profile photo');
-    if (!uri) return;
-    setUploading(true);
-    try {
-      const { path, uploaded } = await uploadImageOrKeepLocal({
-        uid: user.uid,
-        kind: 'avatar',
-        recordId: user.uid,
-        localUri: uri,
-      });
-      await profileRepository.update(user.uid, { photoPath: path });
-      toast.show(uploaded ? 'Profile photo updated' : 'Photo saved on this phone — cloud backup is not set up yet');
-    } catch (error) {
-      toast.show(messageFor(error, "Couldn't save that photo."), 'error');
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const saveName = async () => {
     if (!user || name.trim() === '') return;
@@ -101,205 +104,145 @@ export default function Settings() {
     }
   };
 
-  const syncLabel =
-    !connectivity.isOnline
-      ? 'Waiting for connection'
-      : syncState === 'pending'
-        ? 'Syncing…'
-        : syncState === 'failed'
-          ? 'Retrying'
-          : 'Up to date';
-
   return (
-    <Screen testID="screen-settings">
-      <ScreenHeader title="Settings" />
+    <Screen testID="screen-settings" contentStyle={{ paddingHorizontal: 20 }}>
+      <TabHeader title="Settings" style={{ marginBottom: 0 }} />
 
-      <Stack>
-        <Card>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-            <Avatar
-              name={profile?.displayName ?? 'Rider'}
-              uri={avatarUrl}
-              size={64}
-              onPress={changeAvatar}
-              accessibilityLabel="Change profile photo"
-              testID="cta-avatar"
-            />
-            <View style={{ flex: 1, gap: 2 }}>
-              <Txt role="cardTitle" numberOfLines={1}>
-                {profile?.displayName ?? 'Rider'}
-              </Txt>
-              <Txt role="metaSmall" tone="mut" numberOfLines={1}>
-                {user?.isAnonymous
-                  ? 'Offline account · no email'
-                  : (user?.email ?? profile?.email ?? 'No email on file')}
-              </Txt>
-              <Txt role="micro" tone="mut">
-                {uploading ? 'Uploading photo…' : 'Tap the photo to change it'}
-              </Txt>
-            </View>
-          </View>
+      <SectionEyebrow first>Units</SectionEyebrow>
+      <ListCard>
+        <AccountUnitRow label="Distance" onPressLabel={unitSettings.openDistance} testID="row-distance">
+          <Segmented
+            size="inline"
+            padX={14}
+            options={DISTANCE_OPTIONS}
+            value={units.distance}
+            onChange={unitSettings.setDistance}
+            testID="segment-distance"
+          />
+        </AccountUnitRow>
 
-          <View style={{ marginTop: 14 }}>
-            <MenuRow
-              label="Change display name"
-              onPress={() => {
-                setName(profile?.displayName ?? '');
-                setNameOpen(true);
-              }}
-              testID="row-change-name"
-            />
-          </View>
+        <AccountUnitRow label="Mileage" onPressLabel={unitSettings.openMileage} testID="row-mileage">
+          <Segmented
+            size="inline"
+            padX={10}
+            options={MILEAGE_OPTIONS}
+            value={mileageChoiceOf(units.mileage)}
+            onChange={unitSettings.setMileageChoice}
+            testID="segment-mileage"
+          />
+        </AccountUnitRow>
 
-          {user?.isAnonymous ? (
-            <>
-              <Divider />
-              <MenuRow
-                label="Add an email to sync across devices"
-                onPress={() => router.push('/(auth)/signup')}
-                testID="row-upgrade-account"
-              />
-            </>
-          ) : user && !user.emailVerified ? (
-            <>
-              <Divider />
-              <MenuRow
-                label="Resend verification email"
-                onPress={async () => {
-                  try {
-                    await authService.resendVerification();
-                    toast.show('Verification email sent');
-                  } catch (error) {
-                    toast.show(messageFor(error), 'error');
-                  }
-                }}
-                testID="row-resend-verification"
-              />
-            </>
-          ) : null}
-        </Card>
-
-        <Card variant="list">
-          <Eyebrow>APPEARANCE</Eyebrow>
-          <View style={{ paddingVertical: 12 }}>
-            <Segmented
-              options={THEME_OPTIONS}
-              value={preference}
-              onChange={setPreference}
-              testID="segment-theme"
-            />
-          </View>
-        </Card>
-
-        <Card variant="list">
-          <Eyebrow>UNITS</Eyebrow>
-          <View style={{ height: 4 }} />
-          <MenuRow
-            label="Currency"
+        <AccountUnitRow label="Currency" padY={16}>
+          <AccountValuePill
+            value={`${units.currency} ${currencySymbol(units.currency)}`}
             onPress={unitSettings.openCurrency}
-            right={
-              <Txt role="metaSmall" tone="mut">
-                {units.currency} ({currencySymbol(units.currency)})
-              </Txt>
-            }
+            accessibilityLabel={`Currency, ${units.currency}`}
             testID="row-currency"
           />
-          <Divider />
-          <MenuRow
-            label="Distance"
-            onPress={unitSettings.openDistance}
-            right={
-              <Txt role="metaSmall" tone="mut">
-                {units.distance === 'km' ? 'Kilometres' : 'Miles'}
-              </Txt>
-            }
-            testID="row-distance"
+        </AccountUnitRow>
+
+        <AccountUnitRow
+          label="Cost basis"
+          padY={16}
+          onPressLabel={unitSettings.openCostBasis}
+          testID="row-cost-basis"
+        >
+          <Segmented
+            size="inline"
+            padX={12}
+            options={COST_BASIS_OPTIONS}
+            value={units.costBasis}
+            onChange={unitSettings.setCostBasis}
+            testID="segment-cost-basis"
           />
-          <Divider />
-          <MenuRow
-            label="Fuel volume"
+        </AccountUnitRow>
+
+        {/* Not on the board, which draws a rider who fills in litres. Dropping
+            it would leave the board's own "mpg" choice with no gallon behind
+            it, so it keeps the board's row shape at the end of the card. */}
+        <AccountUnitRow label="Fuel volume" padY={16}>
+          <AccountValuePill
+            value={VOLUME_LABEL[units.volume]}
             onPress={unitSettings.openVolume}
-            right={
-              <Txt role="metaSmall" tone="mut">
-                {units.volume === 'L' ? 'Litres' : units.volume === 'gal_us' ? 'US gallons' : 'UK gallons'}
-              </Txt>
-            }
+            accessibilityLabel={`Fuel volume, ${VOLUME_LABEL[units.volume]}`}
             testID="row-volume"
           />
-          <Divider />
-          <MenuRow
-            label="Mileage"
-            onPress={unitSettings.openMileage}
-            right={
-              <Txt role="metaSmall" tone="mut">
-                {mileageUnitLabel(units.mileage)}
-              </Txt>
-            }
-            testID="row-mileage"
-          />
-          <Divider />
-          <MenuRow
-            label="Cost basis"
-            onPress={unitSettings.openCostBasis}
-            right={
-              <Txt role="metaSmall" tone="mut">
-                {units.costBasis === 'total' ? 'With purchase' : 'Running only'}
-              </Txt>
-            }
-            testID="row-cost-basis"
-          />
-        </Card>
+        </AccountUnitRow>
+      </ListCard>
 
-        <Card variant="list">
-          <Eyebrow>DATA</Eyebrow>
-          <View style={{ height: 4 }} />
-          <KeyValueRow label="Cloud sync" value={syncLabel} />
-          <Divider />
-          <MenuRow
-            label="Export fuel history"
-            onPress={() => router.push('/(tabs)/fuel')}
-            testID="row-export-data"
-          />
-          <Divider />
-          <MenuRow
-            label="Privacy policy"
-            onPress={() => router.push('/legal/privacy')}
-            testID="row-privacy"
-          />
-          <Divider />
-          <MenuRow label="Terms of use" onPress={() => router.push('/legal/terms')} testID="row-terms" />
-        </Card>
+      <Footnote>All-in adds the purchase price to every total. Unit changes apply everywhere instantly.</Footnote>
 
-        <Card variant="list">
-          <MenuRow
-            label="Plan"
-            onPress={() => router.push('/plan')}
-            right={<Badge label={isPro ? 'PRO' : 'FREE'} tone={isPro ? 'accent' : 'neutral'} />}
-            testID="row-plan"
-          />
-        </Card>
+      <SectionEyebrow>Appearance</SectionEyebrow>
+      <Segmented
+        size="medium"
+        options={THEME_OPTIONS}
+        value={preference}
+        onChange={setPreference}
+        testID="segment-theme"
+      />
 
-        <Button
+      <SectionEyebrow>Data &amp; account</SectionEyebrow>
+      <ListCard>
+        <MenuRow
+          label="Export my data"
+          icon="file"
+          iconTone="accent"
+          onPress={() => router.push('/(tabs)/fuel')}
+          testID="row-export-data"
+        />
+
+        <MenuRow
+          label="Display name"
+          subtitle={profile?.displayName ?? 'Rider'}
+          onPress={() => {
+            setName(profile?.displayName ?? '');
+            setNameOpen(true);
+          }}
+          testID="row-change-name"
+        />
+
+        {user?.isAnonymous ? (
+          <MenuRow
+            label="Add an email to sync across devices"
+            icon="send"
+            iconTone="accent"
+            onPress={() => router.push('/(auth)/signup')}
+            testID="row-upgrade-account"
+          />
+        ) : null}
+
+        {user && !user.isAnonymous && !user.emailVerified ? (
+          <MenuRow
+            label="Resend verification email"
+            icon="send"
+            iconTone="accent"
+            onPress={async () => {
+              try {
+                await authService.resendVerification();
+                toast.show('Verification email sent');
+              } catch (error) {
+                toast.show(messageFor(error), 'error');
+              }
+            }}
+            testID="row-resend-verification"
+          />
+        ) : null}
+
+        <MenuRow
           label="Sign out"
-          variant="secondary"
+          icon="lock"
+          iconTone="neutral"
           onPress={() => setSignOutOpen(true)}
           testID="cta-sign-out"
         />
 
-        <Button
+        <AccountDangerRow
           label="Delete account"
-          variant="secondary"
-          size="medium"
+          subtitle="Irreversible — the dialog lists exactly what goes"
           onPress={() => setDeleteOpen(true)}
-          style={{ borderColor: c.brd }}
           testID="cta-delete-account"
         />
-
-        <Txt role="helper" tone="mut" align="center">
-          Deleting your account removes every motorcycle, fuel log, service and document you have stored, on
-          this phone and on the web.
-        </Txt>
-      </Stack>
+      </ListCard>
 
       <Sheet visible={nameOpen} onClose={() => setNameOpen(false)} title="Display name">
         <View style={{ gap: 14 }}>

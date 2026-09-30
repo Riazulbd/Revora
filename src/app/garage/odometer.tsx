@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
-import { FlatList, Pressable, View } from 'react-native';
+import React, { useMemo, useRef, useState } from 'react';
+import { FlatList, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  Banner,
   Button,
+  Card,
   Dialog,
   Divider,
   EmptyState,
   ErrorState,
-  Icon,
-  Input,
+  Eyebrow,
   Screen,
   ScreenHeader,
   Sheet,
@@ -24,13 +23,18 @@ import {
   previewOdometerCorrection,
   type OdometerPoint,
 } from '@/calculations/odometer';
+import { buildOdometerRows } from '@/calculations/odometerHistory';
 import { distanceUnitLabel } from '@/calculations/units';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
+import {
+  OdometerCorrectionPanel,
+  OdometerReadingRow,
+} from '@/features/fuel/ui/FuelOdometerHistory';
 import { useCorrectOdometerReading } from '@/features/odometer/useOdometerMutations';
 import { fromMetres, toMetres } from '@/features/shared/formValues';
 import { formatShortDate } from '@/utils/date';
-import { formatDistance } from '@/utils/format';
+import { formatDistance, formatDistanceValue, NO_VALUE } from '@/utils/format';
 import { useTheme } from '@/theme';
 
 /**
@@ -41,8 +45,8 @@ import { useTheme } from '@/theme';
  * history can never disagree with the log (requirement 63).
  *
  * A reading the rider entered by hand is theirs to correct — tapping it opens
- * the editor below. A derived one is not: it is corrected by editing the record
- * it came from, which is what keeps the two in agreement.
+ * the editor at the foot of the list. A derived one is not: it is corrected by
+ * editing the record it came from, which is what keeps the two in agreement.
  *
  * The list is virtualised: a rider with a few years of fuel logs has well over a
  * thousand readings here, and rendering them all at once would jank (requirement 59).
@@ -55,8 +59,11 @@ export default function OdometerHistory() {
   const { analytics, isPending, error, refetch } = useGarageData();
   const [editing, setEditing] = useState<OdometerPoint | null>(null);
   const [hint, setHint] = useState<OdometerPoint | null>(null);
+  const listRef = useRef<FlatList<ReturnType<typeof buildOdometerRows>[number]>>(null);
 
-  const points = analytics?.odometer.points ?? [];
+  const points = useMemo(() => analytics?.odometer.points ?? [], [analytics]);
+  const rows = useMemo(() => buildOdometerRows(points), [points]);
+  const current = analytics?.odometer.latest ?? null;
 
   if (error) {
     return (
@@ -76,84 +83,117 @@ export default function OdometerHistory() {
     );
   }
 
-  if (points.length === 0) {
+  if (rows.length === 0) {
     return (
       <Screen testID="screen-odometer">
         <ScreenHeader title="Odometer history" />
         <EmptyState
-          icon="dashboard"
+          icon="odometer"
           title="No readings yet"
           message="Readings appear here from fuel logs, services and manual updates."
           primaryAction={{ label: 'Log a fill-up', onPress: () => router.push('/fuel/add') }}
-          variant="page"
           testID="empty-odometer"
         />
+        <Txt role="helper" tone="mut" style={{ marginTop: 12 }}>
+          No readings yet? The odometer you entered at setup is the first one.
+        </Txt>
       </Screen>
     );
   }
 
+  /** The list is one card: only its ends are rounded, every row shares the surface. */
+  const slice = (index: number) => {
+    const first = index === 0;
+    const last = index === rows.length - 1;
+    return {
+      backgroundColor: c.sur,
+      borderLeftWidth: 1,
+      borderRightWidth: 1,
+      borderTopWidth: first ? 1 : 0,
+      borderBottomWidth: last ? 1 : 0,
+      borderColor: c.brd,
+      borderTopLeftRadius: first ? radius.listCard : 0,
+      borderTopRightRadius: first ? radius.listCard : 0,
+      borderBottomLeftRadius: last ? radius.listCard : 0,
+      borderBottomRightRadius: last ? radius.listCard : 0,
+      paddingHorizontal: 16,
+    } as const;
+  };
+
+  const heldByLine =
+    current === null
+      ? 'No reading is on record yet.'
+      : current.id === INITIAL_ODOMETER_POINT_ID
+        ? 'Held by the reading you entered at setup. The odometer only moves forward — correct a wrong reading below.'
+        : `Held by the ${odometerSourceLabel(current.source)} of ${formatShortDate(current.date)}. The odometer only moves forward — correct a wrong reading below.`;
+
   return (
     <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top }}>
-      <View style={{ paddingHorizontal: 20, paddingTop: 10 }}>
+      <View style={{ paddingHorizontal: 20, paddingTop: 8 }}>
         <ScreenHeader title="Odometer history" />
       </View>
 
       <FlatList
+        ref={listRef}
         testID="screen-odometer"
-        data={points}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => {
-          // The design shows one card containing every row. Virtualising means
-          // building that card out of the rows themselves: the surface runs
-          // through all of them and only the ends are rounded.
-          const first = index === 0;
-          const last = index === points.length - 1;
-          const correctable = item.readingId !== null;
-          return (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`${formatDistance(item.metres, units.distance)}, ${formatShortDate(item.date)}, ${odometerSourceLabel(item.source)}`}
-              accessibilityHint={correctable ? 'Correct or delete this reading' : 'Shows where this reading comes from'}
-              onPress={() => (correctable ? setEditing(item) : setHint(item))}
-              style={({ pressed }) => ({
-                backgroundColor: pressed ? c.sur2 : c.sur,
-                borderLeftWidth: 1,
-                borderRightWidth: 1,
-                borderTopWidth: first ? 1 : 0,
-                borderBottomWidth: last ? 1 : 0,
-                borderColor: c.brd,
-                borderTopLeftRadius: first ? radius.listCard : 0,
-                borderTopRightRadius: first ? radius.listCard : 0,
-                borderBottomLeftRadius: last ? radius.listCard : 0,
-                borderBottomRightRadius: last ? radius.listCard : 0,
-                minHeight: 48,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 12,
-                paddingHorizontal: 16,
-              })}
-            >
-              <Txt role="rowTitle">{formatDistance(item.metres, units.distance)}</Txt>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 }}>
-                <Txt role="meta" tone="mut" numberOfLines={1}>
-                  {formatShortDate(item.date)} · {odometerSourceLabel(item.source)}
-                </Txt>
-                {correctable ? <Icon name="pencil" size={13} color={c.acc} strokeWidth={2} /> : null}
-              </View>
-            </Pressable>
-          );
-        }}
+        data={rows}
+        keyExtractor={(item) => item.point.id}
+        ListHeaderComponent={
+          <Card style={{ marginBottom: 12 }} testID="card-current-odometer">
+            <Eyebrow>Current odometer</Eyebrow>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 6 }}>
+              <Txt role="figure" style={{ fontSize: 28 }} numberOfLines={1} adjustsFontSizeToFit>
+                {current === null
+                  ? NO_VALUE
+                  : formatDistanceValue(current.metres, units.distance)}
+              </Txt>
+              <Txt role="linkLarge" tone="mut">
+                {distanceUnitLabel(units.distance)}
+              </Txt>
+            </View>
+            <Txt role="meta" tone="mut" style={{ marginTop: 4, lineHeight: 18 }}>
+              {heldByLine}
+            </Txt>
+          </Card>
+        }
+        renderItem={({ item, index }) => (
+          <View style={slice(index)}>
+            <OdometerReadingRow
+              row={item}
+              unit={units.distance}
+              selected={editing?.id === item.point.id}
+              onPress={() => {
+                if (item.correctable) {
+                  setEditing(item.point);
+                  requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
+                } else {
+                  setHint(item.point);
+                }
+              }}
+              testID={`odometer-row-${item.point.id}`}
+            />
+          </View>
+        )}
         ItemSeparatorComponent={() => (
           <View style={{ backgroundColor: c.sur, borderLeftWidth: 1, borderRightWidth: 1, borderColor: c.brd }}>
             <Divider inset={16} />
           </View>
         )}
         ListFooterComponent={
-          <Txt role="helper" tone="mut" style={{ marginTop: 14 }}>
-            Readings come from fuel logs, services and manual updates — every source is kept so distances stay
-            auditable. Tap a manual reading to correct it.
-          </Txt>
+          <View>
+            {editing?.readingId ? (
+              <CorrectReading
+                key={editing.readingId}
+                point={editing}
+                readingId={editing.readingId}
+                points={points}
+                onClose={() => setEditing(null)}
+              />
+            ) : null}
+            <Txt role="helper" tone="mut" style={{ marginTop: 12 }}>
+              No readings yet? The odometer you entered at setup is the first one.
+            </Txt>
+          </View>
         }
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32 + insets.bottom }}
         showsVerticalScrollIndicator={false}
@@ -163,17 +203,12 @@ export default function OdometerHistory() {
         windowSize={9}
       />
 
-      {editing?.readingId ? (
-        <CorrectReadingSheet
-          key={editing.readingId}
-          point={editing}
-          readingId={editing.readingId}
-          points={points}
-          onClose={() => setEditing(null)}
-        />
-      ) : null}
-
-      <Sheet visible={hint !== null} onClose={() => setHint(null)} title="Where this reading comes from" testID="sheet-odometer-source">
+      <Sheet
+        visible={hint !== null}
+        onClose={() => setHint(null)}
+        title="Where this reading comes from"
+        testID="sheet-odometer-source"
+      >
         <Txt role="body" tone="mut">
           {hint === null
             ? ''
@@ -193,7 +228,7 @@ export default function OdometerHistory() {
  * Keyed on the reading id by its caller, so the field starts at the reading's
  * own value on first render and there is no hydration effect.
  */
-function CorrectReadingSheet({
+function CorrectReading({
   point,
   readingId,
   points,
@@ -213,65 +248,38 @@ function CorrectReadingSheet({
   const parsed = toMetres(value, units.distance);
   const preview = parsed === null ? null : previewOdometerCorrection(points, readingId, parsed);
   const removal = previewOdometerCorrection(points, readingId, null);
+  const dateLabel = formatShortDate(point.date);
+
+  const heldBy = preview?.heldBy ?? null;
+  const previewLine =
+    preview === null
+      ? 'Enter the reading as it should have been — nothing changes until you commit.'
+      : heldBy === null
+        ? `After this change the current odometer reads ${formatDistance(preview.resultingMetres, units.distance)}. Every figure derived after ${dateLabel} is recalculated.`
+        : heldBy.id === INITIAL_ODOMETER_POINT_ID
+          ? `After this change the current odometer stays ${formatDistance(preview.resultingMetres, units.distance)}, still held by the reading you entered at setup. Every figure derived after ${dateLabel} is recalculated.`
+          : `After this change the current odometer stays ${formatDistance(preview.resultingMetres, units.distance)}, still held by the ${odometerSourceLabel(heldBy.source)} of ${formatShortDate(heldBy.date)}. Every figure derived after ${dateLabel} is recalculated.`;
 
   return (
     <>
-      <Sheet visible onClose={onClose} title="Correct this reading" testID="sheet-correct-odometer">
-        <Txt role="helper" tone="mut">
-          Recorded {formatShortDate(point.date)}. Correcting it recalculates mileage, running cost and everything
-          due — nothing keeps a stale copy.
-        </Txt>
-
-        <Input
-          value={value}
-          onChangeText={setValue}
-          placeholder={`Reading (${distanceUnitLabel(units.distance)})`}
-          keyboardType="decimal-pad"
-          invalid={parsed === null && value.trim() !== ''}
-          style={{ marginTop: 14 }}
-          testID="input-correct-odometer"
-        />
-
-        {preview !== null && preview.heldBy !== null ? (
-          <Banner
-            icon="alert"
-            message={
-              preview.heldBy.id === INITIAL_ODOMETER_POINT_ID
-                ? `Your starting reading is ${formatDistance(preview.heldBy.metres, units.distance)}, so the odometer will stay there. Lower the starting reading in Edit details if that is the mistake.`
-                : `Your ${odometerSourceLabel(preview.heldBy.source)} on ${formatShortDate(preview.heldBy.date)} already records ${formatDistance(preview.heldBy.metres, units.distance)}, so the odometer will stay there until that record is corrected too.`
-            }
-            style={{ marginTop: 12 }}
-            testID="banner-odometer-held"
-          />
-        ) : null}
-
-        {preview !== null && preview.heldBy === null && parsed !== point.metres ? (
-          <Txt role="helper" tone="mut" style={{ marginTop: 12 }} testID="preview-odometer">
-            The odometer will read {formatDistance(preview.resultingMetres, units.distance)}.
-          </Txt>
-        ) : null}
-
-        <Button
-          label="Save correction"
-          disabled={parsed === null || parsed === point.metres}
-          loading={correct.isPending}
-          style={{ marginTop: 16 }}
-          // A null here would mean "delete", so never let an empty field through
-          // on the strength of the disabled prop alone.
-          onPress={() => {
-            if (parsed !== null) void correct.submit({ readingId, metres: parsed });
-          }}
-          testID="cta-save-correction"
-        />
-        <Button
-          label="Delete this reading"
-          variant="secondary"
-          style={{ marginTop: 10 }}
-          onPress={() => setConfirmDelete(true)}
-          testID="cta-delete-reading"
-        />
-        <Button label="Cancel" variant="ghost" style={{ marginTop: 10 }} onPress={onClose} />
-      </Sheet>
+      <OdometerCorrectionPanel
+        dateLabel={dateLabel}
+        originalLabel={formatDistanceValue(point.metres, units.distance)}
+        value={value}
+        onChange={setValue}
+        invalid={parsed === null && value.trim() !== ''}
+        preview={previewLine}
+        busy={correct.isPending}
+        unitLabel={distanceUnitLabel(units.distance)}
+        // A null here would mean "delete", so never let an empty field through
+        // on the strength of the disabled prop alone.
+        onCommit={() => {
+          if (parsed !== null) void correct.submit({ readingId, metres: parsed });
+        }}
+        onCancel={onClose}
+        onDelete={() => setConfirmDelete(true)}
+        style={{ marginTop: 14 }}
+      />
 
       <Dialog
         visible={confirmDelete}

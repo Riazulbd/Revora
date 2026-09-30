@@ -41,12 +41,31 @@ export type IconName =
   | 'card'
   | 'minus'
   | 'circle'
-  | 'search';
+  | 'search'
+  // Redesign glyphs, transcribed from design/redesign/*.dc.html.
+  | 'home'
+  | 'fuelPump'
+  | 'wallet'
+  | 'garageTab'
+  | 'dotsVertical'
+  | 'alertTriangle'
+  | 'alertCircle'
+  | 'calendar'
+  | 'odometer'
+  | 'drop'
+  | 'banknote'
+  | 'documents'
+  | 'target'
+  | 'sparkle'
+  | 'settings'
+  | 'eye'
+  | 'eyeOff'
+  | 'clock';
 
 type Shape =
-  | { type: 'path'; d: string }
+  | { type: 'path'; d: string; filled?: boolean }
   | { type: 'polyline'; points: string }
-  | { type: 'circle'; cx: number; cy: number; r: number }
+  | { type: 'circle'; cx: number; cy: number; r: number; filled?: boolean }
   | { type: 'rect'; x: number; y: number; width: number; height: number; rx: number };
 
 const p = (d: string): Shape => ({ type: 'path', d });
@@ -103,8 +122,48 @@ const ICONS: Record<IconName, Shape[]> = {
   circle: [{ type: 'circle', cx: 12, cy: 12, r: 9 }],
   search: [
     { type: 'circle', cx: 11, cy: 11, r: 7 },
-    { type: 'path', d: 'm20 20-3.7-3.7' },
+    { type: 'path', d: 'm20 20-3.5-3.5' },
   ],
+  // Tab bar (Dashboard board, bottom band).
+  home: [p('M3 10.5 12 3l9 7.5M5 9.5V19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9.5M10 21v-6h4v6')],
+  fuelPump: [
+    p('M3 22h12M4 9h10M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2 2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5'),
+  ],
+  wallet: [p('M21 12V7H5a2 2 0 0 1 0-4h14v4M3 5v14a2 2 0 0 0 2 2h16v-5M18 12a2 2 0 0 0 0 4h4v-4Z')],
+  garageTab: [{ type: 'rect', x: 3, y: 8, width: 18, height: 11, rx: 2 }, p('M8 8V6a4 4 0 0 1 8 0v2')],
+  // Header overflow (⋮) — three filled 1.6px dots.
+  dotsVertical: [
+    { type: 'circle', cx: 12, cy: 5, r: 1.6, filled: true },
+    { type: 'circle', cx: 12, cy: 12, r: 1.6, filled: true },
+    { type: 'circle', cx: 12, cy: 19, r: 1.6, filled: true },
+  ],
+  // Banners and error states.
+  alertTriangle: [p('m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'), p('M12 9v4M12 17h.01')],
+  alertCircle: [{ type: 'circle', cx: 12, cy: 12, r: 9 }, p('M12 7.5v5.5'), { type: 'circle', cx: 12, cy: 16.4, r: 1.2, filled: true }],
+  // Field labels on Add fuel.
+  calendar: [{ type: 'rect', x: 3.5, y: 5, width: 17, height: 16, rx: 2.5 }, p('M3.5 9.5h17M8 3v4M16 3v4')],
+  odometer: [p('M4.5 19a9 9 0 1 1 15 0'), p('M12 14.5 15.5 9'), { type: 'circle', cx: 12, cy: 14.5, r: 1.6, filled: true }],
+  drop: [p('M12 3s6 6.2 6 11a6 6 0 0 1-12 0c0-4.8 6-11 6-11Z')],
+  banknote: [{ type: 'rect', x: 2.5, y: 6, width: 19, height: 12, rx: 2 }, { type: 'circle', cx: 12, cy: 12, r: 2.6 }],
+  // The Documents quick action and vault rows.
+  documents: [
+    p('M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z'),
+    p('M8 8h8M8 12h8M8 16h5'),
+  ],
+  // Needs-attention row (safety / brakes).
+  target: [
+    { type: 'circle', cx: 12, cy: 12, r: 9 },
+    { type: 'circle', cx: 12, cy: 12, r: 3.5 },
+    p('M12 3.8v2M12 18.2v2M3.8 12h2M18.2 12h2'),
+  ],
+  sparkle: [p('M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8')],
+  settings: [
+    { type: 'circle', cx: 12, cy: 12, r: 3 },
+    p('M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z'),
+  ],
+  eye: [p('M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z'), { type: 'circle', cx: 12, cy: 12, r: 3 }],
+  eyeOff: [p('M17.9 17.9A10 10 0 0 1 12 19c-6.5 0-10-7-10-7a17 17 0 0 1 4.1-4.9M9.9 5.2A9.8 9.8 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2.1 3M14.1 14.1a3 3 0 1 1-4.2-4.2M3 3l18 18')],
+  clock: [{ type: 'circle', cx: 12, cy: 12, r: 9 }, p('M12 7v5l3 2')],
 };
 
 export type IconProps = {
@@ -112,15 +171,21 @@ export type IconProps = {
   size?: number;
   color?: string;
   strokeWidth?: number;
+  /**
+   * Fades the whole glyph. Used where a board dims the mark rather than
+   * recolouring it — the photo placeholders draw it at `#C6CAD1`, which is
+   * `--mut` at a little over half strength on either ground.
+   */
+  opacity?: number;
 };
 
-export function Icon({ name, size = 20, color, strokeWidth = 2 }: IconProps) {
+export function Icon({ name, size = 20, color, strokeWidth = 2, opacity }: IconProps) {
   const { c } = useTheme();
   const stroke = color ?? c.ink;
   const shapes = ICONS[name];
 
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...(opacity === undefined ? {} : { opacity })}>
       {shapes.map((shape, index) => {
         const common = {
           stroke,
@@ -129,10 +194,21 @@ export function Icon({ name, size = 20, color, strokeWidth = 2 }: IconProps) {
           strokeLinejoin: 'round' as const,
           fill: 'none' as const,
         };
-        if (shape.type === 'path') return <Path key={index} d={shape.d} {...common} />;
+        if (shape.type === 'path') {
+          return <Path key={index} d={shape.d} {...common} {...(shape.filled ? { fill: stroke, stroke: 'none' } : {})} />;
+        }
         if (shape.type === 'polyline') return <Polyline key={index} points={shape.points} {...common} />;
         if (shape.type === 'circle') {
-          return <Circle key={index} cx={shape.cx} cy={shape.cy} r={shape.r} {...common} />;
+          return (
+            <Circle
+              key={index}
+              cx={shape.cx}
+              cy={shape.cy}
+              r={shape.r}
+              {...common}
+              {...(shape.filled ? { fill: stroke, stroke: 'none' } : {})}
+            />
+          );
         }
         return (
           <Rect

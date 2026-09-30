@@ -32,14 +32,42 @@ is a dozen lines and does exactly the job.
    # paste the URL when prompted
    ```
 
-3. **Deploy.**
+3. **Deploy with the secret bound.** `REVORA_SLACK_SECRET=1` is what tells the
+   deploy that the secret now exists and should be attached to the function.
 
    ```bash
-   firebase deploy --only functions:relayFeedbackToSlack --project ai-fuel-assistant
+   REVORA_SLACK_SECRET=1 firebase deploy --only functions:relayFeedbackToSlack --project ai-fuel-assistant
    ```
 
 4. **Test** by sending feedback from the app (More → Feedback & support). It
    should appear in the channel immediately.
+
+## Why `REVORA_SLACK_SECRET`, and what happens without it
+
+The Firebase CLI resolves every secret referenced anywhere in the codebase
+during deploy analysis — including for functions that `--only` excludes — and
+fails the whole deploy when one does not exist in Secret Manager. A plain
+`defineSecret('SLACK_FEEDBACK_WEBHOOK_URL')` therefore held **every** Revora
+function hostage to a Slack workspace that had not been created yet, which is
+why `relayFeedbackToSlack` spent a release commented out of `index.ts`.
+
+It no longer is. The function binds the secret only when `REVORA_SLACK_SECRET=1`
+is set in the deploy shell, and reads the webhook from the environment at call
+time rather than through a param. So:
+
+| Deploy                                    | Result                                                        |
+| ----------------------------------------- | ------------------------------------------------------------- |
+| No secret, no flag (the default)          | Everything deploys. Feedback is stored; nothing posts to Slack. |
+| Secret set, no flag                       | Everything deploys. Still nothing posts — the secret is unbound. |
+| Secret set, `REVORA_SLACK_SECRET=1`       | Everything deploys, and feedback reaches the channel.          |
+
+The middle row is the one to watch: if messages stop appearing after a deploy,
+you almost certainly deployed without the flag. Redeploy with it.
+
+The function also checks that the webhook starts with `https://hooks.slack.com/`
+before posting. A misconfigured secret would otherwise ship a rider's message,
+their email and their uid to whatever address it names; relaying nothing is the
+safer failure.
 
 ## What a message looks like
 

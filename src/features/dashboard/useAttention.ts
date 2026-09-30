@@ -22,7 +22,14 @@ import { todayIso } from '@/utils/date';
  * partially-populated list is useful, and a spinner where the odometer should
  * be is not.
  */
-export function useAttention(): { items: AttentionItem[]; count: number; isPending: boolean } {
+export function useAttention(): {
+  items: AttentionItem[];
+  count: number;
+  isPending: boolean;
+  /** A document expires (or has expired) inside the 30-day window — the amber
+   *  dot the boards put on the Documents tile. */
+  documentsExpiring: boolean;
+} {
   const { units } = useGarage();
   const { analytics } = useGarageData();
   const documents = useDocuments();
@@ -48,5 +55,6 @@ export function useAttention(): { items: AttentionItem[]; count: number; isPendi
     items,
     count: items.length,
     isPending: analytics === null || documents.isPending || safety.isPending,
+    documentsExpiring: items.some((item) => item.kind === 'document'),
   };
 }

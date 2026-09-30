@@ -39,6 +39,21 @@ describe('distance-based rules', () => {
     expect(calculateMaintenanceStatus(rule(), 7_700_000, '2026-09-01').kind).toBe('due_soon');
   });
 
+  it('is due soon, not overdue, at exactly the due point', () => {
+    // Due at 5,000,000 + 3,000,000 = 8,000,000 m. Standing exactly there, the
+    // rule has run its full interval and not a metre more: it is due NOW.
+    // 'OVERDUE' would accuse a rider of neglect on the very kilometre the
+    // service came due, so zero remaining is the last moment of DUE SOON and
+    // overdue begins at −1.
+    const at = calculateMaintenanceStatus(rule(), 8_000_000, '2026-09-01');
+    expect(at.remainingMetres).toBe(0);
+    expect(at.kind).toBe('due_soon');
+
+    const past = calculateMaintenanceStatus(rule(), 8_000_001, '2026-09-01');
+    expect(past.remainingMetres).toBe(-1);
+    expect(past.kind).toBe('overdue');
+  });
+
   it('is overdue past the due point, and reports how far past', () => {
     const s = calculateMaintenanceStatus(rule(), 9_250_000, '2026-09-01');
     expect(s.kind).toBe('overdue');
@@ -84,6 +99,20 @@ describe('time-based rules', () => {
     const s = calculateMaintenanceStatus(timeRule, null, '2026-09-05');
     expect(s.kind).toBe('overdue');
     expect(s.remainingDays).toBe(-5);
+  });
+
+  it('is due soon, not overdue, on the due date itself', () => {
+    // Completed 2026-08-01 with a 30-day interval → due 2026-08-31. The same
+    // boundary as the distance side: zero days remaining is the day it is due,
+    // and overdue starts the morning after.
+    const onTheDay = calculateMaintenanceStatus(timeRule, null, '2026-08-31');
+    expect(onTheDay.dueOnDate).toBe('2026-08-31');
+    expect(onTheDay.remainingDays).toBe(0);
+    expect(onTheDay.kind).toBe('due_soon');
+
+    const dayAfter = calculateMaintenanceStatus(timeRule, null, '2026-09-01');
+    expect(dayAfter.remainingDays).toBe(-1);
+    expect(dayAfter.kind).toBe('overdue');
   });
 });
 

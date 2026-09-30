@@ -218,7 +218,12 @@ export type FuelEntry = OwnedRecord & {
   litresMl: number;
   /** Minor units per litre. */
   pricePerLitreMinor: number;
-  /** Minor units. Always equals round(litresMl * pricePerLitreMinor / 1000). */
+  /**
+   * Minor units, and the authoritative money on the record: it is what the
+   * rider paid. `pricePerLitreMinor` is the rate derived from it, so the two
+   * agree to within the half minor unit `divideRound` breaks, not exactly.
+   * See `normaliseFuelAmounts` in src/calculations/fuel.ts.
+   */
   totalCostMinor: number;
   currency: CurrencyCode;
   fillType: FillType;

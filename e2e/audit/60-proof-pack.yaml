@@ -1,0 +1,52 @@
+# Phase B · 60 — the Proof Pack renders and reaches the share sheet.
+#
+# Fresh account plus one fill: "Generate PDF" is disabled while analytics is
+# empty. Confirming the dialog runs Print.printToFileAsync then
+# Sharing.shareAsync — the Android system chooser opens (its title is
+# "Revora Proof Pack" where the OS shows one). Dismissing the chooser with
+# back resolves shareAsync, and the screen toasts
+# "Proof Pack generated on this device".
+#
+# The chooser assertion is optional because Android versions differ in what
+# the chooser labels; the toast is the hard assertion.
+appId: app.revora.android.dev
+---
+- runFlow: lib/fresh-anon-bike.yaml
+- runFlow:
+    file: lib/add-fill.yaml
+    env:
+      ODO: "4900"
+      LITRES: "5"
+      PRICE: "145"
+      FILL: "Full tank"
+      STATION: ""
+
+- tapOn:
+    id: "tab-garage"
+- tapOn:
+    id: "cta-profile"
+- tapOn:
+    id: "hub-proof-pack"
+- assertVisible:
+    id: "screen-proof-pack"
+- assertVisible: ".*Fuel & mileage log · 1 fill.*"
+- assertVisible: ".*hidden by buyer-safe mode.*"
+
+- tapOn:
+    id: "cta-generate-proof"
+- assertVisible:
+    id: "dialog-generate-proof"
+- assertVisible: ".*with prices hidden.*"
+- tapOn:
+    id: "dialog-generate-proof-confirm"
+
+# System share sheet (label varies by Android version).
+- assertVisible:
+    text: ".*(Proof Pack|Share|Nearby|Bluetooth|Drive|Gmail).*"
+    optional: true
+- back
+
+# The app's own "ready" signal.
+- assertVisible: ".*Proof Pack generated on this device.*"
+- assertVisible:
+    id: "screen-proof-pack"

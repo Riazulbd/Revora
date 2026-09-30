@@ -1,0 +1,56 @@
+# Shared step: log one fill from the Dashboard's "Add fuel" tile.
+#
+# env: ODO (km), LITRES, PRICE (per litre), FILL ("Full tank" | "Partial" |
+# "Unknown"), STATION (may be ""). The date is left at today: mileage orders
+# fills by ODOMETER (sortEntriesForMileage), with date only breaking ties, and
+# the interval coherence check is `entry.date >= start.date`, so same-day
+# fills measure exactly as sequential-day ones do. This avoids driving the
+# Android date dialog for every fill.
+#
+# Price is erased before typing because a new fill pre-fills the last price.
+# Save calls router.back(), which lands on the Dashboard the tile came from.
+appId: app.revora.android.dev
+---
+- assertVisible:
+    id: "screen-dashboard"
+- tapOn:
+    id: "quick-add-fuel"
+- assertVisible:
+    id: "screen-fuel-add"
+
+- tapOn:
+    id: "input-odometer"
+- inputText: "${ODO}"
+- tapOn:
+    id: "input-litres"
+- inputText: "${LITRES}"
+- tapOn:
+    id: "input-price"
+- eraseText
+- inputText: "${PRICE}"
+- hideKeyboard
+
+- tapOn: "${FILL}"
+
+- runFlow:
+    when:
+      true: ${STATION != ''}
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: "input-station"
+          direction: DOWN
+      - tapOn:
+          id: "input-station"
+      - inputText: "${STATION}"
+      - hideKeyboard
+
+- scrollUntilVisible:
+    element:
+      id: "cta-save-fuel"
+    direction: DOWN
+- tapOn:
+    id: "cta-save-fuel"
+
+- assertVisible:
+    id: "screen-dashboard"

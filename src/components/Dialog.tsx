@@ -6,8 +6,12 @@ import { Button, ButtonRow } from './Button';
 import { Txt } from './Text';
 
 /**
- * The centred confirmation dialog:
- * `left:24; right:24; border-radius:20px; padding:22px 20px` over the scrim.
+ * The centred confirmation dialog from the Parts boards ("Remove tail box?",
+ * "Move to accessories?"): `left:20; right:20; border-radius:20px; padding:20px`
+ * over the scrim, a `700 17px` title, a `500 13px / 1.55` muted message 8px
+ * under it, then two 48px buttons 16px below — the confirming action first
+ * (`--bad` for a destructive one, `--acc` otherwise) and the keep/cancel
+ * action beside it on `--sur2`.
  *
  * Android back closes the dialog and goes no further, so a confirm step can
  * never bounce the rider out of a nested flow (requirement 41).
@@ -17,6 +21,7 @@ export function Dialog({
   onClose,
   title,
   message,
+  children,
   confirmLabel,
   cancelLabel = 'Cancel',
   onConfirm,
@@ -28,6 +33,8 @@ export function Dialog({
   onClose: () => void;
   title: string;
   message: string;
+  /** Extra content between the message and the buttons — the "discarded" bullet list. */
+  children?: React.ReactNode;
   confirmLabel: string;
   cancelLabel?: string;
   onConfirm: () => unknown;
@@ -65,42 +72,42 @@ export function Dialog({
         <View
           accessibilityViewIsModal
           style={{
-            marginHorizontal: 24,
+            marginHorizontal: 20,
             backgroundColor: c.sur,
+            borderWidth: 1,
+            borderColor: c.brd,
             borderRadius: radius.dialog,
-            paddingHorizontal: 20,
-            paddingVertical: 22,
+            padding: 20,
             shadowColor: '#000',
             shadowOpacity: 0.3,
-            shadowRadius: 60,
-            shadowOffset: { width: 0, height: 20 },
+            shadowRadius: 48,
+            shadowOffset: { width: 0, height: 16 },
             elevation: 24,
           }}
         >
-          <Txt role="dialogTitle" style={{ marginBottom: 8 }}>
-            {title}
-          </Txt>
-          <Txt role="body" tone="mut" style={{ marginBottom: 16 }}>
+          <Txt role="cardTitle">{title}</Txt>
+          <Txt role="body" tone="mut" style={{ marginTop: 8, lineHeight: 20 }}>
             {message}
           </Txt>
-          <ButtonRow>
-            <Button
-              label={cancelLabel}
-              variant="secondary"
-              size="medium"
-              onPress={onClose}
-              disabled={busy}
-              style={{ flex: 1, height: 48, borderRadius: 12 }}
-              testID={testID === undefined ? undefined : `${testID}-cancel`}
-            />
+          {children ? <View style={{ marginTop: 12 }}>{children}</View> : null}
+          <ButtonRow style={{ marginTop: 16 }}>
             <Button
               label={confirmLabel}
               variant={destructive ? 'danger' : 'primary'}
               size="medium"
+              flex
               onPress={onConfirm}
               loading={busy}
-              style={{ flex: 1, height: 48, borderRadius: 12 }}
               testID={testID === undefined ? undefined : `${testID}-confirm`}
+            />
+            <Button
+              label={cancelLabel}
+              variant="subtle"
+              size="medium"
+              flex
+              onPress={onClose}
+              disabled={busy}
+              testID={testID === undefined ? undefined : `${testID}-cancel`}
             />
           </ButtonRow>
         </View>

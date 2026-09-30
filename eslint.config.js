@@ -4,7 +4,7 @@ const expoConfig = require('eslint-config-expo/flat');
 module.exports = defineConfig([
   expoConfig,
   {
-    ignores: ['dist/*', 'android/*', 'ios/*', '.expo/*', 'node_modules/*', 'scripts/*', 'design/*', 'functions/lib/**', 'functions/node_modules/**', 'functions/test/**'],
+    ignores: ['dist/*', 'android/*', 'ios/*', '.expo/*', 'node_modules/*', 'scripts/*', 'design/*', 'functions/lib/**', 'functions/node_modules/**', 'functions/test/**', 'e2e/**'],
   },
   {
     // Config plugins and metro/babel config run in Node, not in the app bundle.
