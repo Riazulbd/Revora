@@ -33,3 +33,11 @@ play-assets/raw/
 
 # Third-party product photography. Not ours to ship or version.
 Yamaha-*.jpg
+
+# Source material and generated artefacts, not source code.
+# icons.zip alone is 28 MB; a contact sheet embeds every screenshot as base64
+# and is rebuilt by `node e2e/tools/contact-sheet.mjs` whenever it is wanted.
+# Git keeps a blob forever once committed, so these stay out of history.
+*.zip
+design/redesign/compare/
+e2e/out/
