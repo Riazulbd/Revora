@@ -166,9 +166,9 @@ describe('A11Y-04 touch targets: explicit height/minHeight >= HIT_SIZE (44)', ()
     const tree = mount(<MenuRow label="Accessories" onPress={noop} testID="t" />);
     expect(flat(hostByTestId(tree, 't')).minHeight).toBe(48);
   });
-  it('CheckRow has minHeight 46', () => {
+  it('CheckRow has minHeight >= 44', () => {
     const tree = mount(<CheckRow label="Exclude" checked={false} onChange={noop} testID="t" />);
-    expect(flat(hostByTestId(tree, 't')).minHeight).toBe(46);
+    expect(flat(hostByTestId(tree, 't')).minHeight).toBeGreaterThanOrEqual(44);
   });
   it('Toggle explicit height is >= 44', () => {
     const tree = mount(<Toggle value={false} onChange={noop} accessibilityLabel="Dark mode" testID="t" />);

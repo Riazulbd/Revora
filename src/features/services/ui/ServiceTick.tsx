@@ -5,12 +5,12 @@ import { Icon, Txt } from '@/components';
 import { HIT_SIZE, useTheme } from '@/theme';
 
 /**
- * The boards' 22px tick: `border-radius:6px`, filled `--acc` with a white check
- * when on, an empty `--sur` box with a 1.5px hairline when off.
+ * Figma `Checkbox on` / `Checkbox off`: a 24px box, `border-radius:8px`,
+ * filled `#D2400F` with a white tick when on, white with a `1.5px #878E98`
+ * hairline when off.
  *
- * `strong` is the 700 14px item head ("Engine oil"); the default is the 500 13px
- * line the board uses for "Ask before replacing parts", and muted while unticked
- * as the collapsed "Chain lube" row is drawn.
+ * `strong` is the `600 15px` item head ("Brake pads"); the default is the
+ * `500 13px` line the board uses for "Ask before replacing parts".
  */
 export function ServiceTick({
   label,
@@ -25,8 +25,6 @@ export function ServiceTick({
   strong?: boolean;
   testID?: string;
 }) {
-  const { c } = useTheme();
-
   return (
     <Pressable
       accessibilityRole="checkbox"
@@ -36,36 +34,39 @@ export function ServiceTick({
       testID={testID}
       style={({ pressed }) => ({
         minHeight: HIT_SIZE,
-        marginVertical: -11,
+        marginVertical: -10,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: 12,
         opacity: pressed ? 0.7 : 1,
       })}
     >
-      <View
-        style={{
-          width: 22,
-          height: 22,
-          borderRadius: 6,
-          backgroundColor: checked ? c.acc : c.sur,
-          borderWidth: checked ? 0 : 1.5,
-          borderColor: c.brd,
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-        }}
-      >
-        {checked ? <Icon name="check" size={13} color="#FFFFFF" strokeWidth={2.6} /> : null}
-      </View>
-      <Txt
-        role={strong ? 'rowTitle' : 'body'}
-        tone={strong || checked ? 'ink' : 'mut'}
-        numberOfLines={2}
-        style={{ flex: 1 }}
-      >
+      <TickBox checked={checked} />
+      <Txt role={strong ? 'rowTitleLarge' : 'bullet'} tone={strong || checked ? 'ink' : 'mut'} numberOfLines={2} style={{ flex: 1 }}>
         {label}
       </Txt>
     </Pressable>
+  );
+}
+
+/** The box alone, for rows that draw their own label and trailer. */
+export function TickBox({ checked }: { checked: boolean }) {
+  const { c } = useTheme();
+  return (
+    <View
+      style={{
+        width: 24,
+        height: 24,
+        borderRadius: 8,
+        backgroundColor: checked ? c.acc : c.sur,
+        borderWidth: checked ? 0 : 1.5,
+        borderColor: c.faint,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+      }}
+    >
+      {checked ? <Icon name="check" size={16} color="#FFFFFF" strokeWidth={2.5} /> : null}
+    </View>
   );
 }

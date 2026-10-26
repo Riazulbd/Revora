@@ -1,0 +1,57 @@
+[C7 Accessories — Add] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Close] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon x)
+[Add accessory] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer] width: 48px; height: 48px
+[Segmented] display: flex; flex-direction: row; align-items: flex-start; padding: 4px; gap: 4px; width: 358px; height: 54px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; align-self: stretch
+[Part] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 172px; height: 44px; border-radius: 999px; flex-grow: 1
+[Part] font-weight: 600; font-size: 14px; color: #6B727C
+[Accessory] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 172px; height: 44px; background: #14171B; border-radius: 999px; flex-grow: 1
+[Accessory] font-weight: 600; font-size: 14px; color: #FFFFFF
+[Field card] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 16px; width: 358px; height: 192px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row Name] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 14px; width: 326px; height: 64px; align-self: stretch
+  (icon tag-mut)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 292px; height: 37px; flex-grow: 1
+[Name] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Givi 27L tail box] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Row Purchase] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 14px; width: 326px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon banknote-mut)
+[banknote] width: 20px; height: 20px
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 269px; height: 37px; flex-grow: 1
+[Purchase] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[9,500] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[৳] font-weight: 500; font-size: 14px; color: #6B727C
+[Row Fitting] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 14px; width: 326px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon wrench-mut)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 269px; height: 37px; flex-grow: 1
+[Fitting (optional)] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[500] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[৳] font-weight: 500; font-size: 14px; color: #6B727C
+[Sum helper] display: flex; flex-direction: row; align-items: center; padding: 12px; gap: 10px; width: 358px; height: 56px; background: #FDEAE3; border-radius: 16px; align-self: stretch
+  (icon plus-acc)
+[Added together once in Costs — ৳10,000, never counted twice.] font-weight: 500; font-size: 13px; color: #C93D0E; flex-grow: 1
+[Field card 2] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 16px; width: 358px; height: 192px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row Date] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 14px; width: 326px; height: 64px; align-self: stretch
+  (icon calendar-mut)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 258px; height: 37px; flex-grow: 1
+[Added on] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[13 Sep 2026] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+  (icon chevron-right-mut)
+[Row Photo] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 14px; width: 326px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon camera-mut)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 258px; height: 37px; flex-grow: 1
+[Photo (optional)] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Add a photo] font-weight: 600; font-size: 16px; color: #C93D0E; align-self: stretch
+  (icon chevron-right-mut)
+[Row Notes] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 14px; width: 326px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon file-text-mut)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 292px; height: 37px; flex-grow: 1
+[Notes (optional)] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Givi, fitted at Bike Point] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Helper] display: flex; flex-direction: row; align-items: flex-start; padding: 14px; gap: 12px; width: 358px; height: 78px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 18px; align-self: stretch
+  (icon info-mut)
+[Counts in your totals, stays out of cost / km — a one-off charged against distance would make that figure swing.] font-weight: 400; font-size: 13px; color: #6B727C; flex-grow: 1
+[Save] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+  (icon check-white)
+[Save accessory] font-weight: 600; font-size: 16px; color: #FFFFFF

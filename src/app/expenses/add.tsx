@@ -3,13 +3,15 @@ import { Pressable, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import {
+  AmountHero,
   Button,
   Card,
   DateField,
   Dialog,
-  Field,
-  FieldRow,
-  Input,
+  Eyebrow,
+  Icon,
+  InputRow,
+  ListCard,
   Screen,
   ScreenHeader,
   SkeletonList,
@@ -17,29 +19,27 @@ import {
 } from '@/components';
 import { currencySymbol, currencyDecimals } from '@/calculations/money';
 import { EXPENSE_CATEGORIES, expenseCategoryLabel } from '@/calculations/expenses';
+import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
-import {
-  useDeleteExpense,
-  useNewExpenseId,
-  useSaveExpense,
-} from '@/features/expenses/useExpenseMutations';
+import { useDeleteExpense, useNewExpenseId, useSaveExpense } from '@/features/expenses/useExpenseMutations';
 import { fromMinor, toMinor, toTrimmed } from '@/features/shared/formValues';
 import { useStableId } from '@/features/shared/useStableId';
 import { expenseSchema } from '@/validation/schemas';
 import type { BikeAnalytics } from '@/calculations/analytics';
 import type { Expense, ExpenseCategory } from '@/types';
-import { todayIso } from '@/utils/date';
+import { formatShortDate, todayIso } from '@/utils/date';
 import { fontFamily, useTheme } from '@/theme';
 
 /**
- * A manual expense — the costs that have no record of their own.
+ * A manual expense (Figma `B2 Expenses — Add expense`) — the costs that have
+ * no record of their own.
  *
- * Fuel, services and parts are on the category grid, but none of them saves an
- * expense: each one draws the board's reroute notice instead
- * (`money---expense-allowance-pro--01`). Logging a service as a bare number
- * would lose its parts, its maintenance reset and its heading, and a fill
- * logged here would never reach mileage or cost per kilometre — so the screen
- * offers the right record rather than silently accepting the wrong one.
+ * Fuel, servicing and parts sit among the category chips, but none of them
+ * saves an expense: each one draws the reroute notice instead. Logging a
+ * service as a bare number would lose its parts, its maintenance reset and
+ * its heading, and a fill logged here would never reach mileage or cost per
+ * kilometre — so the screen offers the right record rather than silently
+ * accepting the wrong one.
  */
 export default function ExpenseEditorRoute() {
   const { id: editingId } = useLocalSearchParams<{ id?: string }>();
@@ -48,7 +48,7 @@ export default function ExpenseEditorRoute() {
   if (analytics === null) {
     return (
       <Screen testID="screen-expense-add">
-        <ScreenHeader title={editingId ? 'Edit expense' : 'Add expense'} />
+        <ScreenHeader title={editingId ? 'Edit expense' : 'Add expense'} icon="x" />
         <SkeletonList count={3} height={64} />
       </Screen>
     );
@@ -94,8 +94,22 @@ const REROUTE: Record<
 
 const REROUTE_KINDS: readonly Reroute[] = ['fuel', 'service', 'part'];
 
+/** The design's chip order: the real categories, then the three reroutes. */
+const CHIP_ORDER: readonly ExpenseCategory[] = [
+  'registration',
+  'insurance',
+  'parking',
+  'toll',
+  'wash',
+  'fine',
+  'gear',
+  'modification',
+  'other',
+];
+
 function ExpenseForm({ existing, analytics }: { existing: Expense | null; analytics: BikeAnalytics }) {
   const router = useRouter();
+  const { activeBike } = useGarage();
 
   const newExpenseId = useNewExpenseId();
   const generatedId = useStableId(newExpenseId);
@@ -148,15 +162,34 @@ function ExpenseForm({ existing, analytics }: { existing: Expense | null; analyt
   };
 
   const notice = reroute === null ? null : REROUTE[reroute];
+  const categories = CHIP_ORDER.filter((value) => EXPENSE_CATEGORIES.includes(value));
 
   return (
-    <Screen testID="screen-expense-add">
-      <ScreenHeader title={existing ? 'Edit expense' : 'Add expense'} />
+    <Screen testID="screen-expense-add" contentStyle={{ flexGrow: 1, gap: 16 }}>
+      <ScreenHeader
+        title={existing ? 'Edit expense' : 'Add expense'}
+        icon="x"
+        {...(existing ? { titleSuffix: `· ${formatShortDate(existing.date)}` } : {})}
+        style={{ marginBottom: 0 }}
+      />
 
-      <Field label="Category">
+      <AmountHero
+        label="Amount"
+        symbol={currencySymbol(currency)}
+        value={amount}
+        onChangeText={setAmount}
+        size="medium"
+        chip={{ label: `${reroute ? REROUTE[reroute].tile : expenseCategoryLabel(category)} · ${activeBike?.nickname ?? 'Your bike'}` }}
+        {...(errors.amountMinor === undefined ? {} : { error: errors.amountMinor })}
+        accessibilityLabel={`Amount, in ${currencySymbol(currency)}`}
+        testID="input-amount"
+      />
+
+      <View style={{ gap: 10 }}>
+        <Eyebrow>Category</Eyebrow>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }} testID="grid-expense-category">
-          {EXPENSE_CATEGORIES.map((value) => (
-            <CategoryTile
+          {categories.map((value) => (
+            <CategoryChip
               key={value}
               label={expenseCategoryLabel(value)}
               selected={reroute === null && category === value}
@@ -168,70 +201,31 @@ function ExpenseForm({ existing, analytics }: { existing: Expense | null; analyt
             />
           ))}
           {REROUTE_KINDS.map((kind) => (
-            <CategoryTile
+            <CategoryChip
               key={kind}
               label={REROUTE[kind].tile}
+              reroute
               selected={reroute === kind}
               onPress={() => setReroute(kind)}
               testID={`category-reroute-${REROUTE[kind].testID}`}
             />
           ))}
         </View>
-      </Field>
-
-      <FieldRow style={{ marginTop: 16 }}>
-        <Field label="Date" flex={1}>
-          <DateField
-            value={date}
-            onChange={setDate}
-            maximumDate={new Date()}
-            padX={14}
-            testID="field-expense-date"
-          />
-        </Field>
-        <Field label="Amount" flex={1} error={errors.amountMinor ?? null}>
-          <Input
-            value={amount}
-            onChangeText={setAmount}
-            placeholder="0"
-            keyboardType="decimal-pad"
-            size="numeric"
-            align="left"
-            padX={14}
-            prefix={currencySymbol(currency)}
-            invalid={Boolean(errors.amountMinor)}
-            // The board draws this field at the 52px date height, not the 56px
-            // the numeric size is elsewhere; the 700 17px figure is the numeric one.
-            style={{ height: 52 }}
-            testID="input-amount"
-          />
-        </Field>
-      </FieldRow>
-
-      <Field label="Note (optional)" style={{ marginTop: 16 }}>
-        <Input
-          value={note}
-          onChangeText={setNote}
-          placeholder="Bashundhara parking"
-          padX={14}
-          testID="input-expense-note"
-        />
-      </Field>
+        <Txt role="helper" tone="mut">
+          Fuel, servicing and parts open their own records — that&rsquo;s where they set mileage, reset maintenance and
+          carry warranty.
+        </Txt>
+      </View>
 
       {notice ? (
-        <Card variant="tinted" style={{ marginTop: 18, gap: 10 }} testID={`reroute-${notice.testID}`}>
-          <Txt role="body" style={{ lineHeight: 19.5 }}>
-            <Txt role="body" style={{ fontFamily: fontFamily[700], lineHeight: 19.5 }}>
+        <Card variant="tinted" style={{ gap: 10 }} testID={`reroute-${notice.testID}`}>
+          <Txt role="body">
+            <Txt role="body" style={{ fontFamily: fontFamily[600] }}>
               {notice.lead}{' '}
             </Txt>
             {notice.body}
           </Txt>
-          <Button
-            label={notice.cta}
-            size="medium"
-            onPress={() => router.replace(notice.route)}
-            testID={`cta-reroute-${notice.testID}`}
-          />
+          <Button label={notice.cta} size="medium" onPress={() => router.replace(notice.route)} testID={`cta-reroute-${notice.testID}`} />
           <Button
             label="Keep as a plain expense"
             variant="ghost"
@@ -246,22 +240,47 @@ function ExpenseForm({ existing, analytics }: { existing: Expense | null; analyt
         </Card>
       ) : null}
 
+      <ListCard testID="card-fields">
+        <DateField
+          variant="row"
+          icon="calendar"
+          label="Date"
+          value={date}
+          onChange={setDate}
+          maximumDate={new Date()}
+          todayLabel="Today, "
+          format={formatShortDate}
+          testID="field-expense-date"
+        />
+        <InputRow
+          icon="penLine"
+          label="Note (optional)"
+          value={note}
+          onChangeText={setNote}
+          placeholder="Bashundhara parking"
+          autoCapitalize="sentences"
+          testID="input-expense-note"
+        />
+      </ListCard>
+
+      <View style={{ flex: 1, minHeight: 8 }} />
+
       <Button
         label={existing ? 'Save changes' : 'Save expense'}
+        size="xlarge"
         onPress={submit}
         loading={saveExpense.isPending}
         disabled={reroute !== null}
-        style={{ marginTop: 18 }}
         testID="cta-save-expense"
       />
 
       {existing ? (
         <Button
           label="Delete expense"
+          icon="trash"
           variant="dangerSubtle"
-          size="medium"
+          size="large"
           onPress={() => setDeleteOpen(true)}
-          style={{ marginTop: 12 }}
           testID="cta-delete-expense"
         />
       ) : null}
@@ -282,54 +301,52 @@ function ExpenseForm({ existing, analytics }: { existing: Expense | null; analyt
 }
 
 /**
- * One tile of the board's category grid: `height:44px; border-radius:11px`,
- * three to a row. Selected is the solid ink tile the boards use for a chosen
- * chip — white label in light, the page colour in dark.
+ * Figma `Chip`: a 48px pill, `600 13px`. Selected is solid ink with a tick
+ * and a `700` white label; a reroute chip sits on the inset surface with an
+ * arrow, because it leads somewhere rather than picking something.
  */
-function CategoryTile({
+function CategoryChip({
   label,
   selected,
+  reroute = false,
   onPress,
   testID,
 }: {
   label: string;
   selected: boolean;
+  reroute?: boolean;
   onPress: () => void;
   testID: string;
 }) {
-  const { c, radius, dark } = useTheme();
+  const { c } = useTheme();
+  const ink = selected ? c.sur : c.ink;
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ selected }}
-      accessibilityLabel={label}
+      accessibilityLabel={reroute ? `${label}, opens its own record` : label}
       onPress={onPress}
       testID={testID}
       style={({ pressed }) => ({
-        flexBasis: '30%',
-        flexGrow: 1,
-        height: 44,
-        borderRadius: radius.tile,
-        backgroundColor: selected ? c.ink : c.sur,
-        borderWidth: selected ? 0 : 1,
-        borderColor: c.brd,
+        height: 48,
+        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 8,
+        gap: reroute ? 4 : 6,
+        paddingLeft: selected && !reroute ? 14 : 16,
+        paddingRight: reroute ? 12 : 16,
+        borderRadius: 999,
+        backgroundColor: selected ? c.ink : reroute ? c.sur2 : c.sur,
+        borderWidth: selected || reroute ? 0 : 1,
+        borderColor: c.brd,
         opacity: pressed ? 0.75 : 1,
       })}
     >
-      <Txt
-        numberOfLines={1}
-        style={{
-          fontFamily: fontFamily[selected ? 700 : 600],
-          fontSize: 13,
-          color: selected ? (dark ? c.bg : '#FFFFFF') : c.ink,
-        }}
-      >
+      {selected && !reroute ? <Icon name="check" size={16} color={ink} /> : null}
+      <Txt numberOfLines={1} style={{ fontFamily: fontFamily[selected ? 700 : 600], fontSize: 13, lineHeight: 16, color: ink }}>
         {label}
       </Txt>
+      {reroute ? <Icon name="arrowUpRight" size={16} color={ink} /> : null}
     </Pressable>
   );
 }

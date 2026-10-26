@@ -8,88 +8,74 @@ import { useAuthTheme } from './AuthTheme';
 const MARK_ON_LIGHT = require('../../../../assets/splash-icon-light.png');
 
 /**
- * The Revora lockup as the Welcome and Splash boards draw it: the mark, then
- * `REVORA` at `700 28px` on 6px of tracking, then the line under it.
+ * The Revora lockup as the Welcome screen draws it (Figma `Brand`): a 48px
+ * rounded tile with the mark, then "Revora" in `700 20px` over the caption in
+ * `400 13px` muted, side by side.
  *
- * In dark the boards do not knock the mark out — they seat it on an 88px
- * `--ink` plate at `border-radius:22px`, which is why the light mark is the one
- * used there. The tracking is applied to the right of every glyph including the
- * last, so the word needs pulling back by the same 6px to sit centred.
+ * The mark is a road-"R" with an orange panel, drawn for a light ground; the
+ * tile is white (the design's accent tile would swallow the panel) with a
+ * hairline, which reads the same way in both palettes.
+ *
+ * `variant="stacked"` is the splash's centred form: the mark above the word.
  */
 export function AuthLockup({
   caption,
-  markSize = 88,
-  wordSize = 28,
-  captionRole = 'muted',
+  variant = 'row',
+  markSize = 48,
   style,
 }: {
   caption: string;
+  variant?: 'row' | 'stacked';
   markSize?: number;
-  wordSize?: number;
-  /** `muted` is Welcome's "The motorcycle logbook."; `eyebrow` is Splash's tracked line. */
-  captionRole?: 'muted' | 'eyebrow';
   style?: ViewStyle;
 }) {
-  const { c, dark } = useAuthTheme();
-  const tracking = wordSize * 0.214;
+  const { c } = useAuthTheme();
+
+  const tile = (
+    <View
+      style={{
+        width: markSize,
+        height: markSize,
+        borderRadius: markSize / 3,
+        backgroundColor: c.sur,
+        borderWidth: 1,
+        borderColor: c.brd,
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+      }}
+    >
+      <Image
+        source={MARK_ON_LIGHT}
+        style={{ width: markSize * 1.1, height: markSize * 1.1 }}
+        resizeMode="contain"
+        accessibilityLabel="Revora"
+      />
+    </View>
+  );
+
+  if (variant === 'stacked') {
+    return (
+      <View style={[{ alignItems: 'center', gap: 16 }, style]}>
+        {tile}
+        <View style={{ alignItems: 'center', gap: 4 }}>
+          <Txt accessibilityLabel="Revora" style={{ fontFamily: fontFamily[700], fontSize: 28, lineHeight: 35, color: c.ink }}>
+            Revora
+          </Txt>
+          <Txt style={{ fontFamily: fontFamily[400], fontSize: 13, lineHeight: 16, color: c.mut }}>{caption}</Txt>
+        </View>
+      </View>
+    );
+  }
 
   return (
-    <View style={[{ alignItems: 'center', gap: 20 }, style]}>
-      {dark ? (
-        <View
-          style={{
-            width: markSize,
-            height: markSize,
-            borderRadius: markSize / 4,
-            backgroundColor: c.ink,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Image
-            source={MARK_ON_LIGHT}
-            style={{ width: markSize * 0.82, height: markSize * 0.82 }}
-            resizeMode="contain"
-            accessibilityLabel="Revora"
-          />
-        </View>
-      ) : (
-        <Image
-          source={MARK_ON_LIGHT}
-          style={{ width: markSize, height: markSize }}
-          resizeMode="contain"
-          accessibilityLabel="Revora"
-        />
-      )}
-
-      <View style={{ alignItems: 'center', gap: 8 }}>
-        <Txt
-          accessibilityLabel="Revora"
-          style={{
-            fontFamily: fontFamily[700],
-            fontSize: wordSize,
-            letterSpacing: tracking,
-            color: c.ink,
-            marginRight: -tracking,
-          }}
-        >
-          REVORA
+    <View style={[{ flexDirection: 'row', alignItems: 'center', gap: 12 }, style]}>
+      {tile}
+      <View style={{ flex: 1 }}>
+        <Txt accessibilityLabel="Revora" style={{ fontFamily: fontFamily[700], fontSize: 20, lineHeight: 25, color: c.ink }}>
+          Revora
         </Txt>
-        {captionRole === 'eyebrow' ? (
-          <Txt
-            style={{
-              fontFamily: fontFamily[700],
-              fontSize: 10.5,
-              letterSpacing: 0.95,
-              color: c.mut,
-              textTransform: 'uppercase',
-            }}
-          >
-            {caption}
-          </Txt>
-        ) : (
-          <Txt style={{ fontFamily: fontFamily[500], fontSize: 13, color: c.mut }}>{caption}</Txt>
-        )}
+        <Txt style={{ fontFamily: fontFamily[400], fontSize: 13, lineHeight: 16, color: c.mut }}>{caption}</Txt>
       </View>
     </View>
   );

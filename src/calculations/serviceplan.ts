@@ -116,19 +116,26 @@ export function projectServicePlan(input: {
   });
 }
 
+/** Inside this many days the plan counts days rather than naming a month. */
+const DAYS_TERM = 14;
+
 /**
- * The board's wording for a projected day: `≈ early October` near term,
- * `≈ February 2027` further out. Null in, null out — the caller then shows the
- * distance on its own, which is the honest answer when no rate is known.
+ * The board's wording for a projected day: `In about 3 days` this fortnight,
+ * `Around early Jan` near term, `Around May` further out and `Around May 2028`
+ * once it is more than a year away. Null in, null out — the caller then shows
+ * the distance on its own, which is the honest answer when no rate is known.
  */
 export function describeProjection(date: IsoDate | null, today: IsoDate = todayIso()): string | null {
   if (date === null) return null;
 
   const ahead = daysBetween(today, date);
+  if (ahead <= 0) return 'Due now';
+  if (ahead <= DAYS_TERM) return ahead === 1 ? 'In about a day' : `In about ${ahead} days`;
   if (ahead <= NEAR_TERM_DAYS) {
     const day = Number(date.slice(8, 10));
     const phase = day <= 10 ? 'early' : day <= 20 ? 'mid' : 'late';
-    return `≈ ${phase} ${monthName(date)}`;
+    return `Around ${phase} ${monthName(date).slice(0, 3)}`;
   }
-  return `≈ ${monthName(date)} ${date.slice(0, 4)}`;
+  const month = monthName(date).slice(0, 3);
+  return ahead > 365 ? `Around ${month} ${date.slice(0, 4)}` : `Around ${month}`;
 }

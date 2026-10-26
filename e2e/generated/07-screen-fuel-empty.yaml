@@ -23,3 +23,22 @@ appId: app.revora.android.dev
     id: "example-fill"
 - assertVisible:
     id: "cta-add-fuel"
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "range-fuel"
+    optional: true
+- assertVisible:
+    id: "cta-show-all-time"
+    optional: true
+- assertVisible:
+    id: "link-explain"
+    optional: true
+- assertVisible:
+    id: "hero-mileage"
+    optional: true
+- assertVisible:
+    id: "chart-fuel-bars"
+    optional: true

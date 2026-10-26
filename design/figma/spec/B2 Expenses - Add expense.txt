@@ -1,0 +1,59 @@
+[B2 Expenses — Add expense] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Close] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon x)
+[Add expense] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer] width: 48px; height: 48px
+[Amount hero] display: flex; flex-direction: column; align-items: center; padding: 8px 0px; gap: 6px; width: 358px; height: 129px; align-self: stretch
+[Amount] font-weight: 500; font-size: 13px; color: #6B727C
+[৳480] font-weight: 700; font-size: 48px; letter-spacing: -0.02em; color: #14171B
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 4px 10px; width: 157px; height: 25px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Parking · The Red One] font-weight: 600; font-size: 12px; color: #6B727C
+[Category] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 296px; align-self: stretch
+[CATEGORY] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Chips] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 216px; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; width: 115px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Registration] font-weight: 600; font-size: 13px; color: #14171B
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; width: 99px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Insurance] font-weight: 600; font-size: 13px; color: #14171B
+[Chip selected] display: flex; flex-direction: row; align-items: center; padding: 0px 16px 0px 14px; gap: 6px; width: 104px; height: 48px; background: #14171B; border-radius: 999px
+  (icon check-white)
+[Parking] font-weight: 700; font-size: 13px; color: #FFFFFF
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; width: 57px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Toll] font-weight: 600; font-size: 13px; color: #14171B
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; width: 99px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Bike wash] font-weight: 600; font-size: 13px; color: #14171B
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; width: 62px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Fine] font-weight: 600; font-size: 13px; color: #14171B
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; width: 67px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Gear] font-weight: 600; font-size: 13px; color: #14171B
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; width: 118px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Modification] font-weight: 600; font-size: 13px; color: #14171B
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; width: 73px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Other] font-weight: 600; font-size: 13px; color: #14171B
+[Chip reroute] display: flex; flex-direction: row; align-items: center; padding: 0px 12px 0px 16px; gap: 4px; width: 76px; height: 48px; background: #F1F2F5; border-radius: 999px
+[Fuel] font-weight: 600; font-size: 13px; color: #14171B
+  (icon arrow-up-right)
+[Chip reroute] display: flex; flex-direction: row; align-items: center; padding: 0px 12px 0px 16px; gap: 4px; width: 110px; height: 48px; background: #F1F2F5; border-radius: 999px
+[Servicing] font-weight: 600; font-size: 13px; color: #14171B
+  (icon arrow-up-right)
+[Chip reroute] display: flex; flex-direction: row; align-items: center; padding: 0px 12px 0px 16px; gap: 4px; width: 82px; height: 48px; background: #F1F2F5; border-radius: 999px
+[Parts] font-weight: 600; font-size: 13px; color: #14171B
+  (icon arrow-up-right)
+[Hint] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; width: 358px; height: 45px; align-self: stretch
+[Fuel, servicing and parts open their own records — that's where they set mileage, reset maintenance and carry warranty.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Fields] display: flex; flex-direction: column; align-items: flex-start; padding: 4px 16px; width: 358px; height: 136px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row date] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 64px; align-self: stretch
+  (icon calendar)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 262px; height: 37px; flex-grow: 1
+[Date] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Today, 16 Sep] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+  (icon chevron-right)
+[Row note] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon pen-line)
+[pen-line] width: 20px; height: 20px
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 294px; height: 37px; flex-grow: 1
+[Note (optional)] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Bashundhara parking] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Save expense] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+[Save expense] font-weight: 600; font-size: 16px; color: #FFFFFF

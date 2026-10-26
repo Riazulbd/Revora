@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Button, Field, Input, LinkButton, Screen, ScreenHeader, Txt, useToast } from '@/components';
+import { Button, Card, Field, Input, LinkButton, Screen, ScreenHeader, Txt, useToast } from '@/components';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { AuthOrDivider, AuthSwitchLine } from '@/features/auth/ui/AuthChrome';
 import { AuthGoogleButton } from '@/features/auth/ui/AuthGoogleButton';
@@ -13,22 +13,19 @@ import { useKeyboardOpen } from '@/features/auth/ui/useKeyboardOpen';
 import { messageFor } from '@/services/errors';
 import { useConnectivity } from '@/services/connectivity';
 import { signInSchema } from '@/validation/schemas';
-import { fontFamily, useTheme } from '@/theme';
 
 /**
- * Sign in.
+ * Sign in (Figma `A2 Auth — Sign in`).
  *
- * Four states live on the board and all four are here: idle, wrong credentials
- * (both fields red under one sentence that does not say *which* was wrong —
- * that is an account-enumeration leak), offline (the whole form inert, because
- * signing in genuinely cannot be queued), and keyboard-open while submitting,
- * where the reassurance line steps aside so the fields and the button stay
- * above the keyboard.
+ * Four states, all here: idle, wrong credentials (both fields red under one
+ * sentence that does not say *which* was wrong — that is an account-enumeration
+ * leak), offline (the whole form inert, because signing in genuinely cannot be
+ * queued), and keyboard-open while submitting, where the intro steps aside so
+ * the fields and the button stay above the keyboard.
  */
 export default function SignIn() {
   const router = useRouter();
   const toast = useToast();
-  const { c } = useTheme();
   const { isOnline } = useConnectivity();
   const keyboardOpen = useKeyboardOpen();
   const { signIn, continueWithoutAccount, signInWithGoogle } = useAuth();
@@ -88,10 +85,8 @@ export default function SignIn() {
     }
   };
 
-  const fieldSize = keyboardOpen ? 'compact' : 'standard';
-
   return (
-    <Screen contentStyle={{ flexGrow: 1, paddingTop: 12 }} testID="screen-signin">
+    <Screen contentStyle={{ flexGrow: 1, gap: 16 }} testID="screen-signin">
       <ScreenHeader title="Sign in" style={{ marginBottom: 0 }} />
 
       {locked ? (
@@ -99,26 +94,20 @@ export default function SignIn() {
           tone="warn"
           lead="You’re offline."
           message="Signing in needs a connection. Anything already saved on this phone is safe and will sync when you’re back."
-          style={{ marginTop: 8 }}
           testID="banner-offline"
         />
       ) : keyboardOpen ? null : (
-        <Txt
-          style={{ fontFamily: fontFamily[500], fontSize: 13, lineHeight: 19.5, color: c.mut, marginTop: 8 }}
-        >
-          Your logbook lives on your account, not this phone. Sign in and it comes back — even on a new
-          phone.
-        </Txt>
+        <View style={{ paddingTop: 8, gap: 8 }}>
+          <Txt role="tabTitle" style={{ letterSpacing: -0.28 }}>
+            Welcome back
+          </Txt>
+          <Txt role="body" tone="mut">
+            Your logbook lives on your account, not this phone. Sign in and it comes back — even on a new phone.
+          </Txt>
+        </View>
       )}
 
-      <View
-        pointerEvents={busy ? 'none' : 'auto'}
-        style={{
-          gap: keyboardOpen ? 12 : 16,
-          marginTop: locked ? 20 : keyboardOpen ? 12 : 24,
-          opacity: busy ? 0.6 : 1,
-        }}
-      >
+      <Card pointerEvents={busy ? 'none' : 'auto'} style={{ gap: 16, opacity: busy ? 0.6 : 1 }} testID="card-fields">
         <Field label="Email" error={errors.email ?? null}>
           <Input
             value={email}
@@ -130,7 +119,6 @@ export default function SignIn() {
             textContentType="emailAddress"
             autoCorrect={false}
             returnKeyType="next"
-            size={fieldSize}
             editable={!locked}
             invalid={Boolean(errors.email) || refused}
             testID="input-email"
@@ -146,62 +134,45 @@ export default function SignIn() {
             textContentType="password"
             returnKeyType="go"
             onSubmitEditing={submit}
-            size={fieldSize}
             editable={!locked}
             invalid={Boolean(errors.password) || refused}
             testID="input-password"
             toggleTestID="toggle-password"
           />
           {locked ? null : (
-            <View style={{ alignItems: 'flex-end', marginTop: 2 }}>
-              <LinkButton
-                label="Forgot password?"
-                size="large"
-                onPress={() => router.push('/(auth)/recover')}
-                testID="cta-forgot"
-              />
+            <View style={{ alignItems: 'flex-end', height: 48, justifyContent: 'center' }}>
+              <LinkButton label="Forgot password?" size="large" onPress={() => router.push('/(auth)/recover')} testID="cta-forgot" />
             </View>
           )}
         </Field>
-      </View>
+      </Card>
 
       {refused ? (
         <AuthNotice
           tone="bad"
           lead="That email and password don’t match."
           message="Check both, or "
-          link={{
-            label: 'reset your password',
-            onPress: () => router.push('/(auth)/recover'),
-            testID: 'link-reset',
-          }}
+          link={{ label: 'reset your password', onPress: () => router.push('/(auth)/recover'), testID: 'link-reset' }}
           tail="."
-          style={{ marginTop: 4 }}
           testID="banner-credentials"
         />
       ) : null}
 
-      <Button
-        label="Sign in"
-        loadingLabel="Signing in…"
-        onPress={submit}
-        loading={busy}
-        disabled={locked}
-        style={{ marginTop: locked ? 20 : 12 }}
-        testID="cta-submit"
-      />
+      <Button label="Sign in" loadingLabel="Signing in…" size="xlarge" onPress={submit} loading={busy} disabled={locked} testID="cta-submit" />
 
-      <AuthOrDivider style={{ marginVertical: 20 }} />
+      <AuthOrDivider />
 
       <AuthGoogleButton onPress={withGoogle} disabled={locked || busy} testID="cta-google" />
 
       <View style={{ flex: 1, minHeight: 24 }} />
 
-      <View style={{ alignItems: 'center', gap: 2 }}>
-        <LinkButton
+      <View style={{ alignItems: 'center' }}>
+        <Button
           label="Continue offline — no account"
-          size="large"
+          icon="cloudOff"
+          variant="ghost"
           tone="mut"
+          size="medium"
           onPress={continueOffline}
           testID="cta-anonymous"
         />

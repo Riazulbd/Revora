@@ -1,19 +1,23 @@
 import React from 'react';
-import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Screen } from '@/components';
-import { AccountDocHeader, AccountDocSection, AccountDocSummary } from '@/features/settings/AccountDoc';
+import { Screen, ScreenHeader } from '@/components';
+import {
+  AccountDocSection,
+  AccountDocSections,
+  AccountDocSummary,
+  AccountDocTitle,
+} from '@/features/settings/AccountDoc';
+import type { IsoDate } from '@/types';
+
+/** The day this text last changed — shown on the board's "Last updated" chip. */
+const LAST_UPDATED: IsoDate = '2026-10-12';
 
 /**
- * Privacy — account--05.
- *
- * The board's four sections come first, verbatim. The ones after them are not
- * drawn on the board and are not optional either: Google Play requires the
- * policy reachable from inside the app to describe what this build actually
- * does, and this build shows AdMob ads, relays support messages to Slack and
- * sends a figure summary to a language model on Pro. Every sentence below is
- * true of the code in this repository.
+ * The board's sections, verbatim. Every sentence here is a promise the code
+ * elsewhere keeps — nothing derived is stored, consumption is never estimated,
+ * the Proof Pack never leaves the device — so a change to one must be a change
+ * to the other.
  */
 const SECTIONS: readonly { title: string; body: string }[] = [
   {
@@ -62,30 +66,34 @@ const SECTIONS: readonly { title: string; body: string }[] = [
   },
 ];
 
+/** Privacy (Figma `E6 Legal — Privacy`). */
 export default function Privacy() {
   const router = useRouter();
 
   return (
-    <Screen testID="screen-privacy">
-      <AccountDocHeader
-        title={'What Revora stores, where,\nand how to delete it'}
+    <Screen testID="screen-privacy" contentStyle={{ gap: 16 }}>
+      <ScreenHeader
+        title="Privacy"
         onBack={() => {
           if (router.canGoBack()) router.back();
           else router.replace('/(tabs)/dashboard');
         }}
-        testID="cta-privacy-back"
+        backTestID="cta-privacy-back"
+        style={{ marginBottom: 0 }}
       />
+
+      <AccountDocTitle title={'What Revora stores, where,\nand how to delete it'} updatedOn={LAST_UPDATED} />
 
       <AccountDocSummary testID="card-privacy-summary">
         Your records live on your account. Documents marked offline also stay on this phone. We never sell
         data. Delete account removes everything, permanently.
       </AccountDocSummary>
 
-      {SECTIONS.map((section, index) => (
-        <View key={section.title} style={{ marginTop: index === 0 ? 20 : 18, paddingHorizontal: 4 }}>
-          <AccountDocSection title={section.title} body={section.body} />
-        </View>
-      ))}
+      <AccountDocSections>
+        {SECTIONS.map((section) => (
+          <AccountDocSection key={section.title} title={section.title} body={section.body} />
+        ))}
+      </AccountDocSections>
     </Screen>
   );
 }

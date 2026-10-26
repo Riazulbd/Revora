@@ -102,15 +102,22 @@ describe('projectServicePlan', () => {
 });
 
 describe('describeProjection', () => {
-  it('names a part of the month near term', () => {
-    expect(describeProjection('2026-10-04', TODAY)).toBe('≈ early October');
-    expect(describeProjection('2026-10-15', TODAY)).toBe('≈ mid October');
-    expect(describeProjection('2026-10-28', TODAY)).toBe('≈ late October');
+  it('counts days inside a fortnight', () => {
+    expect(describeProjection('2026-09-19', TODAY)).toBe('In about 3 days');
+    expect(describeProjection('2026-09-17', TODAY)).toBe('In about a day');
+    expect(describeProjection(TODAY, TODAY)).toBe('Due now');
   });
 
-  it('names the month and the year further out', () => {
-    expect(describeProjection('2027-02-11', TODAY)).toBe('≈ February 2027');
-    expect(describeProjection('2027-08-02', TODAY)).toBe('≈ August 2027');
+  it('names a part of the month near term', () => {
+    expect(describeProjection('2026-10-04', TODAY)).toBe('Around early Oct');
+    expect(describeProjection('2026-10-15', TODAY)).toBe('Around mid Oct');
+    expect(describeProjection('2026-10-28', TODAY)).toBe('Around late Oct');
+  });
+
+  it('names the month further out, and the year once it is more than one away', () => {
+    expect(describeProjection('2027-02-11', TODAY)).toBe('Around Feb');
+    expect(describeProjection('2027-08-02', TODAY)).toBe('Around Aug');
+    expect(describeProjection('2028-01-02', TODAY)).toBe('Around Jan 2028');
   });
 
   it('says nothing when there is no date', () => {

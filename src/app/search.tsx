@@ -1,64 +1,68 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import {
-  Card,
-  Divider,
   Footnote,
   Icon,
   IconSquareButton,
   ListCard,
+  MenuRow,
+  RowIcon,
   SearchBar,
-  SectionEyebrow,
   Screen,
+  SectionEyebrow,
   Txt,
   type IconName,
+  type RowTone,
 } from '@/components';
-import { countResults, searchRecords } from '@/calculations/search';
+import { countResults, searchRecords, type SearchResultKind } from '@/calculations/search';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useDocuments } from '@/features/records/useRecordQueries';
 import { Highlighted } from '@/features/dashboard/ui/SearchHighlight';
 import { recentSearches, rememberSearch } from '@/features/dashboard/ui/recentSearches';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrencySymbol } from '@/utils/format';
 import { HIT_SIZE, fontFamily, useTheme } from '@/theme';
 
 /**
- * Search across the rider's own records.
+ * Search across the rider's own records (Figma `B5 Search — Results`).
  *
- * Reached from the Dashboard, and the reason the deeper screens can afford to
- * be deep. A rider who remembers "Rahim" or "10W-40" gets there directly rather
- * than walking a menu.
- *
- * Two of its three states carry the real weight. The resting screen offers a
- * way in — recent queries, and the three destinations riders most often opened
- * search to reach — because a blank box asks a question the rider came here to
- * answer. And the empty result says what is covered: "no results" tells nobody
- * whether they searched the wrong word or the wrong app.
+ * A rider who remembers "Rahim" or "10W-40" gets there directly rather than
+ * walking a menu. The resting screen offers a way in — recent queries, and
+ * the destinations riders most often opened search to reach — because a blank
+ * box asks a question the rider came here to answer. And the empty result says
+ * what is covered: "no results" tells nobody whether they searched the wrong
+ * word or the wrong app.
  */
 
-type Jump = { label: string; icon: IconName; tone: 'acc' | 'good' | 'mut'; route: string; testID: string };
+/** Figma `Tile` per result kind: a wrench on blue for services, the pump on the accent for fills, the cog for parts. */
+const KIND_LOOK: Record<SearchResultKind, { icon: IconName; tone: RowTone }> = {
+  service: { icon: 'wrench', tone: 'info' },
+  fuel: { icon: 'fuel', tone: 'accent' },
+  part: { icon: 'cog', tone: 'neutral' },
+  product: { icon: 'droplet', tone: 'neutral' },
+  accessory: { icon: 'package', tone: 'neutral' },
+  document: { icon: 'fileText', tone: 'warn' },
+};
+
+type Jump = { label: string; icon: IconName; tone: RowTone; route: string; testID: string };
 
 const JUMP_TO: Jump[] = [
-  { label: 'Documents', icon: 'documents', tone: 'acc', route: '/records/vault', testID: 'jump-documents' },
-  { label: 'Proof Pack', icon: 'file', tone: 'good', route: '/records/proof-pack', testID: 'jump-proof-pack' },
-  {
-    label: 'Odometer history',
-    icon: 'odometer',
-    tone: 'mut',
-    route: '/garage/odometer',
-    testID: 'jump-odometer',
-  },
+  { label: 'Documents', icon: 'fileText', tone: 'accent', route: '/records/vault', testID: 'jump-documents' },
+  { label: 'Proof Pack', icon: 'fileCheck', tone: 'good', route: '/records/proof-pack', testID: 'jump-proof-pack' },
+  { label: 'Odometer history', icon: 'gauge', tone: 'neutral', route: '/garage/odometer', testID: 'jump-odometer' },
 ];
 
 export default function SearchScreen() {
   const router = useRouter();
-  const { c, radius } = useTheme();
+  const { c } = useTheme();
   const { analytics } = useGarageData();
   const { units } = useGarage();
   const documents = useDocuments();
-  const [query, setQuery] = useState('');
+  // A deep link can arrive with the words already typed (`/search?q=oil`).
+  const { q } = useLocalSearchParams<{ q?: string }>();
+  const [query, setQuery] = useState(typeof q === 'string' ? q : '');
   const [recent, setRecent] = useState<readonly string[]>(() => recentSearches());
 
   const groups = useMemo(() => {
@@ -75,6 +79,7 @@ export default function SearchScreen() {
 
   const total = countResults(groups);
   const typed = query.trim() !== '';
+  const currency = analytics?.currency ?? units.currency;
 
   const open = (route: string, params?: Record<string, string>) => {
     setRecent(rememberSearch(query));
@@ -82,15 +87,13 @@ export default function SearchScreen() {
   };
 
   return (
-    <Screen testID="screen-search" contentStyle={{ paddingHorizontal: 20 }}>
-      {/* The board pulls the 44px back target 10px left so the field lines up
-          with the content edge. */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginLeft: -10 }}>
+    <Screen testID="screen-search" contentStyle={{ gap: 16 }}>
+      {/* Figma `Search row`: the round back button and the field, `gap:10px`. */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <IconSquareButton
           icon="chevronLeft"
-          variant="plain"
           accessibilityLabel="Back"
-          onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/dashboard'))}
+          onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/more'))}
           testID="cta-search-back"
         />
         <View style={{ flex: 1 }}>
@@ -107,118 +110,84 @@ export default function SearchScreen() {
         </View>
       </View>
 
-      {!typed ? (
-        <View>
-          {recent.length > 0 ? (
-            <>
-              <SectionEyebrow top={18}>RECENT</SectionEyebrow>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                {recent.map((word) => (
-                  <Pressable
-                    key={word}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Search again for ${word}`}
-                    onPress={() => setQuery(word)}
-                    testID={`search-recent-${word.replace(/\s+/g, '-')}`}
-                    style={({ pressed }) => ({
-                      minHeight: HIT_SIZE,
-                      marginVertical: -(HIT_SIZE - 36) / 2,
-                      justifyContent: 'center',
-                      opacity: pressed ? 0.7 : 1,
-                    })}
-                  >
-                    <View
-                      style={{
-                        height: 36,
-                        paddingHorizontal: 12,
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: 7,
-                        borderRadius: radius.chip,
-                        borderWidth: 1,
-                        borderColor: c.brd,
-                        backgroundColor: c.sur,
-                      }}
-                    >
-                      <Icon name="clock" size={13} color={c.mut} strokeWidth={2} />
-                      <Txt style={{ fontFamily: fontFamily[600], fontSize: 12.5, color: c.ink }}>{word}</Txt>
-                    </View>
-                  </Pressable>
-                ))}
-              </View>
-            </>
-          ) : null}
-
-          <SectionEyebrow top={18}>JUMP TO</SectionEyebrow>
-          <Card variant="list">
-            {JUMP_TO.map((jump, index) => (
-              <View key={jump.testID}>
-                {index > 0 ? <Divider /> : null}
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={jump.label}
-                  onPress={() => router.push(jump.route as never)}
-                  testID={jump.testID}
-                  style={({ pressed }) => ({
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 11,
-                    paddingVertical: 13,
-                    minHeight: HIT_SIZE,
-                    opacity: pressed ? 0.6 : 1,
-                  })}
-                >
-                  <Icon
-                    name={jump.icon}
-                    size={16}
-                    color={jump.tone === 'acc' ? c.acc : jump.tone === 'good' ? c.good : c.mut}
-                    strokeWidth={1.8}
-                  />
-                  <Txt style={{ fontFamily: fontFamily[700], fontSize: 13.5, color: c.ink }}>
-                    {jump.label}
-                  </Txt>
-                </Pressable>
-              </View>
+      {/* Figma `Recent`: 48px chips with the clock, kept for the session. */}
+      {recent.length > 0 ? (
+        <View style={{ gap: 10 }}>
+          <SectionEyebrow first style={{ marginBottom: 0, paddingLeft: 0 }}>
+            Recent
+          </SectionEyebrow>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {recent.map((word) => (
+              <Pressable
+                key={word}
+                accessibilityRole="button"
+                accessibilityLabel={`Search again for ${word}`}
+                onPress={() => setQuery(word)}
+                testID={`search-recent-${word.replace(/\s+/g, '-')}`}
+                style={({ pressed }) => ({
+                  height: HIT_SIZE,
+                  paddingLeft: 12,
+                  paddingRight: 14,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                  borderRadius: 999,
+                  borderWidth: 1,
+                  borderColor: c.brd,
+                  backgroundColor: c.sur,
+                  opacity: pressed ? 0.7 : 1,
+                })}
+              >
+                <Icon name="clock" size={16} color={c.mut} />
+                <Txt style={{ fontFamily: fontFamily[600], fontSize: 13, color: c.ink }}>{word}</Txt>
+              </Pressable>
             ))}
-          </Card>
+          </View>
+        </View>
+      ) : null}
 
-          <Footnote>Searches your own records on this phone — works offline.</Footnote>
+      {!typed ? (
+        <View style={{ gap: 10 }}>
+          <SectionEyebrow first style={{ marginBottom: 0, paddingLeft: 0 }}>
+            Jump to
+          </SectionEyebrow>
+          <ListCard>
+            {JUMP_TO.map((jump) => (
+              <MenuRow
+                key={jump.testID}
+                icon={jump.icon}
+                iconTone={jump.tone}
+                label={jump.label}
+                onPress={() => router.push(jump.route as never)}
+                testID={jump.testID}
+              />
+            ))}
+          </ListCard>
         </View>
       ) : total === 0 ? (
-        <View>
-          <Card style={{ paddingVertical: 24, paddingHorizontal: 20, marginTop: 16, alignItems: 'center', gap: 10 }}>
-            <View
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: 26,
-                backgroundColor: c.sur2,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Icon name="search" size={22} color={c.mut} strokeWidth={2} />
-            </View>
-            <Txt align="center" style={{ fontFamily: fontFamily[700], fontSize: 15, color: c.ink }}>
-              Nothing in your records matches “{query.trim()}”
-            </Txt>
-            <Txt
-              align="center"
-              style={{ fontFamily: fontFamily[500], fontSize: 13, lineHeight: 20.8, color: c.mut, maxWidth: 300 }}
-            >
-              Search covers your services, fuel logs, parts and products fitted, documents and their numbers,
-              workshops, stations, and notes. It doesn&apos;t search the web or other people&apos;s bikes.
-            </Txt>
-          </Card>
-          <Footnote>Typos matter less than you&rsquo;d think — matching is forgiving on spelling.</Footnote>
+        <View style={{ backgroundColor: c.sur, borderRadius: 24, paddingVertical: 24, paddingHorizontal: 20, alignItems: 'center', gap: 10 }}>
+          <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: c.sur2, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="search" size={22} color={c.mut} />
+          </View>
+          <Txt role="rowTitleLarge" align="center">
+            {`Nothing in your records matches “${query.trim()}”`}
+          </Txt>
+          <Txt role="bodySmall" tone="mut" align="center" style={{ maxWidth: 300 }}>
+            Search covers your services, fuel logs, parts and products fitted, documents and their numbers,
+            workshops, stations, and notes. It doesn&apos;t search the web or other people&apos;s bikes.
+          </Txt>
         </View>
       ) : (
-        <View>
-          {groups.map((group) => (
-            <View key={group.kind}>
-              <SectionEyebrow top={16}>{`${group.label} · ${group.results.length}`}</SectionEyebrow>
-              <ListCard>
-                {group.results.map((result) => (
+        groups.map((group) => (
+          /* Figma `Group services` …: the eyebrow with its count, then 64px rows in one card. */
+          <View key={group.kind} style={{ gap: 10 }}>
+            <SectionEyebrow first style={{ marginBottom: 0, paddingLeft: 0 }}>
+              {`${group.label} · ${group.results.length}`}
+            </SectionEyebrow>
+            <ListCard>
+              {group.results.map((result) => {
+                const look = KIND_LOOK[result.kind];
+                return (
                   <Pressable
                     key={result.id}
                     accessibilityRole="button"
@@ -226,41 +195,35 @@ export default function SearchScreen() {
                     onPress={() => open(result.route, result.params)}
                     testID={`search-result-${result.id}`}
                     style={({ pressed }) => ({
+                      minHeight: 64,
                       flexDirection: 'row',
                       alignItems: 'center',
                       gap: 12,
                       paddingVertical: 12,
-                      minHeight: HIT_SIZE,
                       opacity: pressed ? 0.6 : 1,
                     })}
                   >
-                    <View style={{ flex: 1, gap: 2 }}>
-                      <Highlighted text={result.title} query={query} numberOfLines={2} />
-                      <Highlighted
-                        text={result.detail}
-                        query={query}
-                        role="meta"
-                        tone="mut"
-                        numberOfLines={2}
-                      />
+                    <RowIcon icon={look.icon} tone={look.tone} />
+                    <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                      <Highlighted text={result.title} query={query} role="rowTitleLarge" numberOfLines={2} />
+                      <Highlighted text={result.detail} query={query} role="meta" tone="mut" numberOfLines={2} />
                     </View>
                     {result.amountMinor === null ? (
-                      <Icon name="chevronRight" size={15} color={c.mut} strokeWidth={2} />
+                      <Icon name="chevronRight" size={20} color={c.faint} />
                     ) : (
-                      <Txt
-                        numberOfLines={1}
-                        style={{ fontFamily: fontFamily[700], fontSize: 13.5, color: c.ink }}
-                      >
-                        {formatCurrency(result.amountMinor, analytics?.currency ?? units.currency)}
+                      <Txt role="value" numberOfLines={1}>
+                        {formatCurrencySymbol(result.amountMinor, currency)}
                       </Txt>
                     )}
                   </Pressable>
-                ))}
-              </ListCard>
-            </View>
-          ))}
-        </View>
+                );
+              })}
+            </ListCard>
+          </View>
+        ))
       )}
+
+      <Footnote style={{ marginTop: 0 }}>Searches your own records on this phone — works offline.</Footnote>
     </Screen>
   );
 }

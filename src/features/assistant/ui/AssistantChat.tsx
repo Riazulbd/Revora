@@ -1,16 +1,17 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, TextInput, View } from 'react-native';
 
-import { Icon, Input, Txt } from '@/components';
-import { HIT_SIZE, useTheme } from '@/theme';
+import { Icon, Txt } from '@/components';
+import { HIT_SIZE, MAX_FONT_SCALE, fontFamily, useTheme } from '@/theme';
 
 /**
- * The Assistant conversation, drawn from the redesign's two dark boards.
+ * The Assistant conversation (Figma `E4b More — Assistant (conversation)`).
  *
- * The rider's question is an accent bubble squared off at the bottom-right; the
- * answer is a bordered surface bubble squared off at the bottom-left, with the
- * provenance line under it in 11px muted — because an answer that quotes a
- * figure has to say which calculation it read it from.
+ * The rider's question is an ink bubble squared off at the bottom-right
+ * (`border-radius:20px 20px 6px 20px`, `500 14px` white); the answer is a
+ * white bubble squared off at the bottom-left, with the provenance line under
+ * a hairline inside it — because an answer that quotes a figure has to say
+ * which calculation it read it from.
  */
 
 export type ChatRole = 'user' | 'assistant';
@@ -23,11 +24,11 @@ export function ChatBubble({
 }: {
   role: ChatRole;
   text: string;
-  /** The `500 11px` muted provenance line inside an answer bubble. */
+  /** The `400 12px` muted provenance line inside an answer bubble. */
   source?: string;
   testID?: string;
 }) {
-  const { c, dark } = useTheme();
+  const { c } = useTheme();
   const mine = role === 'user';
 
   return (
@@ -36,37 +37,35 @@ export function ChatBubble({
       accessibilityLabel={`${mine ? 'You asked' : 'Assistant answered'}: ${text}`}
       style={{
         alignSelf: mine ? 'flex-end' : 'flex-start',
-        maxWidth: mine ? '80%' : '88%',
-        backgroundColor: mine ? c.acc : c.sur,
-        borderWidth: mine ? 0 : 1,
-        borderColor: c.brd,
-        borderTopLeftRadius: 16,
-        borderTopRightRadius: 16,
-        borderBottomRightRadius: mine ? 4 : 16,
-        borderBottomLeftRadius: mine ? 16 : 4,
+        maxWidth: mine ? '80%' : '85%',
+        backgroundColor: mine ? c.ink : c.sur,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        borderBottomRightRadius: mine ? 6 : 20,
+        borderBottomLeftRadius: mine ? 20 : 6,
         paddingHorizontal: 14,
-        paddingVertical: mine ? 12 : 14,
+        paddingVertical: mine ? 10 : 14,
+        gap: 10,
       }}
     >
-      <Txt
-        role="body"
-        color={mine ? (dark ? c.bg : '#FFFFFF') : c.ink}
-        style={mine ? { lineHeight: 19.5 } : undefined}
-      >
+      <Txt role={mine ? 'bullet' : 'body'} color={mine ? c.sur : c.ink}>
         {text}
       </Txt>
       {source ? (
-        <Txt role="micro" tone="mut" style={{ marginTop: 10 }}>
-          {source}
-        </Txt>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, paddingTop: 10, borderTopWidth: 1, borderTopColor: c.div }}>
+          <Icon name="info" size={16} color={c.mut} />
+          <Txt role="meta" tone="mut" style={{ flex: 1 }}>
+            {source}
+          </Txt>
+        </View>
       ) : null}
     </View>
   );
 }
 
 /**
- * A "Try asking" row: `height:44px; border-radius:11px; background:var(--sur);
- * border:1px solid var(--brd); padding:0 14px; font:600 13px`.
+ * Figma `Suggestion` under TRY ASKING: a 56px white pill-cornered row,
+ * `padding:0 14px 0 16px`, the `500 14px` question and an accent arrow.
  */
 export function SuggestionRow({
   label,
@@ -77,7 +76,7 @@ export function SuggestionRow({
   onPress: () => void;
   testID: string;
 }) {
-  const { c, radius } = useTheme();
+  const { c } = useTheme();
 
   return (
     <Pressable
@@ -87,26 +86,31 @@ export function SuggestionRow({
       onPress={onPress}
       testID={testID}
       style={({ pressed }) => ({
-        height: HIT_SIZE,
-        borderRadius: radius.tile,
+        minHeight: 56,
+        borderRadius: 18,
         backgroundColor: c.sur,
         borderWidth: 1,
         borderColor: c.brd,
-        justifyContent: 'center',
-        paddingHorizontal: 14,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        paddingLeft: 16,
+        paddingRight: 14,
+        paddingVertical: 10,
         opacity: pressed ? 0.7 : 1,
       })}
     >
-      <Txt role="bullet" numberOfLines={2}>
+      <Txt role="bullet" numberOfLines={2} style={{ flex: 1 }}>
         {label}
       </Txt>
+      <Icon name="arrowUpRight" size={20} color={c.accBright} />
     </Pressable>
   );
 }
 
 /**
- * The composer: a 52px field beside a 52px accent square, both on the 13px
- * input radius, exactly as both Assistant boards draw it.
+ * Figma `Composer`: a 60px white pill (`padding:0 6px 0 20px`) holding the
+ * `400 15px` field and a 48px accent disc with an up arrow.
  */
 export function AssistantComposer({
   value,
@@ -123,20 +127,37 @@ export function AssistantComposer({
   inputTestID: string;
   sendTestID: string;
 }) {
-  const { c, radius, dark } = useTheme();
+  const { c, dark } = useTheme();
 
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-      <Input
+    <View
+      style={{
+        height: 60,
+        borderRadius: 999,
+        backgroundColor: c.sur,
+        borderWidth: 1,
+        borderColor: c.brd,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        paddingLeft: 20,
+        paddingRight: 6,
+      }}
+    >
+      <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder="Ask about your bike…"
-        size="standard"
+        placeholderTextColor={c.faint}
+        selectionColor={c.acc}
+        cursorColor={c.acc}
         returnKeyType="send"
         onSubmitEditing={onSend}
         editable={!busy}
-        style={{ flex: 1 }}
+        maxFontSizeMultiplier={MAX_FONT_SCALE}
+        accessibilityLabel="Ask about your bike"
         testID={inputTestID}
+        style={{ flex: 1, minWidth: 0, height: '100%', paddingVertical: 0, fontFamily: fontFamily[400], fontSize: 15, color: c.ink }}
       />
       <Pressable
         accessibilityRole="button"
@@ -146,16 +167,16 @@ export function AssistantComposer({
         onPress={onSend}
         testID={sendTestID}
         style={({ pressed }) => ({
-          width: 52,
-          height: 52,
-          borderRadius: radius.input,
+          width: HIT_SIZE,
+          height: HIT_SIZE,
+          borderRadius: HIT_SIZE / 2,
           backgroundColor: c.acc,
           alignItems: 'center',
           justifyContent: 'center',
           opacity: busy ? 0.55 : pressed ? 0.85 : 1,
         })}
       >
-        <Icon name="send" size={20} color={dark ? c.bg : '#FFFFFF'} strokeWidth={2} />
+        <Icon name="arrowUp" size={22} color={dark ? c.bg : '#FFFFFF'} strokeWidth={2.2} />
       </Pressable>
     </View>
   );

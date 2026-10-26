@@ -3,6 +3,9 @@ import {
   documentBadgeLabel,
   documentBadgeTone,
   documentNeedsExpiry,
+  vaultCounts,
+  vaultRowChip,
+  vaultRowLine,
   vaultValidityLine,
 } from './documentVault';
 
@@ -88,5 +91,41 @@ describe('the validity line', () => {
   it('does not repeat the pill when there is no term to state', () => {
     expect(vaultValidityLine(doc({ issuedOn: null, expiresOn: null }), TODAY)).toBeNull();
     expect(vaultValidityLine(doc({ expiresOn: null }), TODAY)).toBe('Issued 12 Mar 2026');
+  });
+});
+
+describe('the Figma vault row', () => {
+  it('counts down inside the warning window and names the term', () => {
+    expect(vaultRowChip(doc(), TODAY)).toEqual({ label: '12 days', tone: 'warn' });
+    expect(vaultRowLine(doc({ reference: null }), TODAY)).toBe('Valid until 28 Sep 2026');
+    expect(vaultRowLine(doc(), TODAY)).toBe('DHA-TT-4471982 · until 28 Sep 2026');
+  });
+
+  it('reads Valid outside the window and Expired after the date', () => {
+    expect(vaultRowChip(doc({ expiresOn: '2027-01-14' }), TODAY)).toEqual({ label: 'Valid', tone: 'good' });
+    expect(vaultRowChip(doc({ expiresOn: '2026-09-01' }), TODAY)).toEqual({ label: 'Expired', tone: 'bad' });
+    expect(vaultRowLine(doc({ reference: null, expiresOn: '2026-09-01' }), TODAY)).toBe('Expired 1 Sep 2026');
+  });
+
+  it('gives a document with no term a line and no chip', () => {
+    const custom = doc({ kind: 'custom', reference: null, expiresOn: null, issuedOn: null });
+    expect(vaultRowChip(custom, TODAY)).toBeNull();
+    expect(vaultRowLine(custom, TODAY)).toBe('Custom document · No expiry');
+    expect(vaultRowLine(doc({ kind: 'registration', reference: 'DHAKA METRO-HA 12-3456', expiresOn: null }), TODAY)).toBe(
+      'DHAKA METRO-HA 12-3456 · No expiry recorded',
+    );
+  });
+
+  it('counts the hero figures from the same status', () => {
+    const counts = vaultCounts(
+      [
+        doc(),
+        doc({ id: 'd2', expiresOn: '2027-01-14' }),
+        doc({ id: 'd3', expiresOn: '2026-01-01', keepOfflineCopy: false }),
+        doc({ id: 'd4', kind: 'custom', expiresOn: null }),
+      ],
+      TODAY,
+    );
+    expect(counts).toEqual({ total: 4, valid: 1, dueSoon: 1, expired: 1, offline: 3 });
   });
 });

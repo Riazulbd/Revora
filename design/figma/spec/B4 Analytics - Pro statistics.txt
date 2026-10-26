@@ -1,0 +1,92 @@
+[B4 Analytics — Pro statistics] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: linear-gradient(180deg, #FFE6DA 0%, #F8F3F1 30%, #F5F6F8 100%); border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon chevron-left)
+[PRO chip] display: flex; flex-direction: row; align-items: center; padding: 6px 12px 6px 10px; gap: 4px; width: 69px; height: 27px; background: #FF6B3D; border-radius: 999px
+  (icon sparkles)
+[PRO] font-weight: 700; font-size: 12px; letter-spacing: 0.06em; color: #14171B
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 358px; height: 53px; align-self: stretch
+[Analytics] font-weight: 700; font-size: 28px; color: #14171B; align-self: stretch
+[The Red One · 12 measured intervals] font-weight: 400; font-size: 13px; color: #6B727C; align-self: stretch
+[Bento] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 290px; align-self: stretch
+[Bento row] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 134px; align-self: stretch
+[Avg] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 6px; width: 174px; height: 134px; background: linear-gradient(135deg, #1E2227 0%, #101214 71.43%); border-radius: 24px; flex-grow: 1
+[AVERAGE] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #9AA1AA; align-self: stretch
+[Big] display: flex; flex-direction: row; align-items: baseline; padding: 0px; gap: 4px; width: 142px; height: 35px; align-self: stretch
+[39.8] font-weight: 700; font-size: 28px; color: #FFFFFF
+[km/L] font-weight: 500; font-size: 13px; color: #9AA1AA
+[chart:avg-spark] width: 142px; height: 40px
+[avg-spark] width: 142px; height: 40px
+[Best worst] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 6px; width: 174px; height: 134px; background: #FFFFFF; border-radius: 24px; align-self: stretch; flex-grow: 1
+[BEST / WORST] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Best] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 142px; height: 25px; align-self: stretch
+[B] display: flex; flex-direction: row; align-items: flex-start; padding: 2px 8px; width: 57px; height: 19px; background: #E5F6EE; border-radius: 999px
+[▲ Best] font-weight: 600; font-size: 12px; color: #0B7F4E
+[42.3] font-weight: 700; font-size: 20px; color: #14171B
+[Worst] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 142px; height: 25px; align-self: stretch
+[B] display: flex; flex-direction: row; align-items: flex-start; padding: 2px 8px; width: 67px; height: 19px; background: #FBE9E7; border-radius: 999px
+[▼ Worst] font-weight: 600; font-size: 12px; color: #B42318
+[37.9] font-weight: 700; font-size: 20px; color: #14171B
+[km/L · rolling avg 40.2] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Bento row] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 146px; align-self: stretch
+[Cost km] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 6px; width: 174px; height: 146px; background: #FFFFFF; border-radius: 24px; flex-grow: 1
+[COST / KM] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[৳4.12] font-weight: 700; font-size: 24px; color: #14171B; align-self: stretch
+[chart:cost-bars] width: 142px; height: 36px
+[cost-bars] width: 142px; height: 36px
+[▼ ৳0.18 vs last quarter] font-weight: 600; font-size: 12px; color: #0B7F4E; align-self: stretch
+[Distance] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 6px; width: 174px; height: 146px; background: #FFFFFF; border-radius: 24px; align-self: stretch; flex-grow: 1
+[DISTANCE] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[9,284 km] font-weight: 700; font-size: 24px; color: #14171B; align-self: stretch
+[Div] display: flex; flex-direction: column; align-items: flex-start; padding: 8px 0px 0px; gap: 4px; width: 142px; height: 48px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Litres] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[233.4 L] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Trend card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 12px; width: 358px; height: 255px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Title row] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 326px; height: 37px; align-self: stretch
+[TT] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 144px; height: 37px
+[Mileage trend] font-weight: 600; font-size: 16px; color: #14171B
+[km/L per interval · last 12] font-weight: 400; font-size: 12px; color: #6B727C
+[Latest] display: flex; flex-direction: row; align-items: flex-start; padding: 4px 10px; width: 85px; height: 23px; background: #FDEAE3; border-radius: 999px
+[Latest 41.2] font-weight: 600; font-size: 12px; color: #C93D0E
+[chart:mileage-line] width: 326px; height: 120px
+[mileage-line] width: 326px; height: 120px
+[X labels] display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start; padding: 0px; width: 326px; height: 15px; align-self: stretch
+[12 Jun] font-weight: 500; font-size: 12px; color: #878E98
+[18 Jul] font-weight: 500; font-size: 12px; color: #878E98
+[15 Aug] font-weight: 500; font-size: 12px; color: #878E98
+[13 Sep] font-weight: 500; font-size: 12px; color: #878E98
+[Legend] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 16px; width: 326px; height: 15px; align-self: stretch
+[L1] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 6px; width: 117px; height: 15px
+[Sw] width: 14px; height: 3px; background: #F4511E; border-radius: 2px
+[Interval mileage] font-weight: 500; font-size: 12px; color: #6B727C
+[L2] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 6px; width: 151px; height: 15px
+[Sw] width: 14px; height: 3px; background: #878E98; border-radius: 2px
+[Average 39.8 (dashed)] font-weight: 500; font-size: 12px; color: #6B727C
+[Spending card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 12px; width: 358px; height: 218px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Title row] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 326px; height: 37px; align-self: stretch
+[TT] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 164px; height: 37px
+[Monthly spending · ৳] font-weight: 600; font-size: 16px; color: #14171B
+[Sep ৳4,860 · ▲ 12% vs Aug] font-weight: 400; font-size: 12px; color: #6B727C
+[chart:spend-bars] width: 326px; height: 110px
+[spend-bars] width: 326px; height: 110px
+[X labels] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; width: 326px; height: 15px; align-self: stretch
+[Apr] font-weight: 500; font-size: 12px; text-align: center; color: #878E98; flex-grow: 1
+[May] font-weight: 500; font-size: 12px; text-align: center; color: #878E98; flex-grow: 1
+[Jun] font-weight: 500; font-size: 12px; text-align: center; color: #878E98; flex-grow: 1
+[Jul] font-weight: 500; font-size: 12px; text-align: center; color: #878E98; flex-grow: 1
+[Aug] font-weight: 500; font-size: 12px; text-align: center; color: #878E98; flex-grow: 1
+[Sep] font-weight: 700; font-size: 12px; text-align: center; color: #14171B; flex-grow: 1
+[Ownership card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 12px; width: 358px; height: 126px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Ownership cost] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Tiles] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 326px; height: 62px; align-self: stretch
+[Tile] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 103.33px; height: 62px; background: #F5F6F8; border-radius: 16px; flex-grow: 1
+[Purchase] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[৳2,85,000] font-weight: 700; font-size: 15px; color: #14171B; align-self: stretch
+[Tile] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 103.33px; height: 62px; background: #F5F6F8; border-radius: 16px; flex-grow: 1
+[Running] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[৳38,240] font-weight: 700; font-size: 15px; color: #14171B; align-self: stretch
+[Tile] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 103.33px; height: 62px; background: #FDEAE3; border-radius: 16px; flex-grow: 1
+[Total] font-weight: 500; font-size: 12px; color: #C93D0E; align-self: stretch
+[৳3,23,240] font-weight: 700; font-size: 15px; color: #14171B; align-self: stretch
+[Footnote] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; width: 358px; height: 45px; align-self: stretch
+[Best / worst and the rolling average unlock at five measured intervals. Below that, this screen says how many more are needed instead of drawing a chart the data can't hold.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch

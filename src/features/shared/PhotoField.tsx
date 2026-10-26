@@ -1,13 +1,14 @@
 import React from 'react';
-import { Image, Pressable, View } from 'react-native';
+import { Image, View } from 'react-native';
 
-import { Button, Icon, Txt } from '@/components';
+import { Button } from '@/components';
 import { useImagePicker } from './useImagePicker';
 import { useTheme } from '@/theme';
 
 /**
- * The dashed "Attach…" control from the design, and the preview it becomes once
- * a photo is chosen.
+ * The "Attach pump receipt" control (Figma `Attach`): a 52px outline button,
+ * `border:1px solid #C9CED4; border-radius:14px`, a receipt glyph and a
+ * `600 14px` label — and the preview it becomes once a photo is chosen.
  */
 export function PhotoField({
   label,
@@ -34,48 +35,26 @@ export function PhotoField({
         <Image
           source={{ uri }}
           accessibilityLabel={label}
-          style={{ width: '100%', height: 180, borderRadius: radius.input, backgroundColor: c.sur2 }}
+          style={{ width: '100%', height: 168, borderRadius: radius.input, backgroundColor: c.sur2 }}
           resizeMode="cover"
         />
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          <Button label="Replace" variant="secondary" size="small" onPress={choose} style={{ flex: 1 }} />
-          <Button
-            label="Remove"
-            variant="secondary"
-            size="small"
-            onPress={() => onChange(null)}
-            style={{ flex: 1 }}
-          />
+          <Button label="Replace" variant="secondary" size="small" onPress={choose} flex />
+          <Button label="Remove" variant="secondary" size="small" onPress={() => onChange(null)} flex />
         </View>
       </View>
     );
   }
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ busy: picker.busy }}
-      disabled={picker.busy}
+    <Button
+      label={label}
+      icon="receipt"
+      variant="outline"
+      size="large"
       onPress={choose}
-      testID={testID}
-      style={({ pressed }) => ({
-        height: 50,
-        borderWidth: 1.5,
-        borderStyle: 'dashed',
-        borderColor: c.brd,
-        borderRadius: radius.input,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-        opacity: pressed || picker.busy ? 0.6 : 1,
-      })}
-    >
-      <Icon name="camera" size={16} color={c.mut} />
-      <Txt role="mediumStrong" tone="mut">
-        {label}
-      </Txt>
-    </Pressable>
+      loading={picker.busy}
+      {...(testID === undefined ? {} : { testID })}
+    />
   );
 }

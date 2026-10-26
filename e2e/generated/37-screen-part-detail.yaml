@@ -55,3 +55,31 @@ appId: app.revora.android.dev
 # --- the delete dialog exists for a removed part; see flow 91 ---
 - assertNotVisible:
     id: "dialog-delete-part"
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "cta-edit-part-header"
+    optional: true
+- assertVisible:
+    id: "tile-installed"
+    optional: true
+- assertVisible:
+    id: "tile-used"
+    optional: true
+- assertVisible:
+    id: "tile-expected"
+    optional: true
+- assertVisible:
+    id: "card-part-status"
+    optional: true
+- assertVisible:
+    id: "chart-wear"
+    optional: true
+- assertVisible:
+    id: "card-part-facts"
+    optional: true
+- assertVisible:
+    id: "row-linked-service"
+    optional: true

@@ -38,3 +38,22 @@ appId: app.revora.android.dev
     id: "cta-submit"
 - assertVisible:
     id: "screen-recover"
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "card-sent"
+    optional: true
+- assertVisible:
+    id: "cta-resend"
+    optional: true
+- assertVisible:
+    id: "cta-different-email"
+    optional: true
+- assertVisible:
+    id: "card-fields"
+    optional: true
+- assertVisible:
+    id: "cta-back-to-signin"
+    optional: true

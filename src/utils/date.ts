@@ -109,6 +109,12 @@ export function formatLongDate(value: IsoDate): string {
   return `${d} ${MONTH_SHORT[m - 1] ?? '?'} ${y}`;
 }
 
+/** `'30 August 2026'` — the full form on a part's facts and its service link. */
+export function formatFullDate(value: IsoDate): string {
+  const [y, m, d] = splitIso(value);
+  return `${d} ${MONTH_LONG[m - 1] ?? '?'} ${y}`;
+}
+
 /** `'30 Aug'` — the short form the design uses in ledgers and activity rows. */
 export function formatShortDate(value: IsoDate): string {
   const [, m, d] = splitIso(value);

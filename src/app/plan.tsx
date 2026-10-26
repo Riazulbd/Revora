@@ -7,32 +7,29 @@ import {
   Banner,
   Button,
   Card,
-  Eyebrow,
+  HeroCard,
+  HeroHead,
   Icon,
   LinkButton,
-  ProBadge,
   Screen,
   ScreenHeader,
+  Sparkline,
   Txt,
 } from '@/components';
+import { mileageSparkline } from '@/calculations/dashboard';
 import { useGarage } from '@/features/bikes/GarageProvider';
+import { useGarageData } from '@/features/bikes/useGarageData';
 import { formatLongDate, dateToIso } from '@/utils/date';
-import { NO_VALUE } from '@/utils/format';
+import { formatMileage, NO_VALUE } from '@/utils/format';
 import { fontFamily, useTheme } from '@/theme';
 import { useBilling } from '@/features/billing/BillingProvider';
-import { ASSISTANT_COMING_SOON, proFeatureLabel } from '@/features/premium/comingSoon';
+import { ASSISTANT_COMING_SOON } from '@/features/premium/comingSoon';
 import { billingAvailable } from '@/features/billing/googlePlay';
-import {
-  offerHasIntroductoryPhase,
-  offerHeadlinePrice,
-  offerPrice,
-  offerTermLabel,
-  planNotice,
-} from '@/features/billing/presentation';
+import { offerHeadlinePrice, offerPrice, offerTermLabel, planNotice } from '@/features/billing/presentation';
 import type { PlayOffer } from '@/features/billing/googlePlay';
 
 /**
- * Your plan (`money---expense-allowance-pro--03` and `--04`).
+ * Your plan (Figma `02 Your plan — Pro paywall`).
  *
  * Two rules the whole screen is built around:
  *  · Pro comes from `entitlements/{uid}` — the screen reflects the entitlement,
@@ -41,21 +38,22 @@ import type { PlayOffer } from '@/features/billing/googlePlay';
  *    hardcode a price, and a plan whose price Play has not sent yet shows `—`
  *    rather than a number we made up.
  *
- * The three failures the board draws all render in one Banner slot above the
- * plan cards, in the order `planNotice()` ranks them.
+ * The failures the store can have all render in one Banner slot under the
+ * header, in the order `planNotice()` ranks them.
  */
-const PRO_FEATURES = [
-  'Multiple motorcycles',
-  'Advanced statistics and consumption charts',
-  'CSV export of fuel history',
-  'No ads',
+const PRO_FEATURES: readonly { label: string; soon?: boolean }[] = [
+  { label: 'Multiple motorcycles' },
+  { label: 'Advanced statistics and charts' },
+  { label: 'CSV export of fuel history' },
+  { label: 'No ads' },
   // Named, but honestly: a rider deciding whether to subscribe must not be
   // sold something they cannot use today.
-  proFeatureLabel('The Assistant', ASSISTANT_COMING_SOON),
+  { label: 'The Assistant', soon: ASSISTANT_COMING_SOON },
 ];
 
 export default function Plan() {
-  const { isPro, profile, isPending } = useGarage();
+  const { isPro, profile, isPending, bikes, activeBike, units } = useGarage();
+  const { analytics } = useGarageData();
   const billing = useBilling();
   const router = useRouter();
   const { c } = useTheme();
@@ -79,99 +77,109 @@ export default function Plan() {
             : null;
 
   const notice = planNotice({ pending: billing.pending, error: billing.error });
-  const noticeText = { fontFamily: fontFamily[500], fontSize: 12.5, lineHeight: 18.75, color: c.ink };
+  const trend = analytics ? mileageSparkline(analytics.mileage.intervals, units.mileage, 12) : [];
+  const otherBike = bikes.find((bike) => bike.id !== activeBike?.id) ?? null;
 
   return (
-    <Screen testID="screen-plan">
-      <ScreenHeader title="Your plan" />
+    <Screen wash testID="screen-plan" contentStyle={{ gap: 16 }}>
+      <ScreenHeader title="Your plan" icon="x" style={{ marginBottom: 0 }} />
 
       {notice ? (
         <Banner
           tone={notice.kind === 'account_mismatch' ? 'bad' : 'warn'}
-          icon={notice.kind === 'account_mismatch' ? 'alertCircle' : notice.kind === 'pending' ? 'clock' : 'alertTriangle'}
+          icon={notice.kind === 'account_mismatch' ? 'circleAlert' : notice.kind === 'pending' ? 'clock' : 'triangleAlert'}
           compact
           lead={notice.lead}
-          message={notice.message}
-          style={{ marginBottom: 12 }}
+          message={notice.retry ? `${notice.message} try again below. Your current plan is unaffected.` : notice.message}
+          {...(notice.retry ? { link: { label: 'Reload', onPress: billing.reload, testID: 'link-play-retry' } } : {})}
           testID={notice.kind === 'pending' ? 'banner-payment-pending' : 'billing-error'}
-          {...(notice.retry
-            ? {
-                action: (
-                  <>
-                    <Txt
-                      accessibilityRole="link"
-                      onPress={billing.reload}
-                      testID="link-play-retry"
-                      style={{ ...noticeText, fontFamily: fontFamily[700], color: c.acc }}
-                    >
-                      try again
-                    </Txt>
-                    <Txt style={noticeText}>. Your current plan is unaffected.</Txt>
-                  </>
-                ),
-              }
-            : {})}
         />
       ) : null}
 
-      {billing.message ? (
-        <Banner
-          variant="plain"
-          message={billing.message}
-          style={{ marginBottom: 12 }}
-          testID="billing-status"
-        />
-      ) : null}
+      {billing.message ? <Banner variant="plain" message={billing.message} testID="billing-status" /> : null}
 
       {!billingAvailable ? (
-        <Banner
-          variant="plain"
-          message="Subscribe using the Revora Android app from Google Play."
-          style={{ marginBottom: 12 }}
-          testID="banner-play-unavailable"
-        />
+        <Banner variant="plain" message="Subscribe using the Revora Android app from Google Play." testID="banner-play-unavailable" />
       ) : null}
 
-      <Card>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-          <View style={{ flexShrink: 1 }}>
-            <Eyebrow>Current plan</Eyebrow>
-            <Txt role="cardTitle" style={{ marginTop: 4 }} testID="text-current-plan">
-              {isPro ? 'Pro · every motorcycle' : 'Free · one motorcycle'}
-            </Txt>
-            {isPro && expiry !== null ? (
-              <Txt role="meta" tone="mut" style={{ marginTop: 2 }}>
-                Active until {formatLongDate(dateToIso(new Date(expiry)))}
-              </Txt>
-            ) : null}
-          </View>
-          {isPro ? <ProBadge wide /> : <Badge label="FREE" tone="neutral" size="wide" />}
+      {/* Figma `Hero`: the Pro badge, the headline, where the rider stands. */}
+      <View style={{ alignItems: 'center', paddingTop: 8, gap: 10 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            borderRadius: 999,
+            backgroundColor: c.sur,
+            borderWidth: 1,
+            borderColor: c.accBrd,
+          }}
+        >
+          <Icon name="sparkle" size={16} color={c.accText} />
+          <Txt role="smallStrong" tone="acc">
+            Revora Pro
+          </Txt>
         </View>
-      </Card>
+        <Txt role="display" align="center">
+          Every bike. Every number.
+        </Txt>
+        <Txt role="body" tone="mut" align="center" testID="text-current-plan">
+          {isPro ? 'You’re on Pro · every motorcycle' : 'You’re on Free · one motorcycle'}
+          {isPro && expiry !== null ? ` · until ${formatLongDate(dateToIso(new Date(expiry)))}` : ''}
+        </Txt>
+      </View>
 
-      {subscriptionMessage ? (
-        <Banner tone="warn" compact message={subscriptionMessage} style={{ marginTop: 12 }} testID="banner-subscription-state" />
-      ) : null}
+      {subscriptionMessage ? <Banner tone="warn" compact message={subscriptionMessage} testID="banner-subscription-state" /> : null}
 
-      <Card style={{ marginTop: 12, gap: 11 }}>
-        <Eyebrow>Pro adds</Eyebrow>
+      {/* Figma `Preview — dark accent`: what the Pro charts look like, drawn
+          from the rider's own log, and a tile per bike. */}
+      <HeroCard padding={18} gap={14} testID="card-pro-preview">
+        <HeroHead eyebrow="Consumption · 6 months" chip="PRO" chipAccent />
+        {trend.length >= 2 ? (
+          <Sparkline values={trend} height={72} color={c.heroAcc} dotFill={c.heroTo} testID="chart-pro-preview" />
+        ) : (
+          <View style={{ height: 72, justifyContent: 'center' }}>
+            <Txt role="meta" color={c.heroMut}>
+              Your consumption trend draws here once two full-tank fills measure it.
+            </Txt>
+          </View>
+        )}
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <BikeTile
+            name={activeBike?.nickname ?? 'Your bike'}
+            figure={analytics?.mileage.average ? formatMileage(analytics.mileage.average, units.mileage) : NO_VALUE}
+          />
+          <BikeTile
+            name={otherBike?.nickname ?? 'Your next bike'}
+            figure={otherBike ? 'tracked with Pro' : 'add it with Pro'}
+            muted
+          />
+        </View>
+      </HeroCard>
+
+      {/* Figma `Features`. */}
+      <Card style={{ gap: 12 }}>
+        <Txt role="cardTitle">What you get</Txt>
         {PRO_FEATURES.map((feature) => (
-          <View key={feature} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <View key={feature.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View
               style={{
-                width: 15,
-                height: 15,
-                borderRadius: 7.5,
-                backgroundColor: c.accS,
+                width: 28,
+                height: 28,
+                borderRadius: 14,
+                backgroundColor: feature.soon ? c.sur2 : c.goodS,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Icon name="check" size={9} color={c.acc} strokeWidth={3} />
+              <Icon name={feature.soon ? 'clock' : 'check'} size={16} color={feature.soon ? c.mut : c.good} />
             </View>
-            <Txt role="body" style={{ flex: 1 }}>
-              {feature}
+            <Txt role="bullet" style={{ flex: 1 }}>
+              {feature.label}
             </Txt>
+            {feature.soon ? <Badge label="Coming soon" tone="neutral" size="chip" /> : null}
           </View>
         ))}
       </Card>
@@ -181,32 +189,21 @@ export default function Plan() {
           <Banner
             tone="good"
             compact
-            message={
-              expiry === null
-                ? 'Pro is active on your account.'
-                : `Pro is active until ${formatLongDate(dateToIso(new Date(expiry)))}.`
-            }
-            style={{ marginTop: 12 }}
+            message={expiry === null ? 'Pro is active on your account.' : `Pro is active until ${formatLongDate(dateToIso(new Date(expiry)))}.`}
             testID="banner-pro-active"
           />
           {googleSubscriber ? (
-            <Button
-              label="Manage subscription"
-              variant="secondary"
-              onPress={billing.manage}
-              style={{ marginTop: 12 }}
-              testID="cta-manage-subscription"
-            />
+            <Button label="Manage subscription" variant="secondary" size="large" onPress={billing.manage} testID="cta-manage-subscription" />
           ) : null}
         </>
       ) : (
         <>
           {billing.loading ? (
-            <Txt role="meta" tone="mut" align="center" style={{ marginTop: 16 }} testID="text-prices-loading">
+            <Txt role="meta" tone="mut" align="center" testID="text-prices-loading">
               Loading Google Play plans and prices…
             </Txt>
-          ) : (
-            <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+          ) : offers.length > 0 ? (
+            <View style={{ gap: 10 }}>
               {offers.map((offer) => (
                 <OfferCard
                   key={offer.offerToken}
@@ -216,22 +213,31 @@ export default function Plan() {
                 />
               ))}
             </View>
-          )}
+          ) : null}
 
-          <Button
-            label={billing.pending ? 'Payment pending' : 'Upgrade to Pro'}
-            loading={billing.busy}
-            disabled={!billing.canPurchase || !selected || billing.loading || billing.pending || isPending}
-            style={{ marginTop: 14 }}
-            onPress={() => (selected ? billing.upgrade(selected.offerToken) : undefined)}
-            testID="cta-upgrade"
-          />
+          <View style={{ alignItems: 'center', gap: 10 }}>
+            <Button
+              label={billing.pending ? 'Payment pending' : 'Upgrade to Pro'}
+              {...(selected && !billing.pending
+                ? { subLabel: `${offerTermLabel(selected)} · ${offerHeadlinePrice(selected) ?? NO_VALUE}` }
+                : {})}
+              size="xlarge"
+              loading={billing.busy}
+              disabled={!billing.canPurchase || !selected || billing.loading || billing.pending || isPending}
+              style={{ alignSelf: 'stretch', height: 60 }}
+              onPress={() => (selected ? billing.upgrade(selected.offerToken) : undefined)}
+              testID="cta-upgrade"
+            />
+            <Txt role="helper" tone="mut" align="center">
+              Billed by Google Play. Cancel anytime in Play Store.
+            </Txt>
+          </View>
 
           {billingAvailable && !billing.canPurchase ? (
             <Button
               label="Sign in or create an account"
               variant="secondary"
-              style={{ marginTop: 10 }}
+              size="large"
               onPress={() => router.push('/settings')}
               testID="cta-sign-in-to-subscribe"
             />
@@ -239,27 +245,42 @@ export default function Plan() {
         </>
       )}
 
-      <Txt role="meta" tone="mut" align="center" style={{ marginTop: 12 }}>
-        Your plan lives on your Revora account, not this phone.
-      </Txt>
-
-      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 24, marginTop: 10 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 4 }}>
         {billing.canPurchase ? (
-          <LinkButton label="Restore purchases" size="large" onPress={billing.restore} testID="cta-restore-purchases" />
+          <>
+            <LinkButton label="Restore purchase" tone="ink" onPress={billing.restore} testID="cta-restore-purchases" />
+            <Txt role="link" color={c.brdStrong}>
+              ·
+            </Txt>
+          </>
         ) : null}
-        {billingAvailable && !isPro ? (
-          <LinkButton label="Reload prices" size="large" onPress={billing.reload} testID="cta-reload-prices" />
-        ) : null}
+        <LinkButton label="Terms & privacy" tone="ink" onPress={() => router.push('/legal/terms')} testID="link-terms" />
       </View>
-
-      <Txt role="helper" tone="mut" align="center" style={{ marginTop: 12 }}>
-        Payment is handled by Google Play. Review the price and billing terms in checkout before confirming.
-      </Txt>
     </Screen>
   );
 }
 
-/** One price tile from the board: 16px radius, 14px padding, the chosen one outlined in the accent at 1.5px. */
+/** Figma `Bike`: a `#23272C` tile with the bike's name over its mileage in green. */
+function BikeTile({ name, figure, muted = false }: { name: string; figure: string; muted?: boolean }) {
+  const { c } = useTheme();
+  return (
+    <View style={{ flex: 1, backgroundColor: c.heroTile, borderRadius: 16, padding: 12, gap: 2 }}>
+      <Txt role="mediumStrong" color={c.heroInk} numberOfLines={1}>
+        {name}
+      </Txt>
+      <Txt role="micro" color={muted ? c.heroMut : c.heroGood} numberOfLines={1}>
+        {figure}
+      </Txt>
+    </View>
+  );
+}
+
+/**
+ * Figma `Offer`: a radio card. The chosen one sits on `#FFF7F3` inside a 2px
+ * accent border with a filled radio; the others are white with a hairline.
+ * The term (`600 16px`), Google's own price ladder under it (`400 13px`),
+ * and the recurring price on the right (`700 18px`).
+ */
 function OfferCard({ offer, selected: isSelected, onPress }: { offer: PlayOffer; selected: boolean; onPress: () => void }) {
   const { c, radius } = useTheme();
   const term = offerTermLabel(offer);
@@ -273,26 +294,38 @@ function OfferCard({ offer, selected: isSelected, onPress }: { offer: PlayOffer;
       onPress={onPress}
       testID={`offer-${offer.basePlanId}`}
       style={({ pressed }) => ({
-        flex: 1,
-        minHeight: 44,
-        borderRadius: radius.listCard,
-        backgroundColor: c.sur,
-        borderWidth: isSelected ? 1.5 : 1,
-        borderColor: isSelected ? c.acc : c.brd,
-        padding: 14,
+        flexDirection: 'row',
         alignItems: 'center',
+        gap: 12,
+        padding: 16,
+        borderRadius: radius.smallCard,
+        backgroundColor: isSelected ? c.accSel : c.sur,
+        borderWidth: isSelected ? 2 : 1,
+        borderColor: isSelected ? c.acc : c.brd,
         opacity: pressed ? 0.75 : 1,
       })}
     >
-      <Txt role="linkLarge" align="center">
-        {term}
-      </Txt>
-      <Txt role="cardTitle" align="center" style={{ marginTop: 4 }}>
-        {price ?? NO_VALUE}
-      </Txt>
-      <Txt role="micro" tone="mut" align="center" style={{ marginTop: 2 }}>
-        {offerHasIntroductoryPhase(offer) ? offerPrice(offer) : 'from Google Play'}
-      </Txt>
+      <View
+        style={{
+          width: 24,
+          height: 24,
+          borderRadius: 12,
+          backgroundColor: isSelected ? c.acc : 'transparent',
+          borderWidth: isSelected ? 0 : 2,
+          borderColor: c.brdStrong,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {isSelected ? <Icon name="check" size={14} color="#FFFFFF" strokeWidth={2.5} /> : null}
+      </View>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Txt role="cardTitle">{term}</Txt>
+        <Txt role="bodySmall" tone="mut" numberOfLines={2}>
+          {offerPrice(offer)}
+        </Txt>
+      </View>
+      <Txt style={{ fontFamily: fontFamily[700], fontSize: 18, lineHeight: 23, color: c.ink }}>{price ?? NO_VALUE}</Txt>
     </Pressable>
   );
 }

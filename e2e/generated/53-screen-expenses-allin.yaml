@@ -17,16 +17,15 @@ appId: app.revora.android.dev
     id: "tab-expenses"
 - assertVisible:
     id: "screen-expenses"
-- assertVisible:
-    id: "hint-cost-basis"
-- assertVisible: ".*All-in includes the purchase price.*"
+# The first tile is relabelled for the basis.
+- assertVisible: "All-in"
 # --- put it back ---
 - tapOn:
     id: "tab-dashboard"
 - tapOn:
-    id: "cta-overflow"
+    id: "tab-more"
 - tapOn:
-    id: "overflow-settings"
+    id: "row-settings"
 - scrollUntilVisible:
     element:
       id: "row-cost-basis"

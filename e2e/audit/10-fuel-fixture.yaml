@@ -109,7 +109,9 @@ appId: app.revora.android.dev
 - assertVisible: "36.4"
 - assertNotVisible: "39.0"
 
-# "How is this calculated?" shows the real arithmetic.
+# "How it's calculated" on the Fuel hero shows the real arithmetic.
+- tapOn:
+    id: "tab-fuel"
 - tapOn:
     id: "link-explain"
 - assertVisible:

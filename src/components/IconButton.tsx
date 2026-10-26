@@ -3,16 +3,18 @@ import { Pressable, View } from 'react-native';
 
 import { HIT_SIZE, useTheme } from '@/theme';
 import { Icon, type IconName } from './Icon';
-import { Txt } from './Text';
 
 /**
- * The 44×44 rounded square in the tab header (Dashboard board, top band):
- * `border-radius:14px; background:var(--sur); border:1px solid var(--brd)`,
- * a 19px glyph at stroke 1.8, and for the bell a red count badge pinned
- * `top:-4px; right:-4px; min-width:18px; height:18px; border-radius:9px;
- * background:var(--bad); font:700 10.5px; color:#fff; padding:0 4px`.
+ * The 48px round button in every top bar (Figma `Bell button`, `Back`,
+ * `Close`, `Scan`): `border-radius:24px; background:#FFFFFF; border:1px solid
+ * #E9EBEF`, a 20px glyph. An unread count shows as the design's 10px red dot
+ * (`#D92D20` ringed in 2px of the button colour, `left:25px; top:10px`); the
+ * number itself goes into the accessibility label.
  *
- * `plain` is the same target without chrome — the back chevron's 44px area.
+ * `plain` is the same target without chrome; `inset` sits on the `#F1F2F5`
+ * surface with no border (the month switcher's arrows); `primary` is the
+ * accent-filled "+" on list screens. `size` 56 is the Dashboard's icon-only
+ * quick actions.
  */
 export function IconSquareButton({
   icon,
@@ -21,21 +23,25 @@ export function IconSquareButton({
   count = 0,
   variant = 'default',
   color,
+  size = HIT_SIZE,
   disabled = false,
   testID,
 }: {
   icon: IconName;
   onPress: () => void;
   accessibilityLabel: string;
-  /** Shown as the red badge when > 0; part of the accessibility label too. */
+  /** Shows the red dot when > 0; read out in the accessibility label. */
   count?: number;
-  variant?: 'default' | 'plain';
+  variant?: 'default' | 'plain' | 'inset' | 'primary';
   color?: string;
+  size?: number;
   disabled?: boolean;
   testID?: string;
 }) {
-  const { c, radius } = useTheme();
+  const { c } = useTheme();
   const plain = variant === 'plain';
+  const inset = variant === 'inset';
+  const primary = variant === 'primary';
   const label = count > 0 ? `${accessibilityLabel}, ${count} unread` : accessibilityLabel;
 
   return (
@@ -47,38 +53,33 @@ export function IconSquareButton({
       onPress={onPress}
       testID={testID}
       style={({ pressed }) => ({
-        width: HIT_SIZE,
-        height: HIT_SIZE,
-        borderRadius: radius.pill,
-        borderWidth: plain ? 0 : 1,
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        borderWidth: plain || inset || primary ? 0 : 1,
         borderColor: c.brd,
-        backgroundColor: plain ? 'transparent' : c.sur,
+        backgroundColor: plain ? 'transparent' : inset ? c.sur2 : primary ? c.acc : c.sur,
         alignItems: 'center',
         justifyContent: 'center',
         opacity: pressed ? 0.7 : disabled ? 0.5 : 1,
       })}
     >
-      <Icon name={icon} size={plain ? 22 : 19} color={color ?? c.ink} strokeWidth={plain ? 2.2 : 1.8} />
+      <Icon name={icon} size={20} color={color ?? (primary ? '#FFFFFF' : c.ink)} />
       {count > 0 ? (
         <View
           pointerEvents="none"
           style={{
             position: 'absolute',
-            top: -4,
-            right: -4,
-            minWidth: 18,
-            height: 18,
-            borderRadius: 9,
-            backgroundColor: c.bad,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingHorizontal: 4,
+            top: Math.round(size * 0.21),
+            left: size / 2 + 1,
+            width: 10,
+            height: 10,
+            borderRadius: 5,
+            backgroundColor: c.badIcon,
+            borderWidth: 2,
+            borderColor: plain ? c.bg : c.sur,
           }}
-        >
-          <Txt role="badge" color="#FFFFFF" numberOfLines={1}>
-            {count > 99 ? '99+' : String(count)}
-          </Txt>
-        </View>
+        />
       ) : null}
     </Pressable>
   );

@@ -1,0 +1,95 @@
+[R5 Records — Safety checks] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: linear-gradient(180deg, #FFE6DA 0%, #F8F3F1 30%, #F5F6F8 100%); border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left)
+[Safety] font-weight: 600; font-size: 16px; color: #14171B
+[Add] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #14171B; border-radius: 24px
+  (icon plus-white)
+[Hero — dark accent] display: flex; flex-direction: column; align-items: flex-start; padding: 20px; gap: 14px; width: 358px; height: 189px; background: linear-gradient(135deg, #1E2227 0%, #101214 71.43%); border-radius: 28px; align-self: stretch
+[Head] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 318px; height: 23px; align-self: stretch
+[READY TO RIDE?] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #9AA1AA
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 4px 10px; width: 142px; height: 23px; background: #262A30; border-radius: 999px
+[Checked 2 days ago] font-weight: 600; font-size: 12px; color: #C9CED4
+[Big] display: flex; flex-direction: row; align-items: baseline; padding: 0px; gap: 8px; width: 318px; height: 60px; align-self: stretch
+[3/5] font-weight: 700; font-size: 48px; color: #FFFFFF
+[areas good] font-weight: 500; font-size: 16px; color: #9AA1AA
+[Segments] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 6px; width: 318px; height: 8px; align-self: stretch
+[s] width: 58.8px; height: 8px; background: #4CC38A; border-radius: 4px; flex-grow: 1
+[s] width: 58.8px; height: 8px; background: #4CC38A; border-radius: 4px; flex-grow: 1
+[s] width: 58.8px; height: 8px; background: #F5C26B; border-radius: 4px; flex-grow: 1
+[s] width: 58.8px; height: 8px; background: #4CC38A; border-radius: 4px; flex-grow: 1
+[s] width: 58.8px; height: 8px; background: #FF6B3D; border-radius: 4px; flex-grow: 1
+[Brakes need a look, and the rear indicator is out.] font-weight: 400; font-size: 13px; color: #C9CED4; align-self: stretch
+[CURRENT — LATEST CHECK PER AREA] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Areas card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; width: 358px; height: 340px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row] display: flex; flex-direction: row; align-items: center; padding: 4px 0px 12px; gap: 12px; width: 326px; height: 56px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E5F6EE; border-radius: 12px
+  (icon tyre-good)
+[tyre] width: 20px; height: 20px
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 212px; height: 35px; flex-grow: 1
+[Tyres] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[29 / 33 psi · 24 Oct] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 50px; height: 21px; background: #E5F6EE; border-radius: 999px
+[Good] font-weight: 600; font-size: 12px; color: #0B7F4E
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E5F6EE; border-radius: 12px
+  (icon link-good)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 212px; height: 35px; flex-grow: 1
+[Chain] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Clean and lubed · 24 Oct] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 50px; height: 21px; background: #E5F6EE; border-radius: 999px
+[Good] font-weight: 600; font-size: 12px; color: #0B7F4E
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBF0DA; border-radius: 12px
+  (icon disc-warn)
+[disc-3] width: 20px; height: 20px
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 207px; height: 35px; flex-grow: 1
+[Brakes] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Front lever spongy · 24 Oct] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 55px; height: 21px; background: #FBF0DA; border-radius: 999px
+[Watch] font-weight: 600; font-size: 12px; color: #93611A
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E5F6EE; border-radius: 12px
+  (icon battery-good)
+[battery] width: 20px; height: 20px
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 212px; height: 35px; flex-grow: 1
+[Battery] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Starts first try · 13 Oct] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 50px; height: 21px; background: #E5F6EE; border-radius: 999px
+[Good] font-weight: 600; font-size: 12px; color: #0B7F4E
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px 4px; gap: 12px; width: 326px; height: 57px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBE9E7; border-radius: 12px
+  (icon bulb-bad)
+[lightbulb] width: 20px; height: 20px
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 222px; height: 35px; flex-grow: 1
+[Lights] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Rear left indicator out · 24 Oct] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 40px; height: 21px; background: #FBE9E7; border-radius: 999px
+[Bad] font-weight: 600; font-size: 12px; color: #B42318
+[HISTORY] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[History card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; width: 358px; height: 161px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row] display: flex; flex-direction: row; align-items: center; padding: 4px 0px 12px; gap: 12px; width: 326px; height: 64px; align-self: stretch
+[Date] display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0px; width: 44px; height: 48px; background: #F1F2F5; border-radius: 12px
+[24] font-weight: 700; font-size: 16px; color: #14171B
+[OCT] font-weight: 600; font-size: 12px; color: #6B727C
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 226px; height: 35px; flex-grow: 1
+[Walk-around check] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Chain clean, brake pads · 4 areas] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Dots] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 4px; width: 32px; height: 8px
+[d] width: 8px; height: 8px; background: #0B7F4E
+[d] width: 8px; height: 8px; background: #B7791F
+[d] width: 8px; height: 8px; background: #D92D20
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px 4px; gap: 12px; width: 326px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Date] display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0px; width: 44px; height: 48px; background: #F1F2F5; border-radius: 12px
+[13] font-weight: 700; font-size: 16px; color: #14171B
+[OCT] font-weight: 600; font-size: 12px; color: #6B727C
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 238px; height: 35px; flex-grow: 1
+[Condition check] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Battery, tyres · all good] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Dots] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 4px; width: 20px; height: 8px
+[d] width: 8px; height: 8px; background: #0B7F4E
+[d] width: 8px; height: 8px; background: #0B7F4E
+[New check — primary] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+  (icon clipboard-white)
+[clipboard-check] width: 20px; height: 20px
+[New check] font-weight: 600; font-size: 16px; color: #FFFFFF

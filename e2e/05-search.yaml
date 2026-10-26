@@ -4,7 +4,7 @@ appId: app.revora.android.dev
 - launchApp:
     clearState: false
 - tapOn:
-    id: "tab-dashboard"
+    id: "tab-more"
 - tapOn:
     id: "cta-search"
 - assertVisible:

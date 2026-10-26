@@ -1,0 +1,87 @@
+[E2 More — Settings] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left-ink)
+[Settings] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer] width: 48px; height: 48px
+[Section · Units] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 393px; align-self: stretch
+[Eyebrow] display: flex; flex-direction: row; align-items: flex-start; padding: 0px 0px 0px 4px; width: 358px; height: 15px; align-self: stretch
+[UNITS] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C
+[Card · Units] display: flex; flex-direction: column; align-items: flex-start; padding: 4px 12px 4px 16px; width: 358px; height: 332px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row · Distance] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 8px 0px; width: 330px; height: 64px; align-self: stretch
+[Distance] font-weight: 600; font-size: 15px; color: #14171B
+[Segmented] display: flex; flex-direction: row; align-items: flex-start; padding: 4px; gap: 2px; width: 113px; height: 48px; background: #F1F2F5; border-radius: 999px
+[Seg active] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; width: 54px; height: 40px; background: #14171B; border-radius: 999px
+[km] font-weight: 600; font-size: 14px; color: #FFFFFF
+[Seg] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; width: 49px; height: 40px; border-radius: 999px
+[mi] font-weight: 500; font-size: 14px; color: #6B727C
+[Row · Mileage] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 8px 0px; width: 330px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Mileage] font-weight: 600; font-size: 15px; color: #14171B
+[Segmented] display: flex; flex-direction: row; align-items: flex-start; padding: 4px; gap: 2px; width: 210px; height: 48px; background: #F1F2F5; border-radius: 999px
+[Seg active] display: flex; flex-direction: row; align-items: center; padding: 0px 12px; width: 59px; height: 40px; background: #14171B; border-radius: 999px
+[km/L] font-weight: 600; font-size: 14px; color: #FFFFFF
+[Seg] display: flex; flex-direction: row; align-items: center; padding: 0px 12px; width: 83px; height: 40px; border-radius: 999px
+[L/100km] font-weight: 500; font-size: 14px; color: #6B727C
+[Seg] display: flex; flex-direction: row; align-items: center; padding: 0px 12px; width: 56px; height: 40px; border-radius: 999px
+[mpg] font-weight: 500; font-size: 14px; color: #6B727C
+[Row · Currency] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 8px 0px; width: 330px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Currency] font-weight: 600; font-size: 15px; color: #14171B
+[Value pill] display: flex; flex-direction: row; align-items: center; padding: 0px 12px 0px 16px; gap: 6px; width: 95px; height: 48px; background: #F1F2F5; border-radius: 999px
+[BDT ৳] font-weight: 600; font-size: 14px; color: #14171B
+  (icon chevron-down-mut)
+[Row · Cost basis] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 8px 0px; width: 330px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Cost basis] font-weight: 600; font-size: 15px; color: #14171B
+[Segmented] display: flex; flex-direction: row; align-items: flex-start; padding: 4px; gap: 2px; width: 159px; height: 48px; background: #F1F2F5; border-radius: 999px
+[Seg active] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 86px; height: 40px; background: #14171B; border-radius: 999px
+[Running] font-weight: 600; font-size: 14px; color: #FFFFFF
+[Seg] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 63px; height: 40px; border-radius: 999px
+[All-in] font-weight: 500; font-size: 14px; color: #6B727C
+[Row · Fuel volume] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 8px 0px; width: 330px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Fuel volume] font-weight: 600; font-size: 15px; color: #14171B
+[Value pill] display: flex; flex-direction: row; align-items: center; padding: 0px 12px 0px 16px; gap: 6px; width: 94px; height: 48px; background: #F1F2F5; border-radius: 999px
+[Litres] font-weight: 600; font-size: 14px; color: #14171B
+  (icon chevron-down-mut)
+[Footnote] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; width: 358px; height: 30px; align-self: stretch
+[All-in adds the purchase price to every total. Unit changes apply everywhere instantly.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Section · Appearance] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 77px; align-self: stretch
+[Eyebrow] display: flex; flex-direction: row; align-items: flex-start; padding: 0px 0px 0px 4px; width: 358px; height: 15px; align-self: stretch
+[APPEARANCE] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C
+[Segmented · Theme] display: flex; flex-direction: row; align-items: flex-start; padding: 4px; gap: 4px; width: 358px; height: 54px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; align-self: stretch
+[Seg] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 6px; width: 113.33px; height: 44px; border-radius: 999px; flex-grow: 1
+  (icon sun-mut)
+[Light] font-weight: 500; font-size: 14px; color: #6B727C
+[Seg] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 6px; width: 113.33px; height: 44px; border-radius: 999px; flex-grow: 1
+  (icon moon-mut)
+[Dark] font-weight: 500; font-size: 14px; color: #6B727C
+[Seg active] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 6px; width: 113.33px; height: 44px; background: #14171B; border-radius: 999px; flex-grow: 1
+  (icon smartphone-white)
+[smartphone] width: 20px; height: 20px
+[System] font-weight: 600; font-size: 14px; color: #FFFFFF
+[Section · Data & account] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 301px; align-self: stretch
+[Eyebrow] display: flex; flex-direction: row; align-items: flex-start; padding: 0px 0px 0px 4px; width: 358px; height: 15px; align-self: stretch
+[DATA & ACCOUNT] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C
+[Card · Data & account] display: flex; flex-direction: column; align-items: flex-start; padding: 4px 16px; width: 358px; height: 278px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row · Export my data] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 64px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon file-acc)
+[Export my data] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+  (icon chevron-right-mut)
+[Row · Display name] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon user-ink)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 242px; height: 36px; flex-grow: 1
+[Display name] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Rider] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+  (icon chevron-right-mut)
+[Row · Sign out] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon lock-ink)
+[Sign out] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+  (icon chevron-right-mut)
+[Row · Delete account] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 76px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBE9E7; border-radius: 12px
+  (icon trash-bad)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 242px; height: 51px; flex-grow: 1
+[Delete account] font-weight: 700; font-size: 15px; color: #B42318; align-self: stretch
+[Irreversible — the dialog lists exactly what goes] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+  (icon chevron-right-bad)

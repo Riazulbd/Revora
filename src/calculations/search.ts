@@ -1,4 +1,15 @@
-import type { Accessory, FuelEntry, Part, ServiceItem, ServiceRecord, VaultDocument } from '@/types';
+import type {
+  Accessory,
+  DistanceUnit,
+  FuelEntry,
+  Part,
+  ServiceItem,
+  ServiceRecord,
+  VaultDocument,
+  VolumeUnit,
+} from '@/types';
+import { formatDistance, formatVolume } from '@/utils/format';
+import { formatShortDate } from '@/utils/date';
 import { describeProduct } from './products';
 
 /**
@@ -100,6 +111,7 @@ export function searchRecords(
     documents: readonly VaultDocument[];
   },
   limitPerGroup = 6,
+  units: { distance: DistanceUnit; volume: VolumeUnit } = { distance: 'km', volume: 'L' },
 ): SearchGroup[] {
   const terms = normalise(query).split(' ').filter((t) => t !== '');
   if (terms.length === 0) return [];
@@ -113,7 +125,14 @@ export function searchRecords(
       id: `service:${service.id}`,
       kind: 'service',
       title: service.title,
-      detail: `${service.date} · ${service.selfService ? 'self-service' : (service.workshop ?? 'workshop')}`,
+      // Figma: `Rahim Motors · 9 Sep · 34,520 km`.
+      detail: [
+        service.selfService ? 'Self-service' : (service.workshop ?? 'Workshop'),
+        formatShortDate(service.date),
+        service.odometerMetres === null ? null : formatDistance(service.odometerMetres, units.distance),
+      ]
+        .filter((piece): piece is string => piece !== null)
+        .join(' · '),
       amountMinor: service.totalCostMinor,
       route: '/services',
       matched: hit,
@@ -157,8 +176,9 @@ export function searchRecords(
       id: `part:${part.id}`,
       kind: 'part',
       title: part.name,
-      detail: part.installedDate,
-      amountMinor: part.costMinor,
+      // Figma: `Fitted 9 Sep · inside that service's total`.
+      detail: `Fitted ${formatShortDate(part.installedDate)}${part.linkedServiceId === null ? '' : ' · inside that service’s total'}`,
+      amountMinor: part.linkedServiceId === null ? part.costMinor : null,
       route: '/parts/[id]',
       params: { id: part.id },
       matched: hit,
@@ -172,7 +192,10 @@ export function searchRecords(
       id: `fuel:${entry.id}`,
       kind: 'fuel',
       title: entry.station ?? 'Fuel log',
-      detail: entry.date,
+      // Figma: `13 Sep · 8.2 L · Full tank`.
+      detail: `${formatShortDate(entry.date)} · ${formatVolume(entry.litresMl, units.volume)} · ${
+        entry.fillType === 'full' ? 'Full tank' : entry.fillType === 'partial' ? 'Partial fill' : 'Fill'
+      }`,
       amountMinor: entry.totalCostMinor,
       route: '/fuel/[id]',
       params: { id: entry.id },
@@ -187,7 +210,7 @@ export function searchRecords(
       id: `accessory:${accessory.id}`,
       kind: 'accessory',
       title: accessory.name,
-      detail: accessory.date,
+      detail: `Fitted ${formatShortDate(accessory.date)}`,
       amountMinor: accessory.purchaseCostMinor + accessory.installationCostMinor,
       route: '/accessories',
       matched: hit,

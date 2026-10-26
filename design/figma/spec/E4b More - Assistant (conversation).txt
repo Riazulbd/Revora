@@ -1,0 +1,34 @@
+[E4b More — Assistant (conversation)] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 14px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left-ink)
+[Title] display: flex; flex-direction: column; align-items: center; padding: 0px; gap: 2px; width: 163px; height: 37px
+[Assistant] font-weight: 600; font-size: 16px; color: #14171B
+[98 questions left this month] font-weight: 400; font-size: 12px; color: #6B727C
+[Spacer] width: 48px; height: 48px
+[Coming soon banner] display: flex; flex-direction: row; align-items: center; padding: 12px 14px; gap: 10px; width: 358px; height: 69px; background: #F1F2F5; border-radius: 16px; align-self: stretch
+  (icon sparkles-acc)
+[The full Assistant is coming soon. Until then this answers from the figures Revora has already worked out, on your phone.] font-weight: 400; font-size: 12px; color: #6B727C; flex-grow: 1
+[Msg · user] display: flex; flex-direction: row; justify-content: flex-end; align-items: flex-start; padding: 0px; width: 358px; height: 38px; align-self: stretch
+[Bubble user] display: flex; flex-direction: row; align-items: flex-start; padding: 10px 14px; width: 230px; height: 38px; background: #14171B; border-radius: 20px 20px 6px 20px
+[When is the next service due?] font-weight: 500; font-size: 14px; color: #FFFFFF
+[Msg · assistant] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; width: 358px; height: 166px; align-self: stretch
+[Bubble assistant] display: flex; flex-direction: column; align-items: flex-start; padding: 14px; gap: 10px; width: 304px; height: 166px; background: #FFFFFF; border-radius: 20px 20px 20px 6px
+[Engine oil is overdue — it was due at 34,402 km and The Red One is on 34,712 km. Brake pads come next, in about 1,300 km.] font-weight: 400; font-size: 14px; color: #14171B; align-self: stretch
+[Source] display: flex; flex-direction: row; align-items: flex-start; padding: 10px 0px 0px; gap: 6px; width: 276px; height: 56px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon info-mut)
+[Figures come from the same calculations as your Dashboard — 12 measured intervals.] font-weight: 400; font-size: 12px; color: #6B727C; flex-grow: 1
+[Msg · user] display: flex; flex-direction: row; justify-content: flex-end; align-items: flex-start; padding: 0px; width: 358px; height: 38px; align-self: stretch
+[Bubble user] display: flex; flex-direction: row; align-items: flex-start; padding: 10px 14px; width: 272px; height: 38px; background: #14171B; border-radius: 20px 20px 6px 20px
+[What does my bike cost per month?] font-weight: 500; font-size: 14px; color: #FFFFFF
+[Msg · assistant] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; width: 358px; height: 148px; align-self: stretch
+[Bubble assistant] display: flex; flex-direction: column; align-items: flex-start; padding: 14px; gap: 10px; width: 304px; height: 148px; background: #FFFFFF; border-radius: 20px 20px 20px 6px
+[Over the last 6 months The Red One cost ৳2,840 a month — ৳1,960 fuel and ৳880 service and parts. That is ৳4.12 per km.] font-weight: 400; font-size: 14px; color: #14171B; align-self: stretch
+[Source] display: flex; flex-direction: row; align-items: flex-start; padding: 10px 0px 0px; gap: 6px; width: 276px; height: 56px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon info-mut)
+[Figures come from the same calculations as your Dashboard — 12 measured intervals.] font-weight: 400; font-size: 12px; color: #6B727C; flex-grow: 1
+[Flex spacer] width: 358px; height: 71.29px; align-self: stretch; flex-grow: 1
+[Composer] display: flex; flex-direction: row; align-items: center; padding: 0px 6px 0px 20px; gap: 8px; width: 358px; height: 60px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; align-self: stretch
+[Ask about your bike…] font-weight: 400; font-size: 15px; color: #878E98; flex-grow: 1
+[Send] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #D2400F; border-radius: 24px
+  (icon arrow-up-white)

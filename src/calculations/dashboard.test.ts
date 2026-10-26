@@ -10,9 +10,13 @@ import {
   lastRideMetres,
   maintenanceDueLine,
   maintenanceHighlights,
+  mileageChange,
+  mileageSparkline,
+  monthOverMonth,
   odometerUpdatedLine,
   weekdayDate,
 } from './dashboard';
+import type { MileageInterval } from './mileage';
 
 const TODAY = '2026-09-16';
 
@@ -224,5 +228,68 @@ describe('activityDetail', () => {
     expect(
       activityDetail({ source: 'fuel', sourceId: 'gone', date: '2026-09-08' }, context, 'km'),
     ).toBe('8 Sep');
+  });
+});
+
+const interval = (kmPerLitre: number): MileageInterval =>
+  ({ efficiency: { metresPerMl: kmPerLitre } }) as unknown as MileageInterval;
+
+describe('mileageChange', () => {
+  it('compares the latest interval with the one before it', () => {
+    const change = mileageChange([interval(38), interval(39.8), interval(41.2)], 'km_per_l');
+    expect(change?.better).toBe(true);
+    expect(change?.delta).toBeCloseTo(1.4, 5);
+  });
+
+  it('is null until two intervals exist', () => {
+    expect(mileageChange([], 'km_per_l')).toBeNull();
+    expect(mileageChange([interval(40)], 'km_per_l')).toBeNull();
+  });
+
+  it('treats fewer litres per 100 km as better', () => {
+    expect(mileageChange([interval(40), interval(42)], 'l_per_100km')?.better).toBe(true);
+    expect(mileageChange([interval(42), interval(40)], 'l_per_100km')?.better).toBe(false);
+  });
+
+  it('is null for a change too small to print', () => {
+    expect(mileageChange([interval(40), interval(40.01)], 'km_per_l')).toBeNull();
+  });
+});
+
+describe('mileageSparkline', () => {
+  it('keeps the most recent intervals, oldest first, in the display unit', () => {
+    const points = mileageSparkline([interval(30), interval(35), interval(40)], 'km_per_l', 2);
+    expect(points).toHaveLength(2);
+    expect(points[0]).toBeCloseTo(35, 5);
+    expect(points[1]).toBeCloseTo(40, 5);
+  });
+});
+
+describe('monthOverMonth', () => {
+  it('reports the change against last month', () => {
+    expect(
+      monthOverMonth([
+        { key: '2026-08', totalMinor: 310_000 },
+        { key: '2026-09', totalMinor: 284_000 },
+      ]),
+    ).toEqual({ percent: 8, lower: true, previousKey: '2026-08' });
+  });
+
+  it('is null when last month had no spend', () => {
+    expect(
+      monthOverMonth([
+        { key: '2026-08', totalMinor: 0 },
+        { key: '2026-09', totalMinor: 284_000 },
+      ]),
+    ).toBeNull();
+  });
+
+  it('is null when nothing changed', () => {
+    expect(
+      monthOverMonth([
+        { key: '2026-08', totalMinor: 1000 },
+        { key: '2026-09', totalMinor: 1000 },
+      ]),
+    ).toBeNull();
   });
 });

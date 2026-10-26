@@ -2,14 +2,7 @@ import type { BikeAnalytics } from '@/calculations/analytics';
 import { RELIABLE_INTERVALS_REQUIRED } from '@/calculations/mileage';
 import { averageMonthlyDistanceMetres } from '@/calculations/odometer';
 import { formatLongDate, formatMonthLong, monthKey } from '@/utils/date';
-import {
-  formatCurrency,
-  formatDistance,
-  formatMileage,
-  formatPricePerVolume,
-  formatRate,
-  formatVolume,
-} from '@/utils/format';
+import { formatCurrencySymbol, formatDistance, formatMileage, formatPricePerVolumeSymbol, formatRateSymbol, formatVolume } from '@/utils/format';
 
 /**
  * The assistant.
@@ -121,7 +114,7 @@ const INTENTS: Intent[] = [
     answer: (a) => {
       const month = formatMonthLong(monthKey(a.today));
       if (a.thisMonthMinor === 0) return `Nothing logged for ${month} yet.`;
-      return `You have spent ${formatCurrency(a.thisMonthMinor, a.currency)} in ${month}, of which ${formatCurrency(a.fuel.thisMonthSpendMinor, a.currency)} was fuel across ${a.fuel.thisMonthFills} fill${a.fuel.thisMonthFills === 1 ? '' : 's'}.`;
+      return `You have spent ${formatCurrencySymbol(a.thisMonthMinor, a.currency)} in ${month}, of which ${formatCurrencySymbol(a.fuel.thisMonthSpendMinor, a.currency)} was fuel across ${a.fuel.thisMonthFills} fill${a.fuel.thisMonthFills === 1 ? '' : 's'}.`;
     },
   },
   {
@@ -130,7 +123,7 @@ const INTENTS: Intent[] = [
       if (a.ownership.costPerDistanceScaled === null) {
         return 'I need more distance before I can work out a cost per kilometre — log a couple of odometer readings and it appears.';
       }
-      return `Running cost is ${formatRate(a.ownership.costPerDistanceScaled, a.currency)} per ${a.units.distance}, from ${formatCurrency(a.ownership.runningCostMinor, a.currency)} over ${formatDistance(a.ownership.distanceMetres, a.units.distance)}. Purchase price is kept out of that figure.`;
+      return `Running cost is ${formatRateSymbol(a.ownership.costPerDistanceScaled, a.currency)} per ${a.units.distance}, from ${formatCurrencySymbol(a.ownership.runningCostMinor, a.currency)} over ${formatDistance(a.ownership.distanceMetres, a.units.distance)}. Purchase price is kept out of that figure.`;
     },
   },
   {
@@ -138,7 +131,7 @@ const INTENTS: Intent[] = [
     answer: (a) => {
       const totalMl = a.fuel.entries.reduce((sum, entry) => sum + entry.litresMl, 0);
       if (totalMl === 0) return 'No fuel logged yet.';
-      return `You have logged ${formatVolume(totalMl, a.units.volume)} across ${a.fuel.entries.length} fill${a.fuel.entries.length === 1 ? '' : 's'}, at an average of ${formatPricePerVolume(a.fuel.averagePricePerLitreMinor, a.currency)} per ${a.units.volume}.`;
+      return `You have logged ${formatVolume(totalMl, a.units.volume)} across ${a.fuel.entries.length} fill${a.fuel.entries.length === 1 ? '' : 's'}, at an average of ${formatPricePerVolumeSymbol(a.fuel.averagePricePerLitreMinor, a.currency)} per ${a.units.volume}.`;
     },
   },
   {
@@ -171,7 +164,7 @@ const INTENTS: Intent[] = [
     answer: (a) => {
       if (a.services.all.length === 0) return 'No services recorded yet.';
       const last = a.services.all[0]!;
-      return `Your last service was "${last.title}" on ${formatLongDate(last.date)}${last.selfService ? ' (self-service)' : last.workshop ? ` at ${last.workshop}` : ''}. You have spent ${formatCurrency(a.services.totalSpendMinor, a.currency)} on services in total.`;
+      return `Your last service was "${last.title}" on ${formatLongDate(last.date)}${last.selfService ? ' (self-service)' : last.workshop ? ` at ${last.workshop}` : ''}. You have spent ${formatCurrencySymbol(a.services.totalSpendMinor, a.currency)} on services in total.`;
     },
   },
 ];

@@ -1,0 +1,46 @@
+[C6 Accessories — List] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left)
+[Accessories] font-weight: 600; font-size: 16px; color: #14171B
+[Add] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #D2400F; border-radius: 24px
+  (icon plus-white)
+[Total card] display: flex; flex-direction: column; align-items: flex-start; padding: 20px; gap: 6px; width: 358px; height: 191px; background: linear-gradient(135deg, #1E2227 0%, #101214 71.43%); border-radius: 28px; align-self: stretch
+[FITTED TO THE RED ONE] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #9AA1AA; align-self: stretch
+[৳14,200] font-weight: 700; font-size: 48px; letter-spacing: -0.02em; color: #FFFFFF; align-self: stretch
+[Tiles] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 318px; height: 64px; align-self: stretch
+[Tile] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 64px; background: #23272C; border-radius: 16px; flex-grow: 1
+[ITEMS] font-weight: 600; font-size: 12px; color: #9AA1AA; align-self: stretch
+[3] font-weight: 700; font-size: 17px; color: #FFFFFF; align-self: stretch
+[Tile] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 64px; background: #23272C; border-radius: 16px; flex-grow: 1
+[PURCHASE] font-weight: 600; font-size: 12px; color: #9AA1AA; align-self: stretch
+[৳13,400] font-weight: 700; font-size: 17px; color: #FFFFFF; align-self: stretch
+[Tile] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 64px; background: #23272C; border-radius: 16px; flex-grow: 1
+[FITTING] font-weight: 600; font-size: 12px; color: #9AA1AA; align-self: stretch
+[৳800] font-weight: 700; font-size: 17px; color: #FFFFFF; align-self: stretch
+[List card] display: flex; flex-direction: column; align-items: flex-start; padding: 4px 16px; width: 358px; height: 226px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 72px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 44px; height: 44px; background: #FDEAE3; border-radius: 12px
+  (icon package-acc)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 198px; height: 36px; flex-grow: 1
+[Givi 27L tail box] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[13 Sep · ৳9,500 + ৳500 fitting] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[৳10,000] font-weight: 600; font-size: 15px; color: #14171B
+[Row] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 73px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 44px; height: 44px; background: #FDEAE3; border-radius: 12px
+  (icon shield-acc)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 206px; height: 36px; flex-grow: 1
+[Crash guard] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[28 Aug · ৳3,200 + ৳300 fitting] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[৳3,500] font-weight: 600; font-size: 15px; color: #14171B
+[Row] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 73px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 44px; height: 44px; background: #FDEAE3; border-radius: 12px
+  (icon smartphone-acc)
+[smartphone] width: 20px; height: 20px
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 220px; height: 36px; flex-grow: 1
+[Phone mount] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[2 Aug · ৳700] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[৳700] font-weight: 600; font-size: 15px; color: #14171B
+[Footnote] display: flex; flex-direction: row; align-items: flex-start; padding: 14px; gap: 12px; width: 358px; height: 110px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 18px; align-self: stretch
+  (icon info-mut)
+[Accessories stay in your totals but out of cost / km — charging a one-off against the distance since would make that figure swing. Converted parts keep the whole amount as purchase cost; no split is invented.] font-weight: 400; font-size: 13px; color: #6B727C; flex-grow: 1

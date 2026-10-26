@@ -166,6 +166,7 @@ export function buildLedger(input: LedgerInput): LedgerEntry[] {
       sourceId: e.id,
       source: e.linkedRuleId === null ? 'manual' : 'maintenance',
       label: e.note && e.note.trim() !== '' ? e.note : expenseCategoryLabel(e.category),
+      ...(e.linkedRuleId === null ? { category: e.category } : {}),
       date: e.date,
       amountMinor: e.amountMinor,
       currency: e.currency ?? input.currency,

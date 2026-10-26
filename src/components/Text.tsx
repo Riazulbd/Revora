@@ -7,7 +7,7 @@ export type TxtProps = Omit<RNTextProps, 'role'> & {
   /** A named role from the design's type scale. */
   role?: TypeRole;
   /** A colour token name, or an explicit colour. */
-  tone?: 'ink' | 'mut' | 'acc' | 'good' | 'warn' | 'bad' | 'inverse';
+  tone?: 'ink' | 'mut' | 'faint' | 'acc' | 'good' | 'warn' | 'bad' | 'inverse';
   color?: string;
   align?: 'left' | 'center' | 'right';
   uppercase?: boolean;
@@ -39,15 +39,17 @@ export function Txt({
       ? c.bg
       : tone === 'mut'
         ? c.mut
-        : tone === 'acc'
-          ? c.acc
-          : tone === 'good'
-            ? c.good
-            : tone === 'warn'
-              ? c.warn
-              : tone === 'bad'
-                ? c.bad
-                : c.ink);
+        : tone === 'faint'
+          ? c.faint
+          : tone === 'acc'
+            ? c.accText
+            : tone === 'good'
+              ? c.good
+              : tone === 'warn'
+                ? c.warn
+                : tone === 'bad'
+                  ? c.bad
+                  : c.ink);
 
   return (
     <RNText

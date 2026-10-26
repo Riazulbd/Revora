@@ -1,0 +1,41 @@
+[A2 Auth — Sign in] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left)
+[Sign in] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer 48] width: 48px; height: 48px
+[Intro] display: flex; flex-direction: column; align-items: flex-start; padding: 8px 0px 0px; gap: 8px; width: 358px; height: 87px; align-self: stretch
+[Welcome back] font-weight: 700; font-size: 28px; letter-spacing: -0.01em; color: #14171B; align-self: stretch
+[Your logbook lives on your account, not this phone. Sign in and it comes back — even on a new phone.] font-weight: 400; font-size: 14px; color: #6B727C; align-self: stretch
+[Fields card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 16px; width: 358px; height: 240px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Field — Email] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 69px; align-self: stretch
+[Email] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Input] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 326px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[rahim.hossain@gmail.com] font-weight: 400; font-size: 15px; color: #14171B; flex-grow: 1
+[Field — Password] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 123px; align-self: stretch
+[Password] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Input] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 326px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[••••••••••] font-weight: 400; font-size: 15px; color: #14171B; flex-grow: 1
+[Show password] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px
+  (icon eye)
+[Forgot row] display: flex; flex-direction: row; justify-content: flex-end; align-items: center; padding: 0px; width: 326px; height: 48px; align-self: stretch
+[Forgot password?] font-weight: 600; font-size: 14px; color: #C93D0E
+[Sign in — primary] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+[Sign in] font-weight: 600; font-size: 16px; color: #FFFFFF
+[Or divider] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 358px; height: 15px; align-self: stretch
+[Rule] width: 160.5px; height: 1px; background: #E9EBEF; flex-grow: 1
+[or] font-weight: 500; font-size: 12px; color: #6B727C
+[Rule] width: 160.5px; height: 1px; background: #E9EBEF; flex-grow: 1
+[Google — secondary] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 10px; width: 358px; height: 56px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; align-self: stretch
+  (icon google)
+[google] width: 20px; height: 20px
+[Continue with Google] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer] width: 358px; height: 48px; align-self: stretch
+[Footer] display: flex; flex-direction: column; align-items: center; padding: 0px; width: 358px; height: 96px; align-self: stretch
+[Continue offline] display: flex; flex-direction: row; align-items: center; padding: 0px 12px; gap: 8px; width: 259px; height: 48px
+  (icon cloud-off)
+[cloud-off] width: 20px; height: 20px
+[Continue offline — no account] font-weight: 500; font-size: 14px; color: #6B727C
+[Switch line] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 4px; width: 217px; height: 48px
+[New to Revora?] font-weight: 400; font-size: 14px; color: #6B727C
+[Create account] font-weight: 700; font-size: 14px; color: #C93D0E

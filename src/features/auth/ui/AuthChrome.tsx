@@ -25,10 +25,9 @@ export function AuthOrDivider({ style }: { style?: ViewStyle }) {
 }
 
 /**
- * The line at the foot of Sign in and Create account — "New to Revora?
- * **Create account**": `500 13px` muted, centred, with a `700` accent word that
- * is the control. The whole 44px row is the target, not just the glyph-height
- * text, so the extra height is pulled back with a negative margin.
+ * The line at the foot of Sign in and Create account (Figma `Switch line`) —
+ * "New to Revora? **Create account**": `400 14px` muted, centred, with a
+ * `700` accent word that is the control. The whole 48px row is the target.
  */
 export function AuthSwitchLine({
   prompt,
@@ -52,23 +51,22 @@ export function AuthSwitchLine({
       hitSlop={HIT_SLOP}
       testID={testID}
       style={({ pressed }) => [
-        { minHeight: 44, justifyContent: 'center', opacity: pressed ? 0.6 : 1 },
+        { minHeight: 48, justifyContent: 'center', opacity: pressed ? 0.6 : 1 },
         style,
       ]}
     >
-      <Txt
-        style={{ fontFamily: fontFamily[500], fontSize: 13, color: c.mut, textAlign: 'center' }}
-      >
+      <Txt style={{ fontFamily: fontFamily[400], fontSize: 14, lineHeight: 18, color: c.mut, textAlign: 'center' }}>
         {prompt}{' '}
-        <Txt style={{ fontFamily: fontFamily[700], fontSize: 13, color: c.acc }}>{action}</Txt>
+        <Txt style={{ fontFamily: fontFamily[700], fontSize: 14, lineHeight: 18, color: c.accText }}>{action}</Txt>
       </Txt>
     </Pressable>
   );
 }
 
 /**
- * "By continuing you agree to the **Terms** and **Privacy Policy**" —
- * `500 11.5px` muted, centred, both documents accent links into `/legal`.
+ * "By continuing you agree to the **Terms** and **Privacy Policy**" (Figma
+ * `Legal`) — `400 12px` muted, centred, both documents `600` accent links
+ * into `/legal`.
  * They open in the app, not a browser: a rider reading the terms offline is
  * exactly the rider Revora is built for.
  */
@@ -84,12 +82,12 @@ export function AuthLegalLine({
   style?: ViewStyle;
 }) {
   const { c } = useAuthTheme();
-  const link = { fontFamily: fontFamily[500], fontSize: 11.5, lineHeight: 17, color: c.acc };
+  const link = { fontFamily: fontFamily[600], fontSize: 12, lineHeight: 17, color: c.accText };
 
   return (
     <Txt
       style={[
-        { fontFamily: fontFamily[500], fontSize: 11.5, lineHeight: 17, color: c.mut, textAlign: 'center' },
+        { fontFamily: fontFamily[400], fontSize: 12, lineHeight: 17, color: c.mut, textAlign: 'center' },
         style,
       ]}
     >

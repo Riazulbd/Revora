@@ -5,6 +5,9 @@ import {
   adjustmentReasonPhrase,
   buildFuelLog,
   filterFuelLog,
+  filterFuelLogByRange,
+  fuelRangeStart,
+  fuelRangeSummary,
 } from './fuellog';
 
 const fill = (
@@ -118,5 +121,42 @@ describe('adjustment labels', () => {
 
   it('falls back to the reason when the note is blank', () => {
     expect(adjustmentReasonLabel(adjustment('a1', '2026-09-02', '   '))).toBe('Other');
+  });
+});
+
+const closedInterval = (date: IsoDate, distanceMetres: number, fuelMl: number): MileageInterval =>
+  ({ date, distanceMetres, fuelMl, toEntryId: `to:${date}` }) as unknown as MileageInterval;
+
+describe('fuel ranges', () => {
+  const TODAY = '2026-09-16';
+
+  it('starts three and twelve months back, and never for all time', () => {
+    expect(fuelRangeStart('3m', TODAY)).toBe('2026-06-16');
+    expect(fuelRangeStart('year', TODAY)).toBe('2025-09-16');
+    expect(fuelRangeStart('all', TODAY)).toBeNull();
+  });
+
+  it('keeps only the log inside the range', () => {
+    const log = buildFuelLog([fill('a', '2026-09-01'), fill('b', '2026-01-10')], []);
+    expect(filterFuelLogByRange(log, '3m', TODAY).map((i) => i.id)).toEqual(['fill:a']);
+    expect(filterFuelLogByRange(log, 'all', TODAY)).toHaveLength(2);
+  });
+
+  it('totals the fills in range and averages mileage by distance over fuel', () => {
+    const summary = fuelRangeSummary(
+      [fill('a', '2026-09-01'), fill('b', '2026-08-01'), fill('c', '2025-01-01')],
+      [closedInterval('2026-09-01', 300_000, 8_000), closedInterval('2026-08-01', 100_000, 4_000), closedInterval('2025-01-01', 1, 1)],
+      '3m',
+      TODAY,
+    );
+    expect(summary.totals.fills).toBe(2);
+    expect(summary.totals.spendMinor).toBe(200_900);
+    expect(summary.intervals).toHaveLength(2);
+    // 400 km over 12 L, not the mean of 37.5 and 25.
+    expect(summary.average?.metresPerMl).toBeCloseTo(400_000 / 12_000, 6);
+  });
+
+  it('has no average when no interval closed in range', () => {
+    expect(fuelRangeSummary([fill('a', '2026-09-01')], [], 'year', TODAY).average).toBeNull();
   });
 });

@@ -5,11 +5,11 @@ import { Icon, Txt } from '@/components';
 import { HIT_SIZE, useTheme } from '@/theme';
 
 /**
- * The Add fuel board's two folded sections — "Adjustment" and "Details".
+ * A folded section on a form — the Add fuel adjustments.
  *
- * At a pump, in the rain, the form is date, odometer, litres, price and Save.
- * Everything else is a row with a chevron: `padding:15px 0`, a `700 14px`
- * heading over a `500 11.5px` muted line that says what is inside, so the rider
+ * At a pump, in the rain, the form is odometer, litres, total and Save.
+ * Anything rarer is a row with a chevron: `padding:12px 0`, a `600 15px`
+ * heading over a `400 12px` muted line that says what is inside, so the rider
  * knows whether it is worth opening without opening it.
  */
 export function FuelDisclosure({
@@ -40,7 +40,7 @@ export function FuelDisclosure({
         testID={testID}
         style={({ pressed }) => ({
           minHeight: HIT_SIZE,
-          paddingVertical: 15,
+          paddingVertical: 12,
           flexDirection: 'row',
           alignItems: 'center',
           gap: 12,
@@ -48,16 +48,16 @@ export function FuelDisclosure({
         })}
       >
         <View style={{ flex: 1, minWidth: 0 }}>
-          <Txt role="rowTitle">{title}</Txt>
-          <Txt role="helper" tone="mut" style={{ marginTop: 2 }} numberOfLines={2}>
+          <Txt role="rowTitleLarge">{title}</Txt>
+          <Txt role="meta" tone="mut" style={{ marginTop: 2 }} numberOfLines={2}>
             {summary}
           </Txt>
         </View>
         <View style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }}>
-          <Icon name="chevronDown" size={16} color={c.mut} strokeWidth={2} />
+          <Icon name="chevronDown" size={20} color={c.faint} />
         </View>
       </Pressable>
-      {open ? <View style={{ paddingBottom: 14, gap: 12 }}>{children}</View> : null}
+      {open ? <View style={{ paddingBottom: 16, gap: 12 }}>{children}</View> : null}
     </View>
   );
 }

@@ -1,0 +1,48 @@
+[C5 Garage — Company allowance] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left)
+[Company allowance] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer] width: 48px; height: 48px
+[Toggle card] display: flex; flex-direction: row; align-items: center; padding: 16px; gap: 12px; width: 358px; height: 83px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E8F0FE; border-radius: 12px
+  (icon briefcase-blue)
+[briefcase] width: 20px; height: 20px
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 210px; height: 51px; flex-grow: 1
+[This is a company bike] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[An employer covers part of the running cost] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Toggle on] display: flex; flex-direction: row; justify-content: flex-end; align-items: center; padding: 0px 3px; width: 52px; height: 32px; background: #D2400F; border-radius: 999px
+[Knob] width: 26px; height: 26px; background: #FFFFFF; border-radius: 13px
+[Fields] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 12px; width: 358px; height: 69px; align-self: stretch
+[Field Company] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 210px; height: 69px; flex-grow: 1
+[Company] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Input] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 210px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[Meghna Traders Ltd] font-weight: 500; font-size: 15px; color: #14171B
+[Field Allowance] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 136px; height: 69px
+[Monthly allowance] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Input] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; gap: 6px; width: 136px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[৳] font-weight: 500; font-size: 15px; color: #6B727C
+[3,000] font-weight: 600; font-size: 15px; color: #14171B
+[Summary card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 14px; width: 358px; height: 244px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[SEPTEMBER · AFTER ALLOWANCE] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Stats] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 326px; height: 60px; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 10px; gap: 4px; width: 103.33px; height: 60px; background: #F5F6F8; border-radius: 16px; flex-grow: 1
+[FUEL SPEND] font-weight: 600; font-size: 12px; color: #6B727C; align-self: stretch
+[৳4,120] font-weight: 700; font-size: 17px; color: #14171B; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 10px; gap: 4px; width: 103.33px; height: 60px; background: #F5F6F8; border-radius: 16px; flex-grow: 1
+[ALLOWANCE] font-weight: 600; font-size: 12px; color: #6B727C; align-self: stretch
+[৳3,000] font-weight: 700; font-size: 17px; color: #14171B; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 10px; gap: 4px; width: 103.33px; height: 60px; background: #E5F6EE; border-radius: 16px; flex-grow: 1
+[YOU PAY] font-weight: 600; font-size: 12px; color: #0B7F4E; align-self: stretch
+[৳1,120] font-weight: 700; font-size: 17px; color: #0B7F4E; align-self: stretch
+[chart:allowance-split] width: 326px; height: 34px
+[split-bar] width: 326px; height: 34px
+[Legend] display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start; padding: 0px; width: 326px; height: 15px; align-self: stretch
+[Allowance covers 73%] font-weight: 500; font-size: 12px; color: #14171B
+[You 27%] font-weight: 500; font-size: 12px; color: #C93D0E
+[The allowance is fully used this month — you pay ৳1,120 of the fuel.] font-weight: 400; font-size: 13px; color: #6B727C; align-self: stretch
+[Note] display: flex; flex-direction: row; align-items: flex-start; padding: 14px; gap: 12px; width: 358px; height: 78px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 18px; align-self: stretch
+  (icon info-mut)
+[The allowance offsets what you pay. Cost / km and ownership cost keep using the full amount — the bike costs what it costs, whoever pays.] font-weight: 400; font-size: 13px; color: #6B727C; flex-grow: 1
+[Save] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+[Save] font-weight: 600; font-size: 16px; color: #FFFFFF

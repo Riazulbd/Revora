@@ -1,0 +1,92 @@
+[03 Fuel — tab] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: linear-gradient(180deg, #FFE6DA 0%, #F8F3F1 30%, #F5F6F8 100%); border-radius: 36px
+[Header] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 53px; align-self: stretch
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 138px; height: 53px
+[Fuel] font-weight: 700; font-size: 28px; color: #14171B
+[The Red One · All time] font-weight: 400; font-size: 13px; color: #6B727C
+[Export] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon download)
+[Segmented] display: flex; flex-direction: row; align-items: flex-start; padding: 4px; gap: 4px; width: 358px; height: 50px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; align-self: stretch
+[Seg on] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 113.33px; height: 40px; background: #14171B; border-radius: 999px; flex-grow: 1
+[3 months] font-weight: 600; font-size: 13px; color: #FFFFFF
+[Seg] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 113.33px; height: 40px; border-radius: 999px; flex-grow: 1
+[Year] font-weight: 600; font-size: 13px; color: #6B727C
+[Seg] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 113.33px; height: 40px; border-radius: 999px; flex-grow: 1
+[All time] font-weight: 600; font-size: 13px; color: #6B727C
+[Hero — mileage] display: flex; flex-direction: column; align-items: flex-start; padding: 20px; gap: 14px; width: 358px; height: 313px; background: linear-gradient(135deg, #1E2227 0%, #101214 71.43%); border-radius: 28px; align-self: stretch
+[Row] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 318px; height: 25px; align-self: stretch
+[AVERAGE MILEAGE] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #9AA1AA
+[Info] display: flex; flex-direction: row; align-items: center; padding: 5px 10px; gap: 4px; width: 151px; height: 25px; background: #262A30; border-radius: 999px
+  (icon info)
+[How it's calculated] font-weight: 500; font-size: 12px; color: #C9CED4
+[Big] display: flex; flex-direction: row; align-items: baseline; padding: 0px; gap: 6px; width: 318px; height: 60px; align-self: stretch
+[39.8] font-weight: 700; font-size: 48px; letter-spacing: -0.02em; color: #FFFFFF
+[km/L] font-weight: 500; font-size: 18px; color: #9AA1AA
+[chart:fuel-bars] width: 318px; height: 80px; align-self: stretch
+[Stats] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 318px; height: 66px; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 66px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Spend] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[৳8,412] font-weight: 700; font-size: 18px; color: #FFFFFF; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 66px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Fills] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[14] font-weight: 700; font-size: 18px; color: #FFFFFF; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 66px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Avg price] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[৳122/L] font-weight: 700; font-size: 18px; color: #FFFFFF; align-self: stretch
+[Add fuel — primary] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+  (icon plus-white)
+[Add fuel] font-weight: 600; font-size: 16px; color: #FFFFFF
+[All fills] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; width: 358px; height: 270px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Head] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px 0px 8px; width: 326px; height: 28px; align-self: stretch
+[All fills] font-weight: 600; font-size: 16px; color: #14171B
+[Show all] font-weight: 600; font-size: 13px; color: #C93D0E
+[Fill row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 72px; align-self: stretch
+[Date] display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0px; width: 44px; height: 48px; background: #F1F2F5; border-radius: 14px
+[13] font-weight: 700; font-size: 16px; color: #14171B
+[SEP] font-weight: 600; font-size: 12px; color: #6B727C
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 201px; height: 38px; flex-grow: 1
+[L1] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 6px; width: 201px; height: 19px; align-self: stretch
+[8.2 L] font-weight: 600; font-size: 15px; color: #14171B
+[Tag full] display: flex; flex-direction: row; align-items: flex-start; padding: 2px 8px; width: 38px; height: 19px; background: #E5F6EE; border-radius: 999px
+[Full] font-weight: 600; font-size: 12px; color: #0B7F4E
+[34,712 km · Padma Oil, Mirpur 10] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[R] display: flex; flex-direction: column; align-items: flex-end; padding: 0px; gap: 4px; width: 57px; height: 38px
+[৳1,004] font-weight: 600; font-size: 15px; color: #14171B
+[41.2 km/L] font-weight: 600; font-size: 12px; color: #0B7F4E
+[Fill row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 73px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Date] display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0px; width: 44px; height: 48px; background: #F1F2F5; border-radius: 14px
+[06] font-weight: 700; font-size: 16px; color: #14171B
+[SEP] font-weight: 600; font-size: 12px; color: #6B727C
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 197px; height: 38px; flex-grow: 1
+[L1] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 6px; width: 197px; height: 19px; align-self: stretch
+[3.0 L] font-weight: 600; font-size: 15px; color: #14171B
+[Tag partial] display: flex; flex-direction: row; align-items: flex-start; padding: 2px 8px; width: 56px; height: 19px; background: #FBF0DA; border-radius: 999px
+[Partial] font-weight: 600; font-size: 12px; color: #93611A
+[34,420 km · Meghna, Farmgate] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[R] display: flex; flex-direction: column; align-items: flex-end; padding: 0px; gap: 4px; width: 61px; height: 38px
+[৳366] font-weight: 600; font-size: 15px; color: #14171B
+[km/L later] font-weight: 500; font-size: 12px; color: #6B727C
+[Fill row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px 4px; gap: 12px; width: 326px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Date] display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0px; width: 44px; height: 48px; background: #F1F2F5; border-radius: 14px
+[29] font-weight: 700; font-size: 16px; color: #14171B
+[AUG] font-weight: 600; font-size: 12px; color: #6B727C
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 200px; height: 38px; flex-grow: 1
+[L1] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 6px; width: 200px; height: 19px; align-self: stretch
+[7.8 L] font-weight: 600; font-size: 15px; color: #14171B
+[Tag full] display: flex; flex-direction: row; align-items: flex-start; padding: 2px 8px; width: 38px; height: 19px; background: #E5F6EE; border-radius: 999px
+[Full] font-weight: 600; font-size: 12px; color: #0B7F4E
+[34,118 km · Padma Oil, Mirpur 10] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[R] display: flex; flex-direction: column; align-items: flex-end; padding: 0px; gap: 4px; width: 58px; height: 38px
+[৳952] font-weight: 600; font-size: 15px; color: #14171B
+[39.8 km/L] font-weight: 600; font-size: 12px; color: #0B7F4E
+[Tab bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 8px; width: 358px; height: 66px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; align-self: stretch
+[Tab] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 48px
+  (icon home-mut)
+[Tab active] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 6px; width: 86px; height: 48px; background: #14171B; border-radius: 999px
+  (icon fuel-white)
+[Fuel] font-weight: 600; font-size: 13px; color: #FFFFFF
+[Tab] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 48px
+  (icon wallet-mut)
+[Tab] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 48px
+  (icon bike-mut)
+[Tab · More] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 48px
+  (icon menu-mut)

@@ -1,26 +1,24 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 
-import { Button, Icon, Txt, type IconName } from '@/components';
+import { Button, Icon, RowIcon, Txt, type IconName, type RowTone } from '@/components';
 import { useTheme } from '@/theme';
 
 /**
- * Fast Capture's three tiles and its "waiting for details" rows.
+ * Fast Capture's three tiles and its "waiting for details" rows (Figma `E5
+ * More — Fast Capture`).
  *
  * The board paints the Odometer tile in a blue that the Revora palette does not
- * contain — the palette is one accent plus the four status tones, and this tile
- * is neither an accent nor a status. It is transcribed here as a named constant
- * with its own soft tint rather than substituted for the accent, which would
- * make two different actions look like the same one. If a blue is ever added to
- * `src/theme/tokens.ts`, these three lines are what should read it instead.
+ * contain as a fill — the palette is one accent plus the status tones, and this
+ * tile is neither an accent nor a status. It is transcribed here as a named
+ * constant rather than substituted for the accent, which would make two
+ * different actions look like the same one.
  */
 const ODOMETER_BLUE = '#2E6BE6';
-const ODOMETER_BLUE_TINT_LIGHT = '#E7EEFC';
-const ODOMETER_BLUE_TINT_DARK = '#16243E';
 
 export type CaptureTileTone = 'accent' | 'odometer' | 'plain';
 
-/** `flex:1; height:120px; border-radius:18px` with a 30px glyph over a `700 14px` label. */
+/** Figma `Tile · Receipt`: `flex:1; height:120px; border-radius:20px; gap:10px`, a 28px glyph over a `700 14px` label. */
 export function CaptureTile({
   label,
   icon,
@@ -49,58 +47,34 @@ export function CaptureTile({
       style={({ pressed }) => ({
         flex: 1,
         height: 120,
-        borderRadius: radius.card,
+        borderRadius: radius.smallCard,
         backgroundColor: background,
         borderWidth: tone === 'plain' ? 1 : 0,
         borderColor: c.brd,
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
+        gap: 10,
         opacity: pressed ? 0.85 : 1,
       })}
     >
-      <Icon name={icon} size={30} color={ink} strokeWidth={2} />
-      <Txt role="rowTitle" color={ink} numberOfLines={1}>
+      <Icon name={icon} size={28} color={ink} strokeWidth={1.8} />
+      <Txt role="chip" color={ink} numberOfLines={1} style={{ fontSize: 14, lineHeight: 18 }}>
         {label}
       </Txt>
     </Pressable>
   );
 }
 
-/** The 44px tinted square in front of a waiting row (`border-radius:11px`). */
-function CaptureRowIcon({ icon, tone }: { icon: IconName; tone: CaptureTileTone }) {
-  const { c, radius, dark } = useTheme();
-
-  const tint =
-    tone === 'accent'
-      ? c.accS
-      : tone === 'odometer'
-        ? dark
-          ? ODOMETER_BLUE_TINT_DARK
-          : ODOMETER_BLUE_TINT_LIGHT
-        : c.sur2;
-  const ink = tone === 'accent' ? c.acc : tone === 'odometer' ? ODOMETER_BLUE : c.mut;
-
-  return (
-    <View
-      style={{
-        width: 44,
-        height: 44,
-        borderRadius: radius.tile,
-        backgroundColor: tint,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-      }}
-    >
-      <Icon name={icon} size={18} color={ink} strokeWidth={1.8} />
-    </View>
-  );
+/** The row tile's tone for each capture kind: the receipt is accent, the odometer the info blue, a note plain. */
+export function captureRowTone(tone: CaptureTileTone): RowTone {
+  return tone === 'accent' ? 'accent' : tone === 'odometer' ? 'info' : 'neutral';
 }
 
 /**
- * One row of the waiting list: `padding:13px 0; gap:12px`, the tinted square,
- * the title and its line, and the 36px pill that routes it into its full form.
+ * One row of the waiting list (Figma `Row · Receipt photo`): `padding:12px 0;
+ * gap:12px`, the 40px tinted square, the `600 15px` title and its `400 12px`
+ * line, and the 40px pill that routes it into its full form — the accent pill
+ * for the one the board leads with, the inset pill for the rest.
  *
  * A capture held back by a missing connection says so in `--warn` — waiting is
  * not an error, and the row explains which of the two it is.
@@ -137,16 +111,17 @@ export function CaptureWaitingRow({
       onPress={onPress}
       testID={testID}
       style={({ pressed }) => ({
+        minHeight: 64,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
-        paddingVertical: 13,
+        paddingVertical: 12,
         opacity: pressed ? 0.75 : 1,
       })}
     >
-      <CaptureRowIcon icon={icon} tone={tone} />
-      <View style={{ flex: 1, minWidth: 0 }}>
-        <Txt role="rowTitle" numberOfLines={2}>
+      <RowIcon icon={icon} tone={captureRowTone(tone)} />
+      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+        <Txt role="rowTitleLarge" numberOfLines={2}>
           {title}
         </Txt>
         <Txt role="meta" tone={subtitleTone} numberOfLines={2}>
@@ -156,8 +131,9 @@ export function CaptureWaitingRow({
       <Button
         label={actionLabel}
         onPress={onAction}
-        size="chip"
-        variant={actionEmphasis === 'accent' ? 'tinted' : 'subtle'}
+        size="compact"
+        padX={14}
+        variant={actionEmphasis === 'accent' ? 'primary' : 'subtle'}
         testID={actionTestID}
       />
     </Pressable>

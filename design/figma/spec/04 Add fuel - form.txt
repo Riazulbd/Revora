@@ -1,0 +1,53 @@
+[04 Add fuel — form] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon x)
+[Add fuel] font-weight: 600; font-size: 16px; color: #14171B
+[Scan] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon camera)
+[Amount hero] display: flex; flex-direction: column; align-items: center; padding: 12px 0px; gap: 6px; width: 358px; height: 146px; align-self: stretch
+[Total paid] font-weight: 500; font-size: 13px; color: #6B727C
+[৳1,004] font-weight: 700; font-size: 52px; letter-spacing: -0.02em; color: #14171B
+[Calc chip] display: flex; flex-direction: row; align-items: flex-start; padding: 6px 12px; width: 121px; height: 29px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[8.2 L × ৳122.4 / L] font-weight: 500; font-size: 12px; color: #6B727C
+[Fill type] display: flex; flex-direction: row; align-items: flex-start; padding: 4px; gap: 4px; width: 358px; height: 54px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; align-self: stretch
+[Full on] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 6px; width: 172px; height: 44px; background: #14171B; border-radius: 999px; flex-grow: 1
+  (icon check-white)
+[Full tank] font-weight: 600; font-size: 14px; color: #FFFFFF
+[Partial] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 172px; height: 44px; border-radius: 999px; flex-grow: 1
+[Partial] font-weight: 600; font-size: 14px; color: #6B727C
+[Only a full tank can close a mileage interval.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Fields] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; width: 358px; height: 192px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; align-self: stretch
+  (icon gauge)
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 260px; height: 37px; flex-grow: 1
+[Odometer] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[34,712] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[km] font-weight: 500; font-size: 14px; color: #6B727C
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon droplet)
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 244px; height: 37px; flex-grow: 1
+[Volume] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[8.2] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Litres] font-weight: 500; font-size: 14px; color: #6B727C
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon calendar)
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 262px; height: 37px; flex-grow: 1
+[Date] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Today, 16 Sep] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+  (icon chevron-right)
+[Details] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 12px; width: 358px; height: 276px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Details · optional] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 69px; align-self: stretch
+[Station] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 326px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[Padma Oil, Mirpur 10] font-weight: 400; font-size: 15px; color: #14171B
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 69px; align-self: stretch
+[Notes] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 326px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[Anything worth remembering] font-weight: 400; font-size: 15px; color: #878E98
+[Attach] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 326px; height: 52px; border: 1px solid #C9CED4; border-radius: 14px; align-self: stretch
+  (icon receipt)
+[Attach pump receipt] font-weight: 600; font-size: 14px; color: #14171B
+[Save — primary] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+[Save fill] font-weight: 600; font-size: 16px; color: #FFFFFF

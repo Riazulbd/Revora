@@ -1,67 +1,82 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import {
+  Badge,
   Button,
-  Card,
+  DateChip,
   EmptyState,
   ErrorState,
-  Footnote,
-  Icon,
-  RowIcon,
+  HeroCard,
+  HeroHead,
+  ListCard,
+  RecordRow,
   Screen,
+  ScreenHeader,
   SectionEyebrow,
   SkeletonList,
-  TabHeader,
   Txt,
+  type IconName,
+  type RowTone,
 } from '@/components';
 import { currentCondition, type AreaState } from '@/calculations/safety';
-import {
-  actionAreas,
-  actionHeadline,
-  areaConditionLine,
-  daysAgoLabel,
-  observedSummary,
-  odometerMetresOn,
-  safetySessions,
-  type SafetySession,
-  type SafetySessionRow,
-} from '@/calculations/safetySessions';
-import { useGarage } from '@/features/bikes/GarageProvider';
-import { useGarageData } from '@/features/bikes/useGarageData';
+import { areaRowLine, readiness, safetySessions, sessionLine, sessionTitle, type SafetySession } from '@/calculations/safetySessions';
 import { useSafetyChecks } from '@/features/records/useRecordQueries';
-import { SAFETY_AREA_ICON } from '@/features/records/ui/RecordsWalkaroundRow';
-import { formatDistance, NO_VALUE } from '@/utils/format';
-import { formatShortDate, todayIso } from '@/utils/date';
-import { fontFamily, HIT_SIZE, useTheme } from '@/theme';
-import type { SafetyStatus } from '@/types';
+import { HeroSegments, InkAddButton, StatusDots } from '@/features/records/ui/RecordsChrome';
+import { useTheme } from '@/theme';
+import { todayIso } from '@/utils/date';
+import type { SafetyArea, SafetyStatus } from '@/types';
 
 /**
- * Safety and condition.
+ * Safety and condition (Figma `R5 Records — Safety checks`).
  *
  * Two questions, in the order a rider has them. First: is anything wrong right
- * now? That is the latest word on each area, and an area nobody has ever looked
- * at gets its own state — the absence of a check is not a pass, and showing it
- * green would be the app vouching for something it has never seen.
+ * now? That is the latest word on each area — the hero's `3/5 areas good`, one
+ * segment per area, and the sentence naming what is not right. An area nobody
+ * has ever looked at is its own state: the absence of a check is not a pass.
  *
  * Second: what has been looked at before? Checks are stored one per area, so
  * the history groups them back into the walk-arounds they came from. Nothing
  * stores a session; a session is just a shared date.
  */
+
+/** Figma `Tile` per area. Presentation only. */
+export const SAFETY_AREA_GLYPH: Record<SafetyArea, IconName> = {
+  tyres: 'tyre',
+  chain: 'link',
+  brakes: 'disc',
+  battery: 'battery',
+  lights: 'lightbulb',
+};
+
+const STATUS_CHIP: Record<SafetyStatus, { label: string; tone: 'good' | 'warn' | 'bad' }> = {
+  ok: { label: 'Good', tone: 'good' },
+  watch: { label: 'Watch', tone: 'warn' },
+  action: { label: 'Bad', tone: 'bad' },
+};
+
 export default function SafetyLog() {
   const router = useRouter();
-  const { units } = useGarage();
-  const { analytics } = useGarageData();
+  const { c } = useTheme();
   const checks = useSafetyChecks();
   const today = todayIso();
 
   const items = checks.data ?? [];
+  const addCheck = () => router.push('/records/safety-add');
+
+  const header = (
+    <ScreenHeader
+      title="Safety"
+      action={<InkAddButton onPress={addCheck} accessibilityLabel="New check" testID="cta-add-check" />}
+      style={{ marginBottom: 0 }}
+    />
+  );
 
   if (checks.isPending) {
     return (
-      <Screen testID="screen-safety" contentStyle={{ paddingHorizontal: 20 }}>
-        <TabHeader title="Safety" />
+      <Screen wash testID="screen-safety" contentStyle={{ gap: 16 }}>
+        {header}
         <SkeletonList count={3} height={64} />
       </Screen>
     );
@@ -69,8 +84,8 @@ export default function SafetyLog() {
 
   if (checks.isError) {
     return (
-      <Screen testID="screen-safety" contentStyle={{ paddingHorizontal: 20 }}>
-        <TabHeader title="Safety" />
+      <Screen wash testID="screen-safety" contentStyle={{ gap: 16 }}>
+        {header}
         <ErrorState
           message="Your checks are on this phone and in your account — this screen just couldn't read them."
           onRetry={() => void checks.refetch()}
@@ -80,12 +95,9 @@ export default function SafetyLog() {
     );
   }
 
-  const states = currentCondition(items);
-  const needsAction = actionAreas(items);
-  const headline = actionHeadline(needsAction);
+  const states = currentCondition(items).sort((a, b) => ORDER.indexOf(a.area) - ORDER.indexOf(b.area));
+  const ready = readiness(items, today);
   const sessions = safetySessions(items);
-  const points = analytics?.odometer.points ?? [];
-  const nothingChecked = items.length === 0;
 
   const openArea = (state: AreaState) =>
     router.push(
@@ -95,288 +107,96 @@ export default function SafetyLog() {
     );
 
   return (
-    <Screen
-      onRefresh={async () => void (await checks.refetch())}
-      testID="screen-safety"
-      contentStyle={{ paddingHorizontal: 20 }}
-    >
-      <TabHeader
-        title="Safety"
-        action={
-          nothingChecked ? undefined : (
-            <Button
-              label="New check"
-              icon="plus"
-              size="compact"
-              onPress={() => router.push('/records/safety-add')}
-              testID="cta-add-check"
-            />
-          )
-        }
-      />
+    <Screen wash onRefresh={async () => void (await checks.refetch())} testID="screen-safety" contentStyle={{ gap: 16 }}>
+      {header}
 
-      {needsAction.length > 0 && headline !== null ? (
-        <ActionAlert states={needsAction} headline={headline} today={today} onPress={openArea} />
-      ) : null}
-
-      {nothingChecked ? null : (
-        <SectionEyebrow top={needsAction.length > 0 ? 16 : 0}>CURRENT — LATEST CHECK PER AREA</SectionEyebrow>
-      )}
-
-      <View
-        style={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          gap: 8,
-          ...(nothingChecked ? { marginBottom: 14 } : {}),
-        }}
-      >
-        {states.map((state) => (
-          <AreaTile key={state.area} state={state} today={today} onPress={() => openArea(state)} />
-        ))}
-      </View>
-
-      {nothingChecked ? (
+      {items.length === 0 ? (
         <EmptyState
-          icon="shield"
-          size="compact"
+          icon="shieldCheck"
           title="Two minutes before a ride"
-          message="Walk around the bike and mark each area OK, watch or action. No score, no grade — just what you’d act on."
-          primaryAction={{
-            label: 'Start first check',
-            onPress: () => router.push('/records/safety-add'),
-            testID: 'cta-add-check',
-          }}
+          message="Walk around the bike and mark each area good, watch or bad. No score, no grade — just what you’d act on."
+          primaryAction={{ label: 'Start first check', onPress: addCheck, testID: 'cta-first-check' }}
+          variant="page"
           testID="empty-safety"
         />
       ) : (
         <>
-          <Footnote style={{ marginTop: 8 }}>
-            Never checked is its own state — absence of a check is not “OK”.
-          </Footnote>
+          {/* Figma `Hero — dark accent`: ready to ride? */}
+          <HeroCard gap={14} testID="hero-safety">
+            <HeroHead eyebrow="Ready to ride?" {...(ready.checkedLabel === null ? {} : { chip: ready.checkedLabel })} />
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
+              <Txt role="hero" color={c.heroInk}>{`${ready.good}/${ready.total}`}</Txt>
+              <Txt role="cardTitle" color={c.heroMut} style={{ fontWeight: '500' }}>
+                areas good
+              </Txt>
+            </View>
+            <HeroSegments segments={ready.segments} />
+            <Txt role="bodySmall" color={c.heroChipInk}>
+              {ready.sentence ?? 'Nothing needs a look right now.'}
+            </Txt>
+          </HeroCard>
+
+          <View>
+            <SectionEyebrow first>Current — latest check per area</SectionEyebrow>
+            <ListCard style={{ paddingVertical: 4 }} testID="list-safety-current">
+              {states.map((state) => (
+                <AreaRow key={state.area} state={state} onPress={() => openArea(state)} />
+              ))}
+            </ListCard>
+          </View>
 
           {sessions.length === 0 ? null : (
-            <>
-              <SectionEyebrow>HISTORY</SectionEyebrow>
-              <Card variant="list">
-                {sessions.map((session, index) => (
-                  <SessionGroup
-                    key={session.date}
-                    session={session}
-                    first={index === 0}
-                    last={index === sessions.length - 1}
-                    odometerLabel={
-                      points.length === 0
-                        ? NO_VALUE
-                        : formatDistance(odometerMetresOn(points, session.date), units.distance)
-                    }
-                  />
+            <View>
+              <SectionEyebrow first>History</SectionEyebrow>
+              <ListCard style={{ paddingVertical: 4 }} testID="list-safety-history">
+                {sessions.map((session) => (
+                  <SessionRow key={session.date} session={session} />
                 ))}
-              </Card>
-              <Footnote style={{ marginTop: 8 }}>
-                Each row is one area. Checks made the same day group into a session; the data stores no
-                session — just the checks.
-              </Footnote>
-            </>
+              </ListCard>
+            </View>
           )}
+
+          <Button label="New check" icon="clipboard" size="xlarge" onPress={addCheck} testID="cta-new-check" />
         </>
       )}
     </Screen>
   );
 }
 
-/**
- * The one thing on this screen that is not a list: an area marked for action is
- * a live fault, and it stays on the Dashboard until a later check clears it.
- */
-function ActionAlert({
-  states,
-  headline,
-  today,
-  onPress,
-}: {
-  states: readonly AreaState[];
-  headline: string;
-  today: string;
-  onPress: (state: AreaState) => void;
-}) {
-  const { c, radius } = useTheme();
-  const first = states[0];
-  if (first === undefined || first.latest === null) return null;
+/** The walk order the board lists the areas in. */
+const ORDER: readonly SafetyArea[] = ['tyres', 'chain', 'brakes', 'battery', 'lights'];
 
-  const observed = observedSummary(first.latest);
-  const detail = `${observed === null ? 'Marked' : `${observed} — marked`} ${daysAgoLabel(
-    first.latest.date,
-    today,
-  )}. Shows on the Dashboard until cleared.`;
-
+/** Figma `Row` on the Areas card: tile in the status tone, the area, its line, a chip. */
+function AreaRow({ state, onPress }: { state: AreaState; onPress: () => void }) {
+  const chip = state.status === null ? null : STATUS_CHIP[state.status];
+  const tone: RowTone = chip === null ? 'neutral' : chip.tone;
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`${headline}. ${detail}`}
-      onPress={() => onPress(first)}
-      testID="safety-action-alert"
-      style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
-    >
-      <View
-        style={{
-          backgroundColor: c.sur,
-          borderWidth: 1.5,
-          borderColor: c.bad,
-          borderRadius: radius.listCard,
-          paddingVertical: 14,
-          paddingHorizontal: 16,
-          flexDirection: 'row',
-          alignItems: 'flex-start',
-          gap: 12,
-        }}
-      >
-        <RowIcon tone="bad">
-          <Icon name={SAFETY_AREA_ICON[first.area]} size={16} color={c.bad} strokeWidth={1.8} />
-        </RowIcon>
-        <View style={{ flex: 1 }}>
-          <Txt role="rowTitle" tone="bad">
-            {headline}
-          </Txt>
-          <Txt role="meta" style={{ marginTop: 2 }}>
-            {detail}
-          </Txt>
-        </View>
-      </View>
-    </Pressable>
-  );
-}
-
-const DOT: Record<SafetyStatus, 'good' | 'warn' | 'bad'> = { ok: 'good', watch: 'warn', action: 'bad' };
-
-/** One area on the Current grid: its name, a dot, and one line of words. */
-function AreaTile({
-  state,
-  today,
-  onPress,
-}: {
-  state: AreaState;
-  today: string;
-  onPress: () => void;
-}) {
-  const { c, radius } = useTheme();
-  const never = state.status === null;
-  const tone = state.status === null ? c.brd : c[DOT[state.status]];
-  const line = areaConditionLine(state, today);
-  const lineColor = state.status === 'action' ? c.bad : state.status === 'watch' ? c.warn : c.mut;
-
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`${state.label}. ${line}`}
+    <RecordRow
+      variant="flush"
+      icon={SAFETY_AREA_GLYPH[state.area]}
+      iconTone={tone}
+      title={state.label}
+      subtitle={areaRowLine(state)}
+      {...(chip === null ? { badge: <Badge label="Never checked" tone="neutral" /> } : { badge: <Badge label={chip.label} tone={chip.tone} /> })}
       onPress={onPress}
       testID={`safety-area-${state.area}`}
-      style={({ pressed }) => ({ width: '48%', opacity: pressed ? 0.8 : 1 })}
-    >
-      <View
-        style={{
-          borderRadius: radius.tile,
-          backgroundColor: never ? c.sur2 : c.sur,
-          borderWidth: 1,
-          borderStyle: never ? 'dashed' : 'solid',
-          borderColor: c.brd,
-          paddingVertical: 11,
-          paddingHorizontal: 12,
-          minHeight: HIT_SIZE,
-        }}
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-          <Txt
-            numberOfLines={1}
-            style={{ fontFamily: fontFamily[700], fontSize: 13, color: never ? c.mut : c.ink, flexShrink: 1 }}
-          >
-            {state.label}
-          </Txt>
-          <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: tone, flexShrink: 0 }} />
-        </View>
-        <Txt role="micro" color={lineColor} numberOfLines={1} style={{ marginTop: 3 }}>
-          {line}
-        </Txt>
-      </View>
-    </Pressable>
+    />
   );
 }
 
-/** One day's walk-around: a header, then one row per status. */
-function SessionGroup({
-  session,
-  first,
-  last,
-  odometerLabel,
-}: {
-  session: SafetySession;
-  first: boolean;
-  last: boolean;
-  odometerLabel: string;
-}) {
-  const { c } = useTheme();
-
-  return (
-    <View style={first ? undefined : { borderTopWidth: 1, borderTopColor: c.brd }}>
-      <Txt
-        uppercase
-        style={{
-          fontFamily: fontFamily[700],
-          fontSize: 11,
-          letterSpacing: 0.4,
-          color: c.mut,
-          paddingTop: 12,
-          paddingBottom: 4,
-        }}
-      >
-        {formatShortDate(session.date)} · {odometerLabel} · {session.areaCount} area
-        {session.areaCount === 1 ? '' : 's'}
-      </Txt>
-      {session.rows.map((row, index) => (
-        <SessionRow
-          key={`${session.date}-${row.status}`}
-          row={row}
-          last={last && index === session.rows.length - 1}
-        />
-      ))}
-    </View>
-  );
-}
-
-function SessionRow({ row, last }: { row: SafetySessionRow; last: boolean }) {
+/** Figma `Row` on the History card: the date block, the session, and a dot per status present. */
+function SessionRow({ session }: { session: SafetySession }) {
   const router = useRouter();
-  const { c } = useTheme();
-  const id = row.checkIds[0];
-
-  const words = `${row.label} · ${row.statusLabel}${row.detail === null ? '' : ` · ${row.detail}`}`;
-
+  const id = session.rows[0]?.checkIds[0];
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={words}
-      disabled={id === undefined}
-      onPress={() => id && router.push({ pathname: '/records/safety-add', params: { id } })}
-      testID={`safety-${id ?? row.status}`}
-      style={({ pressed }) => ({
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        minHeight: HIT_SIZE,
-        paddingVertical: 9,
-        paddingBottom: last ? 13 : 9,
-        borderBottomWidth: last ? 0 : 1,
-        borderBottomColor: c.brd,
-        opacity: pressed ? 0.7 : 1,
-      })}
-    >
-      <View
-        style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c[DOT[row.status]], flexShrink: 0 }}
-      />
-      <Txt role="meta" tone="mut" style={{ flex: 1 }}>
-        <Txt role="rowTitleDense">{row.label}</Txt> · {row.statusLabel}
-        {row.detail === null ? '' : ` · ${row.detail}`}
-      </Txt>
-      {row.hasPhoto ? <Icon name="camera" size={14} color={c.mut} strokeWidth={2} /> : null}
-    </Pressable>
+    <RecordRow
+      variant="flush"
+      leading={<DateChip date={session.date} />}
+      title={sessionTitle(session)}
+      subtitle={sessionLine(session)}
+      trailing={<StatusDots statuses={session.rows.map((row) => row.status)} />}
+      {...(id === undefined ? {} : { onPress: () => router.push({ pathname: '/records/safety-add', params: { id } }) })}
+      testID={`safety-${id ?? session.date}`}
+    />
   );
 }

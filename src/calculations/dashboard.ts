@@ -1,5 +1,7 @@
-import type { DistanceUnit, IsoDate, LedgerEntry, LedgerSource, MaintenanceRule } from '@/types';
+import type { DistanceUnit, IsoDate, LedgerEntry, LedgerSource, MaintenanceRule, MileageUnit } from '@/types';
 import { compareByUrgency, type MaintenanceStatus } from './maintenance';
+import type { MileageInterval } from './mileage';
+import { efficiencyToDisplay } from './units';
 import {
   INITIAL_ODOMETER_POINT_ID,
   STORED_ODOMETER_POINT_ID,
@@ -222,4 +224,49 @@ export function activityDetail(
   }
 
   return date;
+}
+
+/**
+ * How the latest measured interval compares with the one before it, in the
+ * rider's mileage unit — the hero's "▲ 1.4 km/L". `better` follows the unit:
+ * more km/L or MPG is better, fewer L/100km is better. Null until there are
+ * two intervals to compare, and for a change too small to print.
+ *
+ * Intervals arrive oldest first (`calculateMileageIntervals`).
+ */
+export function mileageChange(
+  intervals: readonly MileageInterval[],
+  unit: MileageUnit,
+): { delta: number; better: boolean } | null {
+  const latest = intervals[intervals.length - 1];
+  const previous = intervals[intervals.length - 2];
+  if (!latest || !previous) return null;
+  const delta = efficiencyToDisplay(latest.efficiency, unit) - efficiencyToDisplay(previous.efficiency, unit);
+  if (!Number.isFinite(delta) || Math.abs(delta) < 0.05) return null;
+  return { delta: Math.abs(delta), better: unit === 'l_per_100km' ? delta < 0 : delta > 0 };
+}
+
+/**
+ * The points of the Dashboard's mileage sparkline: the most recent intervals,
+ * oldest first, in the rider's unit.
+ */
+export function mileageSparkline(intervals: readonly MileageInterval[], unit: MileageUnit, count = 12): number[] {
+  return intervals.slice(-count).map((interval) => efficiencyToDisplay(interval.efficiency, unit));
+}
+
+/**
+ * This month's spend against last month's — the bento's "▼ 8% vs August".
+ * `series` is the padded monthly series ending with the current month
+ * (`monthlySeries`). Null when last month had nothing to compare against, or
+ * the two round to the same percentage.
+ */
+export function monthOverMonth(
+  series: readonly { key: string; totalMinor: number }[],
+): { percent: number; lower: boolean; previousKey: string } | null {
+  const current = series[series.length - 1];
+  const previous = series[series.length - 2];
+  if (!current || !previous || previous.totalMinor <= 0) return null;
+  const percent = Math.round(((current.totalMinor - previous.totalMinor) / previous.totalMinor) * 100);
+  if (percent === 0) return null;
+  return { percent: Math.abs(percent), lower: percent < 0, previousKey: previous.key };
 }

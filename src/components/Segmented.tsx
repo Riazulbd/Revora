@@ -5,26 +5,32 @@ import { HIT_SIZE, fontFamily, useTheme } from '@/theme';
 import { Icon, type IconName } from './Icon';
 import { Txt } from './Text';
 
-export type SegmentedOption<T extends string> = { value: T; label: string; icon?: IconName };
+export type SegmentedOption<T extends string> = {
+  value: T;
+  label: string;
+  icon?: IconName;
+  /** A glyph drawn only while the segment is selected (the tick on "Full tank"). */
+  activeIcon?: IconName;
+};
 
 /**
- * `default` 44px (Add fuel's Fill type), `medium` 40px (Appearance), `compact`
- * 38px (Costs "This month / All time"), `inline` 32px hugging its labels (the
- * Units rows in Settings).
+ * Two tracks from Figma:
+ *
+ * `default` / `medium` / `compact` — a page-level control (`Fill type`,
+ *   `Segmented · Theme`, the Fuel range): white track, `border:1px solid
+ *   #E9EBEF; border-radius:999px; padding:4px; gap:4px`, equal-width 44px
+ *   segments (40 for `compact`, which sets both labels in `600 13px`).
+ * `inline` — the control inside a card row (`Segmented` in Settings → Units):
+ *   `background:#F1F2F5; padding:4px; gap:2px`, 40px segments hugging their
+ *   labels (`padX`, 12–16 in the design).
+ *
+ * The active segment is a `#14171B` pill with a `600 14px` white label;
+ * inactive labels are `500 14px` muted.
  */
 export type SegmentedSize = 'default' | 'medium' | 'compact' | 'inline';
 
-const SEGMENT_HEIGHT: Record<SegmentedSize, number> = { default: 44, medium: 40, compact: 38, inline: 32 };
+const SEGMENT_HEIGHT: Record<SegmentedSize, number> = { default: 44, medium: 44, compact: 40, inline: 40 };
 
-/**
- * The segmented control from the boards: a `--sur2` track
- * (`border-radius:14px; padding:3px`) with a raised `--sur` thumb
- * (`border-radius:11px; border:1px solid var(--brd)`). Active label
- * `700 13px` ink, inactive `600 13px` muted. The inline size is
- * `border-radius:11px; padding:2px`, a 9px-radius thumb and 12px labels. The
- * Settings board sets its own inner padding per row — 14 for the two-way
- * Distance control, 10 for the three-way Mileage one — which is `padX`.
- */
 export function Segmented<T extends string>({
   options,
   value,
@@ -46,7 +52,6 @@ export function Segmented<T extends string>({
   const { c } = useTheme();
   const inline = size === 'inline';
   const height = SEGMENT_HEIGHT[size];
-  const fontSize = inline ? 12 : 13;
 
   return (
     <View
@@ -55,9 +60,12 @@ export function Segmented<T extends string>({
       style={[
         {
           flexDirection: 'row',
-          backgroundColor: c.sur2,
-          borderRadius: inline ? 11 : 14,
-          padding: inline ? 2 : 3,
+          gap: inline ? 2 : 4,
+          padding: 4,
+          borderRadius: 999,
+          backgroundColor: inline ? c.sur2 : c.sur,
+          borderWidth: inline ? 0 : 1,
+          borderColor: c.brd,
           alignSelf: inline ? 'flex-start' : 'stretch',
         },
         style,
@@ -65,6 +73,7 @@ export function Segmented<T extends string>({
     >
       {options.map((option) => {
         const active = option.value === value;
+        const ink = active ? c.sur : c.mut;
         return (
           <Pressable
             key={option.value}
@@ -76,21 +85,30 @@ export function Segmented<T extends string>({
             testID={testID === undefined ? undefined : `${testID}-${option.value}`}
             style={({ pressed }) => ({
               ...(inline
-                ? { paddingHorizontal: padX ?? 12 }
+                ? { paddingHorizontal: padX ?? 14 }
                 : { flex: 1, ...(padX === undefined ? {} : { paddingHorizontal: padX }) }),
               minHeight: height,
+              flexDirection: 'row',
+              gap: 6,
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: inline ? 9 : 11,
-              backgroundColor: active ? c.sur : 'transparent',
-              borderWidth: active ? 1 : 0,
-              borderColor: c.brd,
+              borderRadius: 999,
+              backgroundColor: active ? c.ink : 'transparent',
               opacity: pressed && !active ? 0.6 : 1,
             })}
           >
+            {active && option.activeIcon ? (
+              <Icon name={option.activeIcon} size={20} color={ink} />
+            ) : option.icon ? (
+              <Icon name={option.icon} size={20} color={ink} />
+            ) : null}
             <Txt
               numberOfLines={1}
-              style={{ fontFamily: fontFamily[active ? 700 : 600], fontSize, color: active ? c.ink : c.mut }}
+              style={{
+                fontFamily: fontFamily[active || size === 'compact' ? 600 : 500],
+                fontSize: size === 'compact' ? 13 : 14,
+                color: ink,
+              }}
             >
               {option.label}
             </Txt>
@@ -102,15 +120,13 @@ export function Segmented<T extends string>({
 }
 
 /**
- * The filter chips (`All fills · Full · Partial · Adjustments`, the Services
- * categories, recent searches): `height:36px; border-radius:7px; padding:0 14px`.
- * Selected is solid `--ink` (white text in light, `--bg` text in dark, exactly
- * as the boards draw it); unselected is `background:var(--sur); border:1px solid
- * var(--brd)` with 600 ink text. `compact` is the Services list's 34px / `0 13px`.
+ * The filter chips (fill types, Services categories, recent searches): 36px
+ * pills, `padding:0 14px`. Selected is solid ink with a `600 13px` label in the
+ * card colour; unselected is white with a `#E9EBEF` border and a `500 13px`
+ * ink label. `compact` is 34px.
  *
- * `tone` recolours the selected chip — the Records board fills the chip that is
- * filtering to something wrong in `--warn` rather than in ink, so the filter
- * itself carries the warning.
+ * `tone` recolours the selected chip, so a filter showing something wrong can
+ * carry the warning itself.
  */
 export function ChipGroup<T extends string>({
   options,
@@ -125,24 +141,27 @@ export function ChipGroup<T extends string>({
   options: readonly SegmentedOption<T>[];
   value: T;
   onChange: (value: T) => void;
-  size?: 'default' | 'compact';
+  /** `large` — the 48px `600 14px` pills on Services (`padding:0 18px`, 16 with a glyph). */
+  size?: 'default' | 'compact' | 'large';
   /** The selected chip's fill. */
   tone?: 'ink' | 'acc' | 'warn';
   wrap?: boolean;
   style?: ViewStyle;
   testID?: string;
 }) {
-  const { c, dark } = useTheme();
-  const height = size === 'compact' ? 34 : 36;
+  const { c } = useTheme();
+  const height = size === 'compact' ? 34 : size === 'large' ? 48 : 36;
+  const large = size === 'large';
   const selectedFill = tone === 'acc' ? c.acc : tone === 'warn' ? c.warn : c.ink;
-  // On ink the label is white in light and the page colour in dark; on a tone
-  // fill it is white in both, which is what every filled pill on the boards does.
-  const selectedInk = tone === 'ink' ? (dark ? c.bg : '#FFFFFF') : '#FFFFFF';
+  // On ink the label takes the card colour (white in light, near-black in dark);
+  // on a tone fill it is white in both.
+  const selectedInk = tone === 'ink' ? c.sur : '#FFFFFF';
 
   return (
     <View style={[{ flexDirection: 'row', flexWrap: wrap ? 'wrap' : 'nowrap', gap: 8 }, style]} testID={testID}>
       {options.map((option) => {
         const active = option.value === value;
+        const glyph = active ? (option.activeIcon ?? option.icon) : option.icon;
         return (
           <Pressable
             key={option.value}
@@ -152,10 +171,10 @@ export function ChipGroup<T extends string>({
             onPress={() => onChange(option.value)}
             testID={testID === undefined ? undefined : `${testID}-${option.value}`}
             style={({ pressed }) => ({
-              // The chip is 36px on the board; the target around it is 44
-              // (requirement 58), pulled back so the row keeps its rhythm.
+              // The chip is 36px; the target around it is 48 (requirement 58),
+              // pulled back so the row keeps its rhythm.
               minHeight: HIT_SIZE,
-              marginVertical: -(HIT_SIZE - height) / 2,
+              marginVertical: -Math.max(0, HIT_SIZE - height) / 2,
               justifyContent: 'center',
               opacity: pressed ? 0.7 : 1,
             })}
@@ -163,22 +182,27 @@ export function ChipGroup<T extends string>({
             <View
               style={{
                 height,
-                paddingHorizontal: size === 'compact' ? 13 : 14,
+                paddingLeft: large ? (glyph ? 14 : 18) : size === 'compact' ? 13 : 14,
+                paddingRight: large ? (glyph ? 16 : 18) : size === 'compact' ? 13 : 14,
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 7,
-                borderRadius: 7,
+                gap: large ? 6 : 7,
+                borderRadius: 999,
                 borderWidth: active ? 0 : 1,
                 borderColor: c.brd,
                 backgroundColor: active ? selectedFill : c.sur,
               }}
             >
-              {option.icon ? (
-                <Icon name={option.icon} size={13} color={active ? selectedInk : c.mut} strokeWidth={2} />
+              {glyph ? (
+                <Icon name={glyph} size={large ? 18 : 16} color={active ? selectedInk : large ? c.ink : c.mut} />
               ) : null}
               <Txt
                 numberOfLines={1}
-                style={{ fontFamily: fontFamily[active ? 700 : 600], fontSize: 12, color: active ? selectedInk : c.ink }}
+                style={{
+                  fontFamily: fontFamily[active || large ? 600 : 500],
+                  fontSize: large ? 14 : 13,
+                  color: active ? selectedInk : c.ink,
+                }}
               >
                 {option.label}
               </Txt>
@@ -190,7 +214,11 @@ export function ChipGroup<T extends string>({
   );
 }
 
-/** Single-select grid used by the expense category picker. */
+/**
+ * Single-select grid (the expense category picker): 48px tiles,
+ * `border-radius:14px`; selected takes the offer card's treatment — `#FFF7F3`
+ * fill, accent border, accent label.
+ */
 export function ChoiceGrid<T extends string>({
   options,
   value,
@@ -219,17 +247,17 @@ export function ChoiceGrid<T extends string>({
             onPress={() => onChange(option.value)}
             testID={testID === undefined ? undefined : `${testID}-${option.value}`}
             style={({ pressed }) => ({
-              minHeight: 44,
-              paddingHorizontal: 14,
+              minHeight: 48,
+              paddingHorizontal: 16,
               justifyContent: 'center',
-              borderRadius: 12,
-              borderWidth: active ? 1.5 : 1,
+              borderRadius: 14,
+              borderWidth: active ? 2 : 1,
               borderColor: active ? c.acc : c.brd,
-              backgroundColor: active ? c.accS : c.sur,
+              backgroundColor: active ? c.accSel : c.sur,
               opacity: pressed ? 0.75 : 1,
             })}
           >
-            <Txt style={{ fontFamily: fontFamily[active ? 700 : 600], fontSize: 13, color: active ? c.acc : c.ink }}>
+            <Txt style={{ fontFamily: fontFamily[600], fontSize: 14, color: active ? c.accText : c.ink }}>
               {option.label}
             </Txt>
           </Pressable>

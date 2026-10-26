@@ -97,13 +97,13 @@ describe('every term has to appear, so more words narrow', () => {
 describe('results carry enough to tell records apart', () => {
   it('gives a service its date and who did it', () => {
     const [result] = searchRecords('brake', data).find((g) => g.kind === 'service')?.results ?? [];
-    expect(result?.detail).toBe('2026-09-09 · Rahim Motors');
+    expect(result?.detail).toMatch(/^Rahim Motors · 9 Sep/);
     expect(result?.amountMinor).toBe(165_000);
   });
 
   it('names a self-service visit as such rather than leaving it blank', () => {
     const [result] = searchRecords('chain', data).find((g) => g.kind === 'service')?.results ?? [];
-    expect(result?.detail).toContain('self-service');
+    expect(result?.detail).toContain('Self-service');
   });
 
   it('routes a document straight to its own record', () => {

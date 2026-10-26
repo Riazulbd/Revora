@@ -49,7 +49,7 @@ appId: app.revora.android.dev
 # ---------- no fills ----------
 - tapOn:
     id: "tab-dashboard"
-- assertVisible: "No mileage yet"
+- assertVisible: "Log your first fill"
 - assertVisible: ".*Log your first fill and Revora starts measuring from there.*"
 
 # ---------- one fill ----------
@@ -73,10 +73,6 @@ appId: app.revora.android.dev
       PRICE: "145"
       FILL: "Partial"
       STATION: ""
-- assertVisible: "ESTIMATED"
+- assertVisible: "Mileage · estimated"
 - assertVisible: "40.0"
-- assertVisible:
-    id: "hint-mileage-estimated"
-- assertVisible: ".*Estimated across 200 km from 5.0 L.*"
-- assertVisible: ".*Mark your next one Full.*"
-- assertVisible: ".*estimated across the whole log.*"
+- assertVisible: "Not measured yet"

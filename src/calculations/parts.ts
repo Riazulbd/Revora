@@ -75,3 +75,9 @@ export function partHealth(life: PartLife): PartHealth {
 export function isPartActive(part: Part): boolean {
   return part.removedOdometerMetres === null && part.removedDate === null;
 }
+
+/** The odometer a part is expected to reach the end of its life at; null without an expected life. */
+export function partExpectedEndMetres(part: Pick<Part, 'installedOdometerMetres' | 'expectedLifeMetres'>): number | null {
+  if (part.expectedLifeMetres === null || part.expectedLifeMetres <= 0) return null;
+  return part.installedOdometerMetres + part.expectedLifeMetres;
+}

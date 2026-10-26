@@ -9,6 +9,10 @@ import {
   Dialog,
   DividedList,
   ErrorState,
+  HeroCard,
+  HeroFigure,
+  HeroHead,
+  IconSquareButton,
   KeyValueRow,
   Screen,
   ScreenHeader,
@@ -28,38 +32,30 @@ import {
 import { useDeleteFuel } from '@/features/fuel/useFuelMutations';
 import { useImageUrl } from '@/features/shared/useImageUrl';
 import { formatShortDate } from '@/utils/date';
-import {
-  formatCurrency,
-  formatDistance,
-  formatMileage,
-  formatPricePerVolume,
-  formatVolume,
-  NO_VALUE,
-} from '@/utils/format';
-import { volumeUnitLabel } from '@/calculations/units';
+import { formatCurrencySymbol, formatDistance, formatMileageValue, formatPricePerVolumeSymbol, formatVolume, NO_VALUE } from '@/utils/format';
+import { efficiencyToDisplay, mileageUnitLabel, volumeUnitLabel } from '@/calculations/units';
+import { useTheme } from '@/theme';
 
 const FILL_LABEL = { full: 'Full tank', partial: 'Partial', unknown: 'Unknown level' } as const;
 
 /**
- * One fill.
+ * One fill (Figma `B3 Fuel — Fill detail`).
  *
- * The board's order is the argument it makes: the three figures first, then —
- * immediately — how the mileage figure was reached, or why there isn't one. A
- * number a rider can't audit is a number they won't trust, so the arithmetic is
- * not hidden behind a link.
+ * The order is the argument it makes: the mileage figure first, in the dark
+ * hero with how it stands against the average, then — immediately — how it was
+ * reached, or why there isn't one. A number a rider can't audit is a number
+ * they won't trust, so the arithmetic is not hidden behind a link.
  */
 export default function FuelDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { c } = useTheme();
   const { units } = useGarage();
   const { analytics, isPending, error } = useGarageData();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
 
-  const entry = useMemo(
-    () => analytics?.fuel.entries.find((e) => e.id === id) ?? null,
-    [analytics, id],
-  );
+  const entry = useMemo(() => analytics?.fuel.entries.find((e) => e.id === id) ?? null, [analytics, id]);
 
   const interval = useMemo(
     () => analytics?.mileage.intervals.find((i) => i.toEntryId === id) ?? null,
@@ -114,43 +110,63 @@ export default function FuelDetail() {
     );
   }
 
-  return (
-    <Screen testID="screen-fuel-detail">
-      <ScreenHeader title="Fill" titleSuffix={`· ${formatShortDate(entry.date)}`} />
+  const edit = () => router.push({ pathname: '/fuel/add', params: { id: entry.id } });
+  const unitLabel = mileageUnitLabel(units.mileage);
+  const average = analytics?.mileage.average ?? null;
+  // The hero's second line: this interval against the log's average, in the
+  // rider's unit. On L/100km a lower figure is the better one.
+  const versus =
+    interval && average
+      ? efficiencyToDisplay(interval.efficiency, units.mileage) - efficiencyToDisplay(average, units.mileage)
+      : null;
+  const better = versus === null ? null : units.mileage === 'l_per_100km' ? versus < 0 : versus > 0;
 
-      <StatRow>
-        <StatTile
-          label="Odometer"
-          variant="outlined"
-          value={formatDistance(entry.odometerMetres, units.distance)}
+  return (
+    <Screen testID="screen-fuel-detail" contentStyle={{ gap: 16 }}>
+      <ScreenHeader
+        title="Fill"
+        titleSuffix={`· ${formatShortDate(entry.date)}`}
+        action={<IconSquareButton icon="penLine" accessibilityLabel="Edit fill" onPress={edit} testID="cta-edit-top" />}
+        style={{ marginBottom: 0 }}
+      />
+
+      <HeroCard gap={14} testID="hero-fill">
+        <HeroHead eyebrow="Mileage" chip={FILL_LABEL[entry.fillType]} />
+        <HeroFigure
+          value={interval ? formatMileageValue(interval.efficiency, units.mileage) : undefined}
+          unit={unitLabel}
+          testID="hero-fill-mileage"
         />
-        <StatTile
-          label="Distance"
-          variant="outlined"
-          value={interval ? formatDistance(interval.distanceMetres, units.distance) : NO_VALUE}
-        />
-        {interval ? (
+        {versus !== null && Math.abs(versus) >= 0.05 ? (
+          <Txt role="mediumStrong" color={better ? c.heroGood : c.heroAcc} testID="hero-fill-versus">
+            {`${versus > 0 ? '▲' : '▼'} ${Math.abs(versus).toFixed(1)} ${unitLabel} ${
+              versus > 0 ? 'above' : 'below'
+            } your ${formatMileageValue(average, units.mileage)} average`}
+          </Txt>
+        ) : interval === null ? (
+          <Txt role="mediumStrong" color={c.heroMut}>
+            No interval closed by this fill
+          </Txt>
+        ) : null}
+        <StatRow>
+          <StatTile variant="hero" label="Odometer" value={formatDistance(entry.odometerMetres, units.distance)} />
           <StatTile
-            label="Mileage"
-            variant="accent"
-            value={formatMileage(interval.efficiency, units.mileage)}
+            variant="hero"
+            label="Distance"
+            value={interval ? formatDistance(interval.distanceMetres, units.distance) : NO_VALUE}
           />
-        ) : (
-          <StatTile label="Mileage" variant="outlined" value={NO_VALUE} />
-        )}
-      </StatRow>
+        </StatRow>
+      </HeroCard>
 
       {interval ? (
-        <FuelMileageBreakdown entry={entry} interval={interval} units={units} style={{ marginTop: 12 }} />
+        <FuelMileageBreakdown entry={entry} interval={interval} units={units} />
       ) : (
-        <FuelNoMileageCard entry={entry} units={units} style={{ marginTop: 12 }} />
+        <FuelNoMileageCard entry={entry} units={units} />
       )}
 
-      {ownAdjustments.length > 0 ? (
-        <FuelAdjustmentsCard adjustments={ownAdjustments} units={units} style={{ marginTop: 12 }} />
-      ) : null}
+      {ownAdjustments.length > 0 ? <FuelAdjustmentsCard adjustments={ownAdjustments} units={units} /> : null}
 
-      <Card variant="list" style={{ marginTop: 12 }}>
+      <Card variant="list" style={{ paddingVertical: 4 }}>
         <DividedList>
           <KeyValueRow
             label={volumeUnitLabel(units.volume) === 'L' ? 'Litres' : 'Volume'}
@@ -158,9 +174,9 @@ export default function FuelDetail() {
           />
           <KeyValueRow
             label="Price"
-            value={`${formatPricePerVolume(entry.pricePerLitreMinor, entry.currency)} / ${volumeUnitLabel(
+            value={`${formatPricePerVolumeSymbol(entry.pricePerLitreMinor, entry.currency)} / ${volumeUnitLabel(
               units.volume,
-            )} · ${formatCurrency(entry.totalCostMinor, entry.currency)} total`}
+            )} · ${formatCurrencySymbol(entry.totalCostMinor, entry.currency)} total`}
           />
           {entry.station ? <KeyValueRow label="Station" value={entry.station} /> : null}
           {entry.notes ? <KeyValueRow label="Notes" value={entry.notes} /> : null}
@@ -170,20 +186,13 @@ export default function FuelDetail() {
         </DividedList>
       </Card>
 
-      <ButtonRow style={{ marginTop: 16 }}>
-        <Button
-          label="Edit"
-          variant="secondary"
-          size="medium"
-          flex
-          onPress={() => router.push({ pathname: '/fuel/add', params: { id: entry.id } })}
-          testID="cta-edit"
-        />
+      <ButtonRow>
+        <Button label="Edit" icon="penLine" variant="secondary" size="large" flex onPress={edit} testID="cta-edit" />
         <Button
           label="Delete"
-          variant="ghost"
-          tone="bad"
-          size="medium"
+          icon="trash"
+          variant="dangerSubtle"
+          size="large"
           flex
           onPress={() => setConfirmDelete(true)}
           testID="cta-delete"

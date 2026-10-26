@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Svg, { Circle, Path } from 'react-native-svg';
 
-import { Button, Card, Divider, Eyebrow, Icon, RowIcon, Txt, type IconName } from '@/components';
+import { Button, Card, CardHeader, Divider, Icon, RowIcon, Txt, type IconName } from '@/components';
 import type { AttentionItem } from '@/calculations/attention';
 import { fontFamily, useTheme } from '@/theme';
 
@@ -29,9 +29,9 @@ import { fontFamily, useTheme } from '@/theme';
  */
 
 const ROW_ICON: Record<AttentionItem['kind'], IconName> = {
-  safety: 'target',
-  maintenance: 'drop',
-  document: 'documents',
+  safety: 'disc',
+  maintenance: 'droplet',
+  document: 'fileText',
 };
 
 export function AttentionCard({
@@ -54,18 +54,17 @@ export function AttentionCard({
       <View
         testID="attention-error"
         style={{
-          borderRadius: radius.listCard,
+          borderRadius: radius.card,
           backgroundColor: c.warnS,
-          paddingVertical: 13,
-          paddingHorizontal: 16,
+          padding: 16,
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 11,
+          gap: 12,
         }}
       >
-        <Icon name="alertTriangle" size={18} color={c.warn} strokeWidth={1.8} />
+        <Icon name="triangleAlert" size={20} color={c.warnIcon} />
         <Txt role="meta" style={{ flex: 1, lineHeight: 18 }}>
-          <Txt role="meta" tone="warn" style={{ fontFamily: fontFamily[700] }}>
+          <Txt role="meta" tone="warn" style={{ fontFamily: fontFamily[600] }}>
             Can&rsquo;t check what needs attention
           </Txt>{' '}
           until your records load — not showing a green tick it can&rsquo;t stand behind.
@@ -81,19 +80,18 @@ export function AttentionCard({
       <View
         testID="attention-unwatched"
         style={{
-          borderRadius: radius.listCard,
+          borderRadius: radius.card,
           backgroundColor: c.sur2,
-          paddingVertical: 13,
-          paddingHorizontal: 16,
+          padding: 16,
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 11,
+          gap: 12,
         }}
       >
-        <Icon name="bell" size={18} color={c.mut} strokeWidth={1.8} />
+        <Icon name="bell" size={20} color={c.mut} />
         <View style={{ flex: 1, gap: 2 }}>
-          <Txt role="rowTitleDense">Nothing to watch yet</Txt>
-          <Txt role="metaSmall" tone="mut">
+          <Txt role="rowTitle">Nothing to watch yet</Txt>
+          <Txt role="meta" tone="mut">
             Expiring documents and due rules will appear here once you add them.
           </Txt>
         </View>
@@ -106,17 +104,16 @@ export function AttentionCard({
       <View
         testID="attention-clear"
         style={{
-          borderRadius: radius.listCard,
+          borderRadius: radius.card,
           backgroundColor: c.goodS,
-          paddingVertical: 13,
-          paddingHorizontal: 16,
+          padding: 16,
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 11,
+          gap: 12,
         }}
       >
-        {/* The boards draw this one as a filled disc rather than a line glyph:
-            it is the only mark on the Dashboard that reports good news. */}
+        {/* A filled disc rather than a line glyph: it is the only mark on the
+            Dashboard that reports good news. */}
         <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
           <Circle cx={12} cy={12} r={10} fill={c.good} />
           <Path
@@ -129,8 +126,8 @@ export function AttentionCard({
           />
         </Svg>
         <View style={{ flex: 1, gap: 2 }}>
-          <Txt role="rowTitleDense">Nothing needs your attention</Txt>
-          <Txt role="metaSmall" tone="mut">
+          <Txt role="rowTitle">Nothing needs your attention</Txt>
+          <Txt role="meta" tone="mut">
             No documents expiring, no rules due. Go ride.
           </Txt>
         </View>
@@ -139,12 +136,14 @@ export function AttentionCard({
   }
 
   return (
-    <Card style={{ paddingTop: 16, paddingBottom: 6, paddingHorizontal: 16 }} testID="card-attention">
-      <Eyebrow tone="bad">NEEDS ATTENTION</Eyebrow>
-      <View style={{ marginTop: 4 }}>
+    <Card style={{ gap: 4 }} testID="card-attention">
+      {/* Figma `Needs attention`: the heading with a red count pill, then rows
+          of a 40px tone tile, title, evidence, and either the one action that
+          clears the row ("Mark done", a black pill) or a chevron. */}
+      <CardHeader title="Needs attention" count={items.length} tone="bad" />
+      <View>
         {items.map((item, index) => {
           const tone = item.severity === 'critical' ? 'bad' : 'warn';
-          const ink = item.severity === 'critical' ? c.bad : c.warn;
 
           return (
             <View key={item.id}>
@@ -162,24 +161,23 @@ export function AttentionCard({
                 style={({ pressed }) => ({
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: 11,
-                  paddingVertical: 11,
+                  gap: 12,
+                  paddingVertical: 10,
+                  minHeight: 48,
                   opacity: pressed ? 0.7 : 1,
                 })}
                 testID={`attention-${item.id}`}
               >
-                <RowIcon size={32} tone={tone}>
-                  <Icon name={ROW_ICON[item.kind]} size={15} color={ink} strokeWidth={1.8} />
-                </RowIcon>
+                <RowIcon icon={ROW_ICON[item.kind]} tone={tone} />
 
                 <View style={{ flex: 1, gap: 2 }}>
-                  <Txt role="rowTitleDense" numberOfLines={2}>
+                  <Txt role="rowTitle" numberOfLines={2}>
                     {item.title}
                   </Txt>
                   {/* The evidence carries the severity in colour, and the words
                       carry it too — "310 km past" reads as a problem in grey. */}
                   <Txt
-                    role="metaSmall"
+                    role="meta"
                     tone={item.kind === 'document' && item.severity === 'warning' ? 'mut' : tone}
                     numberOfLines={2}
                   >
@@ -190,8 +188,8 @@ export function AttentionCard({
                 {item.action ? (
                   <Button
                     label={item.action.label}
-                    variant="tinted"
-                    size="micro"
+                    variant="ink"
+                    size="chip"
                     onPress={() =>
                       router.push({
                         pathname: '/maintenance/rule',
@@ -202,7 +200,7 @@ export function AttentionCard({
                     testID={`attention-action-${item.id}`}
                   />
                 ) : (
-                  <Icon name="chevronRight" size={15} color={c.mut} strokeWidth={2} />
+                  <Icon name="chevronRight" size={20} color={c.faint} />
                 )}
               </Pressable>
             </View>

@@ -1,0 +1,64 @@
+[C3 Garage — Edit bike] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon x)
+[Edit motorcycle] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer] width: 48px; height: 48px
+[THE BIKE] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Bike fields] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; width: 358px; height: 256px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; align-self: stretch
+  (icon tag)
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 294px; height: 37px; flex-grow: 1
+[Manufacturer] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Bajaj] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon bike)
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 294px; height: 37px; flex-grow: 1
+[Model] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Pulsar NS200] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon heart)
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 294px; height: 37px; flex-grow: 1
+[Nickname] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[The Red One] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon calendar)
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 294px; height: 37px; flex-grow: 1
+[Year] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[2022] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[OWNERSHIP] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Ownership fields] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; width: 358px; height: 128px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; align-self: stretch
+  (icon fuel)
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 274px; height: 37px; flex-grow: 1
+[Tank capacity] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[12] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[L] font-weight: 500; font-size: 14px; color: #6B727C
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon banknote)
+[banknote] width: 20px; height: 20px
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 273px; height: 37px; flex-grow: 1
+[Purchase price] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[৳285,000] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[৳] font-weight: 500; font-size: 14px; color: #6B727C
+[IDENTIFIERS] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Identifier fields] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; width: 358px; height: 128px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; align-self: stretch
+  (icon hash)
+[hash] width: 20px; height: 20px
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 294px; height: 37px; flex-grow: 1
+[Engine no. · case-sensitive, exactly as printed] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[PFZWJF12904] font-weight: 600; font-size: 16px; letter-spacing: 0.03em; color: #14171B; align-self: stretch
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon hash)
+[hash] width: 20px; height: 20px
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 294px; height: 37px; flex-grow: 1
+[Chassis no.] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[MD2A36FZ8NCM10482] font-weight: 600; font-size: 16px; letter-spacing: 0.03em; color: #14171B; align-self: stretch
+[Banner odometer derived] display: flex; flex-direction: row; align-items: flex-start; padding: 14px; gap: 12px; width: 358px; height: 98px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 18px; align-self: stretch
+  (icon info-mut)
+[Msg] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 296px; height: 68px; flex-grow: 1
+[The current odometer isn't edited here — it's derived from readings.] font-weight: 400; font-size: 13px; color: #6B727C; align-self: stretch
+[Correct a reading in Odometer history instead →] font-weight: 600; font-size: 13px; color: #C93D0E; align-self: stretch
+[Save changes] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+[Save changes] font-weight: 600; font-size: 16px; color: #FFFFFF

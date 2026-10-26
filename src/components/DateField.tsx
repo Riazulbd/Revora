@@ -6,6 +6,7 @@ import type { IsoDate } from '@/types';
 import { dateToIso, formatLongDate, isoToDate, todayIso } from '@/utils/date';
 import type { IconName } from './Icon';
 import { PickerField, type InputSize } from './Input';
+import { PickerRow } from './InputRow';
 
 /**
  * A calendar-date field.
@@ -15,8 +16,11 @@ import { PickerField, type InputSize } from './Input';
  * back with local getters. No UTC conversion happens anywhere, so a date picked
  * at 11pm cannot be stored as the previous day (requirement 64).
  *
- * The boards print today's date as "Today" in a bold field; pass `format` to
- * change the printed form (short dates in a two-up row).
+ * Today prints as "Today" (or "Today, 16 Sep" with `todayLabel="Today, "`
+ * and a format); pass `format` to change the printed form.
+ *
+ * `variant="row"` draws it as a `PickerRow` inside a fields card (Figma's
+ * `Date` row) instead of a standalone field.
  */
 export function DateField({
   value,
@@ -31,6 +35,9 @@ export function DateField({
   trailingIcon,
   todayLabel = 'Today',
   format = formatLongDate,
+  variant = 'field',
+  icon,
+  label = 'Date',
   accessibilityLabel,
   testID,
 }: {
@@ -41,7 +48,7 @@ export function DateField({
   minimumDate?: Date;
   size?: InputSize;
   weight?: 'regular' | 'bold';
-  inset?: boolean | 'bg' | 'sur2';
+  inset?: boolean | 'bg' | 'sur' | 'sur2';
   /** Matches `Input`'s `padX` — 14 inside a card, 16 on the page. */
   padX?: number;
   /** The chevron on "Pick a date"; omitted once a date is chosen unless `alwaysShowIcon`. */
@@ -49,6 +56,11 @@ export function DateField({
   /** What today prints as; `null` prints the formatted date instead. */
   todayLabel?: string | null;
   format?: (iso: IsoDate) => string;
+  variant?: 'field' | 'row';
+  /** The row variant's glyph. */
+  icon?: IconName;
+  /** The row variant's label. */
+  label?: string;
   accessibilityLabel?: string;
   testID?: string;
 }) {
@@ -61,10 +73,28 @@ export function DateField({
     if (Platform.OS === 'ios') setOpen(false);
   };
 
-  const printed = value === null ? null : todayLabel !== null && value === todayIso() ? todayLabel : format(value);
+  const printed =
+    value === null
+      ? null
+      : todayLabel !== null && value === todayIso()
+        ? todayLabel.endsWith(' ')
+          ? `${todayLabel}${format(value)}`
+          : todayLabel
+        : format(value);
 
   return (
     <>
+      {variant === 'row' ? (
+        <PickerRow
+          {...(icon === undefined ? {} : { icon })}
+          label={label}
+          value={printed}
+          placeholder={placeholder}
+          onPress={() => setOpen(true)}
+          {...(accessibilityLabel === undefined ? {} : { accessibilityLabel })}
+          {...(testID === undefined ? {} : { testID })}
+        />
+      ) : (
       <PickerField
         value={printed}
         placeholder={placeholder}
@@ -77,6 +107,7 @@ export function DateField({
         {...(accessibilityLabel === undefined ? {} : { accessibilityLabel })}
         {...(testID === undefined ? {} : { testID })}
       />
+      )}
       {open ? (
         <DateTimePicker
           value={value ? isoToDate(value) : new Date()}

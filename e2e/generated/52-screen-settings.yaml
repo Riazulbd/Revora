@@ -24,9 +24,9 @@ appId: app.revora.android.dev
 - assertVisible:
     id: "screen-dashboard"
 - tapOn:
-    id: "cta-overflow"
+    id: "tab-more"
 - tapOn:
-    id: "overflow-settings"
+    id: "row-settings"
 - assertVisible:
     id: "screen-settings"
 # --- distance and mileage, in the row and in the sheet ---
@@ -149,9 +149,9 @@ appId: app.revora.android.dev
     id: "screen-fuel"
 - back
 - tapOn:
-    id: "cta-overflow"
+    id: "tab-more"
 - tapOn:
-    id: "overflow-settings"
+    id: "row-settings"
 - scrollUntilVisible:
     element:
       id: "row-change-name"

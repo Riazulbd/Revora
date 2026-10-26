@@ -1,20 +1,22 @@
-# The Dashboard band that replaced the fifth tab.
+# The Dashboard's entry layer, and the More tab beside it.
 #
 # Each of these is one tap from a cold start by design — Documents at a traffic
-# stop, Fast Capture at a pump. If any regresses to a deeper route, the reason
-# for retiring "More" goes with it.
+# stop, Fast Capture at a pump. Search and the app-level screens live on the
+# More tab, one tap away from any tab.
 appId: app.revora.android.dev
 ---
 - launchApp:
     clearState: false
 - tapOn:
-    id: "tab-dashboard"
-
+    id: "tab-more"
 - tapOn:
     id: "cta-search"
 - assertVisible:
     id: "screen-search"
 - back
+
+- tapOn:
+    id: "tab-dashboard"
 
 - tapOn:
     id: "quick-documents"
@@ -29,25 +31,20 @@ appId: app.revora.android.dev
 - back
 
 - tapOn:
-    id: "cta-overflow"
+    id: "tab-more"
 - assertVisible: "Settings"
-- assertVisible: "Your plan"
+- assertVisible: "Free / Pro"
 - assertVisible: "Feedback & support"
-- back
 
-# The overflow is the only route to two screens the fifth tab used to reach.
+# The More tab is the route to the two screens behind the insights group.
 - tapOn:
-    id: "cta-overflow"
-- tapOn:
-    id: "overflow-assistant"
+    id: "row-assistant"
 - assertVisible:
     id: "screen-assistant"
 - back
 
 - tapOn:
-    id: "cta-overflow"
-- tapOn:
-    id: "overflow-analytics"
+    id: "row-analytics"
 - assertVisible:
     id: "screen-analytics"
 - back

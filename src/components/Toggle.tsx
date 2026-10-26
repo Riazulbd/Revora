@@ -12,10 +12,9 @@ const KNOB = 26;
 const PAD = 3;
 
 /**
- * The switch from the Company allowance board: a `52×32` track
- * (`border-radius:16px; padding:3px`) with a 26px knob that slides between
- * 3px and 23px, over 150 ms. On, the track is `--acc`; the knob is white in
- * light and `--bg` in dark, as the board draws it.
+ * The switch (Figma `Toggle on` / `Switch off`): a `52×32` track
+ * (`border-radius:999px; padding:3px`) with a 26px white knob that slides
+ * between 3px and 23px, over 150 ms. On, the track is `#D2400F`; off, `#C9CED4`.
  */
 export function Toggle({
   value,
@@ -30,7 +29,7 @@ export function Toggle({
   disabled?: boolean;
   testID?: string;
 }) {
-  const { c, dark } = useTheme();
+  const { c } = useTheme();
   const on = TRACK_WIDTH - KNOB - PAD;
   const offset = useSharedValue(value ? on : PAD);
 
@@ -50,7 +49,7 @@ export function Toggle({
       hitSlop={{ left: 10, right: 10 }}
       testID={testID}
       style={{
-        // The track is 52×32 on the board; the target is 44 high (requirement 58).
+        // The track is 52×32; the target is 48 high (requirement 58).
         height: HIT_SIZE,
         marginVertical: -(HIT_SIZE - TRACK_HEIGHT) / 2,
         justifyContent: 'center',
@@ -62,7 +61,7 @@ export function Toggle({
           width: TRACK_WIDTH,
           height: TRACK_HEIGHT,
           borderRadius: TRACK_HEIGHT / 2,
-          backgroundColor: value ? c.acc : c.sur2,
+          backgroundColor: value ? c.acc : c.brdStrong,
           justifyContent: 'center',
         }}
       >
@@ -74,24 +73,30 @@ export function Toggle({
               width: KNOB,
               height: KNOB,
               borderRadius: KNOB / 2,
-              backgroundColor: dark ? c.bg : '#FFFFFF',
+              backgroundColor: '#FFFFFF',
               shadowColor: '#000',
               shadowOpacity: 0.2,
               shadowRadius: 3,
               shadowOffset: { width: 0, height: 1 },
               elevation: 2,
+              alignItems: 'center',
+              justifyContent: 'center',
             },
             knobStyle,
           ]}
-        />
+        >
+          {/* Figma draws the tick in the knob once the switch is on, so the
+              state reads without the colour. */}
+          {value ? <Icon name="check" size={14} color={c.acc} strokeWidth={2.6} /> : null}
+        </Animated.View>
       </View>
     </Pressable>
   );
 }
 
 /**
- * `700 14px` title and `500 12px` description on the left, the switch on the
- * right — the "This is a company bike" card row.
+ * Figma `Toggle row`: `600 15px` title and `400 12px` description on the
+ * left, the switch on the right.
  */
 export function ToggleRow({
   title,
@@ -115,12 +120,12 @@ export function ToggleRow({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: 14,
-        paddingVertical: 6,
+        gap: 12,
+        paddingVertical: 8,
       }}
     >
       <View style={{ flex: 1, gap: 2 }}>
-        <Txt role="rowTitle">{title}</Txt>
+        <Txt role="rowTitleLarge">{title}</Txt>
         {description ? (
           <Txt role="meta" tone="mut">
             {description}
@@ -138,14 +143,20 @@ export function ToggleRow({
   );
 }
 
-/** The checkbox used by the fuel adjustments card. */
+/**
+ * Figma `Checkbox`: a 24px box, `border-radius:8px`, `1.5px #878E98` border
+ * when off and the accent fill with a white tick when on; the `600 15px` label
+ * beside it, an optional `400 12px` line under it.
+ */
 export function CheckRow({
   label,
+  description,
   checked,
   onChange,
   testID,
 }: {
   label: string;
+  description?: string;
   checked: boolean;
   onChange: (next: boolean) => void;
   testID?: string;
@@ -156,34 +167,40 @@ export function CheckRow({
     <Pressable
       accessibilityRole="checkbox"
       accessibilityState={{ checked }}
-      accessibilityLabel={label}
+      accessibilityLabel={description ? `${label}. ${description}` : label}
       onPress={() => onChange(!checked)}
       testID={testID}
       style={({ pressed }) => ({
-        minHeight: 46,
+        minHeight: HIT_SIZE,
+        paddingVertical: 10,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 14,
+        gap: 12,
         opacity: pressed ? 0.7 : 1,
       })}
     >
-      <Txt role="bullet" style={{ flex: 1 }}>
-        {label}
-      </Txt>
       <View
         style={{
-          width: 20,
-          height: 20,
-          borderRadius: 5,
+          width: 24,
+          height: 24,
+          borderRadius: 8,
           borderWidth: checked ? 0 : 1.5,
-          borderColor: c.brd,
-          backgroundColor: checked ? c.acc : 'transparent',
+          borderColor: c.faint,
+          backgroundColor: checked ? c.acc : c.sur,
           alignItems: 'center',
           justifyContent: 'center',
+          flexShrink: 0,
         }}
       >
-        {checked ? <Icon name="check" size={13} color="#FFFFFF" strokeWidth={3} /> : null}
+        {checked ? <Icon name="check" size={16} color="#FFFFFF" strokeWidth={2.5} /> : null}
+      </View>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Txt role="rowTitleLarge">{label}</Txt>
+        {description ? (
+          <Txt role="meta" tone="mut">
+            {description}
+          </Txt>
+        ) : null}
       </View>
     </Pressable>
   );

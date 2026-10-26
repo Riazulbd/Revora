@@ -171,3 +171,19 @@ appId: app.revora.android.dev
     id: "dialog-delete-rule-cancel"
 - assertNotVisible:
     id: "dialog-delete-rule"
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "banner-rule-status"
+    optional: true
+- assertVisible:
+    id: "card-interval"
+    optional: true
+- assertVisible:
+    id: "card-reminders"
+    optional: true
+- assertVisible:
+    id: "card-rule-history"
+    optional: true

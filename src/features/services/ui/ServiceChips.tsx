@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, View, type ViewStyle } from 'react-native';
 
-import { Txt } from '@/components';
+import { Icon, Txt, type IconName } from '@/components';
 import { HIT_SIZE, fontFamily, useTheme } from '@/theme';
 
 /**
@@ -81,4 +81,61 @@ export function ServiceChip({
 /** The board's `display:flex; gap:8px` chip row. */
 export function ServiceChipRow({ children, style }: { children: React.ReactNode; style?: ViewStyle }) {
   return <View style={[{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }, style]}>{children}</View>;
+}
+
+/**
+ * Figma `Chip` / `Chip selected` on Log a service — the 48px workshop pills:
+ * `padding:0 16px` (14 on the glyph side, `gap:6px`), `600 14px`; selected is
+ * the ink pill with a white tick, the rest white with the hairline. The
+ * rider's own workshops, and "Self-service" with its person glyph.
+ */
+export function WorkshopChip({
+  label,
+  icon,
+  selected,
+  onPress,
+  accessibilityLabel,
+  testID,
+}: {
+  label: string;
+  /** The glyph while unselected; a tick replaces it once selected. */
+  icon?: IconName;
+  selected: boolean;
+  onPress: () => void;
+  accessibilityLabel?: string;
+  testID?: string;
+}) {
+  const { c } = useTheme();
+  const glyph: IconName | undefined = selected ? 'check' : icon;
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
+      accessibilityLabel={accessibilityLabel ?? label}
+      onPress={onPress}
+      testID={testID}
+      style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+    >
+      <View
+        style={{
+          height: 48,
+          paddingLeft: glyph ? 14 : 16,
+          paddingRight: 16,
+          gap: 6,
+          borderRadius: 999,
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: selected ? c.ink : c.sur,
+          borderWidth: selected ? 0 : 1,
+          borderColor: c.brd,
+        }}
+      >
+        {glyph ? <Icon name={glyph} size={18} color={selected ? c.sur : c.ink} /> : null}
+        <Txt numberOfLines={1} style={{ fontFamily: fontFamily[600], fontSize: 14, color: selected ? c.sur : c.ink }}>
+          {label}
+        </Txt>
+      </View>
+    </Pressable>
+  );
 }

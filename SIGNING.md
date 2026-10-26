@@ -17,8 +17,13 @@ directory, and a keystore inside it would vanish on the next prebuild.
 | Key password    | `revora-release`  |
 | Validity        | 10,000 days       |
 
-These are **development credentials**. Before publishing to Google Play, replace
-them with a key you control and keep off this machine.
+These started as **development credentials**. On 2026-10-26 the original upload
+key was lost with its machine, so the Play upload key was reset to the keystore
+generated with these values (certificate SHA1
+`84:DC:F8:46:DF:3A:9A:BF:A6:DB:A9:AC:5A:D9:F7:8D:43:FB:30:FF`). That file is
+now the only key Play accepts uploads from: **back it up somewhere other than
+this machine** (a password manager attachment, an encrypted drive). Losing it
+again means another reset request and a day without releases.
 
 ## How the signing config is applied
 

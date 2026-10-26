@@ -1,7 +1,7 @@
 import type { IsoDate, SafetyCheck, SafetyArea, VaultDocument } from '@/types';
 import type { MaintenanceStatus } from './maintenance';
 import { documentStatus } from './documents';
-import { compareIso, daysBetween } from '@/utils/date';
+import { compareIso, daysBetween, formatShortDate } from '@/utils/date';
 
 /**
  * Everything on one motorcycle that is asking for the rider's attention.
@@ -147,7 +147,7 @@ export function attentionItems(input: {
         state === 'expired'
           ? `${document.title} expired`
           : `${document.title} expires ${daysPhrase(days)}`,
-      detail: `${document.expiresOn} · reminders at 30, 14, 3`,
+      detail: `${formatShortDate(document.expiresOn)} · reminders at 30, 14, 3`,
       route: '/records/document',
       params: { id: document.id },
     });

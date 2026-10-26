@@ -10,7 +10,7 @@ export type BannerTone = 'warn' | 'good' | 'bad' | 'neutral' | 'accent' | 'offli
 
 function useToneColor(tone: BannerTone): string {
   const { c } = useTheme();
-  return tone === 'good' ? c.good : tone === 'bad' ? c.bad : tone === 'accent' ? c.acc : tone === 'neutral' ? c.mut : c.warn;
+  return tone === 'good' ? c.good : tone === 'bad' ? c.bad : tone === 'accent' ? c.accText : tone === 'neutral' ? c.mut : c.warn;
 }
 
 function useToneTint(tone: BannerTone): string {
@@ -18,12 +18,12 @@ function useToneTint(tone: BannerTone): string {
   return tone === 'good' ? c.goodS : tone === 'bad' ? c.badS : tone === 'accent' ? c.accS : tone === 'neutral' ? c.sur2 : c.warnS;
 }
 
-/** The boards' default glyph per tone: wifi-off, triangle, circle, filled tick. */
-function ToneIcon({ tone, icon, size = 18 }: { tone: BannerTone; icon?: IconName; size?: number }) {
+/** The default glyph per tone: wifi-off, triangle, circle, filled tick. */
+function ToneIcon({ tone, icon, size = 20 }: { tone: BannerTone; icon?: IconName; size?: number }) {
   const color = useToneColor(tone);
-  if (icon) return <Icon name={icon} size={size} color={color} strokeWidth={1.8} />;
+  if (icon) return <Icon name={icon} size={size} color={color} />;
   if (tone === 'good') {
-    // The saved-offline board draws a filled green disc with a white tick.
+    // Saved-offline draws a filled green disc with a white tick.
     return (
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
         <Circle cx={12} cy={12} r={10} fill={color} />
@@ -31,25 +31,24 @@ function ToneIcon({ tone, icon, size = 18 }: { tone: BannerTone; icon?: IconName
       </Svg>
     );
   }
-  const name: IconName = tone === 'offline' ? 'wifiOff' : tone === 'bad' ? 'alertCircle' : tone === 'neutral' || tone === 'accent' ? 'alertCircle' : 'alertTriangle';
-  return <Icon name={name} size={size} color={color} strokeWidth={2} />;
+  const name: IconName = tone === 'offline' ? 'wifiOff' : tone === 'bad' ? 'circleAlert' : tone === 'neutral' || tone === 'accent' ? 'info' : 'triangleAlert';
+  return <Icon name={name} size={size} color={color} />;
 }
 
 /**
- * The inline notice from the boards — "You're offline.", "Not saved — litres
- * is empty.", "Motorcycle saved on this phone.":
- * `border-radius:11px; background:var(--sur); border:1px solid var(--brd);
- * padding:12px 14px; gap:10px`, an 18px tone glyph top-aligned, and a
- * `500 13px / 1.5` message whose first sentence (`lead`) is bold in the tone.
+ * The inline notice (Figma `Banner`): `background:#FFFFFF; border:1px solid
+ * #E9EBEF; border-radius:20px; padding:14px; gap:12px`, a 20px tone glyph
+ * top-aligned, and a `400 13px / 1.5` message whose first sentence (`lead`)
+ * is `600` in the tone.
  *
  * `label` (the older uppercase tag) still renders, ahead of the message.
  *
- * Two of the boards' notes carry no glyph at all, and `variant` draws them:
- *  · `plain` — the same `--sur` card, text only (Account's "The current
- *    odometer isn't edited here…", the Money board's allowance note).
- *  · `inset` — `background:var(--sur2)`, no border, no glyph (the odometer
- *    history correction preview).
- * Both are `500 12.5px / 1.5`, so they pair with `compact`.
+ * `variant`: `plain` drops the glyph; `inset` also trades the bordered card
+ * for the `#F1F2F5` inset surface (a correction preview inside a card). Both
+ * set the body a size smaller, so they pair with `compact`. `soft` is the
+ * inset surface with the glyph kept, `border-radius:16px; gap:10px` and a
+ * muted `400 13px` body — the ledger note on Add part, the uncompared-visits
+ * note on Workshop records.
  */
 export function Banner({
   message,
@@ -68,8 +67,8 @@ export function Banner({
   /** The bold, tone-coloured opening sentence. */
   lead?: string;
   tone?: BannerTone;
-  /** `plain` drops the glyph; `inset` also trades the bordered card for `--sur2`. */
-  variant?: 'default' | 'plain' | 'inset';
+  /** `plain` drops the glyph; `inset` also trades the bordered card for `--sur2`; `soft` keeps the glyph on `--sur2`. */
+  variant?: 'default' | 'plain' | 'inset' | 'soft';
   icon?: IconName;
   /** A short uppercase tag before the message, e.g. `OFFLINE`. */
   label?: string;
@@ -84,9 +83,10 @@ export function Banner({
 }) {
   const { c } = useTheme();
   const toneColor = useToneColor(tone);
-  const inset = variant === 'inset';
-  const glyph = variant === 'default';
-  const size = compact || !glyph ? 12.5 : 13;
+  const soft = variant === 'soft';
+  const inset = variant === 'inset' || soft;
+  const glyph = variant === 'default' || soft;
+  const size = compact || !glyph ? 12 : 13;
 
   return (
     <View
@@ -97,12 +97,11 @@ export function Banner({
           backgroundColor: inset ? c.sur2 : c.sur,
           borderWidth: inset ? 0 : 1,
           borderColor: c.brd,
-          borderRadius: 11,
-          paddingHorizontal: 14,
-          paddingVertical: 12,
+          borderRadius: soft ? 16 : 20,
+          padding: 14,
           flexDirection: 'row',
           alignItems: 'flex-start',
-          gap: 10,
+          gap: soft ? 10 : 12,
         },
         style,
       ]}
@@ -112,14 +111,14 @@ export function Banner({
           <ToneIcon tone={tone} {...(icon === undefined ? {} : { icon })} />
         </View>
       ) : null}
-      <Txt style={{ flex: 1, fontFamily: fontFamily[500], fontSize: size, lineHeight: size * 1.5, color: c.ink }}>
+      <Txt style={{ flex: 1, fontFamily: fontFamily[400], fontSize: size, lineHeight: size * 1.5, color: soft ? c.mut : c.ink }}>
         {label ? (
           <Txt role="fieldLabel" color={toneColor}>
             {label}{' '}
           </Txt>
         ) : null}
         {lead ? (
-          <Txt style={{ fontFamily: fontFamily[700], fontSize: size, lineHeight: size * 1.5, color: toneColor }}>
+          <Txt style={{ fontFamily: fontFamily[600], fontSize: size, lineHeight: size * 1.5, color: toneColor }}>
             {lead}{' '}
           </Txt>
         ) : null}
@@ -129,7 +128,7 @@ export function Banner({
             accessibilityRole="link"
             onPress={link.onPress}
             testID={link.testID}
-            style={{ fontFamily: fontFamily[700], fontSize: size, lineHeight: size * 1.5, color: c.acc }}
+            style={{ fontFamily: fontFamily[600], fontSize: size, lineHeight: size * 1.5, color: c.accText }}
           >
             {' '}
             {link.label}
@@ -142,11 +141,10 @@ export function Banner({
 }
 
 /**
- * The tinted callout under the quick actions on the Dashboard:
- * `border-radius:16px; background:<tone soft>; padding:13px 16px; gap:11px`,
- * a tone glyph, a `700 13.5px` title and a `500 11.5px` muted body — or, with
- * `lead`, a single `500 12px / 1.5` line that opens in bold tone ("Can't check
- * what needs attention").
+ * The tinted callout: `border-radius:20px; background:<tone soft>;
+ * padding:16px; gap:12px`, a tone glyph, a `600 14px` title and a `400 12px`
+ * muted body — or, with `lead`, a single `400 12px / 1.5` line that opens in
+ * `600` tone ("Can't check what needs attention").
  */
 export function Callout({
   tone = 'good',
@@ -155,6 +153,7 @@ export function Callout({
   body,
   lead,
   message,
+  bodyTone = 'mut',
   style,
   testID,
 }: {
@@ -162,6 +161,8 @@ export function Callout({
   icon?: IconName;
   title?: string;
   body?: string;
+  /** `tone` sets both lines in the tone colour (Figma `Status banner` on the rule editor). */
+  bodyTone?: 'mut' | 'tone';
   lead?: string;
   message?: string;
   style?: ViewStyle;
@@ -176,29 +177,28 @@ export function Callout({
       testID={testID}
       style={[
         {
-          borderRadius: 16,
+          borderRadius: 20,
           backgroundColor: tint,
-          paddingHorizontal: 16,
-          paddingVertical: 13,
+          padding: 16,
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 11,
+          gap: 12,
         },
         style,
       ]}
     >
       <ToneIcon tone={tone} size={20} {...(icon === undefined ? {} : { icon })} />
       <View style={{ flex: 1 }}>
-        {title ? <Txt role="rowTitleDense">{title}</Txt> : null}
+        {title ? <Txt role="rowTitle" {...(bodyTone === 'tone' ? { color: toneColor } : {})}>{title}</Txt> : null}
         {body ? (
-          <Txt role="metaSmall" tone="mut">
+          <Txt role="meta" tone="mut" {...(bodyTone === 'tone' ? { color: toneColor } : {})}>
             {body}
           </Txt>
         ) : null}
         {lead || message ? (
-          <Txt style={{ fontFamily: fontFamily[500], fontSize: 12, lineHeight: 18, color: c.ink }}>
+          <Txt style={{ fontFamily: fontFamily[400], fontSize: 12, lineHeight: 18, color: c.ink }}>
             {lead ? (
-              <Txt style={{ fontFamily: fontFamily[700], fontSize: 12, lineHeight: 18, color: toneColor }}>
+              <Txt style={{ fontFamily: fontFamily[600], fontSize: 12, lineHeight: 18, color: toneColor }}>
                 {lead}{' '}
               </Txt>
             ) : null}

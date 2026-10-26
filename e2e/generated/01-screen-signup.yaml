@@ -51,3 +51,25 @@ appId: app.revora.android.dev
 - assertVisible: "Use at least 8 characters."
 - assertVisible:
     id: "screen-signup"
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "card-fields"
+    optional: true
+- assertVisible:
+    id: "toggle-password"
+    optional: true
+- assertVisible:
+    id: "banner-email-in-use"
+    optional: true
+- assertVisible:
+    id: "cta-signin-link"
+    optional: true
+- assertVisible:
+    id: "link-retry"
+    optional: true
+- assertVisible:
+    id: "link-signin"
+    optional: true

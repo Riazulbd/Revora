@@ -1,21 +1,27 @@
 import React, { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
+import { View } from 'react-native';
+
 import {
-  Badge,
   Button,
+  Callout,
   Card,
   Dialog,
-  DividedList,
+  Divider,
+  Eyebrow,
   Field,
   FieldRow,
   Input,
   KeyValueRow,
+  ListCard,
+  RowIcon,
   Screen,
   ScreenHeader,
   SkeletonList,
-  Stack,
-  ToggleRow,
+  TextArea,
+  Toggle,
+  Txt,
 } from '@/components';
 import type { BikeAnalytics, RuleWithStatus } from '@/calculations/analytics';
 import { brandChoices } from '@/calculations/brandChoices';
@@ -25,8 +31,8 @@ import { placeholdersFor } from '@/calculations/products';
 import { distanceUnitLabel, volumeUnitLabel } from '@/calculations/units';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
-import { describeLastCompleted, describeStatusPill } from '@/features/maintenance/describeRule';
-import { glyphForRule } from '@/features/maintenance/ui/MaintenanceGlyph';
+import { describeLastCompleted, describeStatusBanner } from '@/features/maintenance/describeRule';
+import { glyphForRule, isFluidGlyph } from '@/features/maintenance/ui/MaintenanceGlyph';
 import {
   MaintenanceCompletionSheet,
   type CompletionPlace,
@@ -38,10 +44,11 @@ import { useStableId } from '@/features/shared/useStableId';
 import type { ServiceItemUnit, UnitPreferences } from '@/types';
 import { maintenanceRuleSchema } from '@/validation/schemas';
 import { formatDistance } from '@/utils/format';
-import { todayIso } from '@/utils/date';
+import { formatShortDate, todayIso } from '@/utils/date';
 
 /**
- * Add / edit a maintenance rule, and mark it complete.
+ * Add / edit a maintenance rule, and mark it complete (Figma `D3 Maintenance
+ * — Rule editor`).
  *
  * Marking complete writes a completion row *and* moves the rule's next due
  * point. A cost entered here lands in the ledger exactly once, because the
@@ -54,8 +61,8 @@ export default function RuleEditorRoute() {
 
   if (analytics === null) {
     return (
-      <Screen testID="screen-rule">
-        <ScreenHeader title={editingId ? 'Maintenance rule' : 'New rule'} />
+      <Screen testID="screen-rule" contentStyle={{ gap: 16 }}>
+        <ScreenHeader title={editingId ? 'Maintenance rule' : 'New rule'} icon="x" style={{ marginBottom: 0 }} />
         <SkeletonList count={4} height={64} />
       </Screen>
     );
@@ -210,7 +217,7 @@ function RuleForm({
 
   // Fluids are recorded in litres, everything else in pieces — the unit the
   // rider would write on the receipt.
-  const fluid = glyph === 'oil';
+  const fluid = isFluidGlyph(glyph);
   const itemUnit: ServiceItemUnit = fluid ? 'litre' : 'piece';
   const quantityUnit = fluid ? volumeUnitLabel(units.volume) : 'pcs';
 
@@ -272,16 +279,29 @@ function RuleForm({
     return `The next due point moves to ${formatDistance(metres + existing.intervalMetres, units.distance)}.`;
   })();
 
-  const pill = entry ? describeStatusPill(entry.rule, entry.status, units) : null;
+
+  const banner = entry ? describeStatusBanner(entry.rule, entry.status, units, currentOdometer) : null;
+  const distanceUnit = distanceUnitLabel(units.distance);
 
   return (
-    <Screen testID="screen-rule">
-      <ScreenHeader
-        title={existing ? 'Maintenance rule' : 'New rule'}
-        badge={pill ? <Badge label={pill.label} tone={pill.tone} variant="outlined" /> : undefined}
-      />
+    <Screen testID="screen-rule" contentStyle={{ gap: 16 }}>
+      <ScreenHeader title={existing ? 'Maintenance rule' : 'New rule'} icon="x" style={{ marginBottom: 0 }} />
 
-      <Stack gap={14}>
+      {/* Figma `Status banner`: where the rule stands, in its own colour. */}
+      {banner ? (
+        <Callout
+          tone={banner.tone === 'neutral' ? 'neutral' : banner.tone}
+          icon={banner.tone === 'bad' ? 'circleAlert' : banner.tone === 'warn' ? 'clock' : banner.tone === 'good' ? 'circleCheck' : 'calendar'}
+          title={banner.title}
+          body={banner.body}
+          bodyTone="tone"
+          style={{ padding: 14 }}
+          testID="banner-rule-status"
+        />
+      ) : null}
+
+      {/* Figma `Name card`. */}
+      <Card style={{ gap: 6 }}>
         <Field label="Rule name" error={errors.name ?? null}>
           <Input
             value={name}
@@ -292,19 +312,20 @@ function RuleForm({
             testID="input-rule-name"
           />
         </Field>
+      </Card>
 
-        <FieldRow>
-          <Field
-            label={`Every (${distanceUnitLabel(units.distance)})`}
-            flex={1}
-            error={errors.intervalDistance ?? null}
-          >
+      {/* Figma `Interval card`: the interval pair, then the warn-ahead pair. */}
+      <Card style={{ gap: 12 }} testID="card-interval">
+        <Eyebrow>Interval</Eyebrow>
+        <FieldRow gap={10}>
+          <Field label={`Every (${distanceUnit})`} flex={1} error={errors.intervalDistance ?? null}>
             <Input
               value={intervalDistance}
               onChangeText={setIntervalDistance}
-              placeholder="3000"
+              placeholder="3,000"
               keyboardType="decimal-pad"
-              size="compact"
+              weight="bold"
+              unit={distanceUnit}
               invalid={Boolean(errors.intervalDistance)}
               testID="input-interval-distance"
             />
@@ -315,25 +336,27 @@ function RuleForm({
               onChangeText={setIntervalDays}
               placeholder="180"
               keyboardType="number-pad"
-              size="compact"
+              weight="bold"
+              unit="days"
               invalid={Boolean(errors.intervalDays)}
               testID="input-interval-days"
             />
           </Field>
         </FieldRow>
-
-        <FieldRow>
-          <Field
-            label={`Warn ahead (${distanceUnitLabel(units.distance)})`}
-            flex={1}
-            error={errors.warnDistance ?? null}
-          >
+        <Txt role="helper" tone="mut">
+          Whichever comes first. A rule needs at least one.
+        </Txt>
+        <Divider />
+        <Eyebrow>Warn ahead</Eyebrow>
+        <FieldRow gap={10}>
+          <Field label={`Warn ahead (${distanceUnit})`} flex={1} error={errors.warnDistance ?? null}>
             <Input
               value={warnDistance}
               onChangeText={setWarnDistance}
               placeholder="300"
               keyboardType="decimal-pad"
-              size="compact"
+              weight="bold"
+              unit={distanceUnit}
               testID="input-warn-distance"
             />
           </Field>
@@ -343,76 +366,85 @@ function RuleForm({
               onChangeText={setWarnDays}
               placeholder="14"
               keyboardType="number-pad"
-              size="compact"
+              weight="bold"
+              unit="days"
               testID="input-warn-days"
             />
           </Field>
         </FieldRow>
+      </Card>
 
-        <Card variant="list" style={{ paddingVertical: 4 }}>
-          <ToggleRow
-            title="Reminders on"
-            description="Turn a rule off without deleting its history"
-            value={enabled}
-            onChange={setEnabled}
-            testID="toggle-rule-enabled"
-          />
-        </Card>
+      {/* Figma `Reminder card`. */}
+      <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }} testID="card-reminders">
+        <RowIcon icon="bell" tone="accent" />
+        <View style={{ flex: 1, gap: 2 }}>
+          <Txt role="rowTitleLarge">{enabled ? 'Reminders on' : 'Reminders off'}</Txt>
+          <Txt role="meta" tone="mut">
+            Turn a rule off without deleting its history
+          </Txt>
+        </View>
+        <Toggle value={enabled} onChange={setEnabled} accessibilityLabel="Reminders" testID="toggle-rule-enabled" />
+      </Card>
 
-        {existing ? (
-          <Card variant="list">
-            <DividedList>
-              <KeyValueRow label="Last completed" value={describeLastCompleted(existing, units)} />
-              {entry?.status.dueAtMetres !== null && entry?.status.dueAtMetres !== undefined ? (
-                <KeyValueRow
-                  label="Next due at"
-                  value={formatDistance(entry.status.dueAtMetres, units.distance)}
-                />
-              ) : null}
-            </DividedList>
-          </Card>
-        ) : null}
+      {/* Figma `History card`. */}
+      {existing ? (
+        <ListCard testID="card-rule-history">
+          <KeyValueRow label="Last completed" value={describeLastCompleted(existing, units)} />
+          {entry?.status.dueAtMetres !== null && entry?.status.dueAtMetres !== undefined ? (
+            <KeyValueRow
+              label="Next due at"
+              value={`${formatDistance(entry.status.dueAtMetres, units.distance)}${
+                entry.status.dueOnDate ? ` or ${formatShortDate(entry.status.dueOnDate)}` : ''
+              }`}
+              valueTone={entry.status.kind === 'overdue' ? 'bad' : entry.status.kind === 'due_soon' ? 'warn' : 'ink'}
+            />
+          ) : entry?.status.dueOnDate ? (
+            <KeyValueRow
+              label="Next due"
+              value={formatShortDate(entry.status.dueOnDate)}
+              valueTone={entry.status.kind === 'overdue' ? 'bad' : entry.status.kind === 'due_soon' ? 'warn' : 'ink'}
+            />
+          ) : null}
+        </ListCard>
+      ) : null}
 
+      {/* Figma `Notes card`. */}
+      <Card style={{ gap: 6 }}>
         <Field label="Notes (optional)">
-          <Input
+          <TextArea
             value={notes}
             onChangeText={setNotes}
             placeholder="Which oil, which filter…"
-            size="compact"
+            rows={2}
             testID="input-rule-notes"
           />
         </Field>
+      </Card>
 
-        {existing ? (
-          <Button
-            label={
-              currentOdometer === null
-                ? 'Mark completed'
-                : `Mark completed at ${formatDistance(currentOdometer, units.distance)}`
-            }
-            variant="secondary"
-            onPress={() => setCompleteOpen(true)}
-            testID="cta-mark-done"
-          />
-        ) : null}
-
+      {existing ? (
         <Button
-          label="Save rule"
-          onPress={submit}
-          loading={saveRule.isPending}
-          testID="cta-save-rule"
+          label="Mark completed"
+          icon="check"
+          variant="secondary"
+          size="xlarge"
+          onPress={() => setCompleteOpen(true)}
+          testID="cta-mark-done"
         />
+      ) : null}
 
-        {existing ? (
-          <Button
-            label="Delete rule"
-            variant="secondary"
-            size="medium"
-            onPress={() => setDeleteOpen(true)}
-            testID="cta-delete-rule"
-          />
-        ) : null}
-      </Stack>
+      <Button label="Save rule" size="xlarge" onPress={submit} loading={saveRule.isPending} testID="cta-save-rule" />
+
+      {existing ? (
+        <Button
+          label="Delete rule"
+          icon="trash"
+          variant="ghost"
+          tone="bad"
+          size="medium"
+          onPress={() => setDeleteOpen(true)}
+          testID="cta-delete-rule"
+        />
+      ) : null}
 
       <Dialog
         visible={deleteOpen}

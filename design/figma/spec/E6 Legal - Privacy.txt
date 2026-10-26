@@ -1,0 +1,49 @@
+[E6 Legal — Privacy] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 2315.57px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left-ink)
+[Privacy] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer] width: 48px; height: 48px
+[Header] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 12px; width: 358px; height: 102px; align-self: stretch
+[What Revora stores, whe] font-weight: 700; font-size: 24px; color: #14171B; align-self: stretch
+[Last updated chip] display: flex; flex-direction: row; align-items: center; padding: 6px 12px 6px 10px; gap: 6px; width: 200px; height: 30px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon clock-mut-16)
+[Last updated 12 Oct 2026] font-weight: 600; font-size: 12px; color: #6B727C
+[Summary card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 8px; width: 358px; height: 143px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Eyebrow row] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 6px; width: 326px; height: 15px; align-self: stretch
+[IN SHORT — A SUMMARY, NOT THE CONTRACT] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #C93D0E
+[Your records live on your account. Documents marked offline also stay on this phone. We never sell data. Delete account removes everything, permanently.] font-weight: 500; font-size: 14px; color: #14171B; align-self: stretch
+[Sections] display: flex; flex-direction: column; align-items: flex-start; padding: 4px 0px 0px; gap: 20px; width: 358px; height: 1876px; align-self: stretch
+[Section · What is stored] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 136px; align-self: stretch
+[What is stored] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[The records you enter — fuel, services, parts, documents, photos — and your account email and display name. Every figure Revora shows is calculated from what you logged; nothing derived is stored.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · Where] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 114px; align-self: stretch
+[Where] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[On your Revora account (Firebase, Google Cloud), and on this phone while offline or when you keep an offline copy of a document. The Proof Pack PDF is rendered on the device and never uploaded.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · How figures are made] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 136px; align-self: stretch
+[How figures are made] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[Consumption is measured between two full-tank fills; where there is not enough data, Revora says so rather than estimating. Incorrect entries produce incorrect figures — you can edit or delete any record and everything derived from it is recalculated.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · How to delete it] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 92px; align-self: stretch
+[How to delete it] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[Settings › Delete account removes your records, photos and account irreversibly. The dialog lists exactly what goes before you confirm.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · What Revora does not do] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 114px; align-self: stretch
+[What Revora does not do] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[Revora does not sell your data, does not share it with advertisers, and does not use your records to train anything. On the Free plan the assistant runs entirely on your device and nothing leaves it.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · Permissions] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 158px; align-self: stretch
+[Permissions] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[Notifications are asked for only when you turn reminders on. The camera is asked for only when you choose to take a photo. Choosing an existing photo goes through the system picker and needs no permission at all. Revora does not request location or contacts.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · The Pro assistant] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 290px; align-self: stretch
+[The Pro assistant] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[On Revora Pro, a question you type into the assistant is sent to Revora’s server together with a summary of that motorcycle’s figures — its odometer, mileage, running costs, service status and recent fill-ups — and passed to a language model (Google Gemini, via OpenRouter) to phrase the answer. Only the summary is sent, never your documents, photos, registration or chassis numbers, and never your name or email. Your question and the answer are not stored: only the date, the model used and the number of tokens, so usage can be reconciled.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · Ads on the free plan] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 224px; align-self: stretch
+[Ads on the free plan] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[The free plan shows ads supplied by Google AdMob. To do that, Google receives your device’s advertising ID and standard ad-request information such as your device model, language and approximate region derived from your connection. It never receives your motorcycles, fuel logs, documents or photos. You can reset or delete the advertising ID in Android Settings → Privacy → Ads, and Revora Pro removes ads entirely.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · Feedback and support] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 180px; align-self: stretch
+[Feedback and support] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[A message you send from Feedback & support is relayed to Revora’s support workspace on Slack so it reaches a person. What is sent is the message itself, your account email address, your plan, your app version, your device model and your account identifier. Your motorcycles, fuel logs, documents and photos are never attached.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · What is kept after deletion] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 158px; align-self: stretch
+[What is kept after deletion] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[Two things survive Delete account: support messages you have already sent, because they have been delivered and cannot be recalled, and the record of any subscription payment, which Google and applicable accounting law require to be retained.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · Contact] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 70px; align-self: stretch
+[Contact] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[Questions about your data can be sent to the support address published on the Revora website.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch

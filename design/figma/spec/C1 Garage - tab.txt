@@ -1,0 +1,101 @@
+[C1 Garage — tab] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: linear-gradient(180deg, #FFE6DA 0%, #F8F3F1 30%, #F5F6F8 100%); border-radius: 36px
+[Header] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 53px; align-self: stretch
+[Title col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 205px; height: 53px
+[Garage] font-weight: 700; font-size: 28px; color: #14171B
+[1 motorcycle · Active everywhere] font-weight: 400; font-size: 13px; color: #6B727C
+[Edit button] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon pencil)
+[Hero — bike] display: flex; flex-direction: column; align-items: flex-start; padding: 20px; gap: 18px; width: 358px; height: 354px; background: linear-gradient(135deg, #1E2227 0%, #101214 71.43%); border-radius: 28px; align-self: stretch
+[Bike row] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 318px; height: 71px; align-self: stretch
+[Bike tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #23272C; border-radius: 16px
+  (icon bike-brightaccent)
+[Name col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 187px; height: 71px; flex-grow: 1
+[The Red One] font-weight: 700; font-size: 22px; color: #FFFFFF; align-self: stretch
+[Bajaj Pulsar NS200 · 2022] font-weight: 400; font-size: 13px; color: #9AA1AA; align-self: stretch
+[Plate chip] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 190px; height: 23px; background: #262A30; border: 1px solid #3A3F46; border-radius: 6px
+[DHAKA METRO-LA 14-2207] font-weight: 600; font-size: 12px; letter-spacing: 0.04em; color: #C9CED4
+[Active chip] display: flex; flex-direction: row; align-items: flex-start; padding: 5px 10px; width: 59px; height: 25px; background: #262A30; border-radius: 999px
+[Active] font-weight: 600; font-size: 12px; color: #4CC38A
+[Odometer block] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 318px; height: 79px; align-self: stretch
+[ODOMETER] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #9AA1AA; align-self: stretch
+[Odometer] display: flex; flex-direction: row; align-items: baseline; padding: 0px; gap: 6px; width: 318px; height: 60px; align-self: stretch
+[34,712] font-weight: 700; font-size: 48px; letter-spacing: -0.02em; color: #FFFFFF
+[km] font-weight: 500; font-size: 18px; color: #9AA1AA
+[Stats] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 318px; height: 62px; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 62px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Plate] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[LA 14-2207] font-weight: 600; font-size: 15px; color: #FFFFFF; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 62px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Tank] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[12 L] font-weight: 600; font-size: 15px; color: #FFFFFF; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 62px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Purchase] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[৳285K] font-weight: 600; font-size: 15px; color: #FFFFFF; align-self: stretch
+[Profile link] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px 12px 0px 16px; width: 318px; height: 48px; background: #262A30; border-radius: 999px; align-self: stretch
+[Open motorcycle profile] font-weight: 600; font-size: 14px; color: #FFFFFF
+  (icon chevron-right-light)
+[Quick links] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 12px; width: 358px; height: 415px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Quick links] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Grid row] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 326px; height: 109px; align-self: stretch
+[Link Maintenance] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 10px; width: 159px; height: 109px; background: #F5F6F8; border-radius: 18px; flex-grow: 1
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBF0DA; border-radius: 12px
+  (icon settings-warn)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 135px; height: 35px; align-self: stretch
+[Maintenance] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[2 overdue] font-weight: 500; font-size: 12px; color: #B42318; align-self: stretch
+[Link Services] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 10px; width: 159px; height: 109px; background: #F5F6F8; border-radius: 18px; flex-grow: 1
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon wrench-accent)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 135px; height: 35px; align-self: stretch
+[Services] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Last 9 Sep] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Grid row] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 326px; height: 109px; align-self: stretch
+[Link Parts] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 10px; width: 159px; height: 109px; background: #F5F6F8; border-radius: 18px; flex-grow: 1
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E8F0FE; border-radius: 12px
+  (icon package-blue)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 135px; height: 35px; align-self: stretch
+[Parts] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[5 fitted] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Link Accessories] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 10px; width: 159px; height: 109px; background: #F5F6F8; border-radius: 18px; flex-grow: 1
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E5F6EE; border-radius: 12px
+  (icon shield-good)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 135px; height: 35px; align-self: stretch
+[Accessories] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[3 · ৳14,200] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Grid row] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 326px; height: 109px; align-self: stretch
+[Link Records] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 10px; width: 159px; height: 109px; background: #F5F6F8; border-radius: 18px; flex-grow: 1
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon file-text-accent)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 135px; height: 35px; align-self: stretch
+[Records] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[1 expiring] font-weight: 500; font-size: 12px; color: #93611A; align-self: stretch
+[Link Odometer] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 10px; width: 159px; height: 109px; background: #F5F6F8; border-radius: 18px; flex-grow: 1
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E8F0FE; border-radius: 12px
+  (icon gauge-blue)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 135px; height: 35px; align-self: stretch
+[Odometer] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[3 days ago] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Locked — add bike] display: flex; flex-direction: row; align-items: center; padding: 16px; gap: 12px; width: 358px; height: 103px; background: linear-gradient(135deg, #1E2227 0%, #101214 71.43%); border-radius: 24px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 44px; height: 44px; background: #23272C; border-radius: 14px
+  (icon lock-brightaccent)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 3px; width: 270px; height: 71px; flex-grow: 1
+[Title row] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 270px; height: 19px; align-self: stretch
+[Add another motorcycle] font-weight: 600; font-size: 15px; color: #FFFFFF
+[PRO chip] display: flex; flex-direction: row; align-items: flex-start; padding: 2px 8px; width: 43px; height: 19px; background: #FF6B3D; border-radius: 999px
+[PRO] font-weight: 700; font-size: 12px; color: #14171B
+[Each bike keeps its own fuel, costs and papers.] font-weight: 400; font-size: 12px; color: #9AA1AA; align-self: stretch
+[Upgrade to Pro] font-weight: 600; font-size: 13px; color: #FF6B3D; align-self: stretch
+[Tab bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 8px; width: 358px; height: 66px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; align-self: stretch
+[Tab Home] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 48px
+  (icon home-mut)
+[Tab Fuel] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 48px
+  (icon fuel-mut)
+[Tab Expenses] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 48px
+  (icon wallet-mut)
+[Tab active Garage] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 6px; width: 107px; height: 48px; background: #14171B; border-radius: 999px
+  (icon bike-white)
+[Garage] font-weight: 600; font-size: 13px; color: #FFFFFF
+[Tab More] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 48px
+  (icon menu-mut)
+[Tab · More] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 48px
+  (icon menu-mut)

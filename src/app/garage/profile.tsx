@@ -8,6 +8,7 @@ import {
   Card,
   Dialog,
   Eyebrow,
+  IconSquareButton,
   Input,
   KeyValueRow,
   ListCard,
@@ -25,17 +26,14 @@ import { OwnershipHub } from '@/features/bikes/OwnershipHub';
 import { GarageCopyRow } from '@/features/bikes/ui/GarageSpecRow';
 import { useRemoveBike } from '@/features/settings/useAccountMutations';
 import { fromMetres, toMetres } from '@/features/shared/formValues';
-import { formatCurrency, formatDistance, formatVolume, NO_VALUE } from '@/utils/format';
+import { formatCurrencySymbol, formatDistance, formatVolume, NO_VALUE } from '@/utils/format';
 import { formatLongDate } from '@/utils/date';
 import { fontFamily, useTheme } from '@/theme';
 
 /**
- * The motorcycle profile, which the boards draw as the ownership hub.
- *
- * Two artboards describe this one screen. The Account board shows the top: the
- * bike's own facts, the identifiers with their copy squares, and the odometer
- * field in its refused state. The Navigation board shows the rest: Papers,
- * Health and The machine, the three groups a rider actually thinks in.
+ * The motorcycle profile (Figma `C2 Garage — Bike profile`): the bike's own
+ * facts, the odometer entry, then everything it owns in three groups —
+ * papers, health and the machine itself.
  *
  * The header is the motorcycle's name rather than "Motorcycle profile",
  * because the screen is about one bike and a rider with three of them needs to
@@ -84,43 +82,37 @@ export default function BikeProfile() {
     activeBike.purchasePriceMinor === null && activeBike.purchaseDate === null
       ? NO_VALUE
       : [
-          activeBike.purchasePriceMinor === null
-            ? null
-            : formatCurrency(activeBike.purchasePriceMinor, activeBike.currency),
+          activeBike.purchasePriceMinor === null ? null : formatCurrencySymbol(activeBike.purchasePriceMinor, activeBike.currency),
           activeBike.purchaseDate === null ? null : formatLongDate(activeBike.purchaseDate),
         ]
           .filter((part) => part !== null)
           .join(' · ');
 
   const descriptor = bikeDescriptor(activeBike);
+  const edit = () => router.push('/garage/edit');
 
   return (
-    <Screen testID="screen-bike-profile">
-      <ScreenHeader title={activeBike.nickname} style={{ marginBottom: 0 }} />
-      <Txt role="meta" tone="mut" style={{ marginHorizontal: 4 }}>
-        Everything the bike owns lives here. Garage › bike card opens it.
+    <Screen testID="screen-bike-profile" contentStyle={{ gap: 16 }}>
+      <ScreenHeader
+        title={activeBike.nickname}
+        action={<IconSquareButton icon="pencil" accessibilityLabel="Edit motorcycle" onPress={edit} testID="cta-edit-top" />}
+        style={{ marginBottom: 0 }}
+      />
+      <Txt role="subtitle" tone="mut" align="center">
+        Everything the bike owns lives here — papers, health and the machine itself.
       </Txt>
 
-      <ListCard style={{ marginTop: 14 }}>
+      <ListCard style={{ paddingVertical: 4 }} testID="card-facts">
         <KeyValueRow label="Make & model" value={descriptor === '' ? NO_VALUE : descriptor} />
         <KeyValueRow label="Tank" value={formatVolume(activeBike.tankCapacityMl, units.volume)} />
-        <GarageCopyRow
-          label="Engine no."
-          value={activeBike.engineNumber}
-          copyLabel="Engine number"
-          testID="row-engine"
-        />
-        <GarageCopyRow
-          label="Chassis no."
-          value={activeBike.chassisNumber}
-          copyLabel="Chassis number"
-          testID="row-chassis"
-        />
+        <GarageCopyRow label="Engine no." value={activeBike.engineNumber} copyLabel="Engine number" testID="row-engine" />
+        <GarageCopyRow label="Chassis no." value={activeBike.chassisNumber} copyLabel="Chassis number" testID="row-chassis" />
         <KeyValueRow label="Purchase" value={purchase} />
       </ListCard>
 
-      <Card style={{ marginTop: 14, gap: 10 }}>
-        <Eyebrow>UPDATE ODOMETER</Eyebrow>
+      {/* Figma `Update odometer card`. */}
+      <Card style={{ gap: 10 }} testID="card-update-odometer">
+        <Eyebrow>Update odometer</Eyebrow>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <Input
             value={reading}
@@ -131,17 +123,16 @@ export default function BikeProfile() {
             placeholder={current === null ? '' : fromMetres(current, units.distance)}
             keyboardType="decimal-pad"
             size="numeric"
-            inset="bg"
             unit={distanceUnitLabel(units.distance)}
             invalid={refused}
-            style={{ flex: 1 }}
+            style={{ flex: 1, height: 48 }}
+            accessibilityLabel={`New odometer reading in ${distanceUnitLabel(units.distance)}`}
             testID="input-odometer"
           />
           <Button
             label="Update"
-            variant="subtle"
-            size="large"
-            tone="mut"
+            variant="ink"
+            size="medium"
             onPress={submitReading}
             loading={addReading.isPending}
             style={{ width: 110 }}
@@ -150,12 +141,12 @@ export default function BikeProfile() {
         </View>
 
         {refused && belowCurrent && check !== null && !check.ok && check.reason === 'below_current' ? (
-          <Txt role="meta" tone="bad" style={{ lineHeight: 18 }}>
+          <Txt role="meta" tone="bad">
             {`Lower than the current ${formatDistance(check.currentMetres, units.distance)} — the odometer only moves forward. If an earlier reading is wrong, `}
             <Txt
               accessibilityRole="link"
               onPress={() => router.push('/garage/odometer')}
-              style={{ fontFamily: fontFamily[700], color: c.acc }}
+              style={{ fontFamily: fontFamily[600], color: c.accText }}
               testID="cta-correct-reading"
             >
               correct it in Odometer history
@@ -163,7 +154,7 @@ export default function BikeProfile() {
             .
           </Txt>
         ) : refused ? (
-          <Txt role="meta" tone="bad" style={{ lineHeight: 18 }}>
+          <Txt role="meta" tone="bad">
             Enter the current reading.
           </Txt>
         ) : (
@@ -177,27 +168,22 @@ export default function BikeProfile() {
         <Banner
           tone="warn"
           message={`That is more than 5,000 ${distanceUnitLabel(units.distance)} past your last reading. Double-check before saving.`}
-          style={{ marginTop: 12 }}
           testID="banner-odometer-jump"
         />
       ) : null}
 
       <OwnershipHub />
 
-      <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
-        <Button
-          label="Edit details"
-          variant="secondary"
-          size="medium"
-          flex
-          onPress={() => router.push('/garage/edit')}
-          testID="cta-edit-details"
-        />
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <Button label="Edit details" variant="secondary" size="large" flex onPress={edit} testID="cta-edit-details" />
+        {/* Figma `Delete motorcycle`: `padding:0; gap:6px`, `600 14px` — the pill
+            is exactly as wide as its half, so the label keeps its padding small. */}
         <Button
           label="Delete motorcycle"
-          variant="ghost"
-          tone="bad"
-          size="medium"
+          icon="trash"
+          variant="dangerSubtle"
+          size="large"
+          padX={8}
           flex
           onPress={() => setConfirmRemove(true)}
           testID="cta-delete-bike"

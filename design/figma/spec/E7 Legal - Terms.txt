@@ -1,0 +1,42 @@
+[E7 Legal — Terms] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left-ink)
+[Terms of use] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer] width: 48px; height: 48px
+[Header] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 12px; width: 358px; height: 102px; align-self: stretch
+[What Revora promis] font-weight: 700; font-size: 24px; color: #14171B; align-self: stretch
+[Last updated chip] display: flex; flex-direction: row; align-items: center; padding: 6px 12px 6px 10px; gap: 6px; width: 200px; height: 30px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon clock-mut-16)
+[Last updated 12 Oct 2026] font-weight: 600; font-size: 12px; color: #6B727C
+[Summary card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 8px; width: 358px; height: 143px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[IN SHORT — A SUMMARY, NOT THE CONTRACT] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #C93D0E; align-self: stretch
+[Revora calculates from what you log. Billing lives in Google Play. It is a logbook, not an inspection, and the Proof Pack certifies its own provenance — not the motorcycle.] font-weight: 500; font-size: 14px; color: #14171B; align-self: stretch
+[Anchor chips] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 104px; align-self: stretch
+[Chip · Your figures (active)] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; width: 112px; height: 48px; background: #14171B; border-radius: 999px
+[Your figures] font-weight: 600; font-size: 13px; color: #FFFFFF
+[Chip · Subscriptions] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; width: 125px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Subscriptions] font-weight: 600; font-size: 13px; color: #14171B
+[Chip · No warranty] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; width: 115px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[No warranty] font-weight: 600; font-size: 13px; color: #14171B
+[Chip · Proof Pack] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; width: 105px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Proof Pack] font-weight: 600; font-size: 13px; color: #14171B
+[Sections] display: flex; flex-direction: column; align-items: flex-start; padding: 4px 0px 0px; gap: 20px; width: 358px; height: 832px; align-self: stretch
+[Section · Your figures] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 180px; align-self: stretch
+[Your figures] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[Every figure Revora shows is calculated from what you logged. Consumption is measured between two full-tank fills; where there is not enough data, Revora says so rather than estimating. Incorrect entries produce incorrect figures — you can edit or delete any record and everything derived from it is recalculated.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · Subscriptions] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 114px; align-self: stretch
+[Subscriptions] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[Pro is billed by Google Play. Renewal, cancellation and refunds happen in Play, not in the app. If Pro lapses, your records stay — screens that need Pro say so instead of showing them.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · What Revora does not warrant] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 136px; align-self: stretch
+[What Revora does not warrant] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[Revora is a logbook. It is not a mechanical inspection, not a diagnosis, and not advice about whether a motorcycle is safe to ride. Maintenance reminders repeat what you told them; they do not replace a mechanic’s judgement.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · Limits of the Proof Pack] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 136px; align-self: stretch
+[Limits of the Proof Pack] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[The stamp certifies that Revora generated the document from the owner’s records at that moment — record count, dates covered, and a reference that fingerprints exactly those records. It says nothing about the motorcycle itself.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · Your account] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 92px; align-self: stretch
+[Your account] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[You are responsible for keeping your sign-in details secure. An offline account keeps records on one device only until you add an email address.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch
+[Section · Changes] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 6px; width: 358px; height: 70px; align-self: stretch
+[Changes] font-weight: 700; font-size: 16px; color: #14171B; align-self: stretch
+[These terms may be updated as Revora develops. Material changes will be shown in the app.] font-weight: 400; font-size: 14px; color: #3B4048; align-self: stretch

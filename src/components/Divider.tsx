@@ -3,8 +3,8 @@ import { View } from 'react-native';
 
 import { useTheme } from '@/theme';
 
-/** `<div style="height:1px;background:var(--brd)">` from the design. */
+/** The 1px hairline between rows inside a card (`border-top:1px solid #EEF0F3`). */
 export function Divider({ inset = 0 }: { inset?: number }) {
   const { c } = useTheme();
-  return <View style={{ height: 1, backgroundColor: c.brd, marginLeft: inset }} />;
+  return <View style={{ height: 1, backgroundColor: c.div, marginLeft: inset }} />;
 }

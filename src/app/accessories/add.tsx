@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { Image, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import {
+  Banner,
   Button,
   DateField,
   Dialog,
+  Field,
+  Icon,
   Input,
+  InputRow,
+  ListCard,
+  PickerRow,
   Screen,
   ScreenHeader,
+  Segmented,
   SkeletonList,
   Txt,
 } from '@/components';
@@ -18,28 +25,28 @@ import { distanceUnitLabel } from '@/calculations/units';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { useRecategorise } from '@/features/parts/useRecategorise';
 import { PartsDialog } from '@/features/parts/ui/PartsDialog';
-import { PartsField } from '@/features/parts/ui/PartsField';
-import { PartsTypeSwitch } from '@/features/parts/ui/PartsTypeSwitch';
-import { AccessoryPhotoField } from '@/features/accessories/ui/AccessoryPhotoField';
-import {
-  useDeleteAccessory,
-  useNewAccessoryId,
-  useSaveAccessory,
-} from '@/features/accessories/useAccessoryMutations';
+import { useDeleteAccessory, useNewAccessoryId, useSaveAccessory } from '@/features/accessories/useAccessoryMutations';
 import { fromMinor, toMetres, toMinor, toTrimmed } from '@/features/shared/formValues';
 import { useGarageContext } from '@/features/shared/useGarageContext';
+import { useImagePicker } from '@/features/shared/useImagePicker';
 import { useStableId } from '@/features/shared/useStableId';
 import { uploadImageOrKeepLocal } from '@/services/storage';
 import type { BikeAnalytics } from '@/calculations/analytics';
 import type { Accessory } from '@/types';
 import { accessorySchema } from '@/validation/schemas';
-import { formatCurrency } from '@/utils/format';
-import { formatShortDate, todayIso } from '@/utils/date';
+import { formatCurrencySymbol } from '@/utils/format';
+import { formatLongDate, todayIso } from '@/utils/date';
+import { useTheme } from '@/theme';
+
+const TYPE_OPTIONS = [
+  { value: 'part' as const, label: 'Part' },
+  { value: 'accessory' as const, label: 'Accessory' },
+];
 
 /**
- * Add / edit an accessory.
+ * Add / edit an accessory (Figma `C7 Accessories — Add`).
  *
- * Purchase and fitting are two fields and one figure: they are added together
+ * Purchase and fitting are two rows and one figure: they are added together
  * once in Costs, and the helper under them prints that total as it is typed so
  * nobody has to wonder whether both were counted.
  */
@@ -50,7 +57,7 @@ export default function AccessoryEditorRoute() {
   if (analytics === null) {
     return (
       <Screen testID="screen-accessory-add">
-        <ScreenHeader title={editingId ? 'Edit accessory' : 'Add accessory'} />
+        <ScreenHeader title={editingId ? 'Edit accessory' : 'Add accessory'} icon="x" />
         <SkeletonList count={3} height={64} />
       </Screen>
     );
@@ -64,6 +71,8 @@ export default function AccessoryEditorRoute() {
 function AccessoryForm({ existing, analytics }: { existing: Accessory | null; analytics: BikeAnalytics }) {
   const router = useRouter();
   const garage = useGarageContext();
+  const picker = useImagePicker();
+  const { c } = useTheme();
 
   const newAccessoryId = useNewAccessoryId();
   const generatedId = useStableId(newAccessoryId);
@@ -71,15 +80,12 @@ function AccessoryForm({ existing, analytics }: { existing: Accessory | null; an
 
   const currency = existing?.currency ?? analytics.currency;
   const decimals = currencyDecimals(currency);
+  const symbol = currencySymbol(currency);
   const distanceLabel = distanceUnitLabel(analytics.units.distance);
 
   const [name, setName] = useState(existing?.name ?? '');
-  const [purchaseCost, setPurchaseCost] = useState(
-    existing ? fromMinor(existing.purchaseCostMinor, decimals) : '',
-  );
-  const [installCost, setInstallCost] = useState(
-    existing ? fromMinor(existing.installationCostMinor, decimals) : '',
-  );
+  const [purchaseCost, setPurchaseCost] = useState(existing ? fromMinor(existing.purchaseCostMinor, decimals) : '');
+  const [installCost, setInstallCost] = useState(existing ? fromMinor(existing.installationCostMinor, decimals) : '');
   const [date, setDate] = useState(existing?.date ?? todayIso());
   const [notes, setNotes] = useState(existing?.notes ?? '');
   const [photoUri, setPhotoUri] = useState<string | null>(existing?.photoPath ?? null);
@@ -104,7 +110,7 @@ function AccessoryForm({ existing, analytics }: { existing: Accessory | null; an
   const spendHelper =
     spendMinor === null
       ? 'Added together once in Costs, never counted twice.'
-      : `Added together once in Costs — ${formatCurrency(spendMinor, currency)}, never counted twice.`;
+      : `Added together once in Costs — ${formatCurrencySymbol(spendMinor, currency)}, never counted twice.`;
 
   const paidSoFar = existing === null ? null : existing.purchaseCostMinor + existing.installationCostMinor;
 
@@ -127,6 +133,11 @@ function AccessoryForm({ existing, analytics }: { existing: Accessory | null; an
     }
     setFittedError(null);
     void recategorise.submit({ direction: 'accessoryToPart', accessory: existing, odometerMetres: metres });
+  };
+
+  const choosePhoto = async () => {
+    const next = await picker.choose('Accessory photo');
+    if (next) setPhotoUri(next);
   };
 
   const submit = async () => {
@@ -152,14 +163,7 @@ function AccessoryForm({ existing, analytics }: { existing: Accessory | null; an
     // Keep the local URI if the upload fails — the photo stays on this device.
     let photoPath = photoUri;
     if (photoUri && photoUri.startsWith('file://') && garage) {
-      photoPath = (
-        await uploadImageOrKeepLocal({
-          uid: garage.uid,
-          kind: 'accessory',
-          recordId,
-          localUri: photoUri,
-        })
-      ).path;
+      photoPath = (await uploadImageOrKeepLocal({ uid: garage.uid, kind: 'accessory', recordId, localUri: photoUri })).path;
     }
 
     await saveAccessory.submit({
@@ -176,106 +180,103 @@ function AccessoryForm({ existing, analytics }: { existing: Accessory | null; an
   };
 
   return (
-    <Screen testID="screen-accessory-add">
-      <ScreenHeader title={existing ? existing.name : 'Add accessory'} />
+    <Screen testID="screen-accessory-add" contentStyle={{ flexGrow: 1, gap: 16 }}>
+      <ScreenHeader title={existing ? existing.name : 'Add accessory'} icon="x" style={{ marginBottom: 0 }} />
 
-      <PartsTypeSwitch
-        value="accessory"
-        pending={convertOpen ? 'part' : null}
-        onChange={chooseType}
-        testID="segmented-record-type"
-      />
+      <Segmented options={TYPE_OPTIONS} value={convertOpen ? 'part' : 'accessory'} onChange={chooseType} testID="segmented-record-type" />
 
-      <PartsField label="Name" error={errors.name ?? null} style={{ marginTop: 16 }}>
-        <Input
+      <ListCard testID="card-fields">
+        <InputRow
+          icon="tag"
+          label="Name"
           value={name}
           onChangeText={setName}
           placeholder="Givi 27L tail box"
           autoCapitalize="sentences"
-          padX={14}
           invalid={Boolean(errors.name)}
+          {...(errors.name ? { hint: errors.name, hintTone: 'bad' as const } : {})}
           testID="input-accessory-name"
         />
-      </PartsField>
-
-      <View style={{ flexDirection: 'row', gap: 12, marginTop: 14 }}>
-        <PartsField label="Purchase" flex={1} error={errors.purchaseCostMinor ?? null}>
-          <Input
-            value={purchaseCost}
-            onChangeText={setPurchaseCost}
-            placeholder="0"
-            keyboardType="decimal-pad"
-            prefix={currencySymbol(currency)}
-            padX={14}
-            invalid={Boolean(errors.purchaseCostMinor)}
-            testID="input-purchase-cost"
-          />
-        </PartsField>
-        <PartsField label="Fitting" optional flex={1}>
-          <Input
-            value={installCost}
-            onChangeText={setInstallCost}
-            placeholder="0"
-            keyboardType="decimal-pad"
-            prefix={currencySymbol(currency)}
-            padX={14}
-            testID="input-install-cost"
-          />
-        </PartsField>
-      </View>
-
-      <Txt role="helper" tone="mut" style={{ marginTop: 8 }} testID="note-accessory-total">
-        {spendHelper}
-      </Txt>
-
-      <View style={{ flexDirection: 'row', gap: 12, marginTop: 14 }}>
-        <PartsField label="Added on" flex={1}>
-          <DateField
-            value={date}
-            onChange={setDate}
-            maximumDate={new Date()}
-            todayLabel={null}
-            format={formatShortDate}
-            padX={14}
-            testID="field-accessory-date"
-          />
-        </PartsField>
-        <PartsField label="Photo" optional flex={1}>
-          <AccessoryPhotoField uri={photoUri} onChange={setPhotoUri} testID="field-accessory-photo" />
-        </PartsField>
-      </View>
-
-      <PartsField label="Notes" optional style={{ marginTop: 14 }}>
-        <Input
-          value={notes}
-          onChangeText={setNotes}
-          placeholder="Givi, fitted at Bike Point"
-          padX={14}
-          testID="input-accessory-notes"
+        <InputRow
+          icon="banknote"
+          label="Purchase"
+          value={purchaseCost}
+          onChangeText={setPurchaseCost}
+          placeholder="0"
+          keyboardType="decimal-pad"
+          unit={symbol}
+          invalid={Boolean(errors.purchaseCostMinor)}
+          {...(errors.purchaseCostMinor ? { hint: errors.purchaseCostMinor, hintTone: 'bad' as const } : {})}
+          testID="input-purchase-cost"
         />
-      </PartsField>
+        <InputRow
+          icon="wrench"
+          label="Fitting (optional)"
+          value={installCost}
+          onChangeText={setInstallCost}
+          placeholder="0"
+          keyboardType="decimal-pad"
+          unit={symbol}
+          testID="input-install-cost"
+        />
+      </ListCard>
 
-      <Txt role="helper" tone="mut" style={{ marginTop: 12 }}>
-        {`Counts in your totals, stays out of cost / ${distanceLabel} — a one-off charged against distance would make that figure swing.`}
-      </Txt>
+      {/* Figma `Sum helper`. */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 16, backgroundColor: c.accS }} testID="note-accessory-total">
+        <Icon name="plus" size={20} color={c.accBright} />
+        <Txt role="mediumStrong" tone="acc" style={{ flex: 1 }}>
+          {spendHelper}
+        </Txt>
+      </View>
 
-      <Button
-        label={existing ? 'Save changes' : 'Save accessory'}
-        onPress={submit}
-        loading={saveAccessory.isPending}
-        style={{ marginTop: 14 }}
-        testID="cta-save-accessory"
+      <ListCard testID="card-details">
+        <DateField
+          variant="row"
+          icon="calendar"
+          label="Added on"
+          value={date}
+          onChange={setDate}
+          maximumDate={new Date()}
+          todayLabel={null}
+          format={formatLongDate}
+          testID="field-accessory-date"
+        />
+        <PickerRow
+          icon="camera"
+          label="Photo (optional)"
+          value={photoUri ? 'Photo added · tap to change' : 'Add a photo'}
+          valueTone="acc"
+          placeholder="Add a photo"
+          onPress={() => void choosePhoto()}
+          disabled={picker.busy}
+          {...(photoUri
+            ? {
+                trailing: (
+                  <Image source={{ uri: photoUri }} accessibilityIgnoresInvertColors style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: c.sur2 }} resizeMode="cover" />
+                ),
+              }
+            : {})}
+          testID="field-accessory-photo"
+        />
+        <InputRow icon="fileText" label="Notes (optional)" value={notes} onChangeText={setNotes} placeholder="Givi, fitted at Bike Point" testID="input-accessory-notes" />
+      </ListCard>
+
+      {photoUri ? (
+        <Button label="Remove photo" variant="ghost" tone="mut" size="compact" onPress={() => setPhotoUri(null)} testID="cta-remove-photo" />
+      ) : null}
+
+      <Banner
+        tone="neutral"
+        message={`Counts in your totals, stays out of cost / ${distanceLabel} — a one-off charged against distance would make that figure swing.`}
+        testID="note-accessory-rule"
       />
 
+      <View style={{ flex: 1, minHeight: 8 }} />
+
+      <Button label={existing ? 'Save changes' : 'Save accessory'} icon="check" size="xlarge" onPress={submit} loading={saveAccessory.isPending} testID="cta-save-accessory" />
+
       {existing ? (
-        <Button
-          label="Remove accessory"
-          variant="dangerSubtle"
-          radius={13}
-          onPress={() => setDeleteOpen(true)}
-          style={{ marginTop: 14 }}
-          testID="cta-delete-accessory"
-        />
+        <Button label="Remove accessory" icon="trash" variant="dangerSubtle" size="large" onPress={() => setDeleteOpen(true)} testID="cta-delete-accessory" />
       ) : null}
 
       {existing ? (
@@ -289,14 +290,10 @@ function AccessoryForm({ existing, analytics }: { existing: Accessory | null; an
           onConfirm={convert}
           testID="dialog-convert-accessory"
         >
-          <Txt role="body" tone="mut" style={{ marginTop: 8, lineHeight: 20.15 }}>
+          <Txt role="body" tone="mut" style={{ marginTop: 8 }}>
             A part wears, so it needs one thing an accessory never had:
           </Txt>
-          <PartsField
-            label="Fitted at odometer — required"
-            error={fittedError}
-            style={{ marginTop: 12 }}
-          >
+          <Field label="Fitted at odometer — required" error={fittedError} style={{ marginTop: 12 }}>
             <Input
               value={fittedOdometer}
               onChangeText={(next) => {
@@ -306,20 +303,19 @@ function AccessoryForm({ existing, analytics }: { existing: Accessory | null; an
               placeholder="Reading when fitted"
               keyboardType="decimal-pad"
               unit={distanceLabel}
-              padX={14}
               invalid={fittedError !== null}
               testID="input-fitted-odometer"
             />
-          </PartsField>
-          <Txt role="body" tone="mut" style={{ marginTop: 12, lineHeight: 20.15 }}>
+          </Field>
+          <Txt role="body" tone="mut" style={{ marginTop: 12 }}>
             {`It also joins cost / ${distanceLabel} from that reading, and you can give it an expected life. ${
               paidSoFar === null || paidSoFar === 0
                 ? 'Nothing was recorded as paid, so Costs is unchanged either way.'
-                : `The ${formatCurrency(paidSoFar, currency)} you paid stays in Costs either way.`
+                : `The ${formatCurrencySymbol(paidSoFar, currency)} you paid stays in Costs either way.`
             }`}
           </Txt>
           {existing.photoPath === null ? null : (
-            <Txt role="body" tone="mut" style={{ marginTop: 8, lineHeight: 20.15 }}>
+            <Txt role="body" tone="mut" style={{ marginTop: 8 }}>
               Its photo is discarded — a part has nowhere to keep one.
             </Txt>
           )}
@@ -333,7 +329,7 @@ function AccessoryForm({ existing, analytics }: { existing: Accessory | null; an
         message={`The record${existing?.photoPath ? ' and its photo are' : ' is'} deleted. ${
           paidSoFar === null || paidSoFar === 0
             ? 'Nothing was recorded as paid, so Costs is unchanged.'
-            : `The ${formatCurrency(paidSoFar, currency)} stays in Costs — you paid it, so it stays counted.`
+            : `The ${formatCurrencySymbol(paidSoFar, currency)} stays in Costs — you paid it, so it stays counted.`
         } This can't be undone.`}
         confirmLabel="Remove"
         cancelLabel="Keep"

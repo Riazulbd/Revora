@@ -60,12 +60,16 @@ appId: app.revora.android.dev
 - assertVisible:
     id: "screen-vault"
 - back
-# --- the entry layer ---
+# --- the entry layer: search on the More tab, the bell on the dashboard ---
+- tapOn:
+    id: "tab-more"
 - tapOn:
     id: "cta-search"
 - assertVisible:
     id: "screen-search"
 - back
+- tapOn:
+    id: "tab-dashboard"
 - tapOn:
     id: "cta-notifications"
 - assertVisible:
@@ -103,48 +107,71 @@ appId: app.revora.android.dev
 - assertVisible:
     id: "screen-plan"
 - back
-# --- the overflow: six rows, each opened and returned from ---
+# --- the More tab: its rows, each opened and returned from ---
 - tapOn:
-    id: "cta-overflow"
+    id: "tab-more"
 - assertVisible:
-    id: "sheet-overflow"
+    id: "screen-more"
 - tapOn:
-    id: "overflow-settings"
+    id: "row-settings"
 - assertVisible:
     id: "screen-settings"
 - back
 - tapOn:
-    id: "cta-overflow"
-- tapOn:
-    id: "overflow-plan"
+    id: "row-plan"
 - assertVisible:
     id: "screen-plan"
 - back
 - tapOn:
-    id: "cta-overflow"
-- tapOn:
-    id: "overflow-assistant"
+    id: "row-assistant"
 - assertVisible:
     id: "screen-assistant"
 - back
 - tapOn:
-    id: "cta-overflow"
-- tapOn:
-    id: "overflow-analytics"
+    id: "row-analytics"
 - assertVisible:
     id: "screen-analytics"
 - back
 - tapOn:
-    id: "cta-overflow"
-- tapOn:
-    id: "overflow-feedback"
+    id: "row-feedback"
 - assertVisible:
     id: "screen-feedback"
 - back
+# Legal lives behind the plan: "Terms & privacy" opens Terms, which links the policy.
 - tapOn:
-    id: "cta-overflow"
+    id: "row-plan"
+- scrollUntilVisible:
+    element:
+      id: "link-terms"
+    direction: DOWN
 - tapOn:
-    id: "overflow-legal"
+    id: "link-terms"
 - assertVisible:
-    id: "screen-privacy"
+    id: "screen-terms"
 - back
+- back
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "cta-switch-bike"
+    optional: true
+- assertVisible:
+    id: "card-odometer"
+    optional: true
+- assertVisible:
+    id: "tile-mileage"
+    optional: true
+- assertVisible:
+    id: "chart-spend"
+    optional: true
+- assertVisible:
+    id: "card-spend"
+    optional: true
+- assertVisible:
+    id: "chart-mileage"
+    optional: true
+- assertVisible:
+    id: "card-activity"
+    optional: true

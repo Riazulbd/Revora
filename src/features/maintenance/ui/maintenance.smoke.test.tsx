@@ -37,7 +37,7 @@ import { MaintenancePicker } from './MaintenancePicker';
 
 const noop = () => {};
 
-const GLYPHS: readonly MaintenanceGlyphName[] = ['oil', 'chain', 'filter', 'plug', 'brake', 'off', 'generic'];
+const GLYPHS: readonly MaintenanceGlyphName[] = ['droplet', 'link', 'wind', 'zap', 'disc', 'thermometer', 'tyre', 'bellOff', 'wrench'];
 
 const BRANDS = [{ key: 'a', label: 'Shell Advance AX7 10W-40', note: 'used last time' }];
 const WORKSHOPS = [{ key: 'Rahim Motors', label: 'Rahim Motors', note: 'from your history' }];
@@ -109,7 +109,7 @@ function Everything() {
         visible
         onClose={noop}
         ruleName="Engine oil"
-        glyph="oil"
+        glyph="droplet"
         date="2026-09-16"
         onDateChange={noop}
         odometer="34712"
@@ -144,7 +144,7 @@ function Everything() {
         visible
         onClose={noop}
         ruleName="Chain clean, lube & tension"
-        glyph="chain"
+        glyph="link"
         date="2026-09-16"
         onDateChange={noop}
         odometer=""

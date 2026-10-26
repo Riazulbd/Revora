@@ -6,88 +6,82 @@ import {
   Badge,
   Button,
   Card,
-  CopyButton,
   EmptyState,
   ErrorState,
-  Footnote,
+  HeroCard,
   Icon,
+  ListCard,
+  RecordRow,
   RowIcon,
   Screen,
+  ScreenHeader,
   SkeletonList,
-  Stack,
-  TabHeader,
   Txt,
   type IconName,
+  type RowTone,
 } from '@/components';
-import { DOCUMENT_REFERENCE_LABEL } from '@/calculations/documents';
-import {
-  documentBadgeLabel,
-  documentBadgeTone,
-  documentNeedsExpiry,
-  vaultValidityLine,
-} from '@/calculations/documentVault';
-import { useDocuments } from '@/features/records/useRecordQueries';
-import { todayIso } from '@/utils/date';
+import { documentBadgeTone, vaultCounts, vaultRowChip, vaultRowLine } from '@/calculations/documentVault';
+import { activeWarranties } from '@/calculations/warranties';
+import { useGarage } from '@/features/bikes/GarageProvider';
+import { useDocuments, useWarranties } from '@/features/records/useRecordQueries';
+import { HeroStat, InkAddButton } from '@/features/records/ui/RecordsChrome';
 import { useTheme } from '@/theme';
+import { todayIso } from '@/utils/date';
 import type { DocumentKind, VaultDocument } from '@/types';
 
 /**
- * The document vault.
+ * The document vault (Figma `R1 Records — Documents vault`).
  *
  * Status is computed from the expiry date every time the screen opens, so a
- * document that lapsed overnight is red the next morning without anything
- * having to run in the background.
- *
- * The number is the reason most of these records exist — it gets typed into a
- * renewal form or read down a phone at a checkpoint — so it sits on the row at
- * full size with its own copy button, rather than a screen away.
+ * document that lapsed overnight is amber or red the next morning without
+ * anything having to run in the background. The hero's three figures are
+ * counted from the same status as the rows under them.
  */
 
+/** The glyph for each kind of paper (Figma `Tile`). Presentation only. */
 const KIND_ICON: Record<DocumentKind, IconName> = {
   registration: 'file',
   insurance: 'shield',
-  tax_token: 'documents',
-  fitness: 'checkCircle',
-  licence: 'card',
+  tax_token: 'receipt',
+  fitness: 'fileCheck',
+  licence: 'idCard',
   custom: 'file',
 };
 
-const TONE_ROW = { good: 'good', warn: 'warn', bad: 'bad', neutral: 'neutral' } as const;
-
 export default function DocumentVault() {
   const router = useRouter();
+  const { c } = useTheme();
+  const { activeBike } = useGarage();
   const documents = useDocuments();
+  const warranties = useWarranties();
   const today = todayIso();
 
   const items = documents.data ?? [];
+  const counts = vaultCounts(items, today);
+  const activeCover = activeWarranties(warranties.data ?? [], today).length;
+
+  const addDocument = () => router.push('/records/document');
+
+  const header = (
+    <ScreenHeader
+      title="Documents"
+      action={<InkAddButton onPress={addDocument} accessibilityLabel="Add a document" testID="cta-add-document" />}
+      style={{ marginBottom: 0 }}
+    />
+  );
 
   if (documents.isPending) {
     return (
-      <Screen testID="screen-vault" contentStyle={{ paddingHorizontal: 20 }}>
-        <TabHeader title="Documents" />
+      <Screen wash testID="screen-vault" contentStyle={{ gap: 16 }}>
+        {header}
         <SkeletonList count={3} height={112} />
       </Screen>
     );
   }
 
   return (
-    <Screen
-      onRefresh={async () => void (await documents.refetch())}
-      testID="screen-vault"
-      contentStyle={{ paddingHorizontal: 20 }}
-    >
-      <TabHeader
-        title="Documents"
-        action={
-          <Button
-            label="Add"
-            icon="plus"
-            size="compact"
-            onPress={() => router.push('/records/document')}
-            testID="cta-add-document"
-          />
-        }
-      />
+    <Screen wash onRefresh={async () => void (await documents.refetch())} testID="screen-vault" contentStyle={{ gap: 16 }}>
+      {header}
 
       {documents.isError ? (
         <ErrorState
@@ -97,120 +91,120 @@ export default function DocumentVault() {
         />
       ) : items.length === 0 ? (
         <EmptyState
-          icon="documents"
+          icon="fileText"
           title="No documents yet"
           message="Registration, insurance, tax token, fitness, licence — keep the expiry dates here and Revora reminds you before they lapse."
-          primaryAction={{ label: 'Add a document', onPress: () => router.push('/records/document') }}
+          primaryAction={{ label: 'Add a document', onPress: addDocument }}
           variant="page"
           testID="empty-vault"
         />
       ) : (
         <>
-          <Stack gap={10}>
-            {items.map((document) => (
-              <DocumentCard key={document.id} document={document} today={today} />
-            ))}
-          </Stack>
+          {/* Figma `Hero — dark accent`. */}
+          <HeroCard gap={14} testID="hero-vault">
+            <Txt role="eyebrow" uppercase color={c.heroMut}>{`Papers for ${activeBike?.nickname ?? 'your bike'}`}</Txt>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
+              <Txt role="hero" color={c.heroInk}>
+                {String(counts.total)}
+              </Txt>
+              <Txt role="cardTitle" color={c.heroMut} style={{ fontWeight: '500' }}>
+                {counts.total === 1 ? 'document saved' : 'documents saved'}
+              </Txt>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <HeroStat label="Valid" value={String(counts.valid)} color={c.heroGood} testID="stat-vault-valid" />
+              <HeroStat label="Due soon" value={String(counts.dueSoon)} color="#F5C26B" testID="stat-vault-due" />
+              <HeroStat label="Offline" value={String(counts.offline)} testID="stat-vault-offline" />
+            </View>
+          </HeroCard>
 
-          <Footnote style={{ marginTop: 12 }}>
-            Reminders fire 30, 14 and 3 days before an expiry. Everything here works offline — built for a
-            traffic stop.
-          </Footnote>
+          {/* Figma `Docs card`: one row per paper, chip or chevron on the right. */}
+          <ListCard style={{ paddingVertical: 4 }} testID="list-vault">
+            {items.map((document) => (
+              <DocumentRow key={document.id} document={document} today={today} />
+            ))}
+          </ListCard>
+
+          {/* Figma `Links`: the two record sets that live beside the papers. */}
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <LinkCard
+              icon="badgeCheck"
+              title="Warranties"
+              line={activeCover === 0 ? 'None active' : `${activeCover} active`}
+              onPress={() => router.push('/records/warranties')}
+              testID="link-warranties"
+            />
+            <LinkCard
+              icon="package"
+              title="Proof Pack"
+              line="PDF for a buyer"
+              onPress={() => router.push('/records/proof-pack')}
+              testID="link-proof-pack"
+            />
+          </View>
+
+          <Button label="Add a document" icon="plus" size="xlarge" onPress={addDocument} testID="cta-add-document-primary" />
         </>
       )}
     </Screen>
   );
 }
 
-function DocumentCard({ document, today }: { document: VaultDocument; today: string }) {
+/** Figma `Row`: the tinted tile, `600 14px` name, `400 12px` line, and a chip or a chevron. */
+function DocumentRow({ document, today }: { document: VaultDocument; today: string }) {
   const router = useRouter();
-  const { c, radius } = useTheme();
-
   const tone = documentBadgeTone(document, today);
-  const needsExpiry = documentNeedsExpiry(document);
-  const validity = vaultValidityLine(document, today);
-  const reference = document.reference?.trim() ?? '';
+  const chip = vaultRowChip(document, today);
+  const rowTone: RowTone = tone === 'neutral' ? (document.kind === 'custom' ? 'neutral' : 'info') : tone;
 
-  // A custom document that never runs out has no term, no countdown and
-  // nothing to remind anyone about, so the board gives it a single line.
-  const simple = document.expiresOn === null && !needsExpiry;
+  return (
+    <RecordRow
+      variant="flush"
+      icon={KIND_ICON[document.kind]}
+      iconTone={rowTone}
+      title={document.title}
+      subtitle={vaultRowLine(document, today)}
+      {...(chip === null ? { chevron: true } : { badge: <Badge label={chip.label} tone={chip.tone} /> })}
+      onPress={() => router.push({ pathname: '/records/document', params: { id: document.id } })}
+      testID={`document-${document.id}`}
+    />
+  );
+}
 
-  const ink =
-    tone === 'good' ? c.good : tone === 'warn' ? c.warn : tone === 'bad' ? c.bad : c.mut;
-
-  const open = () => router.push({ pathname: '/records/document', params: { id: document.id } });
-
+/** Figma `Warranties` / `Proof pack`: a square-ish white card with a tile, a `600 14px` title and a line. */
+function LinkCard({
+  icon,
+  title,
+  line,
+  onPress,
+  testID,
+}: {
+  icon: IconName;
+  title: string;
+  line: string;
+  onPress: () => void;
+  testID: string;
+}) {
+  const { c } = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${document.title}. ${documentBadgeLabel(document, today)}`}
-      onPress={open}
-      testID={`document-${document.id}`}
-      style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
+      accessibilityLabel={`${title}. ${line}`}
+      onPress={onPress}
+      testID={testID}
+      style={({ pressed }) => ({ flex: 1, opacity: pressed ? 0.75 : 1 })}
     >
-      <Card
-        variant="list"
-        style={{ paddingVertical: 16, borderRadius: radius.listCard, gap: simple ? 0 : 10 }}
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 1 }}>
-            <RowIcon tone={TONE_ROW[tone]}>
-              <Icon name={KIND_ICON[document.kind]} size={17} color={ink} strokeWidth={1.8} />
-            </RowIcon>
-            <View style={{ flexShrink: 1 }}>
-              <Txt role="cardTitle" numberOfLines={1}>
-                {document.title}
-              </Txt>
-              {simple ? (
-                <Txt role="meta" tone="mut" style={{ marginTop: 2 }}>
-                  Custom document
-                </Txt>
-              ) : null}
-            </View>
-          </View>
-
-          <Badge
-            label={documentBadgeLabel(document, today)}
-            tone={tone}
-            variant={simple ? 'filled' : 'outlined'}
-            uppercase
-            style={{ flexShrink: 0 }}
-          />
-        </View>
-
-        {needsExpiry ? (
-          <Txt role="meta" tone="warn">
-            Add the valid-until date so reminders can fire.
-          </Txt>
-        ) : validity !== null ? (
+      <Card style={{ gap: 10 }}>
+        <RowIcon icon={icon} tone="accent" />
+        <View style={{ gap: 2 }}>
+          <Txt role="rowTitle">{title}</Txt>
           <Txt role="meta" tone="mut">
-            {validity}
+            {line}
           </Txt>
-        ) : null}
-
-        {reference === '' || simple ? null : (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View
-              style={{
-                flex: 1,
-                height: 44,
-                borderRadius: radius.tile,
-                backgroundColor: c.sur2,
-                paddingHorizontal: 14,
-                justifyContent: 'center',
-              }}
-            >
-              <Txt role="tileValue" numberOfLines={1} style={{ letterSpacing: 0.5 }}>
-                {reference}
-              </Txt>
-            </View>
-            <CopyButton
-              label={DOCUMENT_REFERENCE_LABEL[document.kind]}
-              value={reference}
-              testID={`copy-document-${document.id}`}
-            />
-          </View>
-        )}
+        </View>
+        <View style={{ position: 'absolute', right: 16, top: 16 }}>
+          <Icon name="chevronRight" size={20} color={c.faint} />
+        </View>
       </Card>
     </Pressable>
   );

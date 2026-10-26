@@ -6,12 +6,10 @@ import { useTheme } from '@/theme';
 import { Txt } from './Text';
 
 /**
- * The bottom sheet from the Garage "Pro upgrade" and Maintenance "completion"
- * boards: `border-radius:22px 22px 0 0; padding:12px 24px 24px` over the scrim,
- * a `36×4` grab handle (`margin:0 auto 18px`), a `700 20px` title and a
- * `500 13px / 1.5` muted subtitle 6px under it. The Maintenance completion
- * sheet sets its subtitle a size smaller and tighter (`500 12px`, 4px under) —
- * that is `subtitleSize="small"`.
+ * The bottom sheet: `border-radius:28px 28px 0 0; padding:12px 16px 24px`
+ * over the scrim, a `36×4` grab handle (`margin:0 auto 18px`), a `700 20px`
+ * title and a `400 14px / 1.5` muted subtitle 6px under it.
+ * `subtitleSize="small"` sets the subtitle a size smaller and tighter.
  *
  * Rendered in a `Modal`, so Android's back gesture closes the sheet rather than
  * navigating away underneath it (requirement 41).
@@ -68,7 +66,7 @@ export function Sheet({
             borderTopLeftRadius: radius.sheet,
             borderTopRightRadius: radius.sheet,
             paddingTop: 12,
-            paddingHorizontal: 24,
+            paddingHorizontal: 16,
             paddingBottom: 24 + insets.bottom,
             maxHeight: '88%',
             shadowColor: '#000',
@@ -89,7 +87,7 @@ export function Sheet({
             }}
           />
           {title ? (
-            <Txt role="screenTitle" style={{ marginBottom: subtitle ? 0 : 16 }}>
+            <Txt role="dialogTitle" style={{ marginBottom: subtitle ? 0 : 16 }}>
               {title}
             </Txt>
           ) : null}
@@ -100,7 +98,7 @@ export function Sheet({
               style={
                 subtitleSize === 'small'
                   ? { marginTop: 4, marginBottom: 16 }
-                  : { marginTop: 6, marginBottom: 16, lineHeight: 19.5 }
+                  : { marginTop: 6, marginBottom: 16 }
               }
             >
               {subtitle}

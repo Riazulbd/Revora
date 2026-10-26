@@ -116,6 +116,27 @@ export function countByStatus(statuses: readonly MaintenanceStatus[]): Maintenan
   return counts;
 }
 
+/**
+ * How much of the interval has been used up, 0–1, on whichever of distance
+ * and time is closer to falling due — the Maintenance list's track under each
+ * rule. Overdue clamps to 1. Null when nothing can be measured: a rule never
+ * completed, or one without a current odometer to measure against.
+ */
+export function maintenanceProgress(rule: MaintenanceRule, status: MaintenanceStatus): number | null {
+  if (status.neverCompleted || status.kind === 'unknown') return null;
+  const byDistance =
+    status.remainingMetres !== null && rule.intervalMetres !== null && rule.intervalMetres > 0
+      ? status.remainingMetres / rule.intervalMetres
+      : null;
+  const byTime =
+    status.remainingDays !== null && rule.intervalDays !== null && rule.intervalDays > 0
+      ? status.remainingDays / rule.intervalDays
+      : null;
+  const remaining = byDistance === null ? byTime : byTime === null ? byDistance : Math.min(byDistance, byTime);
+  if (remaining === null) return null;
+  return Math.max(0, Math.min(1, 1 - remaining));
+}
+
 /** Sort order for the rules list: most urgent first, then by name. */
 export function compareByUrgency(
   a: { status: MaintenanceStatus; rule: MaintenanceRule },

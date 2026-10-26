@@ -249,3 +249,19 @@ appId: app.revora.android.dev
 - assertNotVisible:
     id: "dialog-delete-service"
 - back
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "cta-scan-receipt"
+    optional: true
+- assertVisible:
+    id: "card-service-fields"
+    optional: true
+- assertVisible:
+    id: "card-workshop"
+    optional: true
+- assertVisible:
+    id: "chip-service-calc"
+    optional: true

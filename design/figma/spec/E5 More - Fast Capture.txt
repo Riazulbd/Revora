@@ -1,0 +1,55 @@
+[E5 More — Fast Capture] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left-ink)
+[Fast Capture] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer] width: 48px; height: 48px
+[Heading] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; gap: 4px; width: 358px; height: 70px; align-self: stretch
+[One tap now, details later.] font-weight: 700; font-size: 24px; color: #14171B; align-self: stretch
+[Built for gloves at the pump — every capture is saved on this phone straight away.] font-weight: 400; font-size: 14px; color: #6B727C; align-self: stretch
+[Offline banner] display: flex; flex-direction: row; align-items: flex-start; padding: 12px 14px; gap: 10px; width: 358px; height: 74px; background: #FBF0DA; border-radius: 16px; align-self: stretch
+  (icon wifi-off-warn)
+[wifi-off] width: 20px; height: 20px
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 300px; height: 50px; flex-grow: 1
+[You’re offline.] font-weight: 600; font-size: 14px; color: #93611A; align-self: stretch
+[3 items are kept on this phone and sync into full records on their own.] font-weight: 400; font-size: 12px; color: #93611A; align-self: stretch
+[Capture tiles] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 120px; align-self: stretch
+[Tile · Receipt] display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0px; gap: 10px; width: 112px; height: 120px; background: #D2400F; border-radius: 20px; flex-grow: 1
+  (icon camera-white-28)
+[Receipt] font-weight: 700; font-size: 14px; color: #FFFFFF
+[Tile · Odometer] display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0px; gap: 10px; width: 112px; height: 120px; background: #2E6BE6; border-radius: 20px; flex-grow: 1
+  (icon gauge-white-28)
+[Odometer] font-weight: 700; font-size: 14px; color: #FFFFFF
+[Tile · Note] display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0px; gap: 10px; width: 114px; height: 120px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 20px; flex-grow: 1
+  (icon pencil-ink-28)
+[Note] font-weight: 700; font-size: 14px; color: #14171B
+[Section · Waiting] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 266px; align-self: stretch
+[Eyebrow] display: flex; flex-direction: row; align-items: flex-start; padding: 0px 0px 0px 4px; width: 358px; height: 15px; align-self: stretch
+[WAITING FOR DETAILS · 3] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C
+[Card · Waiting] display: flex; flex-direction: column; align-items: flex-start; padding: 4px 12px 4px 16px; width: 358px; height: 243px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row · Receipt photo] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 330px; height: 90px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon file-text-acc)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 159px; height: 66px; flex-grow: 1
+[Receipt photo] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Photo upload waiting for connection — kept on phone] font-weight: 400; font-size: 12px; color: #93611A; align-self: stretch
+[Action · accent] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 107px; height: 40px; background: #D2400F; border-radius: 999px
+[Make it a fill] font-weight: 600; font-size: 13px; color: #FFFFFF
+[Row · Odometer] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 330px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E8F0FE; border-radius: 12px
+  (icon gauge-blue)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 168px; height: 36px; flex-grow: 1
+[Odometer reading] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Today 08:15 · 34,712 km] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Action · plain] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 98px; height: 40px; background: #F1F2F5; border-radius: 999px
+[Read & log] font-weight: 600; font-size: 13px; color: #14171B
+[Row · Note] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 330px; height: 80px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon pencil-ink)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 199px; height: 55px; flex-grow: 1
+[Note · “Front brake feels spongy”] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Yesterday 17:42] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Action · plain] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 67px; height: 40px; background: #F1F2F5; border-radius: 999px
+[Finish] font-weight: 600; font-size: 13px; color: #14171B
+[Footnote] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; width: 358px; height: 30px; align-self: stretch
+[Waiting items aren’t errors — they’re captures doing their job. Each one routes into the full form it belongs in.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch

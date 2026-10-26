@@ -1,9 +1,8 @@
 import React from 'react';
 import { View } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 
-import { Button, Sheet, Txt } from '@/components';
+import { Button, Icon, Sheet, Txt } from '@/components';
 import { useBilling } from '@/features/billing/BillingProvider';
 import { ASSISTANT_COMING_SOON, proFeatureLabel } from '@/features/premium/comingSoon';
 import { fontFamily, useTheme } from '@/theme';
@@ -29,21 +28,13 @@ const BENEFITS = [
   proFeatureLabel('The Assistant', ASSISTANT_COMING_SOON),
 ];
 
-/** The board's 16px tick: a soft accent disc with the accent check inside it. */
+/** The plan screen's tick: a 28px soft-green disc with the green check. */
 function BenefitTick() {
   const { c } = useTheme();
   return (
-    <Svg width={16} height={16} viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-      <Circle cx={12} cy={12} r={10} fill={c.accS} />
-      <Path
-        d="m7.5 12.5 3 3 6-6.5"
-        stroke={c.acc}
-        strokeWidth={2.4}
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
+    <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: c.goodS, alignItems: 'center', justifyContent: 'center' }}>
+      <Icon name="check" size={16} color={c.good} />
+    </View>
   );
 }
 
@@ -74,9 +65,9 @@ export function AddBikeUpsell({ visible, onClose }: { visible: boolean; onClose:
     >
       <View style={{ gap: 12 }}>
         {BENEFITS.map((benefit) => (
-          <View key={benefit} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <View key={benefit} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <BenefitTick />
-            <Txt role="body" style={{ flex: 1 }}>
+            <Txt role="bullet" style={{ flex: 1 }}>
               {benefit}
             </Txt>
           </View>
@@ -86,7 +77,7 @@ export function AddBikeUpsell({ visible, onClose }: { visible: boolean; onClose:
       {fromPrice === null ? null : (
         <Txt role="meta" tone="mut" style={{ marginTop: 16, lineHeight: 18 }} testID="upsell-price">
           From{' '}
-          <Txt role="meta" style={{ fontFamily: fontFamily[700], color: c.ink }}>
+          <Txt role="meta" style={{ fontFamily: fontFamily[600], color: c.ink }}>
             {fromPrice}
           </Txt>{' '}
           · price from Google Play · lives on your Revora account, not this phone
@@ -95,11 +86,12 @@ export function AddBikeUpsell({ visible, onClose }: { visible: boolean; onClose:
 
       <Button
         label="See Pro plans"
+        size="xlarge"
         onPress={() => {
           onClose();
           router.push('/plan');
         }}
-        style={{ marginTop: 14 }}
+        style={{ marginTop: 16 }}
         testID="cta-see-plans"
       />
       <Button

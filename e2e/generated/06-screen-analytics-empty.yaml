@@ -12,9 +12,9 @@ appId: app.revora.android.dev
 - assertVisible:
     id: "screen-dashboard"
 - tapOn:
-    id: "cta-overflow"
+    id: "tab-more"
 - tapOn:
-    id: "overflow-analytics"
+    id: "row-analytics"
 - assertVisible:
     id: "screen-analytics"
 - assertVisible:
@@ -23,3 +23,31 @@ appId: app.revora.android.dev
     id: "cta-analytics-first-fill"
 - assertVisible:
     id: "screen-fuel-add"
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "back-analytics"
+    optional: true
+- assertVisible:
+    id: "chip-analytics-pro"
+    optional: true
+- assertVisible:
+    id: "footnote-analytics"
+    optional: true
+- assertVisible:
+    id: "tile-average"
+    optional: true
+- assertVisible:
+    id: "tile-best-worst"
+    optional: true
+- assertVisible:
+    id: "tile-distance"
+    optional: true
+- assertVisible:
+    id: "chart-mileage-line"
+    optional: true
+- assertVisible:
+    id: "chart-spend-bars"
+    optional: true

@@ -1,0 +1,70 @@
+[B5 Search — Results] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Search row] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 10px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon chevron-left)
+[Search field] display: flex; flex-direction: row; align-items: center; padding: 0px 4px 0px 16px; gap: 10px; width: 300px; height: 48px; background: #FFFFFF; border: 1.5px solid #14171B; border-radius: 999px; flex-grow: 1
+  (icon search)
+[oil] font-weight: 500; font-size: 15px; color: #14171B; flex-grow: 1
+[Clear] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 999px
+  (icon x)
+[Recent] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 129px; align-self: stretch
+[RECENT] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Chips] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 104px; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 14px 0px 12px; gap: 6px; width: 84px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon clock)
+[chain] font-weight: 600; font-size: 13px; color: #14171B
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 14px 0px 12px; gap: 6px; width: 110px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon clock)
+[tax token] font-weight: 600; font-size: 13px; color: #14171B
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 14px 0px 12px; gap: 6px; width: 140px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon clock)
+[Rahim Motors] font-weight: 600; font-size: 13px; color: #14171B
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 14px 0px 12px; gap: 6px; width: 121px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon clock)
+[brake pads] font-weight: 600; font-size: 13px; color: #14171B
+[Group services] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 154px; align-self: stretch
+[SERVICES · 2] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Card] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 16px; width: 358px; height: 129px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 64px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E8F0FE; border-radius: 12px
+  (icon wrench-blue)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 216px; height: 36px; flex-grow: 1
+[Engine oil change] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Rahim Motors · 9 Sep · 34,520 km] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[৳1,650] font-weight: 600; font-size: 14px; color: #14171B
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E8F0FE; border-radius: 12px
+  (icon wrench-blue)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 216px; height: 36px; flex-grow: 1
+[Oil + filter service] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Rahim Motors · 12 Jun · 31,240 km] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[৳1,380] font-weight: 600; font-size: 14px; color: #14171B
+[Group fuel] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 154px; align-self: stretch
+[FUEL LOGS · 2] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Card] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 16px; width: 358px; height: 129px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 64px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon fuel-acc)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 215px; height: 36px; flex-grow: 1
+[Padma Oil, Mirpur 10] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[13 Sep · 8.2 L · Full tank] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[৳1,004] font-weight: 600; font-size: 14px; color: #14171B
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon fuel-acc)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 228px; height: 36px; flex-grow: 1
+[Padma Oil, Mirpur 10] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[29 Aug · 7.8 L · Full tank] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[৳952] font-weight: 600; font-size: 14px; color: #14171B
+[Group parts] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 89px; align-self: stretch
+[PARTS · 1] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Card] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 16px; width: 358px; height: 64px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 64px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon cog-mut)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 242px; height: 36px; flex-grow: 1
+[Motul 7100 10W-50 engine oil] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Fitted 9 Sep · inside that service's total] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+  (icon chevron-right)
+[Footnote] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; width: 358px; height: 15px; align-self: stretch
+[Searches your own records on this phone — works offline.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch

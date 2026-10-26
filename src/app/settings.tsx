@@ -6,19 +6,20 @@ import {
   Button,
   Dialog,
   Field,
+  Footnote,
   Icon,
   Input,
+  ListCard,
   MenuRow,
   Screen,
+  ScreenHeader,
+  SectionEyebrow,
   Segmented,
   Sheet,
-  TabHeader,
   Txt,
   useToast,
   type SegmentedOption,
 } from '@/components';
-import { ListCard, SectionEyebrow } from '@/components/Card';
-import { Footnote } from '@/components/Screen';
 import { currencySymbol } from '@/calculations/money';
 import {
   MILEAGE_CHOICES,
@@ -39,9 +40,9 @@ import type { CostBasis, DistanceUnit, VolumeUnit } from '@/types';
 import { useTheme, type ThemePreference } from '@/theme';
 
 const THEME_OPTIONS: readonly SegmentedOption<ThemePreference>[] = [
-  { value: 'light', label: 'Light' },
-  { value: 'dark', label: 'Dark' },
-  { value: 'system', label: 'System' },
+  { value: 'light', label: 'Light', icon: 'sun' },
+  { value: 'dark', label: 'Dark', icon: 'moon' },
+  { value: 'system', label: 'System', icon: 'smartphone' },
 ];
 
 const DISTANCE_OPTIONS: readonly SegmentedOption<DistanceUnit>[] = [
@@ -67,7 +68,7 @@ const VOLUME_LABEL: Record<VolumeUnit, string> = {
 };
 
 /**
- * Settings — account--01.
+ * Settings (Figma `E2 More — Settings`).
  *
  * Three blocks, in the board's order: Units, Appearance, Data & account. The
  * board puts each unit's control in its own row rather than behind a sheet, so
@@ -105,11 +106,13 @@ export default function Settings() {
   };
 
   return (
-    <Screen testID="screen-settings" contentStyle={{ paddingHorizontal: 20 }}>
-      <TabHeader title="Settings" style={{ marginBottom: 0 }} />
+    <Screen testID="screen-settings" contentStyle={{ gap: 16 }}>
+      <ScreenHeader title="Settings" style={{ marginBottom: 0 }} />
 
-      <SectionEyebrow first>Units</SectionEyebrow>
-      <ListCard>
+      {/* Figma `Section · Units`: the eyebrow, the card (`padding:4px 12px 4px 16px`), the footnote. */}
+      <View style={{ gap: 8 }}>
+      <SectionEyebrow first style={{ marginBottom: 0 }}>Units</SectionEyebrow>
+      <ListCard style={{ paddingVertical: 4, paddingRight: 12 }}>
         <AccountUnitRow label="Distance" onPressLabel={unitSettings.openDistance} testID="row-distance">
           <Segmented
             size="inline"
@@ -132,7 +135,7 @@ export default function Settings() {
           />
         </AccountUnitRow>
 
-        <AccountUnitRow label="Currency" padY={16}>
+        <AccountUnitRow label="Currency">
           <AccountValuePill
             value={`${units.currency} ${currencySymbol(units.currency)}`}
             onPress={unitSettings.openCurrency}
@@ -141,12 +144,7 @@ export default function Settings() {
           />
         </AccountUnitRow>
 
-        <AccountUnitRow
-          label="Cost basis"
-          padY={16}
-          onPressLabel={unitSettings.openCostBasis}
-          testID="row-cost-basis"
-        >
+        <AccountUnitRow label="Cost basis" onPressLabel={unitSettings.openCostBasis} testID="row-cost-basis">
           <Segmented
             size="inline"
             padX={12}
@@ -160,7 +158,7 @@ export default function Settings() {
         {/* Not on the board, which draws a rider who fills in litres. Dropping
             it would leave the board's own "mpg" choice with no gallon behind
             it, so it keeps the board's row shape at the end of the card. */}
-        <AccountUnitRow label="Fuel volume" padY={16}>
+        <AccountUnitRow label="Fuel volume">
           <AccountValuePill
             value={VOLUME_LABEL[units.volume]}
             onPress={unitSettings.openVolume}
@@ -170,9 +168,12 @@ export default function Settings() {
         </AccountUnitRow>
       </ListCard>
 
-      <Footnote>All-in adds the purchase price to every total. Unit changes apply everywhere instantly.</Footnote>
+      <Footnote style={{ marginTop: 0 }}>All-in adds the purchase price to every total. Unit changes apply everywhere instantly.</Footnote>
+      </View>
 
-      <SectionEyebrow>Appearance</SectionEyebrow>
+      {/* Figma `Section · Appearance`. */}
+      <View style={{ gap: 8 }}>
+      <SectionEyebrow first style={{ marginBottom: 0 }}>Appearance</SectionEyebrow>
       <Segmented
         size="medium"
         options={THEME_OPTIONS}
@@ -180,9 +181,12 @@ export default function Settings() {
         onChange={setPreference}
         testID="segment-theme"
       />
+      </View>
 
-      <SectionEyebrow>Data &amp; account</SectionEyebrow>
-      <ListCard>
+      {/* Figma `Section · Data & account`. */}
+      <View style={{ gap: 8 }}>
+      <SectionEyebrow first style={{ marginBottom: 0 }}>Data &amp; account</SectionEyebrow>
+      <ListCard style={{ paddingVertical: 4 }}>
         <MenuRow
           label="Export my data"
           icon="file"
@@ -193,6 +197,8 @@ export default function Settings() {
 
         <MenuRow
           label="Display name"
+          icon="user"
+          iconTone="neutral"
           subtitle={profile?.displayName ?? 'Rider'}
           onPress={() => {
             setName(profile?.displayName ?? '');
@@ -243,13 +249,14 @@ export default function Settings() {
           testID="cta-delete-account"
         />
       </ListCard>
+      </View>
 
       <Sheet visible={nameOpen} onClose={() => setNameOpen(false)} title="Display name">
         <View style={{ gap: 14 }}>
           <Field label="Name">
             <Input value={name} onChangeText={setName} autoCapitalize="words" testID="input-display-name" />
           </Field>
-          <Button label="Save" onPress={saveName} testID="cta-save-name" />
+          <Button label="Save" size="xlarge" onPress={saveName} testID="cta-save-name" />
         </View>
       </Sheet>
 
@@ -307,6 +314,7 @@ export default function Settings() {
           <Button
             label="Delete everything"
             variant="danger"
+            size="xlarge"
             loading={deleteAccount.isPending}
             onPress={async () => {
               const result = await deleteAccount.submit({
@@ -320,7 +328,7 @@ export default function Settings() {
             }}
             testID="cta-confirm-delete-account"
           />
-          <Button label="Keep my account" variant="secondary" onPress={() => setDeleteOpen(false)} />
+          <Button label="Keep my account" variant="secondary" size="xlarge" onPress={() => setDeleteOpen(false)} />
         </View>
       </Sheet>
     </Screen>

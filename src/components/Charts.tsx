@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, type ViewStyle } from 'react-native';
-import Svg, { Path, Polyline, Circle, Rect, Text as SvgText } from 'react-native-svg';
+import React, { useState } from 'react';
+import { View, type LayoutChangeEvent, type ViewStyle } from 'react-native';
+import Svg, { Circle, Defs, Line, LinearGradient, Path, Polyline, Rect, Stop, Text as SvgText } from 'react-native-svg';
 
 import { fontFamily, useTheme } from '@/theme';
 import { NO_VALUE } from '@/utils/format';
@@ -156,7 +156,7 @@ export function TrendChart({
   const family = text('smallStrong').fontFamily;
 
   return (
-    <Svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
+    <ScaledSvg width={width} height={height}>
       <Path d={`M${axisX} ${top - 2}v${bottom - top + 2}M${axisX} ${bottom}h${right - axisX}`} stroke={c.brd} strokeWidth={1} />
       <SvgText x={axisX - 6} y={top + 6} textAnchor="end" fill={c.mut} fontFamily={family} {...AXIS_FONT}>
         {fmt(max)}
@@ -186,7 +186,7 @@ export function TrendChart({
       <SvgText x={right} y={height - 3} textAnchor="end" fill={c.mut} fontFamily={family} {...AXIS_FONT}>
         {labels[2]}
       </SvgText>
-    </Svg>
+    </ScaledSvg>
   );
 }
 
@@ -234,7 +234,7 @@ export function BarChart({
 
   return (
     <View style={style}>
-      <Svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
+      <ScaledSvg width={width} height={height}>
         <Path d={`M${axisX} ${top}v${bottom - top}M${axisX} ${bottom}h${plotRight - axisX}`} stroke={c.brd} strokeWidth={1} />
         {topLabel ? (
           <SvgText x={axisX - 6} y={top + 6} textAnchor="end" fill={c.mut} fontFamily={family} {...AXIS_FONT}>
@@ -277,13 +277,13 @@ export function BarChart({
             {last.label}
           </SvgText>
         ) : null}
-      </Svg>
+      </ScaledSvg>
       <View accessible accessibilityLabel={data.map((d) => `${d.label}: ${d.caption}`).join(', ')} />
     </View>
   );
 }
 
-/** The horizontal progress bar used for allowance, part life and spend shares. */
+/** The horizontal progress bar (Figma `Track`): 8px, `#F1F2F5`, a tone fill, both pills. */
 export function ProgressBar({
   fraction,
   tone = 'accent',
@@ -292,13 +292,13 @@ export function ProgressBar({
 }: {
   /** 0–1, clamped. */
   fraction: number;
-  tone?: 'accent' | 'good' | 'warn' | 'bad';
+  tone?: 'accent' | 'good' | 'warn' | 'bad' | 'neutral';
   height?: number;
   style?: ViewStyle;
 }) {
   const { c } = useTheme();
   const safe = Number.isFinite(fraction) ? Math.max(0, Math.min(1, fraction)) : 0;
-  const color = tone === 'good' ? c.good : tone === 'warn' ? c.warn : tone === 'bad' ? c.bad : c.acc;
+  const color = tone === 'good' ? c.good : tone === 'warn' ? c.warnIcon : tone === 'bad' ? c.badIcon : tone === 'neutral' ? c.faint : c.acc;
 
   return (
     <View
@@ -311,7 +311,7 @@ export function ProgressBar({
   );
 }
 
-/** One row of the spending breakdown: category, bar, amount. */
+/** One row of the spending breakdown (Figma `Cat`): category, a 6px bar, amount. */
 export function SpendBar({
   category,
   amount,
@@ -328,23 +328,264 @@ export function SpendBar({
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-      <Txt role="smallStrong" style={{ width: 72 }} numberOfLines={1}>
+      <Txt role="smallStrong" style={{ width: 76 }} numberOfLines={1}>
         {category}
       </Txt>
-      <View style={{ flex: 1, height: 7, borderRadius: 4, backgroundColor: c.sur2, overflow: 'hidden' }}>
+      <View style={{ flex: 1, height: 6, borderRadius: 999, backgroundColor: c.div, overflow: 'hidden' }}>
         <View
           style={{
             width: `${safe * 100}%`,
             height: '100%',
             backgroundColor: c.acc,
-            borderRadius: 4,
+            borderRadius: 999,
             opacity,
           }}
         />
       </View>
-      <Txt role="rowTitleDense" style={{ width: 82, textAlign: 'right' }} numberOfLines={1}>
+      <Txt role="value" style={{ width: 82, textAlign: 'right' }} numberOfLines={1}>
         {amount}
       </Txt>
+    </View>
+  );
+}
+
+/** Width of the box a chart is laid out in, so strokes stay crisp at any size. */
+/**
+ * An SVG drawn in a fixed coordinate box (`viewBox`) and scaled to whatever
+ * width its container gives it. react-native-svg does not honour a
+ * percentage `width` on Android, so the container is measured instead.
+ */
+function ScaledSvg({ width, height, children }: { width: number; height: number; children: React.ReactNode }) {
+  const [measured, onLayout] = useWidth();
+  const drawn = measured > 0 ? measured : width;
+  return (
+    <View style={{ alignSelf: 'stretch' }} onLayout={onLayout}>
+      {measured > 0 ? (
+        <Svg width={drawn} height={(drawn * height) / width} viewBox={`0 0 ${width} ${height}`}>
+          {children}
+        </Svg>
+      ) : null}
+    </View>
+  );
+}
+
+function useWidth(): [number, (e: LayoutChangeEvent) => void] {
+  const [width, setWidth] = useState(0);
+  return [width, (e) => setWidth(Math.round(e.nativeEvent.layout.width))];
+}
+
+/**
+ * The bento's mileage sparkline (Figma `chart:line`, 140×44): a 2px
+ * `#F4511E` line over a fill fading from 22% to nothing, inset 4px each side,
+ * the last point a white dot ringed in the accent. Needs two points.
+ */
+export function Sparkline({
+  values,
+  height = 44,
+  color,
+  dotFill,
+  testID,
+}: {
+  values: readonly number[];
+  height?: number;
+  /** The line; defaults to the bright accent. */
+  color?: string;
+  /** The last point's fill; defaults to the card colour. */
+  dotFill?: string;
+  testID?: string;
+}) {
+  const { c } = useTheme();
+  const stroke = color ?? c.accBright;
+  const [width, onLayout] = useWidth();
+  const points = values.filter(Number.isFinite);
+  const drawable = points.length >= 2 && width > 0;
+
+  let line = '';
+  let area = '';
+  let last = { x: 0, y: 0 };
+  if (drawable) {
+    const inset = 4;
+    const top = 10;
+    const bottom = height - 8;
+    const min = Math.min(...points);
+    const max = Math.max(...points);
+    const span = max - min || 1;
+    const step = (width - inset * 2) / (points.length - 1);
+    const xy = points.map((v, i) => ({ x: inset + i * step, y: bottom - ((v - min) / span) * (bottom - top) }));
+    line = xy.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+    area = `${line} L${(xy[xy.length - 1]?.x ?? 0).toFixed(1)} ${height} L${inset} ${height} Z`;
+    last = xy[xy.length - 1] ?? last;
+  }
+
+  return (
+    <View style={{ height, alignSelf: 'stretch' }} onLayout={onLayout} testID={testID}>
+      {drawable ? (
+        <Svg width={width} height={height}>
+          <Defs>
+            <LinearGradient id="spark" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor={stroke} stopOpacity={0.22} />
+              <Stop offset="1" stopColor={stroke} stopOpacity={0} />
+            </LinearGradient>
+          </Defs>
+          <Path d={area} fill="url(#spark)" />
+          <Path d={line} stroke={stroke} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+          <Circle cx={last.x} cy={last.y} r={3.5} fill={dotFill ?? c.sur} stroke={stroke} strokeWidth={2} />
+        </Svg>
+      ) : null}
+    </View>
+  );
+}
+
+/**
+ * Small columns on a shared baseline (Figma `chart:bars`, 140×44): seven bars
+ * a tenth of the width each, `#E9EBEF`, the last one — the current period — in
+ * ink. `highlight` picks a different one; `rounded` caps them.
+ */
+export function MiniBars({
+  values,
+  height = 44,
+  highlight,
+  color,
+  highlightColor,
+  reference,
+  referenceColor,
+  rounded = true,
+  gapRatio = 0.5,
+  baseline = 'zero',
+  testID,
+}: {
+  values: readonly number[];
+  height?: number;
+  /** Index of the emphasised bar; defaults to the last. */
+  highlight?: number;
+  color?: string;
+  highlightColor?: string;
+  /** A dashed rule at this value (the Fuel hero's average). */
+  reference?: number;
+  referenceColor?: string;
+  rounded?: boolean;
+  /** Gap between bars as a share of a bar's width. */
+  gapRatio?: number;
+  /**
+   * `zero` — bars rise from nothing (amounts). `spread` — bars rise from a
+   * floor below the lowest value, so figures that sit close together (37–42
+   * km/L) still read as different heights.
+   */
+  baseline?: 'zero' | 'spread';
+  testID?: string;
+}) {
+  const { c } = useTheme();
+  const [width, onLayout] = useWidth();
+  const n = values.length;
+  const finite = values.filter(Number.isFinite);
+  const max = Math.max(...finite, reference ?? 0, 0);
+  const lowest = Math.min(...finite, reference ?? Infinity);
+  const floor = baseline === 'spread' && finite.length > 0 ? Math.max(0, lowest - Math.max(max - lowest, max * 0.05) * 1.2) : 0;
+  const lit = highlight ?? n - 1;
+
+  const barW = n > 0 ? width / (n + (n - 1) * gapRatio) : 0;
+  const pitch = barW * (1 + gapRatio);
+  const minBar = Math.min(6, height);
+  const scale = (v: number) =>
+    max > floor && Number.isFinite(v) && v > 0 ? Math.max(minBar, ((v - floor) / (max - floor)) * height) : minBar;
+
+  return (
+    <View style={{ height, alignSelf: 'stretch' }} onLayout={onLayout} testID={testID}>
+      {width > 0 && n > 0 ? (
+        <Svg width={width} height={height}>
+          {values.map((v, i) => {
+            const h = scale(v);
+            return (
+              <Rect
+                key={i}
+                x={i * pitch}
+                y={height - h}
+                width={barW}
+                height={h}
+                rx={rounded ? Math.min(barW / 2, 8) : 2}
+                fill={i === lit ? (highlightColor ?? c.ink) : (color ?? c.brd)}
+              />
+            );
+          })}
+          {reference !== undefined && max > 0 ? (
+            <Line
+              x1={0}
+              x2={width}
+              y1={height - scale(reference)}
+              y2={height - scale(reference)}
+              stroke={referenceColor ?? c.accBright}
+              strokeWidth={1}
+              strokeDasharray="4 4"
+            />
+          ) : null}
+        </Svg>
+      ) : null}
+    </View>
+  );
+}
+
+/**
+ * The category donut (Figma `chart:cat-donut`, 112px): a ring of slices in
+ * the chart ramp over a track, drawn with dashed strokes so there is no path
+ * arithmetic to get wrong. An empty total draws the track alone.
+ */
+export function Donut({
+  slices,
+  size = 112,
+  thickness = 16,
+  track,
+  accessibilityLabel,
+  testID,
+}: {
+  slices: readonly { value: number; color: string }[];
+  size?: number;
+  thickness?: number;
+  /** The ring behind the slices; defaults to the inset surface. */
+  track?: string;
+  accessibilityLabel?: string;
+  testID?: string;
+}) {
+  const { c } = useTheme();
+  const r = (size - thickness) / 2;
+  const circumference = 2 * Math.PI * r;
+  const total = slices.reduce((sum, s) => sum + (Number.isFinite(s.value) && s.value > 0 ? s.value : 0), 0);
+  const gap = slices.length > 1 ? 3 : 0;
+  let offset = 0;
+
+  return (
+    <View
+      style={{ width: size, height: size }}
+      accessible
+      accessibilityRole="image"
+      {...(accessibilityLabel === undefined ? {} : { accessibilityLabel })}
+      testID={testID}
+    >
+      <Svg width={size} height={size}>
+        <Circle cx={size / 2} cy={size / 2} r={r} stroke={track ?? c.sur2} strokeWidth={thickness} fill="none" />
+        {total > 0
+          ? slices.map((slice, index) => {
+              if (!(slice.value > 0)) return null;
+              const span = (slice.value / total) * circumference;
+              const dash = Math.max(0, span - gap);
+              const start = offset;
+              offset += span;
+              return (
+                <Circle
+                  key={index}
+                  cx={size / 2}
+                  cy={size / 2}
+                  r={r}
+                  stroke={slice.color}
+                  strokeWidth={thickness}
+                  fill="none"
+                  strokeDasharray={`${dash} ${circumference - dash}`}
+                  strokeDashoffset={-start}
+                  transform={`rotate(-90 ${size / 2} ${size / 2})`}
+                />
+              );
+            })
+          : null}
+      </Svg>
     </View>
   );
 }

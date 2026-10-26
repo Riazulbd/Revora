@@ -14,6 +14,8 @@ appId: app.revora.android.dev
 - assertVisible:
     id: "screen-dashboard"
 - tapOn:
+    id: "tab-more"
+- tapOn:
     id: "cta-search"
 - assertVisible:
     id: "screen-search"
@@ -26,6 +28,8 @@ appId: app.revora.android.dev
     id: "screen-vault"
 - back
 - tapOn:
+    id: "tab-more"
+- tapOn:
     id: "cta-search"
 - tapOn:
     id: "jump-proof-pack"
@@ -33,12 +37,16 @@ appId: app.revora.android.dev
     id: "screen-proof-pack"
 - back
 - tapOn:
+    id: "tab-more"
+- tapOn:
     id: "cta-search"
 - tapOn:
     id: "jump-odometer"
 - assertVisible:
     id: "screen-odometer"
 - back
+- tapOn:
+    id: "tab-more"
 - tapOn:
     id: "cta-search"
 # --- a query that matches nothing says what search covers ---
@@ -60,10 +68,12 @@ appId: app.revora.android.dev
 - back
 # --- a search already run comes back as a recent term ---
 - tapOn:
+    id: "tab-more"
+- tapOn:
     id: "cta-search"
 - tapOn:
     id: "search-recent-.*"
 - tapOn:
     id: "cta-search-back"
 - assertVisible:
-    id: "screen-dashboard"
+    id: "screen-more"

@@ -7,12 +7,11 @@ import { Txt } from '@/components';
 import { useAuthTheme } from './AuthTheme';
 
 /**
- * "Continue with Google" — the 52px secondary button every entry board carries:
- * `border-radius:14px; background:var(--sur); border:1px solid var(--brd);
- * gap:10px`, an 18px Google mark, a `700 15px` label.
+ * "Continue with Google" (Figma `Google — secondary`): a 56px white pill with
+ * a hairline, `gap:10px`, a 20px Google mark and a `600 16px` label.
  *
- * Offline the boards grey the whole thing: `--sur2` fill, a muted label, and
- * the mark drawn in one flat grey rather than in Google's colours, because a
+ * Offline the whole thing greys: the inset fill, a muted label, and the mark
+ * drawn in one flat grey rather than in Google's colours, because a
  * full-colour mark on a dead button reads as available.
  */
 export function AuthGoogleButton({
@@ -41,8 +40,8 @@ export function AuthGoogleButton({
       testID={testID}
       style={({ pressed }) => [
         {
-          height: 52,
-          borderRadius: 14,
+          height: 56,
+          borderRadius: 999,
           backgroundColor: inactive ? c.sur2 : c.sur,
           borderWidth: 1,
           borderColor: c.brd,
@@ -56,7 +55,7 @@ export function AuthGoogleButton({
       ]}
     >
       <GoogleMark muted={inactive} mutedColor={c.mut} />
-      <Txt style={{ fontFamily: fontFamily[700], fontSize: 15, color: inactive ? c.mut : c.ink }}>
+      <Txt style={{ fontFamily: fontFamily[600], fontSize: 16, color: inactive ? c.mut : c.ink }}>
         Continue with Google
       </Txt>
     </Pressable>
@@ -67,7 +66,7 @@ export function AuthGoogleButton({
 function GoogleMark({ muted, mutedColor }: { muted: boolean; mutedColor: string }) {
   const fill = (brand: string) => (muted ? mutedColor : brand);
   return (
-    <Svg width={18} height={18} viewBox="0 0 48 48" opacity={muted ? 0.75 : 1}>
+    <Svg width={20} height={20} viewBox="0 0 48 48" opacity={muted ? 0.75 : 1}>
       <Path
         fill={fill('#EA4335')}
         d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
@@ -98,8 +97,8 @@ export function AuthGoogleOfflineNote({ style }: { style?: ViewStyle }) {
     <View style={style}>
       <Txt
         style={{
-          fontFamily: fontFamily[500],
-          fontSize: 11.5,
+          fontFamily: fontFamily[400],
+          fontSize: 12,
           lineHeight: 17,
           color: c.mut,
           textAlign: 'center',

@@ -13,9 +13,9 @@ appId: app.revora.android.dev
 - assertVisible:
     id: "screen-dashboard"
 - tapOn:
-    id: "cta-overflow"
+    id: "tab-more"
 - tapOn:
-    id: "overflow-assistant"
+    id: "row-assistant"
 - assertVisible:
     id: "screen-assistant"
 # On Free the assistant answers on the device, and the notice says so
@@ -45,3 +45,13 @@ appId: app.revora.android.dev
     id: "cta-assistant-send"
 - assertVisible:
     id: "screen-assistant"
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "banner-assistant-coming-soon"
+    optional: true
+- assertVisible:
+    id: "banner-assistant-coming-soon"
+    optional: true

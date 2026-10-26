@@ -15,12 +15,12 @@ import { Txt } from './Text';
  * in a dimmed `--mut` so it reads as furniture rather than as content.
  */
 
-/** The dimmed glyph colour the boards use for a placeholder (`#C6CAD1` over `--sur2`). */
+/** The dimmed glyph colour for a placeholder mark over the inset surface. */
 const PLACEHOLDER_OPACITY = 0.55;
 
 export function PhotoPanel({
   uri,
-  height = 180,
+  height = 168,
   placeholder = 'Add a photo of the bike',
   onPress,
   accessibilityLabel,
@@ -29,9 +29,9 @@ export function PhotoPanel({
 }: {
   /** `null` or omitted draws the placeholder. */
   uri?: string | null;
-  /** The boards' full-width panel is 180px inside a `Card variant="flush"`. */
+  /** Figma's `Photo` panel is 168px. */
   height?: number;
-  /** `600 12px` muted line under the mark; `null` draws the mark alone. */
+  /** `500 12px` muted line under the mark; `null` draws the mark alone. */
   placeholder?: string | null;
   onPress?: () => void;
   accessibilityLabel?: string;
@@ -51,15 +51,19 @@ export function PhotoPanel({
     <View
       style={{
         height,
-        backgroundColor: c.sur2,
+        backgroundColor: c.sur,
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
+        gap: 10,
       }}
     >
-      <Icon name="odometer" size={44} color={c.mut} strokeWidth={2.5} opacity={PLACEHOLDER_OPACITY} />
+      <View
+        style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: c.accS, alignItems: 'center', justifyContent: 'center' }}
+      >
+        <Icon name="image" size={24} color={c.accBright} />
+      </View>
       {placeholder === null ? null : (
-        <Txt role="smallStrong" tone="mut">
+        <Txt role="micro" tone="mut">
           {placeholder}
         </Txt>
       )}
@@ -82,15 +86,14 @@ export function PhotoPanel({
 }
 
 /**
- * The thumbnail beside a row: `84×64; border-radius:11px` on the Garage's bike
- * list, `56×72; border-radius:8px; border:1px solid var(--brd)` on the Records
- * board's document rows (pass `bordered` for the second).
+ * The thumbnail beside a row: `84×64; border-radius:12px` on the Garage's
+ * bike list, `56×72` with a hairline on document rows (pass `bordered`).
  */
 export function PhotoThumb({
   uri,
   width = 84,
   height = 64,
-  radius: r = 11,
+  radius: r = 12,
   bordered = false,
   tone = 'mut',
   onPress,
@@ -137,10 +140,9 @@ export function PhotoThumb({
         />
       ) : (
         <Icon
-          name="odometer"
-          size={Math.round(Math.min(width, height) * 0.42)}
-          color={accent ? c.acc : c.mut}
-          strokeWidth={2.5}
+          name={accent ? 'fileText' : 'image'}
+          size={Math.round(Math.min(width, height) * 0.4)}
+          color={accent ? c.accBright : c.mut}
           {...(accent ? {} : { opacity: PLACEHOLDER_OPACITY })}
         />
       )}

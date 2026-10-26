@@ -43,9 +43,11 @@ appId: app.revora.android.dev
     id: "segment-status-action"
 - tapOn:
     id: "segment-status-ok"
-# --- an area without pressures, then back to tyres ---
+# --- a condition check: an area without pressures, then back to tyres ---
+- tapOn:
+    id: "segment-check-kind-condition"
 - assertVisible:
-    id: "chips-check-area"
+    id: "chips-check-area-brakes"
 - tapOn:
     id: "chips-check-area-brakes"
 - assertNotVisible:
@@ -60,8 +62,6 @@ appId: app.revora.android.dev
     id: "chips-check-area-tyres"
 - assertVisible:
     id: "input-front-psi"
-- tapOn:
-    id: "safety-mark-.*"
 # --- every field ---
 - tapOn:
     id: "input-summary"
@@ -126,3 +126,22 @@ appId: app.revora.android.dev
 - assertNotVisible:
     id: "dialog-delete-check"
 - back
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "segment-check-kind"
+    optional: true
+- assertVisible:
+    id: "card-check-areas"
+    optional: true
+- assertVisible:
+    id: "cta-check-date"
+    optional: true
+- assertVisible:
+    id: "card-check-status"
+    optional: true
+- assertVisible:
+    id: "card-check-details"
+    optional: true

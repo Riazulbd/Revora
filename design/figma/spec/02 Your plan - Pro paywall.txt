@@ -1,0 +1,78 @@
+[02 Your plan — Pro paywall] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: linear-gradient(180deg, #FFE6DA 0%, #F8F3F1 35%, #F5F6F8 100%); border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Close] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon x)
+[Your plan] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer] width: 48px; height: 48px
+[Hero] display: flex; flex-direction: column; align-items: center; padding: 8px 0px 0px; gap: 10px; width: 358px; height: 114px; align-self: stretch
+[Badge] display: flex; flex-direction: row; align-items: center; padding: 6px 12px; gap: 6px; width: 115px; height: 30px; background: #FFFFFF; border: 1px solid #F6D3C5; border-radius: 999px
+  (icon sparkle-acc)
+[Revora Pro] font-weight: 600; font-size: 12px; color: #C93D0E
+[Every bike. Every number.] font-weight: 700; font-size: 30px; text-align: center; letter-spacing: -0.02em; color: #14171B
+[You're on Free · one motorcycle] font-weight: 400; font-size: 14px; text-align: center; color: #6B727C
+[Preview — dark accent] display: flex; flex-direction: column; align-items: flex-start; padding: 18px; gap: 14px; width: 358px; height: 216px; background: linear-gradient(135deg, #1E2227 0%, #101214 71.43%); border-radius: 28px; align-self: stretch
+[Row] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 322px; height: 23px; align-self: stretch
+[CONSUMPTION · 6 MONTHS] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #9AA1AA
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 4px 10px; width: 47px; height: 23px; background: #FF6B3D; border-radius: 999px
+[PRO] font-weight: 700; font-size: 12px; color: #14171B
+[chart:pro-area] width: 322px; height: 72px; align-self: stretch
+[pro-area] width: 322px; height: 72px
+[Bikes] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 322px; height: 57px; align-self: stretch
+[Bike] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 2px; width: 157px; height: 57px; background: #23272C; border-radius: 16px; flex-grow: 1
+[The Red One] font-weight: 600; font-size: 13px; color: #FFFFFF; align-self: stretch
+[41.2 km/L] font-weight: 500; font-size: 12px; color: #4CC38A; align-self: stretch
+[Bike] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 2px; width: 157px; height: 57px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Daily Scooter] font-weight: 600; font-size: 13px; color: #FFFFFF; align-self: stretch
+[52.6 km/L] font-weight: 500; font-size: 12px; color: #4CC38A; align-self: stretch
+[Features] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 12px; width: 358px; height: 252px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[What you get] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[F] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 28px; align-self: stretch
+[Tick] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 28px; height: 28px; background: #E5F6EE; border-radius: 14px
+  (icon check-good)
+[Multiple motorcycles] font-weight: 500; font-size: 14px; color: #14171B
+[F] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 28px; align-self: stretch
+[Tick] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 28px; height: 28px; background: #E5F6EE; border-radius: 14px
+  (icon check-good)
+[Advanced statistics and charts] font-weight: 500; font-size: 14px; color: #14171B
+[F] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 28px; align-self: stretch
+[Tick] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 28px; height: 28px; background: #E5F6EE; border-radius: 14px
+  (icon check-good)
+[CSV export of fuel history] font-weight: 500; font-size: 14px; color: #14171B
+[F] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 28px; align-self: stretch
+[Tick] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 28px; height: 28px; background: #E5F6EE; border-radius: 14px
+  (icon check-good)
+[No ads] font-weight: 500; font-size: 14px; color: #14171B
+[F] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 28px; align-self: stretch
+[Tick] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 28px; height: 28px; background: #F1F2F5; border-radius: 14px
+  (icon clock-mut)
+[The Assistant] font-weight: 500; font-size: 14px; color: #14171B
+[Soon] display: flex; flex-direction: row; align-items: flex-start; padding: 2px 8px; width: 97px; height: 19px; background: #F1F2F5; border-radius: 999px
+[Coming soon] font-weight: 600; font-size: 12px; color: #6B727C
+[Offers] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 157px; align-self: stretch
+[Offer — Yearly (selected)] display: flex; flex-direction: row; align-items: center; padding: 16px; gap: 12px; width: 358px; height: 75px; background: #FFF7F3; border: 2px solid #D2400F; border-radius: 20px; align-self: stretch
+[Radio on] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 24px; height: 24px; background: #D2400F; border-radius: 12px
+  (icon check-white)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 215px; height: 39px; flex-grow: 1
+[T] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 215px; height: 21px; align-self: stretch
+[Yearly] font-weight: 600; font-size: 16px; color: #14171B
+[Save] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 75px; height: 21px; background: #0B7F4E; border-radius: 999px
+[Save 30%] font-weight: 700; font-size: 12px; color: #FFFFFF
+[৳100 / month, billed yearly] font-weight: 400; font-size: 13px; color: #6B727C; align-self: stretch
+[৳1,200] font-weight: 700; font-size: 18px; color: #14171B
+[Offer — Monthly] display: flex; flex-direction: row; align-items: center; padding: 16px; gap: 12px; width: 358px; height: 72px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 20px; align-self: stretch
+[Radio off] width: 24px; height: 24px; border: 2px solid #B5BAC2; border-radius: 12px
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 233px; height: 38px; flex-grow: 1
+[Monthly] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Cancel anytime] font-weight: 400; font-size: 13px; color: #6B727C; align-self: stretch
+[৳140] font-weight: 700; font-size: 18px; color: #14171B
+[CTA] display: flex; flex-direction: column; align-items: center; padding: 0px; gap: 10px; width: 358px; height: 143px; align-self: stretch
+[Upgrade — primary] display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0px; gap: 1px; width: 358px; height: 60px; background: #D2400F; border-radius: 999px; align-self: stretch
+[Upgrade to Pro] font-weight: 600; font-size: 16px; color: #FFFFFF
+[Yearly · ৳1,200 / year] font-weight: 500; font-size: 12px; color: #FFE1D6
+[Billed by Google Play. Cancel anytime in Play Store.] font-weight: 400; font-size: 12px; text-align: center; color: #6B727C
+[Links] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 4px; width: 279px; height: 48px
+[Restore] display: flex; flex-direction: row; align-items: center; padding: 0px 12px; width: 139px; height: 48px
+[Restore purchase] font-weight: 600; font-size: 13px; color: #14171B
+[·] font-weight: 700; font-size: 13px; color: #B5BAC2
+[Terms] display: flex; flex-direction: row; align-items: center; padding: 0px 12px; width: 128px; height: 48px
+[Terms & privacy] font-weight: 600; font-size: 13px; color: #14171B

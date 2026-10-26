@@ -1,29 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
+import { useRouter } from 'expo-router';
 
-import { Button, Field, Input, LinkButton, Screen, ScreenHeader, Txt, useToast } from '@/components';
+import { Button, Card, Field, Icon, Input, LinkButton, Screen, ScreenHeader, Txt, useToast } from '@/components';
 import { RESEND_COOLDOWN_SECONDS, cooldownRemaining, resendLabel } from '@/calculations/resendCooldown';
+import { AuthSwitchLine } from '@/features/auth/ui/AuthChrome';
 import { AuthMailCard } from '@/features/auth/ui/AuthMailCard';
 import { AuthNotice } from '@/features/auth/ui/AuthNotice';
 import { authService } from '@/services/auth';
 import { messageFor } from '@/services/errors';
 import { useConnectivity } from '@/services/connectivity';
 import { recoverSchema } from '@/validation/schemas';
+import { fontFamily, useTheme } from '@/theme';
 
 /**
- * Reset password.
+ * Reset password (Figma `A4 Auth — Recover password`).
  *
  * A reset link is the one thing in Revora that genuinely cannot be queued:
  * Firebase has to reach the account and the link can only arrive by email. So
  * offline this screen says so and goes inert, rather than accepting a tap it
  * cannot honour.
  *
- * Once the link is away the screen becomes the board's confirmation panel, with
- * the resend button counting itself out — four taps in ten seconds earn four
- * links and a rate limit, and the wait is better shown than hidden.
+ * Once the link is away the screen becomes the confirmation panel, with the
+ * resend button counting itself out — four taps in ten seconds earn four links
+ * and a rate limit, and the wait is better shown than hidden.
  */
 export default function Recover() {
+  const router = useRouter();
   const toast = useToast();
+  const { c } = useTheme();
   const { isOnline } = useConnectivity();
 
   const [email, setEmail] = useState('');
@@ -72,10 +77,15 @@ export default function Recover() {
     setEmail('');
   };
 
+  const backToSignIn = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(auth)/signin');
+  };
+
   const sent = sentTo !== null;
 
   return (
-    <Screen contentStyle={{ paddingTop: 12 }} testID="screen-recover">
+    <Screen contentStyle={{ flexGrow: 1, gap: 16 }} testID="screen-recover">
       <ScreenHeader title="Reset password" style={{ marginBottom: 0 }} />
 
       {!isOnline ? (
@@ -83,47 +93,48 @@ export default function Recover() {
           tone="warn"
           lead="You’re offline."
           message="A password reset needs a connection — the link can only arrive by email."
-          style={{ marginTop: 8 }}
           testID="banner-offline"
         />
-      ) : sent ? null : (
-        <Txt role="body" tone="mut" style={{ marginTop: 8, lineHeight: 19.5 }}>
-          Enter your account email and we&rsquo;ll send a link to set a new password.
-        </Txt>
-      )}
+      ) : null}
 
       {sent ? (
         <>
-          <AuthMailCard email={sentTo} style={{ marginTop: 16 }} testID="card-sent" />
+          <AuthMailCard email={sentTo} testID="card-sent" />
           <Button
             label={resendLabel(secondsLeft)}
+            size="xlarge"
             onPress={send}
             loading={busy}
             loadingLabel="Sending…"
             disabled={secondsLeft > 0 || !isOnline}
-            style={{ marginTop: 16 }}
             testID="cta-resend"
           />
-          <View style={{ alignItems: 'center', marginTop: 14 }}>
-            <LinkButton
-              label="Use a different email"
-              size="large"
-              onPress={useAnotherEmail}
-              testID="cta-different-email"
-            />
+          <View style={{ alignItems: 'center', height: 48, justifyContent: 'center' }}>
+            <LinkButton label="Use a different email" size="large" onPress={useAnotherEmail} testID="cta-different-email" />
           </View>
         </>
       ) : (
         <>
-          <View
-            pointerEvents={busy ? 'none' : 'auto'}
-            style={{ marginTop: !isOnline ? 20 : 24, opacity: busy ? 0.6 : 1 }}
-          >
+          {/* Figma `Hero`: the key in a soft disc, the question, the one-line answer. */}
+          <View style={{ alignItems: 'center', paddingTop: 16, paddingBottom: 8, gap: 12 }}>
+            <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: c.accS, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="keyRound" size={28} color={c.accBright} />
+            </View>
+            <Txt align="center" style={{ fontFamily: fontFamily[700], fontSize: 24, lineHeight: 30, letterSpacing: -0.24, color: c.ink }}>
+              Forgot your password?
+            </Txt>
+            <Txt role="body" tone="mut" align="center">
+              Enter your account email and we&rsquo;ll send a link to set a new password.
+            </Txt>
+          </View>
+
+          <Card pointerEvents={busy ? 'none' : 'auto'} style={{ gap: 12, opacity: busy ? 0.6 : 1 }} testID="card-fields">
             <Field label="Email" error={error}>
               <Input
                 value={email}
                 onChangeText={setEmail}
                 placeholder="you@example.com"
+                leadingIcon="mail"
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
@@ -136,17 +147,31 @@ export default function Recover() {
                 testID="input-email"
               />
             </Field>
-          </View>
+            {/* The sentence is deliberately conditional — "If that address has
+                a Revora account" — because confirming which addresses are
+                registered would hand an attacker a list of riders. */}
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10, padding: 12, borderRadius: 14, backgroundColor: c.sur2 }}>
+              <Icon name="info" size={20} color={c.mut} />
+              <Txt role="helper" tone="mut" style={{ flex: 1 }}>
+                If that address has a Revora account, a reset link is on its way. It can take a minute or two.
+              </Txt>
+            </View>
+          </Card>
 
           <Button
             label="Send reset link"
+            icon="send"
             loadingLabel="Sending…"
+            size="xlarge"
             onPress={send}
             loading={busy}
             disabled={!isOnline}
-            style={{ marginTop: 20 }}
             testID="cta-submit"
           />
+
+          <View style={{ flex: 1, minHeight: 24 }} />
+
+          <AuthSwitchLine prompt="Remembered it?" action="Sign in" onPress={backToSignIn} testID="cta-back-to-signin" />
         </>
       )}
     </Screen>

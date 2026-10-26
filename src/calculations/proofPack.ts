@@ -77,6 +77,10 @@ export type ProofPackSummary = {
   documents: number;
   /** The INCLUDED list, in the order the board prints it. */
   included: string[];
+  /** The Figma INCLUDED card: one line per section, with its count. */
+  includedLines: string[];
+  /** Photos the pack can carry: document files, receipts and accessory photos. */
+  photos: number;
   /** `'Feb 2022 – Sep 2026'`, or `null` where nothing carries a date. */
   coverage: string | null;
   /** `null` where the span cannot be worked out — never `0`. */
@@ -110,6 +114,17 @@ export function proofPackSummary(input: {
   if (parts > 0) included.push('parts history');
   if (documentCount > 0) included.push(plural(documentCount, 'document'));
 
+  const includedLines = ['Motorcycle details · chassis and engine no.'];
+  if (services > 0) includedLines.push(`Service history · ${plural(services, 'visit')}`);
+  if (fuelLogs > 0) includedLines.push(`Odometer timeline · ${plural(fuelLogs, 'fill-up')}`);
+  if (parts > 0) includedLines.push(`Parts history · ${plural(parts, 'part')}`);
+  if (documentCount > 0) includedLines.push(`Documents · ${plural(documentCount, 'document')}`);
+
+  const photos =
+    documents.filter((d) => d.filePath !== null).length +
+    analytics.services.all.reduce((n, s) => n + s.receiptPaths.length, 0) +
+    analytics.accessories.all.filter((a) => a.photoPath !== null).length;
+
   const { firstDate, lastDate } = certificate;
   const coverage =
     firstDate === null || lastDate === null
@@ -127,6 +142,8 @@ export function proofPackSummary(input: {
     parts,
     documents: documentCount,
     included,
+    includedLines,
+    photos,
     coverage,
     monthsCovered,
     isThin: monthsCovered !== null && monthsCovered < PROOF_PACK_THIN_MONTHS,

@@ -1,0 +1,88 @@
+[D4 Services — History] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: linear-gradient(180deg, #FFE6DA 0%, #F8F3F1 30%, #F5F6F8 100%); border-radius: 36px
+[Header] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 55px; align-self: stretch
+[Titles] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 186px; height: 55px
+[Services] font-weight: 700; font-size: 28px; color: #14171B
+[The Red One · Pulsar NS200] font-weight: 400; font-size: 14px; color: #6B727C
+[Log a service] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px 16px 0px 14px; gap: 6px; width: 151px; height: 48px; background: #D2400F; border-radius: 999px
+  (icon plus|white)
+[Log a service] font-weight: 600; font-size: 15px; color: #FFFFFF
+[Spend card] display: flex; flex-direction: column; align-items: flex-start; padding: 20px; gap: 14px; width: 358px; height: 213px; background: linear-gradient(135deg, #1E2227 0%, #101214 71.43%); border-radius: 28px; align-self: stretch
+[Head] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 318px; height: 23px; align-self: stretch
+[ALL SERVICES] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #9AA1AA
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 4px 10px; width: 159px; height: 23px; background: #262A30; border-radius: 999px
+[5 visits · last 12 months] font-weight: 600; font-size: 12px; color: #C9CED4
+[Amount] display: flex; flex-direction: row; align-items: baseline; padding: 0px; gap: 8px; width: 318px; height: 50px; align-self: stretch
+[৳11,280] font-weight: 700; font-size: 40px; letter-spacing: -0.02em; color: #FFFFFF
+[avg ৳2,256 / visit] font-weight: 500; font-size: 13px; color: #9AA1AA
+[chart:spend] width: 318px; height: 72px
+[spend-chart] width: 318px; height: 72px
+[N] font-weight: 400; font-size: 12px; text-align: center; color: #9AA1AA
+[D] font-weight: 400; font-size: 12px; text-align: center; color: #9AA1AA
+[J] font-weight: 400; font-size: 12px; text-align: center; color: #9AA1AA
+[F] font-weight: 400; font-size: 12px; text-align: center; color: #9AA1AA
+[M] font-weight: 400; font-size: 12px; text-align: center; color: #9AA1AA
+[A] font-weight: 400; font-size: 12px; text-align: center; color: #9AA1AA
+[M] font-weight: 400; font-size: 12px; text-align: center; color: #9AA1AA
+[J] font-weight: 400; font-size: 12px; text-align: center; color: #9AA1AA
+[J] font-weight: 400; font-size: 12px; text-align: center; color: #9AA1AA
+[A] font-weight: 400; font-size: 12px; text-align: center; color: #9AA1AA
+[S] font-weight: 400; font-size: 12px; text-align: center; color: #9AA1AA
+[O] font-weight: 400; font-size: 12px; text-align: center; color: #9AA1AA
+[Filter chips] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 48px; align-self: stretch
+[All] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px 18px; width: 54px; height: 48px; background: #14171B; border-radius: 999px
+[All] font-weight: 600; font-size: 14px; color: #FFFFFF
+[Oil] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px 16px; width: 54px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Oil] font-weight: 600; font-size: 14px; color: #14171B
+[Brakes] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px 16px; width: 81px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Brakes] font-weight: 600; font-size: 14px; color: #14171B
+[Chain] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px 16px; width: 75px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Chain] font-weight: 600; font-size: 14px; color: #14171B
+[Tyres] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px 16px; width: 72px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Tyres] font-weight: 600; font-size: 14px; color: #14171B
+[Other] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px 16px; width: 76px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Other] font-weight: 600; font-size: 14px; color: #14171B
+[Service list] display: flex; flex-direction: column; align-items: flex-start; padding: 2px 16px; width: 358px; height: 348px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 68px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBE9E7; border-radius: 12px
+  (icon disc|bad)
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 213px; height: 36px; flex-grow: 1
+[Brake pads] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[9 Sep · Rahim Motors · 34,120 km] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[৳1,650] font-weight: 600; font-size: 15px; color: #14171B
+[Row] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 69px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E8F0FE; border-radius: 12px
+  (icon link|blue)
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 227px; height: 36px; flex-grow: 1
+[Chain clean & lube] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[28 Aug · Self-service · 33,880 km] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[৳180] font-weight: 600; font-size: 15px; color: #14171B
+[Row] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 69px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon droplet|accent)
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 213px; height: 36px; flex-grow: 1
+[Oil change] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[18 Mar · Rahim Motors · 31,402 km] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[৳1,850] font-weight: 600; font-size: 15px; color: #14171B
+[Row] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 69px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon circle-dot|ink)
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 210px; height: 36px; flex-grow: 1
+[Rear tyre] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[2 Feb · Tyre Point Mirpur · 30,215 km] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[৳4,200] font-weight: 600; font-size: 15px; color: #14171B
+[Row] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 69px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon wrench|ink)
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 210px; height: 36px; flex-grow: 1
+[Full service] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[14 Dec · Rahim Motors · 28,990 km] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[৳3,400] font-weight: 600; font-size: 15px; color: #14171B
+[Workshop link] display: flex; flex-direction: row; align-items: center; padding: 16px; gap: 12px; width: 358px; height: 72px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E8F0FE; border-radius: 12px
+  (icon building|blue)
+[building] width: 20px; height: 20px
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 242px; height: 36px; flex-grow: 1
+[Workshop records] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Quotes vs invoices, by workshop] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+  (icon chevron-right|mut)
+[A service’s total includes its parts — they don’t appear twice in Costs.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch

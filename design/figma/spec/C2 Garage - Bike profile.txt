@@ -1,0 +1,116 @@
+[C2 Garage — Bike profile] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left)
+[The Red One] font-weight: 600; font-size: 16px; color: #14171B
+[Edit] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon pencil)
+[Everything the bike owns lives here — papers, health and the machine itself.] font-weight: 400; font-size: 13px; text-align: center; color: #6B727C; align-self: stretch
+[Facts card] display: flex; flex-direction: column; align-items: flex-start; padding: 4px 8px 4px 16px; width: 358px; height: 276px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[KV] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px 8px 0px 0px; width: 334px; height: 52px; align-self: stretch
+[Make & model] font-weight: 400; font-size: 14px; color: #6B727C
+[Bajaj Pulsar NS200 · 2022] font-weight: 600; font-size: 14px; color: #14171B
+[KV] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px 8px 0px 0px; width: 334px; height: 52px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tank] font-weight: 400; font-size: 14px; color: #6B727C
+[12 L] font-weight: 600; font-size: 14px; color: #14171B
+[KV copy] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 4px; width: 334px; height: 56px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Engine no.] font-weight: 400; font-size: 14px; color: #6B727C; flex-grow: 1
+[PFZWJF12904] font-weight: 600; font-size: 14px; letter-spacing: 0.03em; color: #14171B
+[Copy btn] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px
+  (icon copy-mut)
+[KV copy] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 4px; width: 334px; height: 56px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Chassis no.] font-weight: 400; font-size: 14px; color: #6B727C; flex-grow: 1
+[MD2A36FZ8NCM10482] font-weight: 600; font-size: 14px; letter-spacing: 0.03em; color: #14171B
+[Copy btn] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px
+  (icon copy-mut)
+[KV] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px 8px 0px 0px; width: 334px; height: 52px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Purchase] font-weight: 400; font-size: 14px; color: #6B727C
+[৳285,000 · 12 Mar 2022] font-weight: 600; font-size: 14px; color: #14171B
+[Update odometer card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 10px; width: 358px; height: 145px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[UPDATE ODOMETER] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Entry row] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 10px; width: 326px; height: 48px; align-self: stretch
+[Input] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px 14px; width: 206px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; flex-grow: 1
+[34,712] font-weight: 500; font-size: 16px; color: #878E98
+[km] font-weight: 500; font-size: 14px; color: #6B727C
+[Update btn] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 110px; height: 48px; background: #14171B; border-radius: 999px
+[Update] font-weight: 600; font-size: 15px; color: #FFFFFF
+[Odometer only moves forward — a lower reading gets flagged, never silently accepted.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[PAPERS] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Papers card] display: flex; flex-direction: column; align-items: flex-start; padding: 4px 16px; width: 358px; height: 190px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 60px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon file-text-accent)
+[Documents] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+[Badge] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 83px; height: 21px; background: #FBF0DA; border-radius: 999px
+[1 EXPIRING] font-weight: 600; font-size: 12px; color: #93611A
+  (icon chevron-right-mut)
+[Row] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 61px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E5F6EE; border-radius: 12px
+  (icon shield-good)
+[Warranties] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+  (icon chevron-right-mut)
+[Row] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 61px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon file-check-accent)
+[Proof Pack] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+  (icon chevron-right-mut)
+[HEALTH] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Health card] display: flex; flex-direction: column; align-items: flex-start; padding: 4px 16px; width: 358px; height: 312px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 60px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon wrench-accent)
+[Service history] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+  (icon chevron-right-mut)
+[Row] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 61px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBF0DA; border-radius: 12px
+  (icon settings-warn)
+[Maintenance] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+[Badge] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 86px; height: 21px; background: #FBE9E7; border-radius: 999px
+[2 OVERDUE] font-weight: 600; font-size: 12px; color: #B42318
+  (icon chevron-right-mut)
+[Row] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 61px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBE9E7; border-radius: 12px
+  (icon shield-bad)
+[Safety & condition] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+[Badge] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 65px; height: 21px; background: #FBE9E7; border-radius: 999px
+[ACTION] font-weight: 600; font-size: 12px; color: #B42318
+  (icon chevron-right-mut)
+[Row] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 61px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon package-ink)
+[Parts & accessories] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+  (icon chevron-right-mut)
+[Row] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 61px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon building-ink)
+[building] width: 20px; height: 20px
+[Workshop records] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+  (icon chevron-right-mut)
+[THE MACHINE] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Machine card] display: flex; flex-direction: column; align-items: flex-start; padding: 4px 16px; width: 358px; height: 190px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 60px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon gauge-accent)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 242px; height: 36px; flex-grow: 1
+[Odometer history] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[34,712 km · updated 3 days ago] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+  (icon chevron-right-mut)
+[Row] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 61px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon banknote-ink)
+[banknote] width: 20px; height: 20px
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 242px; height: 36px; flex-grow: 1
+[Company allowance] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Meghna Traders Ltd · ৳3,000 / month] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+  (icon chevron-right-mut)
+[Row] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 61px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon pencil-ink)
+[Edit motorcycle] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+  (icon chevron-right-mut)
+[Actions] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 52px; align-self: stretch
+[Edit details] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 175px; height: 52px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; flex-grow: 1
+[Edit details] font-weight: 600; font-size: 15px; color: #14171B
+[Delete motorcycle] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 6px; width: 173px; height: 52px; background: #FBE9E7; border-radius: 999px; flex-grow: 1
+  (icon trash-bad)
+[Delete motorcycle] font-weight: 600; font-size: 14px; color: #B42318

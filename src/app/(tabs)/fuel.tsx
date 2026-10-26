@@ -4,18 +4,23 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  Badge,
   Banner,
   Button,
   Card,
+  CardHeader,
   ChipGroup,
   Divider,
-  Eyebrow,
   EmptyState,
   ErrorState,
-  MenuRow,
-  ProBadge,
+  HeroCard,
+  HeroFigure,
+  HeroHead,
+  IconSquareButton,
+  LinkButton,
+  MiniBars,
+  PageWash,
   Screen,
+  Segmented,
   SectionEyebrow,
   SkeletonList,
   StatRow,
@@ -31,12 +36,26 @@ import { FuelAdjustmentRow } from '@/features/fuel/ui/FuelAdjustmentRow';
 import { MileageExplainSheet } from '@/features/fuel/MileageExplainSheet';
 import { ProUpsellSheet, useProGate } from '@/features/premium/ProUpsell';
 import { useConnectivity } from '@/services/connectivity';
-import { buildFuelLog, filterFuelLog, type FuelLogFilter } from '@/calculations/fuellog';
-import { volumeUnitLabel } from '@/calculations/units';
-import { monthName } from '@/utils/date';
-import { formatCurrency, formatDistance, formatPricePerVolume, formatVolume } from '@/utils/format';
+import {
+  FUEL_RANGE_LABEL,
+  buildFuelLog,
+  filterFuelLog,
+  filterFuelLogByRange,
+  fuelRangeSummary,
+  type FuelLogFilter,
+  type FuelRange,
+} from '@/calculations/fuellog';
+import { efficiencyToDisplay, mileageUnitLabel, volumeUnitLabel } from '@/calculations/units';
+import { formatCurrencySymbol, formatDistance, formatMileageValue, formatPricePerVolumeSymbol, formatVolume } from '@/utils/format';
+import { todayIso } from '@/utils/date';
 import { useTheme } from '@/theme';
 import type { CurrencyCode, UnitPreferences } from '@/types';
+
+const RANGES = [
+  { value: '3m' as const, label: '3 months' },
+  { value: 'year' as const, label: 'Year' },
+  { value: 'all' as const, label: 'All time' },
+];
 
 const FILTERS = [
   { value: 'all' as const, label: 'All fills' },
@@ -45,40 +64,44 @@ const FILTERS = [
   { value: 'adjusted' as const, label: 'Adjustments' },
 ];
 
+/** How many intervals the hero's bars show. */
+const HERO_BARS = 13;
+
 /**
- * The fuel log.
+ * The fuel log (Figma `03 Fuel — tab`).
  *
- * One timeline carries fills and adjustments together, because an adjustment is
- * fuel that left the tank without covering distance: hiding it here would make
- * the mileage figures look arbitrary. The merge, the ordering and the filters
- * are `src/calculations/fuellog.ts` — this screen only draws them.
+ * The range switch drives everything under it: the hero's average mileage,
+ * spend, fills and price, and the list. One timeline carries fills and
+ * adjustments together, because an adjustment is fuel that left the tank
+ * without covering distance: hiding it would make the mileage figures look
+ * arbitrary. Ranges, merging, ordering and filters are
+ * `src/calculations/fuellog.ts` — this screen only draws them.
  */
 export default function FuelTab() {
   const router = useRouter();
   const { c, radius } = useTheme();
   const toast = useToast();
   const insets = useSafeAreaInsets();
-  const { units } = useGarage();
+  const { units, activeBike } = useGarage();
   const { analytics, isPending, error, refetch } = useGarageData();
   const connectivity = useConnectivity();
   const proGate = useProGate();
+  const [range, setRange] = useState<FuelRange>('3m');
   const [filter, setFilter] = useState<FuelLogFilter>('all');
   const [explainOpen, setExplainOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
+  const today = analytics?.today ?? todayIso();
   const entries = useMemo(() => analytics?.fuel.entries ?? [], [analytics]);
+  const intervals = useMemo(() => analytics?.mileage.intervals ?? [], [analytics]);
 
   const log = useMemo(
-    () =>
-      buildFuelLog(
-        analytics?.fuel.entries ?? [],
-        analytics?.fuel.adjustments ?? [],
-        analytics?.mileage.intervals ?? [],
-      ),
-    [analytics],
+    () => buildFuelLog(entries, analytics?.fuel.adjustments ?? [], intervals),
+    [entries, analytics, intervals],
   );
-
-  const filtered = useMemo(() => filterFuelLog(log, filter), [log, filter]);
+  const ranged = useMemo(() => filterFuelLogByRange(log, range, today), [log, range, today]);
+  const filtered = useMemo(() => filterFuelLog(ranged, filter), [ranged, filter]);
+  const summary = useMemo(() => fuelRangeSummary(entries, intervals, range, today), [entries, intervals, range, today]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -89,113 +112,24 @@ export default function FuelTab() {
     }
   };
 
+  const exportCsv = () => {
+    if (!analytics) return;
+    if (!proGate.isPro) {
+      proGate.open('Export fuel history');
+      return;
+    }
+    toast.show('Preparing your CSV…');
+    void proGate.exportFuelCsv(entries, analytics.fuel.adjustments, analytics.currency, units).catch(() => undefined);
+  };
+
+  const subtitle = `${activeBike?.nickname ?? 'Your bike'} · ${FUEL_RANGE_LABEL[range]}`;
   const hasLog = analytics !== null && log.length > 0;
-  // The board that draws a filter matching nothing drops the summary card with
-  // it: what is left on screen is the filter and the sentence explaining it.
-  const showSummary = hasLog && filtered.length > 0;
-
-  const header = (
-    <View>
-      <TabHeader
-        title="Fuel"
-        action={
-          <Button
-            label="Add fuel"
-            icon="plus"
-            size="compact"
-            onPress={() => router.push('/fuel/add')}
-            testID="cta-add-fuel"
-          />
-        }
-        style={{ marginBottom: connectivity.isOnline ? 16 : 14 }}
-      />
-
-      {!connectivity.isOnline ? (
-        <Banner
-          icon="wifiOff"
-          lead="You're offline."
-          message="Fills you log now are saved on this phone and sync later."
-          style={{ marginBottom: 12 }}
-          testID="banner-offline"
-        />
-      ) : null}
-
-      {showSummary && analytics ? (
-        <Card style={{ gap: 12 }} testID="card-fuel-summary">
-          <Eyebrow>{monthName(analytics.today)}</Eyebrow>
-          <StatRow>
-            <StatTile
-              label="Spend"
-              value={formatCurrency(analytics.fuel.thisMonthSpendMinor, analytics.currency)}
-            />
-            <StatTile label="Fills" value={String(analytics.fuel.thisMonthFills)} />
-            <StatTile label="Fuel" value={formatVolume(analytics.fuel.thisMonthLitresMl, units.volume)} />
-          </StatRow>
-          <Divider />
-          <Eyebrow>All time</Eyebrow>
-          <StatRow>
-            <StatTile
-              label="Spend"
-              value={formatCurrency(analytics.fuel.allTime.spendMinor, analytics.currency)}
-            />
-            <StatTile label="Fills" value={String(analytics.fuel.allTime.fills)} />
-            <StatTile
-              label="Avg price"
-              value={formatPricePerVolume(analytics.fuel.averagePricePerLitreMinor, analytics.currency)}
-              suffix={`/${volumeUnitLabel(units.volume)}`}
-            />
-          </StatRow>
-        </Card>
-      ) : null}
-
-      {hasLog ? (
-        <ChipGroup
-          options={FILTERS}
-          value={filter}
-          onChange={setFilter}
-          style={{ marginTop: showSummary ? 14 : 0, marginBottom: 14 }}
-          testID="filter-fuel"
-        />
-      ) : null}
-    </View>
-  );
-
-  const footer =
-    analytics && entries.length > 0 ? (
-      <View style={{ gap: 12, marginTop: 16 }}>
-        <Card variant="flush" style={{ paddingHorizontal: 15, paddingVertical: 2 }}>
-          <MenuRow label="How mileage is calculated" onPress={() => setExplainOpen(true)} />
-        </Card>
-        <Card variant="flush" style={{ paddingHorizontal: 15, paddingVertical: 2 }}>
-          <MenuRow
-            label="Export fuel history (CSV)"
-            badge={proGate.isPro ? undefined : <ProBadge />}
-            onPress={() => {
-              if (!proGate.isPro) {
-                proGate.open('Export fuel history');
-                return;
-              }
-              toast.show('Preparing your CSV…');
-              void proGate
-                .exportFuelCsv(entries, analytics.fuel.adjustments, analytics.currency, units)
-                .catch(() => undefined);
-            }}
-            testID="row-export"
-          />
-        </Card>
-      </View>
-    ) : null;
 
   if (error) {
     return (
       <Screen variant="tab" testID="screen-fuel">
         <TabHeader title="Fuel" />
-        <ErrorState
-          title="Couldn't load fuel history"
-          message={error.message}
-          onRetry={() => void refetch()}
-          variant="page"
-        />
+        <ErrorState title="Couldn't load fuel history" message={error.message} onRetry={() => void refetch()} variant="page" />
       </Screen>
     );
   }
@@ -209,36 +143,104 @@ export default function FuelTab() {
     );
   }
 
-  /** The list is one card: only its ends are rounded, every row shares the surface. */
-  const slice = (index: number) => {
-    const first = index === 0;
-    const last = index === filtered.length - 1;
-    return {
-      backgroundColor: c.sur,
-      borderLeftWidth: 1,
-      borderRightWidth: 1,
-      borderTopWidth: first ? 1 : 0,
-      borderBottomWidth: last ? 1 : 0,
-      borderColor: c.brd,
-      borderTopLeftRadius: first ? radius.listCard : 0,
-      borderTopRightRadius: first ? radius.listCard : 0,
-      borderBottomLeftRadius: last ? radius.listCard : 0,
-      borderBottomRightRadius: last ? radius.listCard : 0,
-      paddingHorizontal: 16,
-    } as const;
-  };
+  const header = (
+    <View style={{ gap: 16 }}>
+      <TabHeader
+        title="Fuel"
+        subtitle={subtitle}
+        action={
+          entries.length > 0 ? (
+            <IconSquareButton
+              icon="download"
+              accessibilityLabel={proGate.isPro ? 'Export fuel history (CSV)' : 'Export fuel history (CSV), Pro'}
+              onPress={exportCsv}
+              testID="row-export"
+            />
+          ) : undefined
+        }
+        style={{ marginBottom: 0 }}
+      />
+
+      {!connectivity.isOnline ? (
+        <Banner
+          icon="wifiOff"
+          lead="You're offline."
+          message="Fills you log now are saved on this phone and sync later."
+          testID="banner-offline"
+        />
+      ) : null}
+
+      {hasLog ? (
+        <>
+          <Segmented options={RANGES} value={range} onChange={setRange} size="compact" testID="range-fuel" />
+          <MileageHero
+            summary={summary}
+            units={units}
+            currency={analytics.currency}
+            onExplain={() => setExplainOpen(true)}
+          />
+        </>
+      ) : null}
+
+      <Button
+        label="Add fuel"
+        icon="plus"
+        size="xlarge"
+        onPress={() => router.push('/fuel/add')}
+        testID="cta-add-fuel"
+      />
+
+      {hasLog ? (
+        <ChipGroup options={FILTERS} value={filter} onChange={setFilter} size="compact" testID="filter-fuel" />
+      ) : null}
+
+      {hasLog ? (
+        // The top of the "All fills" card; the rows below continue its surface.
+        <View
+          style={{
+            backgroundColor: c.sur,
+            borderTopLeftRadius: radius.card,
+            borderTopRightRadius: radius.card,
+            paddingTop: 16,
+            paddingHorizontal: 16,
+          }}
+        >
+          <CardHeader
+            title="All fills"
+            style={{ paddingBottom: 2 }}
+            {...(range !== 'all'
+              ? { action: <LinkButton label="Show all" onPress={() => setRange('all')} testID="cta-show-all-time" /> }
+              : {})}
+          />
+        </View>
+      ) : null}
+    </View>
+  );
+
+  const cardSide = { backgroundColor: c.sur, paddingHorizontal: 16 } as const;
+  const footer = hasLog ? (
+    <View
+      style={{
+        ...cardSide,
+        height: 8,
+        borderBottomLeftRadius: radius.card,
+        borderBottomRightRadius: radius.card,
+      }}
+    />
+  ) : null;
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top }}>
+      <PageWash />
       <FlatList
         testID="screen-fuel"
-        data={filtered}
+        data={hasLog ? filtered : []}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={header}
         ListFooterComponent={footer}
         ListEmptyComponent={
-          log.length === 0 ? (
-            <>
+          !hasLog ? (
+            <View style={{ marginTop: 16 }}>
               <EmptyState
                 icon="fuel"
                 title="Your fills will live here"
@@ -246,13 +248,22 @@ export default function FuelTab() {
                 testID="empty-fuel"
               />
               <ExampleFill units={units} currency={analytics?.currency ?? units.currency} />
-            </>
+            </View>
           ) : (
-            <FilteredEmpty filter={filter} onShowAll={() => setFilter('all')} />
+            <View style={cardSide}>
+              <FilteredEmpty
+                filter={filter}
+                range={range}
+                onShowAll={() => {
+                  setFilter('all');
+                  setRange('all');
+                }}
+              />
+            </View>
           )
         }
-        renderItem={({ item, index }) => (
-          <View style={slice(index)}>
+        renderItem={({ item }) => (
+          <View style={cardSide}>
             {item.kind === 'fill' ? (
               <FuelRow
                 entry={item.entry}
@@ -262,20 +273,16 @@ export default function FuelTab() {
                 testID={`fuel-row-${item.entry.id}`}
               />
             ) : (
-              <FuelAdjustmentRow
-                adjustment={item.adjustment}
-                units={units}
-                testID={`fuel-adjustment-${item.adjustment.id}`}
-              />
+              <FuelAdjustmentRow adjustment={item.adjustment} units={units} testID={`fuel-adjustment-${item.adjustment.id}`} />
             )}
           </View>
         )}
         ItemSeparatorComponent={() => (
-          <View style={{ backgroundColor: c.sur, borderLeftWidth: 1, borderRightWidth: 1, borderColor: c.brd }}>
-            <Divider inset={16} />
+          <View style={cardSide}>
+            <Divider />
           </View>
         )}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 6, paddingBottom: 100 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 112 + insets.bottom }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -299,6 +306,67 @@ export default function FuelTab() {
 }
 
 /**
+ * Figma `Hero — mileage`: the range's distance-weighted average, a bar per
+ * interval that closed in it (the latest in orange, a dashed rule at the
+ * average), and spend, fills and price for the same range.
+ */
+function MileageHero({
+  summary,
+  units,
+  currency,
+  onExplain,
+}: {
+  summary: ReturnType<typeof fuelRangeSummary>;
+  units: UnitPreferences;
+  currency: CurrencyCode;
+  onExplain: () => void;
+}) {
+  const { c } = useTheme();
+  const bars = summary.intervals.slice(-HERO_BARS).map((i) => efficiencyToDisplay(i.efficiency, units.mileage));
+  // On L/100km a short bar is the good one; the chart still plots the figure
+  // as printed, so the dashed average sits where the number says.
+  const average = summary.average ? efficiencyToDisplay(summary.average, units.mileage) : undefined;
+
+  return (
+    <HeroCard gap={14} testID="card-fuel-summary">
+      <HeroHead eyebrow="Average mileage" chip="How it's calculated" chipIcon="info" onChipPress={onExplain} chipTestID="link-explain" />
+      <HeroFigure
+        value={summary.average ? formatMileageValue(summary.average, units.mileage) : undefined}
+        unit={mileageUnitLabel(units.mileage)}
+        testID="hero-mileage"
+      />
+      {bars.length > 0 ? (
+        <MiniBars
+          values={bars}
+          height={80}
+          color={c.heroLine}
+          highlightColor={c.heroAcc}
+          {...(average === undefined ? {} : { reference: average, referenceColor: c.heroAcc })}
+          gapRatio={0.55}
+          baseline="spread"
+          testID="chart-fuel-bars"
+        />
+      ) : (
+        <Txt role="helper" color={c.heroMut}>
+          No interval closed in this range. Two full-tank fills in a row measure one.
+        </Txt>
+      )}
+      <StatRow>
+        <StatTile variant="hero" valueSize="md" label="Spend" value={formatCurrencySymbol(summary.totals.spendMinor, currency)} />
+        <StatTile variant="hero" valueSize="md" label="Fills" value={String(summary.totals.fills)} />
+        <StatTile
+          variant="hero"
+          valueSize="md"
+          label="Avg price"
+          value={formatPricePerVolumeSymbol(summary.averagePricePerLitreMinor, currency)}
+          suffix={`/${volumeUnitLabel(units.volume)}`}
+        />
+      </StatRow>
+    </HeroCard>
+  );
+}
+
+/**
  * A worked example under the empty state.
  *
  * A rider who has logged nothing has no idea what a fill record contains or
@@ -309,26 +377,24 @@ export default function FuelTab() {
 function ExampleFill({ units, currency }: { units: UnitPreferences; currency: CurrencyCode }) {
   return (
     <View>
-      <SectionEyebrow top={20}>What a fill looks like</SectionEyebrow>
-      <Card
-        variant="dashed"
-        accessibilityLabel="Example fill: 8.2 litres, full tank"
-        testID="example-fill"
-      >
+      <SectionEyebrow>What a fill looks like</SectionEyebrow>
+      <Card variant="dashed" accessibilityLabel="Example fill: 8.2 litres, full tank" testID="example-fill">
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 }}>
-          <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-            <Txt role="rowTitle" tone="mut">
-              {`16 Sep · ${formatDistance(6_214_000, units.distance)}`}
+          <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+            <Txt role="rowTitleLarge" tone="mut">
+              {`${formatVolume(8_200, units.volume)} · Full`}
             </Txt>
             <Txt role="meta" tone="mut">
-              {`${formatVolume(8_200, units.volume)} · Full tank`}
+              {`16 Sep · ${formatDistance(6_214_000, units.distance)}`}
             </Txt>
           </View>
           <View style={{ alignItems: 'flex-end', gap: 4 }}>
-            <Txt role="rowTitle" tone="mut">
-              {formatCurrency(100_400, currency)}
+            <Txt role="rowTitleLarge" tone="mut">
+              {formatCurrencySymbol(100_400, currency)}
             </Txt>
-            <Badge label="km/L later" tone="neutral" />
+            <Txt role="micro" tone="mut">
+              {`${mileageUnitLabel(units.mileage)} later`}
+            </Txt>
           </View>
         </View>
       </Card>
@@ -337,14 +403,26 @@ function ExampleFill({ units, currency }: { units: UnitPreferences; currency: Cu
 }
 
 /**
- * A filter that matched nothing.
+ * A filter or range that matched nothing.
  *
  * The distinction that matters: an empty "Partial" filter is not a gap in the
  * log, it is a fact about the bike — every fill was a full tank, which is the
  * best case for mileage. Saying "no results" would read as a failure.
  */
-function FilteredEmpty({ filter, onShowAll }: { filter: FuelLogFilter; onShowAll: () => void }) {
-  const copy: Record<Exclude<FuelLogFilter, 'all'>, { title: string; message: string }> = {
+function FilteredEmpty({
+  filter,
+  range,
+  onShowAll,
+}: {
+  filter: FuelLogFilter;
+  range: FuelRange;
+  onShowAll: () => void;
+}) {
+  const copy: Record<FuelLogFilter, { title: string; message: string }> = {
+    all: {
+      title: 'No fills in this range',
+      message: `Nothing was logged in the ${FUEL_RANGE_LABEL[range].toLowerCase()}.`,
+    },
     full: {
       title: 'No full-tank fills',
       message: 'Mileage is measured between two full tanks, so marking your next one Full unlocks it.',
@@ -358,7 +436,7 @@ function FilteredEmpty({ filter, onShowAll }: { filter: FuelLogFilter; onShowAll
       message: 'Nothing has been logged as spilled, leaked or drained. That is the normal case.',
     },
   };
-  const { title, message } = copy[filter === 'all' ? 'partial' : filter];
+  const { title, message } = copy[filter];
 
   return (
     <EmptyState

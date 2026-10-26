@@ -88,3 +88,71 @@ export function vaultValidityLine(
 
   return `${term}${expired ? 'expired' : 'valid until'} ${formatLongDate(expiresOn)}`;
 }
+
+/**
+ * The hero's three figures on the Figma vault (`Valid · Due soon · Offline`),
+ * counted from the same `documentStatus` every row uses.
+ */
+export type VaultCounts = {
+  total: number;
+  valid: number;
+  /** Expiring inside the warning window. */
+  dueSoon: number;
+  expired: number;
+  /** Documents the rider keeps an offline copy of. */
+  offline: number;
+};
+
+export function vaultCounts(documents: readonly VaultDocument[], today: IsoDate = todayIso()): VaultCounts {
+  const counts: VaultCounts = { total: documents.length, valid: 0, dueSoon: 0, expired: 0, offline: 0 };
+  for (const document of documents) {
+    const status = documentStatus(document, today);
+    if (status === 'valid') counts.valid += 1;
+    if (status === 'expiring') counts.dueSoon += 1;
+    if (status === 'expired') counts.expired += 1;
+    if (document.keepOfflineCopy) counts.offline += 1;
+  }
+  return counts;
+}
+
+/**
+ * The Figma row's second line: `Valid until 28 Sep`, `TP-4432871 · until
+ * 14 Jan 2027`, `DHAKA METRO-HA 12-3456 · No expiry`, `Custom document · No
+ * expiry`. The reference leads when there is one; a custom document with no
+ * number names its kind instead so the line is never empty.
+ */
+export function vaultRowLine(document: VaultDocument, today: IsoDate = todayIso()): string {
+  const reference = document.reference?.trim() ?? '';
+  const lead = reference !== '' ? reference : document.kind === 'custom' ? 'Custom document' : null;
+
+  if (document.expiresOn === null) {
+    const tail = documentNeedsExpiry(document) ? 'No expiry recorded' : 'No expiry';
+    return lead === null ? tail : `${lead} · ${tail}`;
+  }
+
+  const expired = daysBetween(today, document.expiresOn) < 0;
+  const date = formatLongDate(document.expiresOn);
+  if (lead === null) return `${expired ? 'Expired' : 'Valid until'} ${date}`;
+  return `${lead} · ${expired ? 'expired' : 'until'} ${date}`;
+}
+
+/**
+ * The Figma row's chip: a countdown while the document is due soon (`12
+ * days`), `Valid` while it is not, `Expired` once it has, and nothing at all
+ * for a document with no term — the row then ends in a chevron instead.
+ */
+export function vaultRowChip(
+  document: VaultDocument,
+  today: IsoDate = todayIso(),
+): { label: string; tone: DocumentBadgeTone } | null {
+  if (document.expiresOn === null) {
+    return documentNeedsExpiry(document) ? { label: 'No date', tone: 'warn' } : null;
+  }
+  const days = daysBetween(today, document.expiresOn);
+  if (days < 0) return { label: 'Expired', tone: 'bad' };
+  if (days === 0) return { label: 'Today', tone: 'warn' };
+  if (documentStatus(document, today) === 'expiring') {
+    return { label: `${days} day${days === 1 ? '' : 's'}`, tone: 'warn' };
+  }
+  return { label: 'Valid', tone: 'good' };
+}

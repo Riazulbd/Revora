@@ -1,0 +1,57 @@
+[D9 Parts — Part detail] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left|ink)
+[Part] font-weight: 600; font-size: 16px; color: #14171B
+[Edit] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon pencil|ink)
+[Title] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 10px; width: 358px; height: 35px; align-self: stretch
+[DID chain kit] font-weight: 700; font-size: 28px; color: #14171B
+[Badge] display: flex; flex-direction: row; align-items: center; padding: 4px 10px 4px 8px; gap: 4px; width: 86px; height: 23px; background: #E5F6EE; border-radius: 999px
+  (icon check|good)
+[ACTIVE] font-weight: 700; font-size: 12px; letter-spacing: 0.06em; color: #0B7F4E
+[Tiles] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 68px; align-self: stretch
+[Installed] display: flex; flex-direction: column; align-items: flex-start; padding: 14px 12px; gap: 4px; width: 114px; height: 68px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 20px; flex-grow: 1
+[INSTALLED] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[26,700 km] font-weight: 700; font-size: 15px; color: #14171B; align-self: stretch
+[Used] display: flex; flex-direction: column; align-items: flex-start; padding: 14px 12px; gap: 4px; width: 114px; height: 68px; background: #FBF0DA; border: 1px solid #F1DDB2; border-radius: 20px; flex-grow: 1
+[USED] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #93611A; align-self: stretch
+[8,012 km] font-weight: 700; font-size: 15px; color: #93611A; align-self: stretch
+[Expected] display: flex; flex-direction: column; align-items: flex-start; padding: 14px 12px; gap: 4px; width: 114px; height: 68px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 20px; flex-grow: 1
+[EXPECTED] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[8,700 km] font-weight: 700; font-size: 15px; color: #14171B; align-self: stretch
+[Status card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 12px; width: 358px; height: 104px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Line] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 326px; height: 20px; align-self: stretch
+  (icon clock|warn)
+[92% used · 688 km left] font-weight: 600; font-size: 16px; color: #93611A; flex-grow: 1
+[chart:wear] width: 326px; height: 40px
+[wear-chart] width: 326px; height: 40px
+[Fitted 26,700 km] font-weight: 400; font-size: 12px; color: #6B727C
+[Expected end 35,400 km] font-weight: 400; font-size: 12px; text-align: right; color: #6B727C
+[KV card] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 16px; width: 358px; height: 234px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[KV] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 46px; align-self: stretch
+[Cost] font-weight: 400; font-size: 14px; color: #6B727C; flex-grow: 1
+[৳6,800] font-weight: 600; font-size: 14px; color: #14171B
+[KV] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 47px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Fitted on] font-weight: 400; font-size: 14px; color: #6B727C; flex-grow: 1
+[4 January 2026] font-weight: 600; font-size: 14px; color: #14171B
+[KV] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 47px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Fitted by] font-weight: 400; font-size: 14px; color: #6B727C; flex-grow: 1
+[Rahim Moto Care] font-weight: 600; font-size: 14px; color: #14171B
+[KV] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 47px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Linked service] font-weight: 400; font-size: 14px; color: #6B727C
+[Chain & sprocket · 4 January 2026] font-weight: 600; font-size: 14px; text-align: right; color: #C93D0E; flex-grow: 1
+[KV] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 47px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Notes] font-weight: 400; font-size: 14px; color: #6B727C
+[Gold O-ring, 520 pitch · batch 2411] font-weight: 600; font-size: 14px; text-align: right; color: #14171B; flex-grow: 1
+[This part’s cost sits on the linked service, so it appears once in your ledger.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Actions] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 56px; align-self: stretch
+[Edit] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 174px; height: 56px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; flex-grow: 1
+  (icon pencil|ink)
+[Edit] font-weight: 600; font-size: 16px; color: #14171B
+[Mark removed] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 174px; height: 56px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; flex-grow: 1
+  (icon archive|ink)
+[archive] width: 18px; height: 18px
+[Mark removed] font-weight: 600; font-size: 16px; color: #14171B
+[Accessory link] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[This is an accessory, not a part] font-weight: 600; font-size: 14px; color: #C93D0E

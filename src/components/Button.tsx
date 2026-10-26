@@ -6,22 +6,26 @@ import { Icon, type IconName } from './Icon';
 import { Txt } from './Text';
 
 /**
- * `primary` — `background:var(--acc)`, white label (in dark the label is `--bg`,
- *   as every dark board draws it).
- * `secondary` — `background:var(--sur); border:1px solid var(--brd)`.
- * `subtle` — `background:var(--sur2)`, no border (the dialog's "Keep").
- * `tinted` — `background:var(--accS); color:var(--acc)` (the "Mark done" pill).
- * `ghost` — no chrome; `tone` colours the label ("Delete" in `--bad`, "Not now" in `--mut`).
- * `danger` — `background:var(--bad)`.
- * `dangerSubtle` — the Parts board's "Remove accessory": `background:var(--sur);
- *   border:1px solid <bad soft>`, label and icon in `--bad`. A destructive
- *   action that sits in the page rather than in a dialog.
- * `dashed` — the add-another placeholder (`border-radius:13px` on every board
- *   that draws one, which is why it overrides the size's radius).
+ * `primary` — `background:#D2400F`, white label (in dark the accent brightens
+ *   and the label turns to the page colour for contrast).
+ * `secondary` — `background:#FFFFFF; border:1px solid #E9EBEF`.
+ * `ink` — `background:#14171B`, white label (the "Mark done" pill, the active
+ *   segment).
+ * `outline` — transparent with `border:1px solid #C9CED4; border-radius:14px`
+ *   ("Attach pump receipt").
+ * `subtle` — `background:#F1F2F5`, no border.
+ * `tinted` — `background:#FDEAE3; border:1px solid #F6D3C5; color:#C93D0E`.
+ * `ghost` — no chrome; `tone` colours the label ("Delete" in bad, "Not now" muted).
+ * `danger` — the danger fill.
+ * `dangerSubtle` — a destructive action in the page (Figma `Delete`):
+ *   `background:#FBE9E7`, label and icon in the danger colour.
+ * `dashed` — the add-another placeholder (`border-radius:14px`).
  */
 export type ButtonVariant =
   | 'primary'
   | 'secondary'
+  | 'ink'
+  | 'outline'
   | 'subtle'
   | 'tinted'
   | 'danger'
@@ -30,13 +34,13 @@ export type ButtonVariant =
   | 'dashed';
 
 /**
- * Heights and radii from the boards:
- * `xlarge` 56/14 (Save fill), `large` 52/14 (Start tracking), `medium` 48/14
- * (dialogs, empty-state CTA), `small` 44/12, `compact` 40/14 (the header's
- * "Add fuel" pill), `chip` 36/11 (Notifications "Open"), `micro` 32/10
- * (Dashboard "Mark done"). Anything under 44 gets hit slop back up to 44.
+ * Heights from Figma; every button is a pill (`border-radius:999px`) except the
+ * field-shaped `outline` and `dashed`. `xlarge` 56 (Save fill, Add fuel),
+ * `large` 52, `action` 48 in `600 15px` (the tab header's "Add rule" /
+ * "Log a service"), `medium` 48, `small` 44, `compact` 40, `chip` 36 ("Mark done"),
+ * `micro` 32. Anything under 48 gets hit slop back up to 48.
  */
-export type ButtonSize = 'xlarge' | 'large' | 'medium' | 'small' | 'compact' | 'chip' | 'micro';
+export type ButtonSize = 'xlarge' | 'large' | 'action' | 'medium' | 'small' | 'compact' | 'chip' | 'micro';
 
 export type ButtonProps = {
   label: string;
@@ -44,6 +48,8 @@ export type ButtonProps = {
   variant?: ButtonVariant;
   size?: ButtonSize;
   icon?: IconName;
+  /** Which side of the label the glyph sits; Welcome's "Create account →" puts it after. */
+  iconPosition?: 'left' | 'right';
   /** Label colour for `ghost` (and the icon). Defaults to ink. */
   tone?: 'ink' | 'mut' | 'acc' | 'bad' | 'good' | 'warn';
   /** A second, smaller line under the label — "offline — saves on phone, syncs later". */
@@ -55,26 +61,24 @@ export type ButtonProps = {
   loadingLabel?: string;
   /** Stretch to the row (`flex:1`); the default hugs its container width. */
   flex?: boolean;
-  /**
-   * Overrides the size's corner radius. The boards mostly pair a height with
-   * one radius, but a few field-shaped buttons keep the 13px input radius at a
-   * 48 or 52px height — pass it rather than reaching for `style`, so the
-   * pressed and disabled states stay on the same rounding.
-   */
+  /** Overrides the size's corner radius. */
   radius?: number;
+  /** Overrides the size's side padding (a pill sized by its row rather than its label). */
+  padX?: number;
   style?: ViewStyle;
   accessibilityHint?: string;
   testID?: string;
 };
 
-const SPEC: Record<ButtonSize, { height: number; radius: number; font: number; padX: number; icon: number }> = {
-  xlarge: { height: 56, radius: 14, font: 16, padX: 24, icon: 16 },
-  large: { height: 52, radius: 14, font: 15, padX: 22, icon: 16 },
-  medium: { height: 48, radius: 14, font: 14, padX: 22, icon: 16 },
-  small: { height: 44, radius: 12, font: 13.5, padX: 18, icon: 14 },
-  compact: { height: 40, radius: 14, font: 13, padX: 16, icon: 14 },
-  chip: { height: 36, radius: 11, font: 12, padX: 12, icon: 13 },
-  micro: { height: 32, radius: 10, font: 11.5, padX: 11, icon: 12 },
+const SPEC: Record<ButtonSize, { height: number; font: number; padX: number; icon: number }> = {
+  xlarge: { height: 56, font: 16, padX: 24, icon: 20 },
+  large: { height: 52, font: 15, padX: 22, icon: 20 },
+  action: { height: 48, font: 15, padX: 18, icon: 18 },
+  medium: { height: 48, font: 14, padX: 20, icon: 18 },
+  small: { height: 44, font: 14, padX: 18, icon: 16 },
+  compact: { height: 40, font: 13, padX: 16, icon: 16 },
+  chip: { height: 36, font: 13, padX: 14, icon: 14 },
+  micro: { height: 32, font: 12, padX: 12, icon: 14 },
 };
 
 /**
@@ -91,6 +95,7 @@ export function Button({
   variant = 'primary',
   size = 'large',
   icon,
+  iconPosition = 'left',
   tone,
   subLabel,
   disabled = false,
@@ -98,6 +103,7 @@ export function Button({
   loadingLabel,
   flex = false,
   radius,
+  padX,
   style,
   accessibilityHint,
   testID,
@@ -122,11 +128,9 @@ export function Button({
   }, [onPress]);
 
   const toneColor =
-    tone === 'mut' ? c.mut : tone === 'acc' ? c.acc : tone === 'bad' ? c.bad : tone === 'good' ? c.good : tone === 'warn' ? c.warn : c.ink;
+    tone === 'mut' ? c.mut : tone === 'acc' ? c.accText : tone === 'bad' ? c.bad : tone === 'good' ? c.good : tone === 'warn' ? c.warn : c.ink;
 
-  // The Sign in board draws a disabled primary as an inert grey field
-  // (`background:var(--sur2); border:1px solid var(--brd); color:var(--mut)`)
-  // rather than a faded orange one.
+  // A disabled primary is an inert grey pill rather than a faded orange one.
   const mutedPrimary = disabled && (variant === 'primary' || variant === 'danger');
 
   const background = mutedPrimary
@@ -135,13 +139,17 @@ export function Button({
       ? c.acc
       : variant === 'danger'
         ? c.bad
-        : variant === 'subtle'
-          ? c.sur2
-          : variant === 'tinted'
-            ? c.accS
-            : variant === 'ghost' || variant === 'dashed'
-              ? 'transparent'
-              : c.sur;
+        : variant === 'ink'
+          ? c.ink
+          : variant === 'dangerSubtle'
+            ? c.badS
+            : variant === 'subtle'
+              ? c.sur2
+            : variant === 'tinted'
+              ? c.accS
+              : variant === 'ghost' || variant === 'dashed' || variant === 'outline'
+                ? 'transparent'
+                : c.sur;
 
   const foreground = mutedPrimary
     ? c.mut
@@ -151,25 +159,29 @@ export function Button({
         : '#FFFFFF'
       : variant === 'danger'
         ? '#FFFFFF'
-        : variant === 'tinted'
-          ? c.acc
-          : variant === 'dangerSubtle'
-            ? c.bad
-            : variant === 'dashed'
-              ? c.mut
-              : toneColor;
+        : variant === 'ink'
+          ? c.sur
+          : variant === 'tinted'
+            ? c.accText
+            : variant === 'dangerSubtle'
+              ? c.bad
+              : variant === 'dashed'
+                ? c.mut
+                : toneColor;
 
   const bordered =
     mutedPrimary ||
     variant === 'secondary' ||
+    variant === 'outline' ||
+    variant === 'tinted' ||
     variant === 'dashed' ||
-    variant === 'dangerSubtle' ||
     (variant === 'subtle' && dark);
   const borderWidth = bordered ? (variant === 'dashed' ? 1.5 : 1) : 0;
-  const borderColor = variant === 'dangerSubtle' ? c.badS : c.brd;
-  // The boards' pill buttons close to 6px between the glyph and the label; the
-  // "Add fuel" header pill is the one every tab screen repeats.
-  const iconGap = size === 'compact' || size === 'chip' || size === 'micro' ? 6 : 8;
+  const borderColor =
+    variant === 'tinted' ? c.accBrd : variant === 'outline' || variant === 'dashed' ? c.brdStrong : c.brd;
+  // Figma's pills close to 8px between the glyph and the label, 6px on the small ones.
+  const iconGap = size === 'compact' || size === 'chip' || size === 'micro' || size === 'action' ? 6 : 8;
+  const fieldShaped = variant === 'outline' || variant === 'dashed';
 
   const hitSlop = spec.height < HIT_SIZE ? { top: (HIT_SIZE - spec.height) / 2, bottom: (HIT_SIZE - spec.height) / 2, left: 4, right: 4 } : undefined;
 
@@ -188,7 +200,7 @@ export function Button({
       style={({ pressed }) => [
         {
           height: spec.height,
-          borderRadius: radius ?? (variant === 'dashed' ? 13 : spec.radius),
+          borderRadius: radius ?? (fieldShaped ? 14 : 999),
           backgroundColor: background,
           borderWidth,
           borderColor: bordered ? borderColor : 'transparent',
@@ -197,7 +209,7 @@ export function Button({
           alignItems: 'center',
           justifyContent: 'center',
           gap: showLabelWhileLoading ? 10 : iconGap,
-          paddingHorizontal: spec.padX,
+          paddingHorizontal: padX ?? spec.padX,
           opacity: inactive && !mutedPrimary ? 0.55 : pressed ? 0.85 : 1,
         },
         flex ? { flex: 1 } : null,
@@ -210,12 +222,12 @@ export function Button({
         <>
           {showLabelWhileLoading ? (
             <ActivityIndicator size="small" color={foreground} />
-          ) : icon ? (
-            <Icon name={icon} size={spec.icon} color={foreground} strokeWidth={size === 'compact' ? 2.4 : 2.2} />
+          ) : icon && iconPosition === 'left' ? (
+            <Icon name={icon} size={spec.icon} color={foreground} />
           ) : null}
           {subLabel ? (
             <View style={{ alignItems: 'center', gap: 1 }}>
-              <Txt style={{ fontFamily: fontFamily[700], fontSize: spec.font, color: foreground }} numberOfLines={1}>
+              <Txt style={{ fontFamily: fontFamily[600], fontSize: spec.font, color: foreground }} numberOfLines={1}>
                 {showLabelWhileLoading ? loadingLabel : label}
               </Txt>
               <Txt style={{ fontFamily: fontFamily[600], fontSize: 10.5, color: foreground, opacity: 0.75 }} numberOfLines={1}>
@@ -223,10 +235,13 @@ export function Button({
               </Txt>
             </View>
           ) : (
-            <Txt style={{ fontFamily: fontFamily[700], fontSize: spec.font, color: foreground }} numberOfLines={1}>
+            <Txt style={{ fontFamily: fontFamily[600], fontSize: spec.font, color: foreground }} numberOfLines={1}>
               {showLabelWhileLoading ? loadingLabel : label}
             </Txt>
           )}
+          {icon && iconPosition === 'right' && !showLabelWhileLoading ? (
+            <Icon name={icon} size={spec.icon} color={foreground} />
+          ) : null}
         </>
       )}
     </Pressable>
@@ -239,9 +254,9 @@ export function ButtonRow({ children, gap = 10, style }: { children: React.React
 }
 
 /**
- * The inline accent link: `font:700 11.5px` (`small`), `font:700 12px` (`medium`,
- * the card header's "View all"), `font:700 13px` (`large`, "Show all fills",
- * "Forgot password?").
+ * The inline accent link in `#C93D0E`: `600 13px` (`small` and `medium` — the
+ * card header's "View all", "Show all") and `600 14px` (`large`, "Forgot
+ * password?").
  */
 export function LinkButton({
   label,
@@ -257,7 +272,7 @@ export function LinkButton({
   testID?: string;
 }) {
   const { c } = useTheme();
-  const color = tone === 'mut' ? c.mut : tone === 'ink' ? c.ink : c.acc;
+  const color = tone === 'mut' ? c.mut : tone === 'ink' ? c.ink : c.accText;
   return (
     <Pressable
       accessibilityRole="link"
@@ -266,7 +281,7 @@ export function LinkButton({
       testID={testID}
       style={({ pressed }) => ({
         opacity: pressed ? 0.6 : 1,
-        // A 44px target (requirement 58) that still sits on the eyebrow's
+        // A 48px target (requirement 58) that still sits on the heading's
         // baseline: the extra height is pulled back with a negative margin.
         minHeight: HIT_SIZE,
         marginVertical: -(HIT_SIZE - 16) / 2,
@@ -274,7 +289,7 @@ export function LinkButton({
         paddingHorizontal: size === 'large' ? 6 : 0,
       })}
     >
-      <Txt role={size === 'small' ? 'link' : size === 'medium' ? 'fieldLabel' : 'linkLarge'} color={color}>
+      <Txt role={size === 'large' ? 'linkLarge' : 'link'} color={color}>
         {label}
       </Txt>
     </Pressable>

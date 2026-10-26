@@ -10,13 +10,13 @@ import { useTheme } from '@/theme';
 import type { DistanceUnit, VolumeUnit } from '@/types';
 
 /**
- * One motorcycle on the Garage board's several-bikes layout.
+ * One motorcycle in the Garage list, under the active bike's hero.
  *
- * Three states, all drawn by the board: the one in use carries a 1.5px accent
- * border and an ACTIVE pill; the others say "Tap to switch"; a sold one is
- * dimmed, labelled ARCHIVED and inert, with "records kept" in place of its
- * odometer — because the point of keeping it on the screen is to tell a rider
- * their history did not go anywhere.
+ * Three states: the one in use carries a 1.5px accent border and an Active
+ * pill; the others say "Tap to switch"; a sold one is dimmed, labelled
+ * Archived and inert, with "records kept" in place of its odometer — because
+ * the point of keeping it on the screen is to tell a rider their history did
+ * not go anywhere.
  *
  * Status is never colour alone: every card says what it is in words.
  */
@@ -53,14 +53,14 @@ export function GarageBikeCard({
       variant="flush"
       style={{
         borderRadius: radius.card,
-        borderWidth: active ? 1.5 : 1,
-        borderColor: active ? c.acc : c.brd,
+        borderWidth: active ? 1.5 : 0,
+        borderColor: active ? c.acc : 'transparent',
         opacity: archived ? 0.6 : 1,
       }}
     >
       <View style={{ padding: 16, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
         {archived ? (
-          <View style={{ width: 84, height: 64, borderRadius: radius.tile, backgroundColor: c.sur2, flexShrink: 0 }} />
+          <View style={{ width: 84, height: 64, borderRadius: 12, backgroundColor: c.sur2, flexShrink: 0 }} />
         ) : (
           <PhotoThumb uri={photo} accessibilityLabel={`${bike.nickname} photo`} />
         )}
@@ -70,8 +70,8 @@ export function GarageBikeCard({
             <Txt role="cardTitle" numberOfLines={1} style={{ flexShrink: 1 }}>
               {bike.nickname}
             </Txt>
-            {active ? <Badge label="ACTIVE" tone="accent" uppercase /> : null}
-            {archived ? <Badge label="ARCHIVED" tone="neutral" uppercase /> : null}
+            {active ? <Badge label="Active" tone="good" size="chip" /> : null}
+            {archived ? <Badge label="Archived" tone="neutral" size="chip" /> : null}
           </View>
 
           {subtitle === '' ? null : (
@@ -81,7 +81,7 @@ export function GarageBikeCard({
           )}
 
           {archived ? null : (
-            <Txt role="rowTitleDense" numberOfLines={1} style={{ marginTop: 6 }}>
+            <Txt role="rowTitle" numberOfLines={1} style={{ marginTop: 6 }}>
               {odometer}
               {tank === null ? null : (
                 <Txt role="meta" tone="mut">

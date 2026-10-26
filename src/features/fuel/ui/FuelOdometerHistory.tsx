@@ -1,8 +1,7 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
 
-import { Badge, Banner, Button, Eyebrow, Input, Txt } from '@/components';
+import { Badge, Banner, Button, Icon, Input, RowIcon, Txt, type IconName, type RowTone } from '@/components';
 import type { OdometerHistoryRow } from '@/calculations/odometerHistory';
 import { INITIAL_ODOMETER_POINT_ID } from '@/calculations/odometer';
 import type { DistanceUnit, OdometerSource } from '@/types';
@@ -10,7 +9,7 @@ import { formatShortDate } from '@/utils/date';
 import { formatDistance } from '@/utils/format';
 import { HIT_SIZE, useTheme } from '@/theme';
 
-/** The board's tag on each reading: FUEL LOG, MANUAL, SERVICE. */
+/** The tag on each reading: Fuel log, Manual, Service. */
 const SOURCE_TAG: Record<OdometerSource, string> = {
   manual: 'Manual',
   fuel: 'Fuel log',
@@ -18,13 +17,18 @@ const SOURCE_TAG: Record<OdometerSource, string> = {
   expense: 'Expense',
 };
 
+const SOURCE_ICON: Record<OdometerSource, IconName> = {
+  manual: 'penLine',
+  fuel: 'fuel',
+  service: 'wrench',
+  expense: 'receipt',
+};
+
 /**
- * One reading in the history.
- *
- * The second line is the whole point of the row: it says whether this reading
- * can be put right here, or whether it belongs to a record that has to be
- * edited instead — and, when the readings around it disagree, that this is the
- * one that looks wrong. Colour is never the only signal; the words carry it.
+ * One reading in the history (Figma `Reading`): a 40px tile for where it came
+ * from, the reading in `600 15px`, the date and whether it can be corrected
+ * here, and the source tag. A reading that looks out of sequence goes amber
+ * with the alert glyph; the words carry it too, never the colour alone.
  */
 export function OdometerReadingRow({
   row,
@@ -39,6 +43,7 @@ export function OdometerReadingRow({
   onPress: () => void;
   testID?: string;
 }) {
+  const { c } = useTheme();
   const { point, correctable, outOfSequence } = row;
 
   const note = outOfSequence
@@ -48,6 +53,7 @@ export function OdometerReadingRow({
       : correctable
         ? 'tap to correct'
         : 'correct on that record';
+  const tone: RowTone = outOfSequence ? 'warn' : point.source === 'fuel' ? 'accent' : 'neutral';
 
   return (
     <Pressable
@@ -59,30 +65,32 @@ export function OdometerReadingRow({
       testID={testID}
       style={({ pressed }) => ({
         minHeight: HIT_SIZE,
-        paddingVertical: 13,
+        paddingVertical: 10,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
         opacity: pressed ? 0.6 : 1,
       })}
     >
-      <View style={{ flex: 1, minWidth: 0 }}>
-        <Txt role="rowTitle" tone={outOfSequence ? 'warn' : 'ink'} numberOfLines={1}>
+      <RowIcon icon={outOfSequence ? 'triangleAlert' : SOURCE_ICON[point.source]} tone={tone} />
+      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+        <Txt role="rowTitleLarge" tone={outOfSequence ? 'warn' : 'ink'} numberOfLines={1}>
           {formatDistance(point.metres, unit)}
         </Txt>
         <Txt role="meta" tone={outOfSequence ? 'warn' : 'mut'} numberOfLines={1}>
           {`${formatShortDate(point.date)} · ${note}`}
         </Txt>
       </View>
-      <Badge label={SOURCE_TAG[point.source]} size="tag" tone={point.source === 'fuel' ? 'accent' : 'neutral'} />
+      <Badge label={SOURCE_TAG[point.source]} tone={point.source === 'fuel' ? 'accent' : 'neutral'} />
+      {correctable ? <Icon name="chevronRight" size={20} color={c.faint} /> : null}
     </Pressable>
   );
 }
 
 /**
- * The correction editor, inline under the history exactly as the board draws
- * it: the old reading struck through, an arrow, the new one — and, before any
- * button, a plain sentence saying what the odometer will read afterwards.
+ * The correction editor, inline under the history: the old reading struck
+ * through, an arrow, the new one — and, before any button, a plain sentence
+ * saying what the odometer will read afterwards.
  *
  * Every figure in that sentence comes from `previewOdometerCorrection`, so the
  * promise on screen is the arithmetic that will actually run.
@@ -130,36 +138,28 @@ export function OdometerCorrectionPanel({
       }}
       testID="panel-correct-odometer"
     >
-      <Eyebrow>{`Correcting the ${dateLabel} reading`}</Eyebrow>
+      <Txt role="cardTitle">{`Correcting the ${dateLabel} reading`}</Txt>
 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <View
           accessibilityLabel={`Current reading ${originalLabel}, being replaced`}
           style={{
             flex: 1,
-            height: 52,
+            height: 48,
             borderRadius: radius.input,
-            backgroundColor: c.bg,
+            backgroundColor: c.field,
             borderWidth: 1,
             borderColor: c.brd,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Txt role="inputNumeric" tone="mut" style={{ fontSize: 17, textDecorationLine: 'line-through' }}>
+          <Txt role="inputNumeric" tone="mut" style={{ textDecorationLine: 'line-through' }}>
             {originalLabel}
           </Txt>
         </View>
 
-        <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-          <Path
-            d="M5 12h14m-5-5 5 5-5 5"
-            stroke={c.mut}
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </Svg>
+        <Icon name="arrowRight" size={20} color={c.mut} />
 
         <Input
           value={value}
@@ -168,7 +168,7 @@ export function OdometerCorrectionPanel({
           size="numeric"
           align="center"
           invalid={invalid}
-          style={{ flex: 1, height: 52 }}
+          style={{ flex: 1, height: 48 }}
           accessibilityLabel={`Corrected reading in ${unitLabel}`}
           testID="input-correct-odometer"
         />
@@ -186,28 +186,12 @@ export function OdometerCorrectionPanel({
           onPress={onCommit}
           testID="cta-save-correction"
         />
-        <Button
-          label="Cancel"
-          variant="ghost"
-          tone="mut"
-          size="medium"
-          onPress={onCancel}
-          style={{ width: 100 }}
-          testID="cta-cancel-correction"
-        />
+        <Button label="Cancel" variant="ghost" tone="mut" size="medium" onPress={onCancel} testID="cta-cancel-correction" />
       </View>
 
-      {/* Not on the board, but a reading entered by mistake has to be removable:
-          correcting it to a plausible figure would leave a ride that never
-          happened in the history. */}
-      <Button
-        label="Delete this reading"
-        variant="ghost"
-        tone="bad"
-        size="small"
-        onPress={onDelete}
-        testID="cta-delete-reading"
-      />
+      {/* A reading entered by mistake has to be removable: correcting it to a
+          plausible figure would leave a ride that never happened in the history. */}
+      <Button label="Delete this reading" variant="ghost" tone="bad" size="small" onPress={onDelete} testID="cta-delete-reading" />
     </View>
   );
 }

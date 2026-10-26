@@ -1,0 +1,77 @@
+[R1 Records — Documents vault] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: linear-gradient(180deg, #FFE6DA 0%, #F8F3F1 30%, #F5F6F8 100%); border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left)
+[Documents] font-weight: 600; font-size: 16px; color: #14171B
+[Add] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #14171B; border-radius: 24px
+  (icon plus-white)
+[Hero — dark accent] display: flex; flex-direction: column; align-items: flex-start; padding: 20px; gap: 14px; width: 358px; height: 211px; background: linear-gradient(135deg, #1E2227 0%, #101214 71.43%); border-radius: 28px; align-self: stretch
+[PAPERS FOR THE RED ONE] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #9AA1AA; align-self: stretch
+[Big] display: flex; flex-direction: row; align-items: baseline; padding: 0px; gap: 8px; width: 318px; height: 60px; align-self: stretch
+[5] font-weight: 700; font-size: 48px; color: #FFFFFF
+[documents saved] font-weight: 500; font-size: 16px; color: #9AA1AA
+[Stats] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 318px; height: 68px; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 68px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Valid] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[3] font-weight: 700; font-size: 20px; color: #4CC38A; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 68px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Due soon] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[1] font-weight: 700; font-size: 20px; color: #F5C26B; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 68px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Offline] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[4] font-weight: 700; font-size: 20px; color: #FFFFFF; align-self: stretch
+[Docs card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; width: 358px; height: 340px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row] display: flex; flex-direction: row; align-items: center; padding: 4px 0px 12px; gap: 12px; width: 326px; height: 56px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBF0DA; border-radius: 12px
+  (icon receipt-warn)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 202px; height: 35px; flex-grow: 1
+[Tax token] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Valid until 28 Sep] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 60px; height: 21px; background: #FBF0DA; border-radius: 999px
+[12 days] font-weight: 600; font-size: 12px; color: #93611A
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E5F6EE; border-radius: 12px
+  (icon shield-good)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 215px; height: 35px; flex-grow: 1
+[Insurance] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Green Delta · until 14 Jan 2027] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 47px; height: 21px; background: #E5F6EE; border-radius: 999px
+[Valid] font-weight: 600; font-size: 12px; color: #0B7F4E
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E8F0FE; border-radius: 12px
+  (icon file-blue)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 242px; height: 35px; flex-grow: 1
+[Registration] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[DHAKA METRO-HA 12-3456 · No expiry] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+  (icon chevron-right)
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 65px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E5F6EE; border-radius: 12px
+  (icon id-card-good)
+[id-card] width: 20px; height: 20px
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 215px; height: 35px; flex-grow: 1
+[Driving licence] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Valid until 03 Mar 2031] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 47px; height: 21px; background: #E5F6EE; border-radius: 999px
+[Valid] font-weight: 600; font-size: 12px; color: #0B7F4E
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px 4px; gap: 12px; width: 326px; height: 57px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon file-mut)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 242px; height: 35px; flex-grow: 1
+[Purchase invoice] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Custom document · No expiry] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+  (icon chevron-right)
+[Links] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 12px; width: 358px; height: 125px; align-self: stretch
+[Warranties] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 10px; width: 173px; height: 125px; background: #FFFFFF; border-radius: 24px; flex-grow: 1
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon badge-check-acc)
+[badge-check] width: 20px; height: 20px
+[Warranties] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[2 active] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Proof pack] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 10px; width: 173px; height: 125px; background: #FFFFFF; border-radius: 24px; flex-grow: 1
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon package-acc)
+[Proof Pack] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[PDF for a buyer] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Add — primary] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+  (icon plus-white)
+[Add a document] font-weight: 600; font-size: 16px; color: #FFFFFF

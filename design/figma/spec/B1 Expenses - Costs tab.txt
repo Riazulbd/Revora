@@ -1,0 +1,150 @@
+[B1 Expenses — Costs tab] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: linear-gradient(180deg, #FFE6DA 0%, #F8F3F1 30%, #F5F6F8 100%); border-radius: 36px
+[Header] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 53px; align-self: stretch
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 162px; height: 53px
+[Costs] font-weight: 700; font-size: 28px; color: #14171B
+[The Red One · every taka, one line each] font-weight: 400; font-size: 13px; color: #6B727C
+[Add expense] display: flex; flex-direction: row; align-items: center; padding: 0px 16px 0px 14px; gap: 6px; width: 144px; height: 48px; background: #D2400F; border-radius: 999px
+  (icon plus-white)
+[Add expense] font-weight: 600; font-size: 14px; color: #FFFFFF
+[Month switcher] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 4px; width: 358px; height: 58px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; align-self: stretch
+[Prev month] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #F1F2F5; border-radius: 999px
+  (icon chevron-left)
+[Month] display: flex; flex-direction: column; align-items: center; padding: 0px; width: 130px; height: 35px
+[September 2026] font-weight: 600; font-size: 16px; color: #14171B
+[1 – 30 Sep · 9 lines] font-weight: 400; font-size: 12px; color: #6B727C
+[Next month] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #F1F2F5; border-radius: 999px
+  (icon chevron-right)
+[Hero — month total] display: flex; flex-direction: column; align-items: flex-start; padding: 20px; gap: 16px; width: 358px; height: 348px; background: linear-gradient(135deg, #1E2227 0%, #101214 71.43%); border-radius: 28px; align-self: stretch
+[Row] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 318px; height: 25px; align-self: stretch
+[SPENT IN SEPTEMBER] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #9AA1AA
+[Delta chip] display: flex; flex-direction: row; align-items: flex-start; padding: 5px 10px; width: 120px; height: 25px; background: #262A30; border-radius: 999px
+[▲ 12% vs August] font-weight: 600; font-size: 12px; color: #C9CED4
+[Big] display: flex; flex-direction: row; align-items: baseline; padding: 0px; gap: 6px; width: 318px; height: 60px; align-self: stretch
+[৳4,860] font-weight: 700; font-size: 48px; letter-spacing: -0.02em; color: #FFFFFF
+[Donut + legend] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 20px; width: 318px; height: 112px; align-self: stretch
+[chart:cat-donut] width: 112px; height: 112px
+[cat-donut] width: 112px; height: 112px
+[Legend] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 10px; width: 186px; height: 94px; flex-grow: 1
+[L] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 186px; height: 16px; align-self: stretch
+[Dot] width: 10px; height: 10px; background: #FF6B3D; border-radius: 3px
+[Fuel] font-weight: 500; font-size: 13px; color: #C9CED4; flex-grow: 1
+[48%] font-weight: 600; font-size: 13px; color: #FFFFFF
+[L] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 186px; height: 16px; align-self: stretch
+[Dot] width: 10px; height: 10px; background: #F4A27F; border-radius: 3px
+[Service] font-weight: 500; font-size: 13px; color: #C9CED4; flex-grow: 1
+[34%] font-weight: 600; font-size: 13px; color: #FFFFFF
+[L] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 186px; height: 16px; align-self: stretch
+[Dot] width: 10px; height: 10px; background: #9AA1AA; border-radius: 3px
+[Parking] font-weight: 500; font-size: 13px; color: #C9CED4; flex-grow: 1
+[10%] font-weight: 600; font-size: 13px; color: #FFFFFF
+[L] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 186px; height: 16px; align-self: stretch
+[Dot] width: 10px; height: 10px; background: #4A515B; border-radius: 3px
+[Bike wash] font-weight: 500; font-size: 13px; color: #C9CED4; flex-grow: 1
+[8%] font-weight: 600; font-size: 13px; color: #FFFFFF
+[Stats] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 318px; height: 63px; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 63px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Total spent] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[৳38,240] font-weight: 700; font-size: 16px; color: #FFFFFF; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 63px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Cost / km] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[৳4.12] font-weight: 700; font-size: 16px; color: #FFFFFF; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 63px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Per day] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[৳162] font-weight: 700; font-size: 16px; color: #FFFFFF; align-self: stretch
+[By category] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 14px; width: 358px; height: 252px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Title row] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 326px; height: 20px; align-self: stretch
+[By category] font-weight: 600; font-size: 16px; color: #14171B
+[September] font-weight: 400; font-size: 12px; color: #6B727C
+[Cat] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 8px; width: 326px; height: 36px; align-self: stretch
+[R] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 326px; height: 20px; align-self: stretch
+  (icon fuel-acc)
+[Fuel] font-weight: 600; font-size: 14px; color: #14171B; flex-grow: 1
+[48%] font-weight: 500; font-size: 12px; color: #6B727C
+[৳2,322] font-weight: 600; font-size: 14px; color: #14171B
+[Track] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; width: 326px; height: 8px; background: #F1F2F5; border-radius: 999px; align-self: stretch
+[Fill] width: 156px; height: 8px; background: #F4511E; border-radius: 999px
+[Cat] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 8px; width: 326px; height: 36px; align-self: stretch
+[R] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 326px; height: 20px; align-self: stretch
+  (icon wrench-mut)
+[Service] font-weight: 600; font-size: 14px; color: #14171B; flex-grow: 1
+[34%] font-weight: 500; font-size: 12px; color: #6B727C
+[৳1,650] font-weight: 600; font-size: 14px; color: #14171B
+[Track] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; width: 326px; height: 8px; background: #F1F2F5; border-radius: 999px; align-self: stretch
+[Fill] width: 111px; height: 8px; background: #F4A27F; border-radius: 999px
+[Cat] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 8px; width: 326px; height: 36px; align-self: stretch
+[R] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 326px; height: 20px; align-self: stretch
+  (icon parking-mut)
+[parking] width: 20px; height: 20px
+[Parking] font-weight: 600; font-size: 14px; color: #14171B; flex-grow: 1
+[10%] font-weight: 500; font-size: 12px; color: #6B727C
+[৳480] font-weight: 600; font-size: 14px; color: #14171B
+[Track] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; width: 326px; height: 8px; background: #F1F2F5; border-radius: 999px; align-self: stretch
+[Fill] width: 33px; height: 8px; background: #878E98; border-radius: 999px
+[Cat] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 8px; width: 326px; height: 36px; align-self: stretch
+[R] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 326px; height: 20px; align-self: stretch
+  (icon droplets-mut)
+[Bike wash] font-weight: 600; font-size: 14px; color: #14171B; flex-grow: 1
+[8%] font-weight: 500; font-size: 12px; color: #6B727C
+[৳408] font-weight: 600; font-size: 14px; color: #14171B
+[Track] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; width: 326px; height: 8px; background: #F1F2F5; border-radius: 999px; align-self: stretch
+[Fill] width: 26px; height: 8px; background: #4A515B; border-radius: 999px
+[Transactions] display: flex; flex-direction: column; align-items: flex-start; padding: 16px 16px 4px; width: 358px; height: 340px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Title row] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px 0px 4px; width: 326px; height: 52px; align-self: stretch
+[Transactions] font-weight: 600; font-size: 16px; color: #14171B
+[Show all] display: flex; flex-direction: row; align-items: center; padding: 0px; width: 50px; height: 48px
+[All time] font-weight: 600; font-size: 13px; color: #C93D0E
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 67px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon fuel-acc)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 212px; height: 42px; flex-grow: 1
+[Padma Oil, Mirpur 10] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Meta] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 212px; height: 19px; align-self: stretch
+[13 Sep] font-weight: 400; font-size: 12px; color: #6B727C
+[Tag] display: flex; flex-direction: row; align-items: flex-start; padding: 2px 8px; width: 47px; height: 19px; background: #FDEAE3; border-radius: 999px
+[FUEL] font-weight: 600; font-size: 12px; color: #C93D0E
+[৳1,004] font-weight: 600; font-size: 15px; color: #14171B
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 67px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E8F0FE; border-radius: 12px
+  (icon wrench-blue)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 213px; height: 42px; flex-grow: 1
+[Service · Rahim Motors] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Meta] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 213px; height: 19px; align-self: stretch
+[9 Sep] font-weight: 400; font-size: 12px; color: #6B727C
+[Tag] display: flex; flex-direction: row; align-items: flex-start; padding: 2px 8px; width: 68px; height: 19px; background: #F1F2F5; border-radius: 999px
+[SERVICE] font-weight: 600; font-size: 12px; color: #6B727C
+[৳1,650] font-weight: 600; font-size: 15px; color: #14171B
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 67px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E5F6EE; border-radius: 12px
+  (icon parking-good)
+[parking] width: 20px; height: 20px
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 233px; height: 42px; flex-grow: 1
+[Bashundhara parking] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Meta] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 233px; height: 19px; align-self: stretch
+[7 Sep] font-weight: 400; font-size: 12px; color: #6B727C
+[Tag] display: flex; flex-direction: row; align-items: flex-start; padding: 2px 8px; width: 72px; height: 19px; background: #E5F6EE; border-radius: 999px
+[EXPENSE] font-weight: 600; font-size: 12px; color: #0B7F4E
+[৳80] font-weight: 600; font-size: 15px; color: #14171B
+[Row] display: flex; flex-direction: row; align-items: center; padding: 12px 0px; gap: 12px; width: 326px; height: 67px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E5F6EE; border-radius: 12px
+  (icon droplets-good)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 224px; height: 42px; flex-grow: 1
+[Bike wash] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Meta] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 224px; height: 19px; align-self: stretch
+[4 Sep] font-weight: 400; font-size: 12px; color: #6B727C
+[Tag] display: flex; flex-direction: row; align-items: flex-start; padding: 2px 8px; width: 72px; height: 19px; background: #E5F6EE; border-radius: 999px
+[EXPENSE] font-weight: 600; font-size: 12px; color: #0B7F4E
+[৳204] font-weight: 600; font-size: 15px; color: #14171B
+[Footnote] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; width: 358px; height: 30px; align-self: stretch
+[Parts fitted during a service are inside that service's total. Accessories count in totals but not in cost / km.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Tab bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 8px; width: 358px; height: 66px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; align-self: stretch
+[Tab] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 48px
+  (icon home-mut)
+[Tab] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 48px
+  (icon fuel-mut)
+[Tab active] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 6px; width: 95px; height: 48px; background: #14171B; border-radius: 999px
+  (icon wallet-white)
+[Costs] font-weight: 600; font-size: 13px; color: #FFFFFF
+[Tab] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 48px
+  (icon bike-mut)
+[Tab · More] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 48px
+  (icon menu-mut)

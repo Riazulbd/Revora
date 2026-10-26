@@ -1,0 +1,66 @@
+[R3 Records — Warranties] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: linear-gradient(180deg, #FFE6DA 0%, #F8F3F1 30%, #F5F6F8 100%); border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left)
+[Warranties] font-weight: 600; font-size: 16px; color: #14171B
+[Add] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #14171B; border-radius: 24px
+  (icon plus-white)
+[Hero — dark accent] display: flex; flex-direction: column; align-items: flex-start; padding: 20px; gap: 14px; width: 358px; height: 202px; background: linear-gradient(135deg, #1E2227 0%, #101214 71.43%); border-radius: 28px; align-self: stretch
+[COVERED RIGHT NOW] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #9AA1AA; align-self: stretch
+[Big] display: flex; flex-direction: row; align-items: baseline; padding: 0px; gap: 8px; width: 318px; height: 60px; align-self: stretch
+[2] font-weight: 700; font-size: 48px; color: #FFFFFF
+[active warranties] font-weight: 500; font-size: 16px; color: #9AA1AA
+[Next] display: flex; flex-direction: row; align-items: center; padding: 12px; gap: 10px; width: 318px; height: 59px; background: #23272C; border-radius: 16px; align-self: stretch
+  (icon clock-warn)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 264px; height: 35px; flex-grow: 1
+[Tyres end in 10 days] font-weight: 600; font-size: 14px; color: #FFFFFF; align-self: stretch
+[Check for wear before 05 Nov] font-weight: 400; font-size: 12px; color: #9AA1AA; align-self: stretch
+[Filter] display: flex; flex-direction: row; align-items: flex-start; padding: 4px; gap: 4px; width: 358px; height: 54px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; align-self: stretch
+[Seg on] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 113.33px; height: 44px; background: #14171B; border-radius: 999px; flex-grow: 1
+[Active] font-weight: 600; font-size: 14px; color: #FFFFFF
+[Seg] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 113.33px; height: 44px; border-radius: 999px; flex-grow: 1
+[Expired] font-weight: 600; font-size: 14px; color: #6B727C
+[Seg] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 113.33px; height: 44px; border-radius: 999px; flex-grow: 1
+[All] font-weight: 600; font-size: 14px; color: #6B727C
+[Warranty card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 12px; width: 358px; height: 113px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Head] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 40px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E5F6EE; border-radius: 12px
+  (icon battery-good)
+[battery] width: 20px; height: 20px
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 176px; height: 36px; flex-grow: 1
+[Battery · Hamko MF9] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Hamko · Motor House Dhanmondi] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 86px; height: 21px; background: #FBF0DA; border-radius: 999px
+[Claim open] font-weight: 600; font-size: 12px; color: #93611A
+[Progress] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 29px; align-self: stretch
+[Track] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; width: 326px; height: 8px; background: #F1F2F5; border-radius: 4px; align-self: stretch
+[Fill] width: 120px; height: 8px; background: #0B7F4E; border-radius: 4px
+[Labels] display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start; padding: 0px; width: 326px; height: 15px; align-self: stretch
+[Bought 12 Mar 2025] font-weight: 400; font-size: 12px; color: #6B727C
+[Until 12 Mar 2027] font-weight: 600; font-size: 12px; color: #14171B
+[Warranty card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 12px; width: 358px; height: 113px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Head] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 40px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBF0DA; border-radius: 12px
+  (icon disc-warn)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 201px; height: 36px; flex-grow: 1
+[Tyres · Pirelli Diablo Rosso] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Pirelli · Speed Moto Banani] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 61px; height: 21px; background: #FBF0DA; border-radius: 999px
+[10 days] font-weight: 600; font-size: 12px; color: #93611A
+[Progress] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 29px; align-self: stretch
+[Track] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; width: 326px; height: 8px; background: #F1F2F5; border-radius: 4px; align-self: stretch
+[Fill] width: 300px; height: 8px; background: #B7791F; border-radius: 4px
+[Labels] display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start; padding: 0px; width: 326px; height: 15px; align-self: stretch
+[Bought 05 Nov 2025] font-weight: 400; font-size: 12px; color: #6B727C
+[Until 05 Nov 2026] font-weight: 600; font-size: 12px; color: #14171B
+[Expired row] display: flex; flex-direction: row; align-items: center; padding: 16px; gap: 12px; width: 358px; height: 72px; background: #FFFFFF; opacity: 0.75; border-radius: 24px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon link-mut)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 199px; height: 36px; flex-grow: 1
+[Chain kit · RK 520] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Ended 02 Aug · Claim settled] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 63px; height: 21px; background: #F1F2F5; border-radius: 999px
+[Expired] font-weight: 600; font-size: 12px; color: #6B727C
+[Add — primary] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+  (icon plus-white)
+[Add a warranty] font-weight: 600; font-size: 16px; color: #FFFFFF

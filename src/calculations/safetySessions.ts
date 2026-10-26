@@ -211,3 +211,89 @@ export function safetySessions(checks: readonly SafetyCheck[]): SafetySession[] 
       return { date, areaCount: new Set(list.map((c) => c.area)).size, rows };
     });
 }
+
+/**
+ * The Figma hero on Safety: `3/5 areas good`, one coloured segment per area
+ * in walk order, when the bike was last checked, and a sentence naming what
+ * is not right — the watch and action areas in the rider's own words.
+ */
+export type Readiness = {
+  good: number;
+  total: number;
+  /** Per area in `SAFETY_AREAS` order; null where the area was never checked. */
+  segments: (SafetyStatus | null)[];
+  /** `'Checked 2 days ago'`, or null before any check. */
+  checkedLabel: string | null;
+  /** `'Brakes need a look, and the rear indicator is out.'`, or null when all is well. */
+  sentence: string | null;
+};
+
+export function readiness(checks: readonly SafetyCheck[], today: IsoDate = todayIso()): Readiness {
+  const states = currentCondition(checks);
+  const byArea = new Map(states.map((s) => [s.area, s]));
+  const segments = SAFETY_AREAS.map((area) => byArea.get(area)?.status ?? null);
+  const good = segments.filter((s) => s === 'ok').length;
+
+  let latest: IsoDate | null = null;
+  for (const check of checks) if (latest === null || compareIso(check.date, latest) > 0) latest = check.date;
+  const ago = latest === null ? null : daysAgoLabel(latest, today);
+  const checkedLabel = ago === null ? null : `Checked ${ago}`;
+
+  // In walk order, not severity order: the sentence reads round the bike the
+  // way the segments above it do.
+  const clauses: string[] = [];
+  for (const area of SAFETY_AREAS) {
+    const state = byArea.get(area);
+    if (state === undefined || state.latest === null || state.status === 'ok' || state.status === null) continue;
+    const observed = observedSummary(state.latest);
+    const name = state.label.toLowerCase();
+    const verb = `need${PLURAL_AREAS.includes(state.area) ? '' : 's'}`;
+    if (state.status === 'action') {
+      clauses.push(observed === null ? `${name} ${verb} action` : `${observed.charAt(0).toLowerCase()}${observed.slice(1)}`);
+    } else {
+      clauses.push(`${name} ${verb} a look`);
+    }
+  }
+  const sentence =
+    clauses.length === 0
+      ? null
+      : `${clauses[0]!.charAt(0).toUpperCase()}${clauses[0]!.slice(1)}${
+          clauses.length > 1 ? `, and ${clauses.slice(1).join(', and ')}` : ''
+        }.`;
+
+  return { good, total: SAFETY_AREAS.length, segments, checkedLabel, sentence };
+}
+
+/** `'29 / 33 psi · 24 Oct'`, `'Clean and lubed · 24 Oct'`, `'Never checked'` — the Current list's second line. */
+export function areaRowLine(state: AreaState): string {
+  const { latest } = state;
+  if (latest === null) return NEVER_CHECKED;
+  const psi = latest.measurements;
+  const front = psi?.frontPsi;
+  const rear = psi?.rearPsi;
+  const lead =
+    typeof front === 'number' && typeof rear === 'number'
+      ? `${front} / ${rear} psi`
+      : (observedSummary(latest) ?? SAFETY_STATUS_LABEL[latest.status]);
+  return `${lead} · ${formatShortDate(latest.date)}`;
+}
+
+/** A pass over most of the bike is a walk-around; one or two areas is a condition check. */
+const WALKAROUND_AREAS = 3;
+
+/** `'Walk-around check'` for a pass over several areas, `'Condition check'` for one or two. */
+export function sessionTitle(session: SafetySession): string {
+  return session.areaCount >= WALKAROUND_AREAS ? 'Walk-around check' : 'Condition check';
+}
+
+/** `'Chain clean, brake pads · 4 areas'`, `'Battery, tyres · all good'` — at most two findings named, the count carries the rest. */
+export function sessionLine(session: SafetySession): string {
+  const details = session.rows.flatMap((row) => (row.detail === null ? [] : row.detail.split(' · '))).slice(0, 2);
+  const allGood = session.rows.every((row) => row.status === 'ok');
+  const lead =
+    details.length > 0
+      ? details.join(', ')
+      : session.rows.map((row) => row.label).join(', ');
+  const tail = allGood ? 'all good' : `${session.areaCount} area${session.areaCount === 1 ? '' : 's'}`;
+  return `${lead} · ${tail}`;
+}

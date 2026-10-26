@@ -1,27 +1,23 @@
 import React, { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import {
-  Banner,
   Button,
-  ButtonRow,
   Card,
-  ChipGroup,
   DateField,
   Dialog,
   Field,
   FieldRow,
   Icon,
+  IconSquareButton,
   Input,
-  RowIcon,
+  PhotoPanel,
   Screen,
   ScreenHeader,
   SkeletonList,
-  Stack,
   Toggle,
   Txt,
-  useCopy,
 } from '@/components';
 import { useDocuments } from '@/features/records/useRecordQueries';
 import {
@@ -29,25 +25,27 @@ import {
   useNewRecordIds,
   useSaveDocument,
 } from '@/features/records/useRecordsMutations';
-import { PhotoField } from '@/features/shared/PhotoField';
+import { AttachPhotoPanel, ChipRow, RecordsChip } from '@/features/records/ui/RecordsChrome';
+import { useImagePicker } from '@/features/shared/useImagePicker';
 import { toTrimmed } from '@/features/shared/formValues';
 import { useGarageContext } from '@/features/shared/useGarageContext';
 import { useStableId } from '@/features/shared/useStableId';
 import { uploadImageOrKeepLocal } from '@/services/storage';
-import {
-  DOCUMENT_KIND_LABEL,
-  DOCUMENT_REFERENCE_LABEL,
-  expiryLabel,
-  isTimeLimited,
-} from '@/calculations/documents';
+import { DOCUMENT_KIND_LABEL, DOCUMENT_REFERENCE_LABEL, expiryLabel, isTimeLimited } from '@/calculations/documents';
 import { documentSchema } from '@/validation/schemas';
 import { daysBetween, todayIso } from '@/utils/date';
-import { HIT_SLOP, useTheme } from '@/theme';
+import { useTheme } from '@/theme';
 import type { DocumentKind, VaultDocument } from '@/types';
 
-const KINDS: readonly { value: DocumentKind; label: string }[] = (
-  ['registration', 'insurance', 'tax_token', 'fitness', 'licence', 'custom'] as const
-).map((value) => ({ value, label: value === 'licence' ? 'Licence' : DOCUMENT_KIND_LABEL[value] }));
+/** Board order: the papers a rider is most often asked for first. */
+const KINDS: readonly { value: DocumentKind; label: string }[] = [
+  { value: 'tax_token', label: 'Tax token' },
+  { value: 'registration', label: 'Registration' },
+  { value: 'insurance', label: 'Insurance' },
+  { value: 'licence', label: 'Licence' },
+  { value: 'fitness', label: 'Fitness certificate' },
+  { value: 'custom', label: 'Custom' },
+];
 
 const DEFAULT_TITLE: Record<DocumentKind, string> = {
   registration: 'Registration',
@@ -58,14 +56,22 @@ const DEFAULT_TITLE: Record<DocumentKind, string> = {
   custom: '',
 };
 
+/**
+ * Add / edit a paper (Figma `R2 Records — Document detail`).
+ *
+ * The kind names the document — the board drops the name field and keeps the
+ * chips — so only a custom document has a name of its own. A document that
+ * exists because it runs out cannot be saved without the date it runs out on:
+ * without it the reminder that makes it worth keeping can never fire.
+ */
 export default function DocumentEditorRoute() {
   const { id: editingId } = useLocalSearchParams<{ id?: string }>();
   const documents = useDocuments();
 
   if (editingId && documents.isPending) {
     return (
-      <Screen testID="screen-document">
-        <ScreenHeader title="Document" />
+      <Screen testID="screen-document" contentStyle={{ gap: 16 }}>
+        <ScreenHeader title="Document" style={{ marginBottom: 0 }} />
         <SkeletonList count={3} height={64} />
       </Screen>
     );
@@ -78,14 +84,16 @@ export default function DocumentEditorRoute() {
 
 function DocumentForm({ existing }: { existing: VaultDocument | null }) {
   const router = useRouter();
+  const { c } = useTheme();
   const garage = useGarageContext();
   const ids = useNewRecordIds();
+  const picker = useImagePicker();
 
   const generatedId = useStableId(ids.document);
   const recordId = existing?.id ?? generatedId;
 
-  const [kind, setKind] = useState<DocumentKind>(existing?.kind ?? 'registration');
-  const [title, setTitle] = useState(existing?.title ?? DEFAULT_TITLE.registration);
+  const [kind, setKind] = useState<DocumentKind>(existing?.kind ?? 'tax_token');
+  const [title, setTitle] = useState(existing?.title ?? DEFAULT_TITLE.tax_token);
   const [reference, setReference] = useState(existing?.reference ?? '');
   const [issuedOn, setIssuedOn] = useState<string | null>(existing?.issuedOn ?? null);
   const [expiresOn, setExpiresOn] = useState<string | null>(existing?.expiresOn ?? null);
@@ -110,14 +118,6 @@ function DocumentForm({ existing }: { existing: VaultDocument | null }) {
   // The board's own case: a document that exists because it runs out, with no
   // date on it. Nothing can be saved from here that a reminder could ever use.
   const expiryMissing = timeLimited && expiresOn === null;
-
-  // The kind names the document — the board drops the name field entirely and
-  // puts "Tax token" in the header. Only a custom document has a name of its own.
-  const heading = custom
-    ? title.trim() === ''
-      ? 'Custom document'
-      : title.trim()
-    : DOCUMENT_KIND_LABEL[kind];
 
   const submit = async () => {
     const result = documentSchema.safeParse({
@@ -163,25 +163,63 @@ function DocumentForm({ existing }: { existing: VaultDocument | null }) {
     });
   };
 
+  // Figma `Remind`: the reminder the date buys, in the warn tint under it.
+  const remind =
+    expiryMissing
+      ? { tone: 'bad' as const, icon: 'triangleAlert' as const, text: `A ${DOCUMENT_KIND_LABEL[kind].toLowerCase()} is issued for a term — add the date it runs out so the reminder can fire.` }
+      : days === null
+        ? null
+        : days < 0
+          ? { tone: 'bad' as const, icon: 'triangleAlert' as const, text: `Expired ${Math.abs(days)} day${Math.abs(days) === 1 ? '' : 's'} ago — renew this as soon as you can.` }
+          : days <= 30
+            ? { tone: 'warn' as const, icon: 'bell' as const, text: `Due in ${days} day${days === 1 ? '' : 's'}. We'll remind you at ${days > 7 ? '7 and 3' : '3'} days.` }
+            : { tone: 'good' as const, icon: 'bell' as const, text: `Valid for another ${days} days. Reminders at 30, 7 and 3 days before.` };
+
   return (
-    <Screen testID="screen-document">
-      <ScreenHeader title={heading} />
+    <Screen testID="screen-document" contentStyle={{ gap: 16 }}>
+      <ScreenHeader
+        title="Document"
+        style={{ marginBottom: 0 }}
+        {...(existing
+          ? { action: <IconSquareButton icon="trash" color={c.badIcon} accessibilityLabel="Delete document" onPress={() => setDeleteOpen(true)} testID="cta-delete-document" /> }
+          : {})}
+      />
 
-      <Stack gap={14}>
-        <ChipGroup
-          options={KINDS}
-          value={kind}
-          onChange={(next) => {
-            setKind(next);
-            if (next === 'custom') {
-              if (!existing) setTitle('');
-            } else {
-              setTitle(DEFAULT_TITLE[next]);
-            }
-          }}
-          testID="chips-document-kind"
+      {/* Figma `Type chips`. */}
+      <ChipRow>
+        {KINDS.map((option) => (
+          <RecordsChip
+            key={option.value}
+            label={option.label}
+            selected={kind === option.value}
+            onPress={() => {
+              setKind(option.value);
+              if (option.value === 'custom') {
+                if (!existing) setTitle('');
+              } else {
+                setTitle(DEFAULT_TITLE[option.value]);
+              }
+            }}
+            testID={`chips-document-kind-${option.value}`}
+          />
+        ))}
+      </ChipRow>
+
+      {/* Figma `Photo`. */}
+      {fileUri ? (
+        <PhotoPanel
+          uri={fileUri}
+          height={168}
+          accessibilityLabel="Document photo"
+          onPress={() => void picker.choose('Document photo').then((uri) => uri && setFileUri(uri))}
+          testID="field-document-photo"
         />
+      ) : (
+        <AttachPhotoPanel title="Attach document photo" hint="Front side, flat and in good light" onChange={setFileUri} testID="field-document-photo" />
+      )}
 
+      {/* Figma `Fields`. */}
+      <Card style={{ gap: 14 }}>
         {custom ? (
           <Field label="Name" error={errors.title ?? null}>
             <Input
@@ -195,117 +233,79 @@ function DocumentForm({ existing }: { existing: VaultDocument | null }) {
           </Field>
         ) : null}
 
-        <Field label={DOCUMENT_REFERENCE_LABEL[kind]}>
+        <Field label={custom ? 'Number' : DOCUMENT_REFERENCE_LABEL[kind]}>
           <Input
             value={reference}
             onChangeText={setReference}
             placeholder="TP-4432871"
             autoCapitalize="characters"
             autoCorrect={false}
-            padX={14}
             testID="input-document-reference"
-            trailing={
-              reference.trim() === '' ? undefined : (
-                <CopySquare
-                  label={DOCUMENT_REFERENCE_LABEL[kind]}
-                  value={reference.trim()}
-                  testID="copy-document-reference"
-                />
-              )
-            }
           />
         </Field>
 
         {/* A document with a term is defined by its two dates, so they sit
             together rather than with the expiry alone buried further down. */}
-        <FieldRow>
+        <FieldRow gap={10}>
           <Field label="Issued on" flex={1}>
-            <DateField
-              value={issuedOn}
-              onChange={setIssuedOn}
-              placeholder="Not recorded"
-              padX={14}
-              testID="field-document-issued"
-            />
+            <DateField value={issuedOn} onChange={setIssuedOn} placeholder="Not recorded" todayLabel={null} weight="regular" testID="field-document-issued" />
           </Field>
-          <Field label={expiryLabel(kind)} error={expiryMissing ? 'Pick a date.' : (errors.expiresOn ?? null)} flex={1}>
+          <Field label={expiryLabel(kind)} flex={1} error={errors.expiresOn ?? null}>
             <DateField
               value={expiresOn}
               onChange={setExpiresOn}
               placeholder={timeLimited ? 'Pick a date' : 'No expiry'}
-              padX={14}
+              todayLabel={null}
+              weight={expiresOn === null ? 'regular' : 'bold'}
               testID="field-document-expiry"
             />
           </Field>
         </FieldRow>
 
-        {expiryMissing ? (
-          <Banner
-            tone="bad"
-            icon="alertTriangle"
-            compact
-            lead={`A ${DOCUMENT_KIND_LABEL[kind].toLowerCase()} is issued for a term.`}
-            message="Without the end date this is just a photo — the reminder that makes it worth keeping can never fire. Custom documents are exempt."
+        {remind ? (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 8,
+              padding: 12,
+              borderRadius: 14,
+              backgroundColor: remind.tone === 'bad' ? c.badS : remind.tone === 'warn' ? c.warnS : c.goodS,
+            }}
             testID="banner-expiry"
-          />
-        ) : days !== null ? (
-          <Banner
-            tone={days < 0 ? 'bad' : days <= 30 ? 'warn' : 'good'}
-            icon={days < 0 ? 'alert' : 'check'}
-            compact
-            message={
-              days < 0
-                ? `Expired ${Math.abs(days)} days ago — renew this as soon as you can.`
-                : days <= 30
-                  ? `Expiring in ${days} days — reminders at 30, 14 and 3 days.`
-                  : `Valid for another ${days} days. Reminders start 30 days before expiry.`
-            }
-            testID="banner-expiry"
-          />
+          >
+            <Icon name={remind.icon} size={20} color={remind.tone === 'bad' ? c.badIcon : remind.tone === 'warn' ? c.warnIcon : c.good} />
+            <Txt role="micro" color={remind.tone === 'bad' ? c.bad : remind.tone === 'warn' ? c.warn : c.good} style={{ flex: 1 }}>
+              {remind.text}
+            </Txt>
+          </View>
         ) : null}
-
-        <PhotoField
-          label="Attach document photo"
-          uri={fileUri}
-          onChange={setFileUri}
-          testID="field-document-photo"
-        />
-
-        <OfflineCopyRow value={keepOfflineCopy} onChange={setKeepOfflineCopy} />
 
         <Field label="Notes (optional)">
-          <Input
-            value={notes}
-            onChangeText={setNotes}
-            placeholder="Where the original is kept"
-            size="compact"
-            testID="input-document-notes"
-          />
+          <Input value={notes} onChangeText={setNotes} placeholder="Where the original is kept" testID="input-document-notes" />
         </Field>
+      </Card>
 
-        <Button
-          label={existing ? 'Save changes' : 'Save document'}
-          onPress={submit}
-          size="large"
-          loading={saveDocument.isPending}
-          disabled={expiryMissing}
-          accessibilityHint={expiryMissing ? 'Add the valid-until date first' : undefined}
-          testID="cta-save-document"
-        />
+      {/* Figma `Offline toggle`: the promise the whole vault is built on. */}
+      <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Txt role="rowTitle">Keep an offline copy</Txt>
+          <Txt role="meta" tone="mut">
+            Show it at a checkpoint without signal
+          </Txt>
+        </View>
+        <Toggle value={keepOfflineCopy} onChange={setKeepOfflineCopy} accessibilityLabel="Keep an offline copy" testID="toggle-offline-copy" />
+      </Card>
 
-        {existing ? (
-          <ButtonRow>
-            <Button
-              label="Delete"
-              variant="secondary"
-              size="medium"
-              onPress={() => setDeleteOpen(true)}
-              flex
-              testID="cta-delete-document"
-            />
-          </ButtonRow>
-        ) : null}
-      </Stack>
+      <Button
+        label={existing ? 'Save changes' : 'Save document'}
+        size="xlarge"
+        onPress={submit}
+        loading={saveDocument.isPending}
+        disabled={expiryMissing}
+        {...(expiryMissing ? { accessibilityHint: 'Add the valid-until date first' } : {})}
+        testID="cta-save-document"
+      />
 
       <Dialog
         visible={deleteOpen}
@@ -319,73 +319,5 @@ function DocumentForm({ existing }: { existing: VaultDocument | null }) {
         testID="dialog-delete-document"
       />
     </Screen>
-  );
-}
-
-/**
- * The 40px copy square the board draws inside the number field.
- *
- * Smaller than the 44px target the guidelines ask for, so the slop makes up the
- * difference rather than the square growing and breaking the field's rhythm.
- */
-function CopySquare({ label, value, testID }: { label: string; value: string; testID: string }) {
-  const { c } = useTheme();
-  const copy = useCopy();
-
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`Copy ${label}`}
-      hitSlop={HIT_SLOP}
-      onPress={() => void copy(label, value)}
-      testID={testID}
-      style={({ pressed }) => ({
-        width: 40,
-        height: 40,
-        borderRadius: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: c.accS,
-        opacity: pressed ? 0.7 : 1,
-      })}
-    >
-      <Icon name="copy" size={16} color={c.acc} strokeWidth={2} />
-    </Pressable>
-  );
-}
-
-/** "Keep an offline copy" — the promise the whole vault is built on. */
-function OfflineCopyRow({ value, onChange }: { value: boolean; onChange: (next: boolean) => void }) {
-  const { c } = useTheme();
-
-  return (
-    <Card
-      variant="list"
-      style={{
-        paddingVertical: 14,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 12,
-      }}
-    >
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 1 }}>
-        <RowIcon tone="accent">
-          <Icon name="wifiOff" size={17} color={c.acc} strokeWidth={1.8} />
-        </RowIcon>
-        <View style={{ flexShrink: 1 }}>
-          <Txt role="rowTitle">Keep an offline copy</Txt>
-          <Txt role="meta" tone="mut" style={{ marginTop: 2 }}>
-            Openable with no signal — where you get stopped
-          </Txt>
-        </View>
-      </View>
-      <Toggle
-        value={value}
-        onChange={onChange}
-        accessibilityLabel="Keep an offline copy"
-        testID="toggle-offline-copy"
-      />
-    </Card>
   );
 }

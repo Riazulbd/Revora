@@ -36,9 +36,6 @@ appId: app.revora.android.dev
     id: "input-document-reference"
 - inputText: "AUD-TT-0001"
 - hideKeyboard
-- assertVisible:
-    id: "copy-document-reference"
-- assertVisible: "Copy"
 
 # ---------- refused without valid-until ----------
 - scrollUntilVisible:

@@ -1,0 +1,90 @@
+[D5 Services — Log a service] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Close] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon x|ink)
+[Log a service] font-weight: 600; font-size: 16px; color: #14171B
+[Scan receipt] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon camera|ink)
+[Amount hero] display: flex; flex-direction: column; align-items: center; padding: 8px 0px; gap: 6px; width: 358px; height: 135px; align-self: stretch
+[Total cost] font-weight: 400; font-size: 14px; color: #6B727C
+[৳1,650] font-weight: 700; font-size: 48px; letter-spacing: -0.02em; color: #14171B
+[Calc chip] display: flex; flex-direction: row; align-items: flex-start; padding: 6px 12px; width: 191px; height: 29px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Labour ৳450 + 1 item ৳1,200] font-weight: 400; font-size: 12px; color: #6B727C
+[Fields] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; width: 358px; height: 256px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; align-self: stretch
+  (icon calendar|mut)
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 262px; height: 37px; flex-grow: 1
+[Date] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Today, 26 Oct] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+  (icon chevron-right|mut)
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon gauge|mut)
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 261px; height: 37px; flex-grow: 1
+[Odometer] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[34,712] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[km] font-weight: 400; font-size: 14px; color: #6B727C
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon wrench|mut)
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 294px; height: 37px; flex-grow: 1
+[What was done] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Brake pads] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Field] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon banknote|mut)
+[banknote] width: 20px; height: 20px
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 294px; height: 37px; flex-grow: 1
+[Labour] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[৳450] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Workshop card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 10px; width: 358px; height: 219px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Workshop] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Input] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; gap: 10px; width: 326px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+  (icon building|mut)
+[building] width: 18px; height: 18px
+[Rahim Motors] font-weight: 400; font-size: 15px; color: #14171B; flex-grow: 1
+[from your history] font-weight: 400; font-size: 12px; color: #6B727C
+[Chips] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 326px; height: 104px; align-self: stretch
+[Chip selected] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px 16px 0px 14px; gap: 6px; width: 150px; height: 48px; background: #14171B; border-radius: 999px
+  (icon check|white)
+[Rahim Motors] font-weight: 600; font-size: 14px; color: #FFFFFF
+[Chip] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px 16px; width: 156px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Tyre Point Mirpur] font-weight: 600; font-size: 14px; color: #14171B
+[Chip] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px 16px 0px 14px; gap: 6px; width: 136px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon user|ink)
+[Self-service] font-weight: 600; font-size: 14px; color: #14171B
+[Items card] display: flex; flex-direction: column; align-items: flex-start; padding: 8px 16px 16px; gap: 4px; width: 358px; height: 286px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Head] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 326px; height: 48px; align-self: stretch
+[MAINTENANCE ITEMS COMPLETED] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C
+[Collapse] display: flex; flex-direction: row; justify-content: flex-end; align-items: center; padding: 0px; width: 48px; height: 48px
+  (icon x|mut)
+[Item] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 56px; align-self: stretch
+[Checkbox on] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 24px; height: 24px; background: #D2400F; border-radius: 8px
+  (icon check|white)
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 229px; height: 36px; flex-grow: 1
+[Brake pads] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Front pair · resets the 10,000 km rule] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[৳1,200] font-weight: 600; font-size: 15px; color: #14171B
+[Item] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 56px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Checkbox off] width: 24px; height: 24px; background: #FFFFFF; border: 1.5px solid #878E98; border-radius: 8px
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 290px; height: 36px; flex-grow: 1
+[Brake fluid] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Due soon · 12 days left] font-weight: 400; font-size: 12px; color: #93611A; align-self: stretch
+[Item] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 56px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Checkbox off] width: 24px; height: 24px; background: #FFFFFF; border: 1.5px solid #878E98; border-radius: 8px
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 290px; height: 36px; flex-grow: 1
+[Engine oil & filter] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Overdue by 310 km] font-weight: 400; font-size: 12px; color: #B42318; align-self: stretch
+[Each tick resets that rule’s next due point from today’s odometer.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Sections] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 16px; width: 358px; height: 128px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Disclosure] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 64px; align-self: stretch
+  (icon shield-check|mut)
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 262px; height: 36px; flex-grow: 1
+[Estimate guard] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Record the quote, compare the invoice] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+  (icon plus|mut)
+[Disclosure] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon receipt|mut)
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 262px; height: 36px; flex-grow: 1
+[Notes and receipt] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Kept with this service] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+  (icon plus|mut)
+[Save service] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+[Save service] font-weight: 600; font-size: 16px; color: #FFFFFF

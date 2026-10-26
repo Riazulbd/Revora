@@ -1,0 +1,43 @@
+[E4 More — Assistant (coming soon)] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left-ink)
+[Title] display: flex; flex-direction: column; align-items: center; padding: 0px; gap: 2px; width: 134px; height: 37px
+[Assistant] font-weight: 600; font-size: 16px; color: #14171B
+[100 questions a month] font-weight: 400; font-size: 12px; color: #6B727C
+[Spacer] width: 48px; height: 48px
+[Coming soon — dark accent] display: flex; flex-direction: column; align-items: flex-start; padding: 20px; gap: 12px; width: 358px; height: 209px; background: linear-gradient(135deg, #1E2227 0%, #101214 71.43%); border-radius: 28px; align-self: stretch
+[Row] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 318px; height: 44px; align-self: stretch
+[Icon tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 44px; height: 44px; background: #23272C; border-radius: 14px
+  (icon sparkles-bright)
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 5px 10px; width: 120px; height: 25px; background: #FF6B3D; border-radius: 999px
+[COMING SOON] font-weight: 700; font-size: 12px; letter-spacing: 0.04em; color: #14171B
+[The full Assistant is coming soon] font-weight: 700; font-size: 20px; color: #FFFFFF; align-self: stretch
+[Until then this answers from the figures Revora has already worked out, on your phone.] font-weight: 400; font-size: 14px; color: #9AA1AA; align-self: stretch
+[Facts] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 318px; height: 28px; align-self: stretch
+[Fact] display: flex; flex-direction: row; align-items: center; padding: 6px 12px 6px 10px; gap: 6px; width: 125px; height: 28px; background: #262A30; border-radius: 999px
+  (icon wifi-off-good)
+[wifi-off] width: 16px; height: 16px
+[Works offline] font-weight: 600; font-size: 12px; color: #C9CED4
+[Fact] display: flex; flex-direction: row; align-items: center; padding: 6px 12px 6px 10px; gap: 6px; width: 144px; height: 28px; background: #262A30; border-radius: 999px
+  (icon shield-check-good)
+[Never estimates] font-weight: 600; font-size: 12px; color: #C9CED4
+[Intro] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 4px; width: 358px; height: 54px; align-self: stretch
+[Answers come from your own records — the same calculations as every screen. Not enough data? It says so.] font-weight: 400; font-size: 14px; color: #6B727C; align-self: stretch
+[Try asking] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 209px; align-self: stretch
+[Eyebrow] display: flex; flex-direction: row; align-items: flex-start; padding: 0px 0px 2px 4px; width: 358px; height: 17px; align-self: stretch
+[TRY ASKING] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C
+[Suggestion] display: flex; flex-direction: row; align-items: center; padding: 0px 14px 0px 16px; gap: 12px; width: 358px; height: 56px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 18px; align-self: stretch
+[What does my bike cost per month?] font-weight: 500; font-size: 14px; color: #14171B; flex-grow: 1
+  (icon arrow-up-right-acc)
+[Suggestion] display: flex; flex-direction: row; align-items: center; padding: 0px 14px 0px 16px; gap: 12px; width: 358px; height: 56px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 18px; align-self: stretch
+[When is the next service due?] font-weight: 500; font-size: 14px; color: #14171B; flex-grow: 1
+  (icon arrow-up-right-acc)
+[Suggestion] display: flex; flex-direction: row; align-items: center; padding: 0px 14px 0px 16px; gap: 12px; width: 358px; height: 56px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 18px; align-self: stretch
+[Is my mileage normal for my The Red One?] font-weight: 500; font-size: 14px; color: #14171B; flex-grow: 1
+  (icon arrow-up-right-acc)
+[Flex spacer] width: 358px; height: 76.29px; align-self: stretch; flex-grow: 1
+[Composer] display: flex; flex-direction: row; align-items: center; padding: 0px 6px 0px 20px; gap: 8px; width: 358px; height: 60px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; align-self: stretch
+[Ask about your bike…] font-weight: 400; font-size: 15px; color: #878E98; flex-grow: 1
+[Send] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #D2400F; border-radius: 24px
+  (icon arrow-up-white)

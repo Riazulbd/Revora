@@ -68,6 +68,8 @@ export const SKIP = {
   // --- needs something a test device cannot produce ---
   'row-receipt':
     'needs a photo actually attached, which means picking a real image out of the device gallery',
+  'cta-scan-allow':
+    'drawn only when camera permission was denied; the suite runs with it granted',
   'empty-odometer':
     "only when the motorcycle has no readings at all; the fixture's opening 4,845 km is itself a reading",
   'link-remove-ads':
@@ -98,8 +100,6 @@ export const SKIP = {
     'hands the PDF to the Android share sheet, which is not this app to drive',
   'cta-open-proof':
     'hands the PDF to whatever opens PDFs on the device',
-  'label-assistant-quota':
-    "the Pro assistant's remaining questions; a Free account has no quota to show",
   'banner-assistant-quota':
     'the Pro quota warning, for the same reason',
   'banner-assistant-offline':

@@ -7,40 +7,59 @@ import { Txt } from './Text';
 import { Divider } from './Divider';
 
 /**
- * The row shapes the boards use inside a `ListCard` (`padding:0 16px`, a
- * hairline between rows):
+ * The row shapes used inside a `ListCard` (`padding:0 16px`, a hairline
+ * between rows):
  *
  *  · MenuRow — tinted icon square, title, optional subtitle, something on the
  *    right, a chevron.
  *  · RecordRow — the same skeleton with a trailing amount and/or a badge.
  *  · KeyValueRow — a static label / value pair.
  *
- * Every row sits on a 44–48dp minimum height so each target is reachable
+ * Every row sits on a 48dp minimum height so each target is reachable
  * (requirement 58).
  */
 
-export type RowTone = 'accent' | 'good' | 'neutral' | 'warn' | 'bad';
+export type RowTone = 'accent' | 'good' | 'neutral' | 'warn' | 'bad' | 'info';
 
 function useRowTint(tone: RowTone): string {
   const { c } = useTheme();
-  return tone === 'good' ? c.goodS : tone === 'warn' ? c.warnS : tone === 'bad' ? c.badS : tone === 'neutral' ? c.sur2 : c.accS;
+  return tone === 'good'
+    ? c.goodS
+    : tone === 'warn'
+      ? c.warnS
+      : tone === 'bad'
+        ? c.badS
+        : tone === 'info'
+          ? c.infoS
+          : tone === 'neutral'
+            ? c.sur2
+            : c.accS;
 }
 
 function useRowInk(tone: RowTone): string {
   const { c } = useTheme();
-  return tone === 'good' ? c.good : tone === 'warn' ? c.warn : tone === 'bad' ? c.bad : tone === 'neutral' ? c.mut : c.acc;
+  return tone === 'good'
+    ? c.good
+    : tone === 'warn'
+      ? c.warnIcon
+      : tone === 'bad'
+        ? c.badIcon
+        : tone === 'info'
+          ? c.info
+          : tone === 'neutral'
+            ? c.ink
+            : c.accBright;
 }
 
 /**
- * The tinted icon square in front of a row: `width:36px; height:36px;
- * border-radius:11px` on the boards' hub and maintenance rows (40 keeps the
- * 11px radius; 34 and 32 drop to 10).
+ * The tinted icon tile in front of a row (Figma `Tile`): `40×40;
+ * border-radius:12px`, the tone's soft fill and a 20px glyph in its ink.
  */
 export function RowIcon({
   children,
   icon,
   tone = 'accent',
-  size = 36,
+  size = 40,
 }: {
   children?: React.ReactNode;
   /** Draws this glyph in the tone's ink, sized to the square, when no children are given. */
@@ -56,14 +75,14 @@ export function RowIcon({
       style={{
         width: size,
         height: size,
-        borderRadius: size >= 36 ? 11 : 10,
+        borderRadius: size >= 36 ? 12 : 10,
         backgroundColor: background,
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
       }}
     >
-      {children ?? (icon ? <Icon name={icon} size={size >= 40 ? 18 : size >= 36 ? 16 : 15} color={ink} strokeWidth={1.8} /> : null)}
+      {children ?? (icon ? <Icon name={icon} size={size >= 36 ? 20 : 16} color={ink} /> : null)}
     </View>
   );
 }
@@ -85,7 +104,7 @@ export function MenuRow({
   label: string;
   subtitle?: string;
   onPress: () => void;
-  /** Renders a 36px `RowIcon` in front of the label. */
+  /** Renders a 40px `RowIcon` in front of the label. */
   icon?: IconName;
   iconTone?: RowTone;
   /** Anything else in front of the label (a PRO badge in the overflow menu). */
@@ -94,7 +113,7 @@ export function MenuRow({
   right?: React.ReactNode;
   badge?: React.ReactNode;
   chevron?: boolean;
-  /** `font:600 13.5px` (the overflow menu, the search "Jump to" list). */
+  /** `500 14px` (the overflow menu, the search "Jump to" list). */
   dense?: boolean;
   disabled?: boolean;
   testID?: string;
@@ -111,7 +130,7 @@ export function MenuRow({
       testID={testID}
       style={({ pressed }) => ({
         minHeight: 48,
-        paddingVertical: dense ? 11 : 13,
+        paddingVertical: 10,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -124,7 +143,7 @@ export function MenuRow({
         {leading}
         <View style={{ flexShrink: 1, flex: 1 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Txt role={dense ? 'bullet' : 'rowTitle'} numberOfLines={2} style={{ flexShrink: 1 }}>
+            <Txt role={dense ? 'bullet' : 'menuLabel'} numberOfLines={2} style={{ flexShrink: 1 }}>
               {label}
             </Txt>
             {badge}
@@ -138,13 +157,13 @@ export function MenuRow({
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 0 }}>
         {right}
-        {chevron ? <Icon name="chevronRight" size={16} color={c.mut} strokeWidth={2} /> : null}
+        {chevron ? <Icon name="chevronRight" size={20} color={c.faint} /> : null}
       </View>
     </Pressable>
   );
 }
 
-/** `padding:12px 0` — `500 13px` muted label, `700 13px` value (Fuel detail). */
+/** `padding:12px 0` — `400 14px` muted label, `600 14px` value (Fill detail). */
 export function KeyValueRow({
   label,
   value,
@@ -180,7 +199,7 @@ export function KeyValueRow({
           role="body"
           tone={valueTone}
           numberOfLines={2}
-          style={{ flexShrink: 1, textAlign: 'right', fontFamily: fontFamily[700], lineHeight: 18 }}
+          style={{ flexShrink: 1, textAlign: 'right', fontFamily: fontFamily[600], lineHeight: 18 }}
         >
           {value}
         </Txt>
@@ -222,12 +241,12 @@ export function DividedList({ children, style }: { children: React.ReactNode; st
 /**
  * A record in a list.
  *
- * `flush` (the boards' shape) — a row inside a `ListCard`: `padding:14px 0`,
- * `700 14px` title, `500 12px` subtitle, an optional `700 14px` amount and a
- * pill on the right, a 15px chevron when it navigates.
+ * `flush` — a row inside a `ListCard` (Figma `Row`/`Item`): `padding:10px 0;
+ * gap:12px`, a 40px icon tile, `600 14px` title, `400 12px` subtitle, an
+ * optional `600 14px` amount and a pill on the right, a 20px chevron when it
+ * navigates.
  *
- * `card` (the previous shape, kept for existing callers) — its own bordered
- * 16px-radius surface.
+ * `card` — the same row on its own white 24px-radius surface.
  */
 export function RecordRow({
   variant = 'card',
@@ -246,13 +265,14 @@ export function RecordRow({
   trailing,
   chevron,
   dense = false,
+  titleSize = 'default',
   onPress,
   disabled,
   testID,
 }: {
   variant?: 'card' | 'flush';
   leading?: React.ReactNode;
-  /** Renders a `RowIcon` (36px, or `iconSize`) in front of the title. */
+  /** Renders a `RowIcon` (40px, or `iconSize`) in front of the title. */
   icon?: IconName;
   iconTone?: RowTone;
   iconSize?: number;
@@ -263,7 +283,7 @@ export function RecordRow({
   /** Replaces the subtitle text — e.g. a date beside a category tag on a Costs row. */
   subtitleContent?: React.ReactNode;
   caption?: string;
-  /** `700 14px` on the right, e.g. `৳1,004`. */
+  /** `600 14px` on the right, e.g. `৳1,004`. */
   amount?: string;
   amountTone?: 'ink' | 'mut';
   /** A pill under the amount (`41.2 km/L`) or in place of it (`310 KM OVER`). */
@@ -271,39 +291,40 @@ export function RecordRow({
   trailing?: React.ReactNode;
   /** Defaults to "when it navigates and nothing else sits on the right". */
   chevron?: boolean;
-  /** `700 13.5px` / `500 11.5px` — the Dashboard's "Needs attention" rows. */
+  /** Tighter title/subtitle gap. */
   dense?: boolean;
+  /** `large` — `600 15px` title and amount, `padding:14px 0` (the Services, Plan and Workshop rows). */
+  titleSize?: 'default' | 'large';
   onPress?: () => void;
   disabled?: boolean;
   testID?: string;
 }) {
   const { c, radius } = useTheme();
   const flush = variant === 'flush';
+  const large = titleSize === 'large';
   const showChevron = chevron ?? (flush && !!onPress && amount === undefined && badge === undefined && trailing === undefined);
 
   const body = (
     <View
       style={
         flush
-          ? { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, minHeight: HIT_SIZE }
+          ? { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: large ? 14 : 10, minHeight: HIT_SIZE }
           : {
               flexDirection: 'row',
               alignItems: 'center',
               gap: 12,
               backgroundColor: c.sur,
-              borderWidth: 1,
-              borderColor: c.brd,
               borderRadius: radius.listCard,
-              paddingHorizontal: 15,
-              paddingVertical: 14,
+              paddingHorizontal: 16,
+              paddingVertical: 12,
               minHeight: HIT_SIZE,
             }
       }
     >
       {leading}
       {icon ? <RowIcon icon={icon} tone={iconTone} {...(iconSize === undefined ? {} : { size: iconSize })} /> : null}
-      <View style={{ flex: 1, minWidth: 0, gap: dense ? 1 : 2 }}>
-        <Txt role={dense ? 'rowTitleDense' : 'rowTitle'} numberOfLines={2}>
+      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+        <Txt role={large ? 'rowTitleLarge' : dense ? 'rowTitleDense' : 'rowTitle'} numberOfLines={2}>
           {title}
         </Txt>
         {subtitleContent ??
@@ -321,7 +342,7 @@ export function RecordRow({
       {amount !== undefined || badge ? (
         <View style={{ alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
           {amount !== undefined ? (
-            <Txt role="rowTitle" tone={amountTone} numberOfLines={1}>
+            <Txt role={large ? 'rowTitleLarge' : 'rowTitle'} tone={amountTone} numberOfLines={1}>
               {amount}
             </Txt>
           ) : null}
@@ -329,7 +350,7 @@ export function RecordRow({
         </View>
       ) : null}
       {trailing}
-      {showChevron ? <Icon name="chevronRight" size={15} color={c.mut} strokeWidth={2} /> : null}
+      {showChevron ? <Icon name="chevronRight" size={20} color={c.faint} /> : null}
     </View>
   );
 

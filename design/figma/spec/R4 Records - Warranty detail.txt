@@ -1,0 +1,58 @@
+[R4 Records — Warranty detail] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left)
+[Warranty] font-weight: 600; font-size: 16px; color: #14171B
+[Delete] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon trash-bad)
+[Summary] display: flex; flex-direction: row; align-items: center; padding: 16px; gap: 12px; width: 358px; height: 80px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #E5F6EE; border-radius: 14px
+  (icon battery-good)
+[battery] width: 24px; height: 24px
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 266px; height: 36px; flex-grow: 1
+[Covered for 1 yr 4 mo more] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Reminder 30 days before 12 Mar 2027] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Fields] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 14px; width: 358px; height: 433px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 69px; align-self: stretch
+[What is covered] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 326px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[Battery · Hamko MF9] font-weight: 400; font-size: 15px; color: #14171B
+[Pair] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 10px; width: 326px; height: 69px; align-self: stretch
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 158px; height: 69px; flex-grow: 1
+[Provider] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 158px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[Hamko] font-weight: 400; font-size: 15px; color: #14171B
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 158px; height: 69px; flex-grow: 1
+[Valid until] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 158px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[12 Mar 2027] font-weight: 400; font-size: 15px; color: #14171B
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 69px; align-self: stretch
+[Purchased from] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 326px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[Motor House Dhanmondi] font-weight: 400; font-size: 15px; color: #14171B
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 69px; align-self: stretch
+[Coverage (optional)] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 326px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[Replacement · manufacturing defects] font-weight: 400; font-size: 15px; color: #14171B
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 69px; align-self: stretch
+[Remind before] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px 14px; width: 326px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[30] font-weight: 400; font-size: 15px; color: #14171B
+[days] font-weight: 500; font-size: 14px; color: #6B727C
+[Claim] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 10px; width: 358px; height: 173px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[CLAIM STATUS] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Segmented] display: flex; flex-direction: row; align-items: flex-start; padding: 4px; gap: 2px; width: 326px; height: 52px; background: #F1F2F5; border-radius: 999px; align-self: stretch
+[Seg] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 78px; height: 44px; border-radius: 999px; flex-grow: 1
+[None] font-weight: 600; font-size: 13px; color: #6B727C
+[Seg on] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 78px; height: 44px; background: #14171B; border-radius: 999px; flex-grow: 1
+[Open] font-weight: 600; font-size: 13px; color: #FFFFFF
+[Seg] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 78px; height: 44px; border-radius: 999px; flex-grow: 1
+[Settled] font-weight: 600; font-size: 13px; color: #6B727C
+[Seg] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 78px; height: 44px; border-radius: 999px; flex-grow: 1
+[Rejected] font-weight: 600; font-size: 13px; color: #6B727C
+[Hint] display: flex; flex-direction: row; align-items: center; padding: 12px; gap: 8px; width: 326px; height: 54px; background: #FBF0DA; border-radius: 14px; align-self: stretch
+  (icon info-warn)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; width: 278px; height: 30px; flex-grow: 1
+[Claim opened 18 Oct. Keep the receipt and old battery.] font-weight: 500; font-size: 12px; color: #93611A; align-self: stretch
+[Save — primary] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+[Save warranty] font-weight: 600; font-size: 16px; color: #FFFFFF

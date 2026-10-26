@@ -1,0 +1,72 @@
+[D6 Services — Workshop records] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left|ink)
+[Workshop records] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer] width: 48px; height: 48px
+[Intro] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 358px; height: 68px; align-self: stretch
+[Quotes vs invoices] font-weight: 700; font-size: 22px; color: #14171B; align-self: stretch
+[Only visits where you recorded a quote are compared.] font-weight: 400; font-size: 14px; color: #6B727C; align-self: stretch
+[Stats] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 174px; align-self: stretch
+[Row1] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 83px; align-self: stretch
+[Quoted] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 6px; width: 175px; height: 83px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 20px; flex-grow: 1
+[L] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 6px; width: 141px; height: 15px; align-self: stretch
+  (icon file-text|mut)
+[QUOTED] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C
+[৳12,700] font-weight: 700; font-size: 22px; color: #14171B; align-self: stretch
+[Invoiced] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 6px; width: 175px; height: 83px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 20px; flex-grow: 1
+[L] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 6px; width: 141px; height: 15px; align-self: stretch
+  (icon receipt|mut)
+[INVOICED] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C
+[৳12,950] font-weight: 700; font-size: 22px; color: #14171B; align-self: stretch
+[Row2] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 83px; align-self: stretch
+[Delta] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 6px; width: 175px; height: 83px; background: #FBF0DA; border: 1px solid #F1DDB2; border-radius: 20px; flex-grow: 1
+[L] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 6px; width: 141px; height: 15px; align-self: stretch
+  (icon trending-up|warn)
+[trending-up] width: 14px; height: 14px
+[DELTA] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #93611A
+[+৳250 over] font-weight: 700; font-size: 22px; color: #93611A; align-self: stretch
+[Compared] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 6px; width: 175px; height: 83px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 20px; flex-grow: 1
+[L] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 6px; width: 141px; height: 15px; align-self: stretch
+  (icon history|mut)
+[history] width: 14px; height: 14px
+[COMPARED] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C
+[5 visits] font-weight: 700; font-size: 22px; color: #14171B; align-self: stretch
+[Uncompared note] display: flex; flex-direction: row; align-items: flex-start; padding: 14px; gap: 10px; width: 358px; height: 60px; background: #F1F2F5; border-radius: 16px; align-self: stretch
+  (icon info|mut)
+[1 other visit had no quote recorded and is left out of the comparison.] font-weight: 400; font-size: 13px; color: #6B727C; flex-grow: 1
+[BY WORKSHOP] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Workshop list] display: flex; flex-direction: column; align-items: flex-start; padding: 2px 16px; width: 358px; height: 243px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 79px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon building|ink)
+[building] width: 20px; height: 20px
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 186px; height: 51px; flex-grow: 1
+[Rahim Motors] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[3 compared visits · quoted ৳7,200 · invoiced ৳7,550] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Badge bad] display: flex; flex-direction: row; align-items: center; padding: 4px 10px 4px 8px; gap: 4px; width: 76px; height: 25px; background: #FBE9E7; border: 1px solid #F3C7C1; border-radius: 999px
+  (icon trending-up|bad)
+[trending-up] width: 14px; height: 14px
+[+৳350] font-weight: 600; font-size: 12px; color: #B42318
+[Row] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 80px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon building|ink)
+[building] width: 20px; height: 20px
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 187px; height: 51px; flex-grow: 1
+[Tyre Point Mirpur] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[1 compared visit · quoted ৳4,300 · invoiced ৳4,200] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Badge good] display: flex; flex-direction: row; align-items: center; padding: 4px 10px 4px 8px; gap: 4px; width: 75px; height: 25px; background: #E5F6EE; border: 1px solid #BFE6D2; border-radius: 999px
+  (icon trending-down|good)
+[trending-down] width: 14px; height: 14px
+[−৳100] font-weight: 600; font-size: 12px; color: #0B7F4E
+[Row] display: flex; flex-direction: row; align-items: center; padding: 14px 0px; gap: 12px; width: 326px; height: 80px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon building|ink)
+[building] width: 20px; height: 20px
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 169px; height: 51px; flex-grow: 1
+[Dhaka Bike Care] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[1 compared visit · quoted ৳1,200 · invoiced ৳1,200] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Badge neutral] display: flex; flex-direction: row; align-items: center; padding: 4px 10px 4px 8px; gap: 4px; width: 93px; height: 25px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon check|ink)
+[Matched] font-weight: 600; font-size: 12px; color: #14171B
+[Under-quote shows in green with a minus — over and under are different news.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch

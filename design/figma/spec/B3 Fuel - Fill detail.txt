@@ -1,0 +1,74 @@
+[B3 Fuel — Fill detail] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon chevron-left)
+[Title] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 4px; width: 81px; height: 20px
+[Fill] font-weight: 600; font-size: 16px; color: #14171B
+[· 13 Sep] font-weight: 400; font-size: 16px; color: #6B727C
+[Edit] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon pen-line)
+[pen-line] width: 20px; height: 20px
+[Hero — mileage] display: flex; flex-direction: column; align-items: flex-start; padding: 20px; gap: 14px; width: 358px; height: 246px; background: linear-gradient(135deg, #1E2227 0%, #101214 71.43%); border-radius: 28px; align-self: stretch
+[Row] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 318px; height: 25px; align-self: stretch
+[MILEAGE] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #9AA1AA
+[Chip] display: flex; flex-direction: row; align-items: flex-start; padding: 5px 10px; width: 72px; height: 25px; background: #262A30; border-radius: 999px
+[Full tank] font-weight: 600; font-size: 12px; color: #C9CED4
+[Big] display: flex; flex-direction: row; align-items: baseline; padding: 0px; gap: 6px; width: 318px; height: 60px; align-self: stretch
+[41.2] font-weight: 700; font-size: 48px; letter-spacing: -0.02em; color: #FFFFFF
+[km/L] font-weight: 500; font-size: 16px; color: #9AA1AA
+[▲ 1.4 km/L above your 39.8 average] font-weight: 600; font-size: 13px; color: #4CC38A; align-self: stretch
+[Stats] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 318px; height: 63px; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 155px; height: 63px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Odometer] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[34,712 km] font-weight: 700; font-size: 16px; color: #FFFFFF; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 155px; height: 63px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Distance] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[338 km] font-weight: 700; font-size: 16px; color: #FFFFFF; align-self: stretch
+[How measured] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 12px; width: 358px; height: 265px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[How 41.2 was measured] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Timeline] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 10px; width: 326px; height: 33px; align-self: stretch
+[From] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 69px; height: 33px
+[6 Sep · Full] font-weight: 600; font-size: 13px; color: #14171B
+[34,374 km] font-weight: 400; font-size: 12px; color: #6B727C
+[chart:interval-line] width: 162px; height: 20px; flex-grow: 1
+[interval-line] width: 162px; height: 20px
+[To] display: flex; flex-direction: column; align-items: flex-end; padding: 0px; gap: 2px; width: 75px; height: 33px
+[13 Sep · Full] font-weight: 600; font-size: 13px; color: #14171B
+[34,712 km] font-weight: 400; font-size: 12px; color: #6B727C
+[Sum] display: flex; flex-direction: column; align-items: flex-start; padding: 14px; gap: 10px; width: 326px; height: 114px; background: #F5F6F8; border-radius: 16px; align-self: stretch
+[SR] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 298px; height: 18px; align-self: stretch
+[Distance since last full tank] font-weight: 400; font-size: 14px; color: #14171B
+[338 km] font-weight: 600; font-size: 14px; color: #14171B
+[SR] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 298px; height: 18px; align-self: stretch
+[Fuel in this fill] font-weight: 400; font-size: 14px; color: #14171B
+[8.2 L] font-weight: 600; font-size: 14px; color: #14171B
+[SR total] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 10px 0px 0px; width: 298px; height: 30px; border-top: 1px solid #E9EBEF; align-self: stretch
+[338 ÷ 8.2] font-weight: 400; font-size: 14px; color: #6B727C
+[= 41.2 km/L] font-weight: 700; font-size: 15px; color: #C93D0E
+[Note] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; width: 326px; height: 30px; align-self: stretch
+[Distance between two full tanks ÷ fuel used in between. Check it yourself — that's the point.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Details] display: flex; flex-direction: column; align-items: flex-start; padding: 4px 16px; width: 358px; height: 240px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[KV] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 326px; height: 56px; align-self: stretch
+[Litres] font-weight: 400; font-size: 14px; color: #6B727C
+[8.2 L · Full tank] font-weight: 600; font-size: 14px; color: #14171B
+[KV] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 326px; height: 56px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Price] font-weight: 400; font-size: 14px; color: #6B727C
+[৳122.4 / L · ৳1,004 total] font-weight: 600; font-size: 14px; color: #14171B
+[KV] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 326px; height: 56px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Station] font-weight: 400; font-size: 14px; color: #6B727C
+[Padma Oil, Mirpur 10] font-weight: 600; font-size: 14px; color: #14171B
+[Receipt] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon receipt)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 242px; height: 35px; flex-grow: 1
+[Pump receipt] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Tap to view full size] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+  (icon chevron-right)
+[Buttons] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 52px; align-self: stretch
+[Edit] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 175px; height: 52px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; flex-grow: 1
+  (icon pen-line-ink)
+[pen-line] width: 18px; height: 18px
+[Edit] font-weight: 600; font-size: 15px; color: #14171B
+[Delete] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 173px; height: 52px; background: #FBE9E7; border-radius: 999px; flex-grow: 1
+  (icon trash)
+[Delete] font-weight: 600; font-size: 15px; color: #B42318

@@ -1,0 +1,24 @@
+[E5b More — Capture: Scan receipt (camera)] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #0B0C0E; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Close] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #23272C; border-radius: 24px
+  (icon x-white)
+[Receipt photo] font-weight: 600; font-size: 16px; color: #FFFFFF
+[Flash] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #23272C; border-radius: 24px
+  (icon zap-off-white)
+[Hint row] display: flex; flex-direction: row; justify-content: center; align-items: flex-start; padding: 0px; width: 358px; height: 32px; align-self: stretch
+[Hint chip] display: flex; flex-direction: row; align-items: center; padding: 8px 14px 8px 12px; gap: 6px; width: 293px; height: 32px; background: #262A30; border-radius: 999px
+  (icon scan-bright)
+[Fit the whole receipt inside the frame] font-weight: 600; font-size: 13px; color: #C9CED4
+[Viewfinder] display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0px; width: 358px; height: 480.29px; align-self: stretch; flex-grow: 1
+[chart:viewfinder] width: 300px; height: 440px
+[viewfinder] width: 300px; height: 440px
+[Group] 
+[Caption] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 24px; width: 358px; height: 32px; align-self: stretch
+[Saved to Fast Capture straight away — finish the details later, even with no signal.] font-weight: 400; font-size: 13px; text-align: center; color: #9AA1AA; align-self: stretch
+[Controls] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px 24px; width: 358px; height: 80px; align-self: stretch
+[Gallery] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 56px; background: #23272C; border-radius: 28px
+  (icon image-white)
+[Shutter] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 80px; height: 80px; border: 4px solid #FFFFFF; border-radius: 40px
+[Shutter core] width: 62px; height: 62px; background: #FFFFFF; border-radius: 31px
+[Switch camera] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 56px; background: #23272C; border-radius: 28px
+  (icon refresh-white)

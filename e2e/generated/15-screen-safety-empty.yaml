@@ -26,3 +26,19 @@ appId: app.revora.android.dev
     id: "empty-safety"
 - assertVisible:
     id: "cta-add-check"
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "list-safety-current"
+    optional: true
+- assertVisible:
+    id: "list-safety-history"
+    optional: true
+- assertVisible:
+    id: "cta-new-check"
+    optional: true
+- assertVisible:
+    id: "cta-first-check"
+    optional: true

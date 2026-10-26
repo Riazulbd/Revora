@@ -1,9 +1,10 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { FlatList, View } from 'react-native';
+import { FlatList, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
+  Badge,
   Button,
   Card,
   Dialog,
@@ -11,34 +12,38 @@ import {
   EmptyState,
   ErrorState,
   Eyebrow,
+  Icon,
   Screen,
   ScreenHeader,
   Sheet,
   SkeletonList,
   Txt,
+  type IconName,
 } from '@/components';
 import {
   INITIAL_ODOMETER_POINT_ID,
   odometerSourceLabel,
   previewOdometerCorrection,
+  validateOdometer,
   type OdometerPoint,
 } from '@/calculations/odometer';
 import { buildOdometerRows } from '@/calculations/odometerHistory';
 import { distanceUnitLabel } from '@/calculations/units';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
-import {
-  OdometerCorrectionPanel,
-  OdometerReadingRow,
-} from '@/features/fuel/ui/FuelOdometerHistory';
-import { useCorrectOdometerReading } from '@/features/odometer/useOdometerMutations';
+import { OdometerCorrectionPanel, OdometerReadingRow } from '@/features/fuel/ui/FuelOdometerHistory';
+import { useAddOdometerReading, useCorrectOdometerReading } from '@/features/odometer/useOdometerMutations';
 import { fromMetres, toMetres } from '@/features/shared/formValues';
-import { formatShortDate } from '@/utils/date';
+import { formatShortDate, todayIso } from '@/utils/date';
 import { formatDistance, formatDistanceValue, NO_VALUE } from '@/utils/format';
-import { useTheme } from '@/theme';
+import { MAX_FONT_SCALE, fontFamily, useTheme } from '@/theme';
+import type { OdometerSource } from '@/types';
+
+const SOURCE_ICON: Record<OdometerSource, IconName> = { manual: 'penLine', fuel: 'fuel', service: 'wrench', expense: 'receipt' };
 
 /**
- * Odometer history.
+ * Odometer history (Figma `C4 Garage — Update odometer`): the current reading
+ * and what holds it, a card to log a new reading, and every reading on record.
  *
  * Readings from fuel logs, services and parts are derived from those records
  * rather than copied, so a deleted fuel log takes its reading with it and the
@@ -64,6 +69,7 @@ export default function OdometerHistory() {
   const points = useMemo(() => analytics?.odometer.points ?? [], [analytics]);
   const rows = useMemo(() => buildOdometerRows(points), [points]);
   const current = analytics?.odometer.latest ?? null;
+  const today = analytics?.today ?? todayIso();
 
   if (error) {
     return (
@@ -78,7 +84,7 @@ export default function OdometerHistory() {
     return (
       <Screen testID="screen-odometer">
         <ScreenHeader title="Odometer history" />
-        <SkeletonList count={5} height={52} />
+        <SkeletonList count={5} height={60} />
       </Screen>
     );
   }
@@ -88,49 +94,75 @@ export default function OdometerHistory() {
       <Screen testID="screen-odometer">
         <ScreenHeader title="Odometer history" />
         <EmptyState
-          icon="odometer"
+          icon="gauge"
           title="No readings yet"
           message="Readings appear here from fuel logs, services and manual updates."
           primaryAction={{ label: 'Log a fill-up', onPress: () => router.push('/fuel/add') }}
           testID="empty-odometer"
         />
-        <Txt role="helper" tone="mut" style={{ marginTop: 12 }}>
-          No readings yet? The odometer you entered at setup is the first one.
-        </Txt>
       </Screen>
     );
   }
 
-  /** The list is one card: only its ends are rounded, every row shares the surface. */
-  const slice = (index: number) => {
-    const first = index === 0;
-    const last = index === rows.length - 1;
-    return {
-      backgroundColor: c.sur,
-      borderLeftWidth: 1,
-      borderRightWidth: 1,
-      borderTopWidth: first ? 1 : 0,
-      borderBottomWidth: last ? 1 : 0,
-      borderColor: c.brd,
-      borderTopLeftRadius: first ? radius.listCard : 0,
-      borderTopRightRadius: first ? radius.listCard : 0,
-      borderBottomLeftRadius: last ? radius.listCard : 0,
-      borderBottomRightRadius: last ? radius.listCard : 0,
-      paddingHorizontal: 16,
-    } as const;
-  };
-
-  const heldByLine =
+  const heldBy =
     current === null
-      ? 'No reading is on record yet.'
+      ? 'No reading on record yet'
       : current.id === INITIAL_ODOMETER_POINT_ID
-        ? 'Held by the reading you entered at setup. The odometer only moves forward — correct a wrong reading below.'
-        : `Held by the ${odometerSourceLabel(current.source)} of ${formatShortDate(current.date)}. The odometer only moves forward — correct a wrong reading below.`;
+        ? 'Held by the reading you entered at setup'
+        : `Held by the ${odometerSourceLabel(current.source)} of ${formatShortDate(current.date)}`;
+
+  const cardSide = { backgroundColor: c.sur, paddingHorizontal: 16 } as const;
+
+  const header = (
+    <View style={{ gap: 16 }}>
+      {/* Figma `Hero`. */}
+      <View style={{ alignItems: 'center', paddingTop: 8, paddingBottom: 4, gap: 6 }}>
+        <Txt style={{ fontFamily: fontFamily[500], fontSize: 13, lineHeight: 16, color: c.mut }}>Current odometer</Txt>
+        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+          <Txt role="hero" color={current === null ? c.mut : c.ink} numberOfLines={1} adjustsFontSizeToFit testID="hero-odometer">
+            {current === null ? NO_VALUE : formatDistanceValue(current.metres, units.distance)}
+          </Txt>
+          <Txt role="heroUnit" tone="mut">
+            {units.distance}
+          </Txt>
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            paddingLeft: 10,
+            paddingRight: 12,
+            paddingVertical: 6,
+            borderRadius: 999,
+            backgroundColor: c.sur,
+            borderWidth: 1,
+            borderColor: c.brd,
+          }}
+        >
+          <Icon name={current === null ? 'gauge' : SOURCE_ICON[current.source]} size={16} color={c.accBright} />
+          <Txt role="micro" tone="mut">
+            {heldBy}
+          </Txt>
+        </View>
+      </View>
+
+      <NewReading currentMetres={current?.metres ?? null} currentDate={current?.date ?? null} today={today} />
+
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 4 }}>
+        <Eyebrow>Readings</Eyebrow>
+        <Txt role="meta" tone="mut">
+          Tap a manual reading to correct it
+        </Txt>
+      </View>
+      <View style={{ ...cardSide, borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card, height: 4 }} />
+    </View>
+  );
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top }}>
-      <View style={{ paddingHorizontal: 20, paddingTop: 8 }}>
-        <ScreenHeader title="Odometer history" />
+      <View style={{ paddingHorizontal: 16, paddingTop: 24 }}>
+        <ScreenHeader title="Odometer history" style={{ marginBottom: 0 }} />
       </View>
 
       <FlatList
@@ -138,26 +170,9 @@ export default function OdometerHistory() {
         testID="screen-odometer"
         data={rows}
         keyExtractor={(item) => item.point.id}
-        ListHeaderComponent={
-          <Card style={{ marginBottom: 12 }} testID="card-current-odometer">
-            <Eyebrow>Current odometer</Eyebrow>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 6 }}>
-              <Txt role="figure" style={{ fontSize: 28 }} numberOfLines={1} adjustsFontSizeToFit>
-                {current === null
-                  ? NO_VALUE
-                  : formatDistanceValue(current.metres, units.distance)}
-              </Txt>
-              <Txt role="linkLarge" tone="mut">
-                {distanceUnitLabel(units.distance)}
-              </Txt>
-            </View>
-            <Txt role="meta" tone="mut" style={{ marginTop: 4, lineHeight: 18 }}>
-              {heldByLine}
-            </Txt>
-          </Card>
-        }
-        renderItem={({ item, index }) => (
-          <View style={slice(index)}>
+        ListHeaderComponent={header}
+        renderItem={({ item }) => (
+          <View style={cardSide}>
             <OdometerReadingRow
               row={item}
               unit={units.distance}
@@ -175,27 +190,22 @@ export default function OdometerHistory() {
           </View>
         )}
         ItemSeparatorComponent={() => (
-          <View style={{ backgroundColor: c.sur, borderLeftWidth: 1, borderRightWidth: 1, borderColor: c.brd }}>
-            <Divider inset={16} />
+          <View style={cardSide}>
+            <Divider />
           </View>
         )}
         ListFooterComponent={
-          <View>
+          <View style={{ gap: 16 }}>
+            <View style={{ ...cardSide, borderBottomLeftRadius: radius.card, borderBottomRightRadius: radius.card, height: 4 }} />
             {editing?.readingId ? (
-              <CorrectReading
-                key={editing.readingId}
-                point={editing}
-                readingId={editing.readingId}
-                points={points}
-                onClose={() => setEditing(null)}
-              />
+              <CorrectReading key={editing.readingId} point={editing} readingId={editing.readingId} points={points} onClose={() => setEditing(null)} />
             ) : null}
-            <Txt role="helper" tone="mut" style={{ marginTop: 12 }}>
-              No readings yet? The odometer you entered at setup is the first one.
+            <Txt role="helper" tone="mut" align="center">
+              Readings appear here from fuel logs, services and manual updates.
             </Txt>
           </View>
         }
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32 + insets.bottom }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 28 + insets.bottom }}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews
         initialNumToRender={16}
@@ -203,12 +213,7 @@ export default function OdometerHistory() {
         windowSize={9}
       />
 
-      <Sheet
-        visible={hint !== null}
-        onClose={() => setHint(null)}
-        title="Where this reading comes from"
-        testID="sheet-odometer-source"
-      >
+      <Sheet visible={hint !== null} onClose={() => setHint(null)} title="Where this reading comes from" testID="sheet-odometer-source">
         <Txt role="body" tone="mut">
           {hint === null
             ? ''
@@ -216,9 +221,110 @@ export default function OdometerHistory() {
               ? 'This is the reading you started the motorcycle with. Change it in Motorcycle profile → Edit details.'
               : `This reading is part of a ${odometerSourceLabel(hint.source)}. Edit that record and this updates with it — that is what stops the two disagreeing.`}
         </Txt>
-        <Button label="Close" variant="secondary" onPress={() => setHint(null)} style={{ marginTop: 16 }} />
+        <Button label="Close" variant="secondary" size="large" onPress={() => setHint(null)} style={{ marginTop: 16 }} />
       </Sheet>
     </View>
+  );
+}
+
+/**
+ * Figma `Entry card`: a new manual reading. The big field, the distance since
+ * the last reading as it is typed (green going up, red going down — the
+ * odometer only moves forward, and a lower figure is flagged rather than
+ * silently accepted), and the Update button.
+ */
+function NewReading({ currentMetres, currentDate, today }: { currentMetres: number | null; currentDate: string | null; today: string }) {
+  const { c } = useTheme();
+  const { units } = useGarage();
+  const [value, setValue] = useState('');
+  const [refused, setRefused] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const addReading = useAddOdometerReading({
+    onSaved: () => {
+      setValue('');
+      setRefused(false);
+    },
+  });
+
+  const parsed = toMetres(value, units.distance);
+  const check = parsed === null ? null : validateOdometer(parsed, currentMetres);
+  const delta = parsed === null || currentMetres === null ? null : parsed - currentMetres;
+  const lower = check !== null && !check.ok && check.reason === 'below_current';
+
+  const submit = async () => {
+    if (parsed === null || lower) {
+      setRefused(true);
+      return;
+    }
+    setRefused(false);
+    await addReading.submit({ metres: parsed, source: 'manual' });
+  };
+
+  return (
+    <Card style={{ gap: 12 }} testID="card-new-reading">
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Eyebrow>Update odometer</Eyebrow>
+        <Txt role="micro" tone="mut">
+          {`Today, ${formatShortDate(today)}`}
+        </Txt>
+      </View>
+      <View
+        style={{
+          height: 76,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 18,
+          borderRadius: 20,
+          backgroundColor: c.field,
+          borderWidth: 2,
+          borderColor: refused ? c.badIcon : focused || value !== '' ? c.acc : c.brd,
+        }}
+      >
+        <TextInput
+          value={value}
+          onChangeText={(next) => {
+            setValue(next);
+            setRefused(false);
+          }}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder={currentMetres === null ? '0' : fromMetres(currentMetres, units.distance)}
+          placeholderTextColor={c.faint}
+          keyboardType="decimal-pad"
+          selectionColor={c.acc}
+          cursorColor={c.acc}
+          maxFontSizeMultiplier={MAX_FONT_SCALE}
+          accessibilityLabel={`New odometer reading in ${distanceUnitLabel(units.distance)}`}
+          testID="input-odometer"
+          style={{ flex: 1, minWidth: 0, fontFamily: fontFamily[700], fontSize: 34, letterSpacing: -0.68, color: c.ink, paddingVertical: 0, paddingHorizontal: 0 }}
+        />
+        <Txt role="heroUnit" tone="mut">
+          {units.distance}
+        </Txt>
+      </View>
+
+      {delta !== null && currentDate !== null ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Badge label={`${delta >= 0 ? '+' : '−'}${formatDistance(Math.abs(delta), units.distance)}`} tone={delta >= 0 ? 'good' : 'bad'} />
+          <Txt role="meta" tone="mut" style={{ flex: 1 }} numberOfLines={2}>
+            {delta >= 0 ? `since your last reading on ${formatShortDate(currentDate)}` : `lower than your last reading on ${formatShortDate(currentDate)}`}
+          </Txt>
+        </View>
+      ) : null}
+
+      <Txt role="helper" tone={refused ? 'bad' : 'mut'}>
+        {refused && parsed === null
+          ? 'Enter the current reading.'
+          : refused
+            ? 'Lower than the current reading — correct the wrong reading below instead.'
+            : check !== null && !check.ok && check.reason === 'implausible_jump'
+              ? `That is more than 5,000 ${distanceUnitLabel(units.distance)} past your last reading — double-check before saving.`
+              : 'Odometer only moves forward — a lower reading gets flagged, never silently accepted.'}
+      </Txt>
+
+      <Button label="Update odometer" icon="check" size="xlarge" onPress={submit} loading={addReading.isPending} testID="cta-update-odometer" />
+    </Card>
   );
 }
 
@@ -278,7 +384,6 @@ function CorrectReading({
         }}
         onCancel={onClose}
         onDelete={() => setConfirmDelete(true)}
-        style={{ marginTop: 14 }}
       />
 
       <Dialog

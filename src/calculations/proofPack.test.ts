@@ -219,3 +219,19 @@ test('whole months are counted the way a rider would say them', () => {
   expect(monthsBetween('2026-09-01', '2026-09-30')).toBe(0);
   expect(monthsBetween('2022-02-01', '2026-09-01')).toBe(55);
 });
+
+describe('the Figma INCLUDED card', () => {
+  it('names each section with its count, and counts the photos the pack carries', () => {
+    const analytics = analyseBike(
+      garage({ services: [service('s1', '2026-09-01')], fuelEntries: [fuel('f1', 4845, '2026-08-20')] }),
+    );
+    const summary = proofPackSummary({ analytics, documents: [document('d1', null)] });
+    expect(summary.includedLines).toEqual([
+      'Motorcycle details · chassis and engine no.',
+      'Service history · 1 visit',
+      'Odometer timeline · 1 fill-up',
+      'Documents · 1 document',
+    ]);
+    expect(summary.photos).toBe(0);
+  });
+});

@@ -1,0 +1,85 @@
+[B6 Notifications — Inbox] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon chevron-left)
+[Spacer] width: 48px; height: 48px
+[Header] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 358px; height: 57px; align-self: stretch
+[Notifications] font-weight: 700; font-size: 28px; letter-spacing: -0.01em; color: #14171B; align-self: stretch
+[3 new · The Red One] font-weight: 400; font-size: 14px; color: #6B727C; align-self: stretch
+[Group today] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 352px; align-self: stretch
+[TODAY · 3] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Card] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 16px; width: 358px; height: 327px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row overdue] display: flex; flex-direction: column; align-items: flex-start; padding: 14px 0px; gap: 12px; width: 326px; height: 166px; align-self: stretch
+[Main] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 12px; width: 326px; height: 78px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBE9E7; border-radius: 12px
+  (icon droplet)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 235px; height: 78px; flex-grow: 1
+[Engine oil is overdue] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Overdue by 310 km — last changed at 31,240 km] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Badge] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 79px; height: 21px; background: #FBE9E7; border-radius: 999px
+[OVERDUE] font-weight: 600; font-size: 12px; letter-spacing: 0.04em; color: #B42318
+[Meta] display: flex; flex-direction: column; align-items: flex-end; padding: 0px; gap: 8px; width: 27px; height: 33px
+[Now] font-weight: 500; font-size: 12px; color: #6B727C
+[Unread dot] width: 10px; height: 10px; background: #D2400F; border-radius: 999px
+[Actions] display: flex; flex-direction: row; align-items: flex-start; padding: 0px 0px 0px 52px; gap: 8px; width: 326px; height: 48px; align-self: stretch
+[Mark done] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px 18px 0px 16px; gap: 6px; width: 134px; height: 48px; background: #14171B; border-radius: 999px
+  (icon check)
+[Mark done] font-weight: 600; font-size: 14px; color: #FFFFFF
+[Open] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px 20px; width: 81px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Open] font-weight: 600; font-size: 14px; color: #14171B
+[Row doc] display: flex; flex-direction: row; align-items: flex-start; padding: 14px 0px; gap: 12px; width: 326px; height: 92px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBF0DA; border-radius: 12px
+  (icon file-text)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 235px; height: 63px; flex-grow: 1
+[Tax token expiring in 12 days] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Document vault · expires 7 Nov] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Badge] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 79px; height: 21px; background: #FBF0DA; border-radius: 999px
+[EXPIRING] font-weight: 600; font-size: 12px; letter-spacing: 0.04em; color: #93611A
+[Meta] display: flex; flex-direction: column; align-items: flex-end; padding: 0px; gap: 8px; width: 27px; height: 33px
+[9:40] font-weight: 500; font-size: 12px; color: #6B727C
+[Unread dot] width: 10px; height: 10px; background: #D2400F; border-radius: 999px
+[Row chain] display: flex; flex-direction: row; align-items: flex-start; padding: 14px 0px; gap: 12px; width: 326px; height: 69px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E8F0FE; border-radius: 12px
+  (icon wrench)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 239px; height: 38px; flex-grow: 1
+[Chain lube is due soon] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[In 6 days — due soon] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Meta] display: flex; flex-direction: column; align-items: flex-end; padding: 0px; gap: 8px; width: 23px; height: 33px
+[8:15] font-weight: 500; font-size: 12px; color: #6B727C
+[Unread dot] width: 10px; height: 10px; background: #D2400F; border-radius: 999px
+[Group earlier] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 175px; align-self: stretch
+[EARLIER] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Card] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 16px; width: 358px; height: 150px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Row sync] display: flex; flex-direction: row; align-items: flex-start; padding: 14px 0px; gap: 12px; width: 326px; height: 81px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon refresh-cw)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 202px; height: 53px; flex-grow: 1
+[Syncing your latest changes] font-weight: 500; font-size: 15px; color: #14171B; align-self: stretch
+[Recent records are on their way to your account.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Yesterday] font-weight: 500; font-size: 12px; color: #6B727C
+[Row insurance] display: flex; flex-direction: row; align-items: flex-start; padding: 14px 0px; gap: 12px; width: 326px; height: 69px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon shield)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 224px; height: 38px; flex-grow: 1
+[Insurance expiring in 3 days] font-weight: 500; font-size: 15px; color: #14171B; align-self: stretch
+[Document vault · renewed 21 Oct] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[18 Oct] font-weight: 500; font-size: 12px; color: #6B727C
+[Everything here is recomputed from your records — mark the oil change done and its notification simply stops existing.] font-weight: 400; font-size: 12px; text-align: center; color: #6B727C; align-self: stretch
+[Group reminders] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 10px; width: 358px; height: 161px; align-self: stretch
+[REMINDERS ON THIS PHONE] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Card] display: flex; flex-direction: column; align-items: flex-start; padding: 0px 16px; width: 358px; height: 136px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Toggle row] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 68px; align-self: stretch
+  (icon bell)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 230px; height: 36px; flex-grow: 1
+[Maintenance reminders] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Before a rule falls due] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Toggle on] display: flex; flex-direction: row; justify-content: flex-end; align-items: center; padding: 0px 3px; width: 52px; height: 32px; background: #D2400F; border-radius: 999px
+[Knob] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 26px; height: 26px; background: #FFFFFF; border-radius: 999px
+  (icon check-sm)
+[Toggle row] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 12px; width: 326px; height: 68px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon file-clock)
+[Text] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 230px; height: 36px; flex-grow: 1
+[Document expiry] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[30, 14 and 3 days before] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Toggle off] display: flex; flex-direction: row; align-items: center; padding: 0px 3px; width: 52px; height: 32px; background: #E9EBEF; border-radius: 999px
+[Knob] width: 26px; height: 26px; background: #FFFFFF; border-radius: 999px

@@ -25,3 +25,13 @@ appId: app.revora.android.dev
     id: "plan-rule-.*"
 - assertVisible:
     id: "screen-rule"
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "card-year"
+    optional: true
+- assertVisible:
+    id: "chart-timeline"
+    optional: true

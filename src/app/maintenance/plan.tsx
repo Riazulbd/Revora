@@ -1,10 +1,13 @@
 import React from 'react';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import {
+  Card,
   EmptyState,
   ErrorState,
   Footnote,
+  Icon,
   ListCard,
   RecordRow,
   RowIcon,
@@ -18,11 +21,13 @@ import { describeProjection, projectServicePlan } from '@/calculations/servicepl
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
 import { MaintenanceGlyph, glyphForRule } from '@/features/maintenance/ui/MaintenanceGlyph';
-import { fontFamily, useTheme } from '@/theme';
+import { PlanTimeline } from '@/features/maintenance/ui/PlanTimeline';
+import { useTheme } from '@/theme';
 import { formatDistance } from '@/utils/format';
+import { daysBetween } from '@/utils/date';
 
 /**
- * The year ahead.
+ * The year ahead (Figma `D2 Maintenance — Service plan`).
  *
  * Every row is one maintenance rule projected forward from the odometer it
  * falls due at and the pace the rider has actually been riding. The pace is
@@ -40,8 +45,8 @@ export default function ServicePlan() {
 
   if (error) {
     return (
-      <Screen testID="screen-service-plan">
-        <ScreenHeader title="Service plan" />
+      <Screen testID="screen-service-plan" contentStyle={{ gap: 16 }}>
+        <ScreenHeader title="Service plan" style={{ marginBottom: 0 }} />
         <ErrorState message={error.message} onRetry={() => void refetch()} variant="page" testID="error-service-plan" />
       </Screen>
     );
@@ -49,8 +54,8 @@ export default function ServicePlan() {
 
   if (isPending && analytics === null) {
     return (
-      <Screen testID="screen-service-plan">
-        <ScreenHeader title="Service plan" />
+      <Screen testID="screen-service-plan" contentStyle={{ gap: 16 }}>
+        <ScreenHeader title="Service plan" style={{ marginBottom: 0 }} />
         <SkeletonList count={4} height={64} />
       </Screen>
     );
@@ -65,28 +70,29 @@ export default function ServicePlan() {
     monthlyMetres,
     today: analytics.today,
   });
+  const withinYear = plan.filter(
+    (row) => row.overdue || (row.projectedOn !== null && daysBetween(analytics.today, row.projectedOn) <= 365),
+  ).length;
+
+  // A projection is an assumption with a date on it. Naming both figures it
+  // was built from — the odometer and the rider's own pace — is what keeps it
+  // a forecast rather than a promise the app cannot keep.
+  const intro =
+    currentMetres === null
+      ? 'Projections, not promises.'
+      : monthlyMetres === null
+        ? `Projected from the current ${formatDistance(currentMetres, units.distance)}. Projections, not promises.`
+        : `Projected from the current ${formatDistance(currentMetres, units.distance)} at your recent ${formatDistance(
+            monthlyMetres,
+            units.distance,
+          )} a month. Projections, not promises.`;
 
   return (
-    <Screen onRefresh={refetch} testID="screen-service-plan">
+    <Screen onRefresh={refetch} testID="screen-service-plan" contentStyle={{ gap: 16 }}>
       <ScreenHeader title="Service plan" style={{ marginBottom: 0 }} />
 
-      {/* A projection is an assumption with a date on it. Naming both figures it
-          was built from — the odometer and the rider's own pace — is what keeps
-          it a forecast rather than a promise the app cannot keep. */}
-      <Txt role="meta" tone="mut" style={{ marginTop: 6, lineHeight: 18 }} testID="hint-projection">
-        {currentMetres === null ? (
-          'Projections, not promises.'
-        ) : monthlyMetres === null ? (
-          `Projected from the current ${formatDistance(currentMetres, units.distance)}. Projections, not promises.`
-        ) : (
-          <>
-            {`Projected from the current ${formatDistance(currentMetres, units.distance)} at your recent `}
-            <Txt style={{ fontFamily: fontFamily[700], fontSize: 12, color: c.mut }}>
-              {`${formatDistance(monthlyMetres, units.distance)} a month`}
-            </Txt>
-            . Projections, not promises.
-          </>
-        )}
+      <Txt role="body" tone="mut" testID="hint-projection">
+        {intro}
       </Txt>
 
       {plan.length === 0 ? (
@@ -100,37 +106,60 @@ export default function ServicePlan() {
         />
       ) : (
         <>
-          <ListCard style={{ marginTop: 14 }} testID="card-plan">
+          {/* Figma `Year card`. */}
+          <Card style={{ gap: 12 }} testID="card-year">
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+              <Txt role="cardTitle">Next 12 months</Txt>
+              <Txt role="micro" tone="mut">{`${withinYear} item${withinYear === 1 ? '' : 's'}`}</Txt>
+            </View>
+            <PlanTimeline plan={plan} today={analytics.today} testID="chart-timeline" />
+          </Card>
+
+          <ListCard style={{ paddingVertical: 2 }} testID="card-plan">
             {plan.map((row) => {
               const when = row.overdue ? 'Overdue now' : describeProjection(row.projectedOn, analytics.today);
+              const distance = row.dueAtMetres === null ? null : formatDistance(row.dueAtMetres, units.distance);
               return (
                 <RecordRow
                   key={row.ruleId}
                   variant="flush"
+                  titleSize="large"
                   leading={
-                    <RowIcon size={36} tone={row.overdue ? 'bad' : 'neutral'}>
-                      <MaintenanceGlyph
-                        name={glyphForRule(row.name)}
-                        size={16}
-                        color={row.overdue ? c.bad : c.mut}
-                      />
+                    <RowIcon tone={row.overdue ? 'bad' : 'neutral'}>
+                      <MaintenanceGlyph name={glyphForRule(row.name)} color={row.overdue ? c.badIcon : c.mut} />
                     </RowIcon>
                   }
                   title={row.name}
-                  {...(when === null ? {} : { subtitle: when })}
-                  subtitleTone={row.overdue ? 'bad' : 'mut'}
-                  trailing={
-                    <Txt role="linkLarge" tone={row.overdue ? 'bad' : 'ink'} numberOfLines={1}>
-                      {formatDistance(row.dueAtMetres, units.distance)}
-                    </Txt>
-                  }
+                  {...(row.overdue
+                    ? {
+                        subtitleContent: (
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            <Icon name="circleAlert" size={14} color={c.bad} />
+                            <Txt role="micro" tone="bad">
+                              Overdue now
+                            </Txt>
+                          </View>
+                        ),
+                      }
+                    : when === null
+                      ? {}
+                      : { subtitle: when })}
+                  {...(distance === null
+                    ? {}
+                    : {
+                        trailing: (
+                          <Txt role="rowTitleLarge" tone={row.overdue ? 'bad' : 'ink'} numberOfLines={1}>
+                            {distance}
+                          </Txt>
+                        ),
+                      })}
                   testID={`plan-rule-${row.ruleId}`}
                 />
               );
             })}
           </ListCard>
 
-          <Footnote style={{ marginTop: 12 }} testID="hint-plan-dates">
+          <Footnote style={{ marginTop: 0 }} testID="hint-plan-dates">
             Dates need riding history. With too little, items show their distance alone — a rate would be
             invented.
           </Footnote>

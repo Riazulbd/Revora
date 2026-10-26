@@ -1,0 +1,79 @@
+[C4 Garage — Update odometer] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left)
+[Odometer history] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer] width: 48px; height: 48px
+[Hero] display: flex; flex-direction: column; align-items: center; padding: 8px 0px 4px; gap: 6px; width: 358px; height: 130px; align-self: stretch
+[Current odometer] font-weight: 500; font-size: 13px; color: #6B727C
+[Num] display: flex; flex-direction: row; align-items: baseline; padding: 0px; gap: 6px; width: 171px; height: 60px
+[34,712] font-weight: 700; font-size: 48px; letter-spacing: -0.02em; color: #14171B
+[km] font-weight: 500; font-size: 18px; color: #6B727C
+[Held chip] display: flex; flex-direction: row; align-items: center; padding: 6px 12px 6px 10px; gap: 6px; width: 219px; height: 30px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon fuel-accent)
+[Held by the fuel log of 13 Sep] font-weight: 500; font-size: 12px; color: #6B727C
+[Entry card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 12px; width: 358px; height: 278px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Head] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 326px; height: 15px; align-self: stretch
+[UPDATE ODOMETER] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C
+[Today, 16 Sep] font-weight: 500; font-size: 12px; color: #6B727C
+[Big entry] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px 18px; width: 326px; height: 76px; background: #F5F6F8; border: 2px solid #D2400F; border-radius: 18px; align-self: stretch
+[Val] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 2px; width: 111px; height: 43px
+[34,980] font-weight: 700; font-size: 34px; letter-spacing: -0.02em; color: #14171B
+[Caret] width: 2px; height: 34px; background: #D2400F; border-radius: 1px
+[km] font-weight: 500; font-size: 18px; color: #6B727C
+[Context] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 326px; height: 21px; align-self: stretch
+[Delta chip] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 67px; height: 21px; background: #E5F6EE; border-radius: 999px
+[+268 km] font-weight: 600; font-size: 12px; color: #0B7F4E
+[since your last reading on 13 Sep] font-weight: 400; font-size: 12px; color: #6B727C; flex-grow: 1
+[Odometer only moves forward — a lower reading gets flagged, never silently accepted.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Update btn] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 326px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+  (icon check-white)
+[Update odometer] font-weight: 600; font-size: 16px; color: #FFFFFF
+[Readings head] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px 4px; width: 358px; height: 15px; align-self: stretch
+[READINGS] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C
+[Tap a manual reading to correct it] font-weight: 400; font-size: 12px; color: #6B727C
+[Readings card] display: flex; flex-direction: column; align-items: flex-start; padding: 4px 16px; width: 358px; height: 334px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Reading] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 60px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon fuel-accent)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 198px; height: 36px; flex-grow: 1
+[34,712 km] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[13 Sep · correct on that record] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Tag] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 64px; height: 21px; background: #FDEAE3; border-radius: 999px
+[Fuel log] font-weight: 600; font-size: 12px; color: #C93D0E
+[Reading] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 61px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon wrench-ink)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 200px; height: 36px; flex-grow: 1
+[34,480 km] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[9 Sep · correct on that record] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Tag] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 62px; height: 21px; background: #F1F2F5; border-radius: 999px
+[Service] font-weight: 600; font-size: 12px; color: #6B727C
+[Reading warn] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 72px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBF0DA; border-radius: 12px
+  (icon alert-warn)
+[triangle-alert] width: 20px; height: 20px
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 168px; height: 51px; flex-grow: 1
+[34,840 km] font-weight: 600; font-size: 15px; color: #93611A; align-self: stretch
+[5 Sep · looks out of sequence] font-weight: 400; font-size: 12px; color: #93611A; align-self: stretch
+[Tag] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 62px; height: 21px; background: #F1F2F5; border-radius: 999px
+[Manual] font-weight: 600; font-size: 12px; color: #6B727C
+  (icon chevron-right-mut)
+[Reading] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 61px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FDEAE3; border-radius: 12px
+  (icon fuel-accent)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 198px; height: 36px; flex-grow: 1
+[34,190 km] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[2 Sep · correct on that record] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Tag] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 64px; height: 21px; background: #FDEAE3; border-radius: 999px
+[Fuel log] font-weight: 600; font-size: 12px; color: #C93D0E
+[Reading] display: flex; flex-direction: row; align-items: center; padding: 10px 0px; gap: 12px; width: 326px; height: 72px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon pencil-ink)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 168px; height: 51px; flex-grow: 1
+[31,200 km] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[12 Mar · your starting reading] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Tag] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 62px; height: 21px; background: #F1F2F5; border-radius: 999px
+[Manual] font-weight: 600; font-size: 12px; color: #6B727C
+  (icon info-mut)
+[Readings appear here from fuel logs, services and manual updates.] font-weight: 400; font-size: 12px; text-align: center; color: #6B727C; align-self: stretch

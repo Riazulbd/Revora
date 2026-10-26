@@ -32,8 +32,6 @@ jest.mock('expo-clipboard', () => ({ setStringAsync: jest.fn() }));
 
 import { ThemeProvider, ForceDarkTheme } from '@/theme';
 import {
-  ActionTile,
-  ActionTileRow,
   Badge,
   Banner,
   BarChart,
@@ -45,6 +43,7 @@ import {
   CheckRow,
   ChipGroup,
   ChoiceGrid,
+  DateChip,
   DateField,
   DerivedField,
   Dialog,
@@ -55,6 +54,9 @@ import {
   FieldRow,
   Footnote,
   Gauge,
+  HeroCard,
+  HeroFigure,
+  HeroHead,
   Icon,
   IconSquareButton,
   Input,
@@ -64,6 +66,7 @@ import {
   ListCard,
   LoadingState,
   MenuRow,
+  MiniBars,
   PhotoPanel,
   PhotoThumb,
   PickerField,
@@ -78,6 +81,7 @@ import {
   Segmented,
   Sheet,
   SkeletonList,
+  Sparkline,
   SpendBar,
   Stack,
   StatRow,
@@ -103,17 +107,28 @@ function Everything() {
           action={
             <>
               <IconSquareButton icon="bell" count={3} accessibilityLabel="Notifications" onPress={noop} testID="cta-bell" />
-              <IconSquareButton icon="dotsVertical" accessibilityLabel="More" onPress={noop} testID="cta-overflow" />
+              <IconSquareButton icon="camera" size={56} accessibilityLabel="Fast Capture" onPress={noop} testID="quick-capture" />
             </>
           }
         />
         <SearchBar onPress={noop} testID="cta-search" />
         <SearchBar value="oil" onChangeText={noop} onClear={noop} testID="input-search" />
-        <ActionTileRow>
-          <ActionTile label="Fast Capture" icon="camera" emphasis="solid" onPress={noop} testID="quick-capture" />
-          <ActionTile label="Documents" icon="documents" emphasis="accent" dot onPress={noop} testID="quick-documents" />
-          <ActionTile label="Add fuel" icon="fuelPump" onPress={noop} testID="quick-add-fuel" />
-        </ActionTileRow>
+        <HeroCard>
+          <HeroHead eyebrow="Odometer" chip="Updated 3 days ago" />
+          <HeroFigure value="34,712" unit="km" />
+          <StatRow>
+            <StatTile variant="hero" label="Mileage" value="41.2" sub="▲ 1.4 km/L" subTone="good" />
+            <StatTile variant="hero" label="Cost / km" value="৳4.12" sub="all costs" />
+            <StatTile variant="hero" label="Last fill" />
+          </StatRow>
+          <MiniBars values={[38, 40, 39, 41, 42]} height={80} reference={40} baseline="spread" />
+        </HeroCard>
+        <Sparkline values={[38, 40, 39, 41, 42]} />
+        <Sparkline values={[38]} />
+        <MiniBars values={[]} />
+        <DateChip date="2026-09-13" />
+        <Badge label="1 EXPIRING" tone="warn" icon="clock" />
+        <CheckRow label="Engine oil & filter" description="Every 3,000 km" checked onChange={noop} />
         <Callout tone="good" title="Nothing needs your attention" body="No documents expiring, no rules due. Go ride." />
         <Callout tone="warn" lead="Can’t check what needs attention" message="until your records load." />
         <Banner tone="offline" lead="You’re offline." message="Fills you log now are saved on this phone and sync later." />

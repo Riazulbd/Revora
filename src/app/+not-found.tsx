@@ -2,15 +2,15 @@ import React from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Button, Screen, Txt } from '@/components';
+import { Button, Icon, Screen, Txt } from '@/components';
 import { fontFamily, useTheme } from '@/theme';
 
 /**
- * Not found — account--04, lower board.
+ * Not found (Figma `A6 System — Not found`).
  *
- * No header and no card: the board centres the whole thing on the page, names
- * the likeliest cause rather than the link, and offers the two places the
- * rider was probably trying to reach.
+ * No header and no card: the whole thing sits centred on the page, names the
+ * likeliest cause rather than the link, and offers the two places the rider
+ * was probably trying to reach.
  */
 export default function NotFound() {
   const router = useRouter();
@@ -18,31 +18,30 @@ export default function NotFound() {
 
   return (
     <Screen testID="screen-not-found" scroll={false} contentStyle={{ justifyContent: 'center' }}>
-      <View style={{ alignItems: 'center', gap: 14 }}>
-        <Txt align="center" style={{ fontFamily: fontFamily[700], fontSize: 17, color: c.ink }}>
+      <View style={{ alignItems: 'center', gap: 12, paddingHorizontal: 12 }}>
+        <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: c.accS, alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="mapPinOff" size={28} color={c.accBright} />
+        </View>
+        <Txt align="center" style={{ fontFamily: fontFamily[600], fontSize: 18, lineHeight: 23, color: c.ink }}>
           That screen doesn&rsquo;t exist
         </Txt>
-        <Txt
-          align="center"
-          style={{ fontFamily: fontFamily[500], fontSize: 13, lineHeight: 20.15, color: c.mut, maxWidth: 280 }}
-        >
-          Usually a deleted record. If it was a fill you were after, the fuel list has everything that&rsquo;s
-          left.
+        <Txt role="body" tone="mut" align="center">
+          Usually a deleted record. If it was a fill you were after, the fuel list has everything that&rsquo;s left.
         </Txt>
-        <View style={{ flexDirection: 'row', gap: 10 }}>
+        <View style={{ alignSelf: 'stretch', gap: 10, paddingTop: 12 }}>
           <Button
             label="Go to Dashboard"
-            size="medium"
+            icon="house"
+            size="xlarge"
             onPress={() => router.replace('/(tabs)/dashboard')}
-            style={{ paddingHorizontal: 20 }}
             testID="cta-not-found-dashboard"
           />
           <Button
             label="Fuel list"
+            icon="fuel"
             variant="secondary"
-            size="medium"
+            size="xlarge"
             onPress={() => router.replace('/(tabs)/fuel')}
-            style={{ paddingHorizontal: 20 }}
             testID="cta-not-found-fuel"
           />
         </View>

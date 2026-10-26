@@ -41,3 +41,9 @@ Yamaha-*.jpg
 *.zip
 design/redesign/compare/
 e2e/out/
+
+# The Figma exports behind design/figma/spec: the SVGs (13 MB, text outlined)
+# and the 2× PNG renders made from them are derivable; the spec text, the CSS
+# paste and the frame PNGs are what the app is built from, and stay tracked.
+design/figma/svg/
+design/figma/png/

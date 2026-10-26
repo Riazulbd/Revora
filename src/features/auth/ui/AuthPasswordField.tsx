@@ -8,10 +8,10 @@ import { passwordRules, type PasswordRule } from '@/calculations/passwordRules';
 import { useAuthTheme } from './AuthTheme';
 
 /**
- * The password field from the Sign in and Create account boards: the standard
- * 52px input with a 44×44 eye inside its right edge. The eye is a real control
- * with its own accessible name, because a rider who cannot see the field is
- * exactly the rider who needs to check what they typed.
+ * The password field (Figma `Field — Password`): the 48px input with a 48×48
+ * eye inside its right edge. The eye is a real control with its own
+ * accessible name, because a rider who cannot see the field is exactly the
+ * rider who needs to check what they typed.
  *
  * The eye sits over the field rather than in `Input`'s `trailing` slot so that
  * nothing element-shaped is handed across a prop — the entry screens are also
@@ -48,9 +48,8 @@ export function AuthPasswordField({
   const { c } = useAuthTheme();
   const [shown, setShown] = useState(false);
 
-  // The eye keeps its own 44px target inside the field's right edge, which is
-  // 4px in from the frame on a 52px field and 2px on the 48px one.
-  const inset = size === 'compact' ? 2 : 4;
+  // The eye's 48px target sits flush inside the field's right edge.
+  const inset = 0;
 
   return (
     <View>
@@ -82,8 +81,8 @@ export function AuthPasswordField({
             position: 'absolute',
             right: inset,
             top: inset,
-            width: 44,
-            height: 44,
+            width: 48,
+            height: 48,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: pressed ? 0.6 : 1,
@@ -113,12 +112,13 @@ function EyeGlyph({ shown, color }: { shown: boolean; color: string }) {
 }
 
 /**
- * The three chips under the Create account password field.
+ * The three chips under the Create account password field (Figma `Rules`):
+ * pills, `padding:4px 10px 4px 8px; gap:4px`, `600 12px`.
  *
- * The board puts them up front, unmet in muted grey, ticking green as the rider
- * types. After a refused submit the unmet length rule says how far off it is
- * — "8+ characters — 2 more to go" — and turns red. `passwordRules()` decides
- * all of that; this only draws it.
+ * They sit up front, unmet on the inset surface in grey, turning to the soft
+ * green with a tick as the rider types. After a refused submit the unmet
+ * length rule says how far off it is — "8+ characters — 2 more to go" — and
+ * turns red. `passwordRules()` decides all of that; this only draws it.
  */
 export function AuthPasswordRules({
   password,
@@ -134,7 +134,7 @@ export function AuthPasswordRules({
   const rules = passwordRules(password);
 
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 14 }}>
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, paddingTop: 4 }}>
       {rules.map((rule) => (
         <AuthPasswordRuleChip key={rule.key} rule={rule} attempted={attempted} disabled={disabled} />
       ))}
@@ -155,45 +155,45 @@ function AuthPasswordRuleChip({
 
   const state = disabled ? 'pending' : rule.met ? 'met' : attempted ? 'failed' : 'pending';
   const color = state === 'met' ? c.good : state === 'failed' ? c.bad : c.mut;
+  const fill = state === 'met' ? c.goodS : state === 'failed' ? c.badS : c.sur2;
   const label = state === 'failed' ? (rule.shortfallLabel ?? rule.label) : rule.label;
 
   return (
     <View
       accessibilityLabel={`${label}. ${state === 'met' ? 'Met' : 'Not met yet'}`}
-      style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingVertical: 4,
+        paddingLeft: 8,
+        paddingRight: 10,
+        borderRadius: 999,
+        backgroundColor: fill,
+      }}
     >
       <RuleGlyph state={state} color={color} />
-      <Txt style={{ fontFamily: fontFamily[state === 'failed' ? 600 : 500], fontSize: 11.5, color }}>
-        {label}
-      </Txt>
+      <Txt style={{ fontFamily: fontFamily[600], fontSize: 12, lineHeight: 15, color }}>{label}</Txt>
     </View>
   );
 }
 
-/** An open ring while the rule waits, a filled tick once met, a cross once refused. */
+/** An open ring while the rule waits, a tick once met, a cross once refused. */
 function RuleGlyph({ state, color }: { state: 'pending' | 'met' | 'failed'; color: string }) {
   if (state === 'pending') {
     return (
-      <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+      <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
         <Circle cx={12} cy={12} r={9} stroke={color} strokeWidth={2} fill="none" />
       </Svg>
     );
   }
 
   return (
-    <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
-      <Circle cx={12} cy={12} r={10} fill={color} />
+    <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
       {state === 'met' ? (
-        <Path
-          d="m7.5 12.5 3 3 6-6.5"
-          stroke="#FFFFFF"
-          strokeWidth={2.4}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        />
+        <Path d="M20 6 9 17l-5-5" stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" fill="none" />
       ) : (
-        <Path d="m8 8 8 8M16 8l-8 8" stroke="#FFFFFF" strokeWidth={2.2} strokeLinecap="round" fill="none" />
+        <Path d="M18 6 6 18M6 6l12 12" stroke={color} strokeWidth={2.5} strokeLinecap="round" fill="none" />
       )}
     </Svg>
   );

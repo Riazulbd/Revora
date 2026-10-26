@@ -1,0 +1,57 @@
+[R2 Records — Document detail] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left)
+[Document] font-weight: 600; font-size: 16px; color: #14171B
+[Delete] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon trash-bad)
+[Type chips] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 88px; align-self: stretch
+[Row1] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 40px; align-self: stretch
+[Chip on] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 91px; height: 40px; background: #14171B; border-radius: 999px
+[Tax token] font-weight: 600; font-size: 13px; color: #FFFFFF
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 111px; height: 40px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Registration] font-weight: 600; font-size: 13px; color: #14171B
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 95px; height: 40px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Insurance] font-weight: 600; font-size: 13px; color: #14171B
+[Row2] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 40px; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 81px; height: 40px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Licence] font-weight: 600; font-size: 13px; color: #14171B
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 148px; height: 40px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Fitness certificate] font-weight: 600; font-size: 13px; color: #14171B
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 82px; height: 40px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Custom] font-weight: 600; font-size: 13px; color: #14171B
+[Photo] display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0px; gap: 10px; width: 358px; height: 168px; background: #FFFFFF; border: 1px solid #C9CED4; border-radius: 24px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 56px; background: #FDEAE3; border-radius: 28px
+  (icon camera-acc)
+[Attach document photo] font-weight: 600; font-size: 15px; color: #14171B
+[Front side, flat and in good light] font-weight: 400; font-size: 12px; color: #6B727C
+[Fields] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 14px; width: 358px; height: 335px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 69px; align-self: stretch
+[Number] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 326px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[TP-4432871] font-weight: 400; font-size: 15px; color: #14171B
+[Dates] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 10px; width: 326px; height: 69px; align-self: stretch
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 158px; height: 69px; flex-grow: 1
+[Issued on] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 158px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[28 Sep 2025] font-weight: 400; font-size: 15px; color: #14171B
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 158px; height: 69px; flex-grow: 1
+[Valid until] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 158px; height: 48px; background: #FFF7F3; border: 1.5px solid #D2400F; border-radius: 14px; align-self: stretch
+[28 Sep 2026] font-weight: 600; font-size: 15px; color: #14171B
+[Remind] display: flex; flex-direction: row; align-items: center; padding: 12px; gap: 8px; width: 326px; height: 54px; background: #FBF0DA; border-radius: 14px; align-self: stretch
+  (icon bell-warn)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; width: 278px; height: 30px; flex-grow: 1
+[Due in 12 days. We'll remind you at 7 and 3 days.] font-weight: 500; font-size: 12px; color: #93611A; align-self: stretch
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 69px; align-self: stretch
+[Notes (optional)] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 326px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[Where the original is kept] font-weight: 400; font-size: 15px; color: #878E98
+[Offline toggle] display: flex; flex-direction: row; align-items: center; padding: 16px; gap: 12px; width: 358px; height: 67px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 262px; height: 35px; flex-grow: 1
+[Keep an offline copy] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Show it at a checkpoint without signal] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Switch on] display: flex; flex-direction: row; justify-content: flex-end; align-items: center; padding: 0px 3px 0px 0px; width: 52px; height: 32px; background: #0B7F4E; border-radius: 16px
+[Knob] width: 26px; height: 26px; background: #FFFFFF; border-radius: 13px
+[Save — primary] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+[Save document] font-weight: 600; font-size: 16px; color: #FFFFFF

@@ -3,18 +3,22 @@ import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
-import { Screen } from '@/components';
+import { ChipGroup, LinkButton, Screen, ScreenHeader, type SegmentedOption } from '@/components';
 import {
-  AccountDocHeader,
   AccountDocSection,
+  AccountDocSections,
   AccountDocSummary,
-  AccountDocTabs,
+  AccountDocTitle,
 } from '@/features/settings/AccountDoc';
+import type { IsoDate } from '@/types';
+
+/** The day this text last changed — shown on the board's "Last updated" chip. */
+const LAST_UPDATED: IsoDate = '2026-10-12';
 
 type Anchor = 'figures' | 'subscriptions' | 'warranty' | 'proof';
 
 /** The board's four anchor chips, in board order. */
-const TABS: readonly { value: Anchor; label: string }[] = [
+const TABS: readonly SegmentedOption<Anchor>[] = [
   { value: 'figures', label: 'Your figures' },
   { value: 'subscriptions', label: 'Subscriptions' },
   { value: 'warranty', label: 'No warranty' },
@@ -22,9 +26,9 @@ const TABS: readonly { value: Anchor; label: string }[] = [
 ];
 
 /**
- * The board's four sections first, verbatim, then the two the board does not
- * draw but the terms still need: who is responsible for the sign-in, and the
- * fact that these terms can change.
+ * The board's four sections first, verbatim, then the two the board also
+ * draws under them: who is responsible for the sign-in, and the fact that
+ * these terms can change.
  */
 const SECTIONS: readonly { id: Anchor | string; title: string; body: string }[] = [
   {
@@ -60,7 +64,7 @@ const SECTIONS: readonly { id: Anchor | string; title: string; body: string }[] 
 ];
 
 /**
- * Terms of use — account--06.
+ * Terms of use (Figma `E7 Legal — Terms`).
  *
  * The chips are anchors, not filters: the board draws every section on screen
  * with one chip lit, so tapping a chip jumps to its section rather than hiding
@@ -90,38 +94,48 @@ export default function Terms() {
         ref={scroller}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
-          paddingHorizontal: 24,
-          paddingTop: 8,
+          paddingHorizontal: 16,
           paddingBottom: 28 + insets.bottom,
+          gap: 16,
         }}
       >
-        <AccountDocHeader
-          title={'What Revora promises,\nand what it doesn’t'}
+        <ScreenHeader
+          title="Terms of use"
           onBack={() => {
             if (router.canGoBack()) router.back();
             else router.replace('/(tabs)/dashboard');
           }}
-          testID="cta-terms-back"
+          backTestID="cta-terms-back"
+          style={{ marginBottom: 0 }}
         />
+
+        <AccountDocTitle title={'What Revora promises,\nand what it doesn’t'} updatedOn={LAST_UPDATED} />
 
         <AccountDocSummary testID="card-terms-summary">
           Revora calculates from what you log. Billing lives in Google Play. It is a logbook, not an
           inspection, and the Proof Pack certifies its own provenance — not the motorcycle.
         </AccountDocSummary>
 
-        <AccountDocTabs options={TABS} value={anchor} onChange={jumpTo} testID="tabs-terms" />
+        <ChipGroup options={TABS} value={anchor} onChange={jumpTo} size="large" testID="tabs-terms" />
 
-        {SECTIONS.map((section, index) => (
-          <View
-            key={section.id}
-            onLayout={(event) => {
-              offsets.current[section.id] = event.nativeEvent.layout.y;
-            }}
-            style={{ marginTop: index === 0 ? 20 : 18, paddingHorizontal: 4 }}
-          >
-            <AccountDocSection title={section.title} body={section.body} />
-          </View>
-        ))}
+        <AccountDocSections>
+          {SECTIONS.map((section) => (
+            <View
+              key={section.id}
+              onLayout={(event) => {
+                offsets.current[section.id] = event.nativeEvent.layout.y;
+              }}
+            >
+              <AccountDocSection title={section.title} body={section.body} />
+            </View>
+          ))}
+        </AccountDocSections>
+
+        {/* Play requires the privacy policy to be reachable in-app, and this is
+            the one legal screen a signed-in rider can open from the plan. */}
+        <View style={{ alignItems: 'center' }}>
+          <LinkButton label="Privacy policy" tone="acc" size="medium" onPress={() => router.push('/legal/privacy')} testID="link-privacy" />
+        </View>
       </ScrollView>
     </Screen>
   );

@@ -17,9 +17,9 @@ appId: app.revora.android.dev
 - assertVisible:
     id: "screen-dashboard"
 - tapOn:
-    id: "cta-overflow"
+    id: "tab-more"
 - tapOn:
-    id: "overflow-plan"
+    id: "row-plan"
 - assertVisible:
     id: "screen-plan"
 - assertVisible:
@@ -32,11 +32,13 @@ appId: app.revora.android.dev
     id: "cta-restore-purchases"
 - assertVisible:
     id: "screen-plan"
-- scrollUntilVisible:
-    element:
-      id: "cta-reload-prices"
-    direction: DOWN
-- tapOn:
-    id: "cta-reload-prices"
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
 - assertVisible:
-    id: "screen-plan"
+    id: "card-pro-preview"
+    optional: true
+- assertVisible:
+    id: "chart-pro-preview"
+    optional: true

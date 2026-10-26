@@ -1,0 +1,69 @@
+[R7 Records — Proof Pack (Pro)] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: linear-gradient(180deg, #FFE6DA 0%, #F8F3F1 30%, #F5F6F8 100%); border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left)
+[Proof Pack] font-weight: 600; font-size: 16px; color: #14171B
+[Pro slot] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px
+[PRO] display: flex; flex-direction: row; align-items: flex-start; padding: 3px 8px; width: 43px; height: 21px; background: #FF6B3D; border-radius: 999px
+[PRO] font-weight: 700; font-size: 12px; color: #14171B
+[Hero — dark accent] display: flex; flex-direction: column; align-items: flex-start; padding: 20px; gap: 16px; width: 358px; height: 222px; background: linear-gradient(135deg, #1E2227 0%, #101214 71.43%); border-radius: 28px; align-self: stretch
+[Top] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 16px; width: 318px; height: 100px; align-self: stretch
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 226px; height: 98px; flex-grow: 1
+[REVORA PROOF PACK] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #9AA1AA; align-self: stretch
+[A history a buyer can check] font-weight: 700; font-size: 22px; color: #FFFFFF; align-self: stretch
+[The Red One · Bajaj Pulsar NS200] font-weight: 400; font-size: 12px; color: #9AA1AA; align-self: stretch
+[PDF mock] display: flex; flex-direction: column; align-items: flex-start; padding: 8px; gap: 5px; width: 76px; height: 100px; background: #FFFFFF; border-radius: 10px
+[accent] width: 28px; height: 6px; background: #D2400F; border-radius: 3px
+[l] width: 56px; height: 5px; background: #14171B; border-radius: 3px
+[l] width: 44px; height: 4px; background: #C9CED4; border-radius: 2px
+[chart] width: 60px; height: 22px; background: #FDEAE3; border-radius: 4px
+[l] width: 60px; height: 4px; background: #E9EBEF; border-radius: 2px
+[l] width: 52px; height: 4px; background: #E9EBEF; border-radius: 2px
+[l] width: 40px; height: 4px; background: #E9EBEF; border-radius: 2px
+[Stats] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 318px; height: 66px; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 66px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Covers] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[14 mo] font-weight: 700; font-size: 18px; color: #FFFFFF; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 66px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Records] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[162] font-weight: 700; font-size: 18px; color: #FFFFFF; align-self: stretch
+[Stat] display: flex; flex-direction: column; align-items: flex-start; padding: 12px; gap: 4px; width: 100.67px; height: 66px; background: #23272C; border-radius: 16px; flex-grow: 1
+[Photos] font-weight: 500; font-size: 12px; color: #9AA1AA; align-self: stretch
+[38] font-weight: 700; font-size: 18px; color: #FFFFFF; align-self: stretch
+[Included] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 12px; width: 358px; height: 167px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[INCLUDED] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Item] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 10px; width: 326px; height: 18px; align-self: stretch
+  (icon check-good)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; width: 298px; height: 18px; flex-grow: 1
+[Motorcycle details · chassis and engine no.] font-weight: 500; font-size: 14px; color: #14171B; align-self: stretch
+[Item] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 10px; width: 326px; height: 18px; align-self: stretch
+  (icon check-good)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; width: 298px; height: 18px; flex-grow: 1
+[Service history · 18 visits] font-weight: 500; font-size: 14px; color: #14171B; align-self: stretch
+[Item] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 10px; width: 326px; height: 18px; align-self: stretch
+  (icon check-good)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; width: 298px; height: 18px; flex-grow: 1
+[Odometer timeline · 124 fill-ups] font-weight: 500; font-size: 14px; color: #14171B; align-self: stretch
+[Item] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 10px; width: 326px; height: 18px; align-self: stretch
+  (icon check-good)
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; width: 298px; height: 18px; flex-grow: 1
+[Documents, warranties and safety checks] font-weight: 500; font-size: 14px; color: #14171B; align-self: stretch
+[Options] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; width: 358px; height: 139px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Toggle row] display: flex; flex-direction: row; align-items: center; padding: 4px 0px 14px; gap: 12px; width: 326px; height: 53px; align-self: stretch
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 262px; height: 35px; flex-grow: 1
+[Buyer-safe mode] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Every price is left out of the PDF, not hidden] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Switch on] display: flex; flex-direction: row; justify-content: flex-end; align-items: center; padding: 0px 3px 0px 0px; width: 52px; height: 32px; background: #0B7F4E; border-radius: 16px
+[Knob] width: 26px; height: 26px; background: #FFFFFF; border-radius: 13px
+[Toggle row] display: flex; flex-direction: row; align-items: center; padding: 14px 0px 4px; gap: 12px; width: 326px; height: 54px; border-top: 1px solid #EEF0F3; align-self: stretch
+[T] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 262px; height: 35px; flex-grow: 1
+[Ownership-transfer consent] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Recorded with a timestamp on the report] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Switch off] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 3px; width: 52px; height: 32px; background: #C9CED4; border-radius: 16px
+[Knob] width: 26px; height: 26px; background: #FFFFFF; border-radius: 13px
+[Provenance] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 358px; height: 16px; align-self: stretch
+  (icon lock-mut)
+[Proof Pack generated on this device] font-weight: 500; font-size: 12px; color: #6B727C
+[Generate — primary] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+  (icon file-down-white)
+[Generate PDF] font-weight: 600; font-size: 16px; color: #FFFFFF

@@ -2,105 +2,15 @@ import React, { forwardRef } from 'react';
 import { Pressable, TextInput, View, type TextInputProps, type ViewStyle } from 'react-native';
 
 import { HIT_SIZE, MAX_FONT_SCALE, fontFamily, useTheme } from '@/theme';
-import { Icon, type IconName } from './Icon';
+import { Icon } from './Icon';
 import { Txt } from './Text';
-
-/**
- * The quick-action tile row under the Dashboard search bar: three tiles
- * (`flex:1; height:68px; border-radius:16px; gap:4px`), an 18px glyph at
- * stroke 1.8 over a `700 11.5px` label.
- *
- *  · `solid` — the emphasised tile (Fast Capture). Light draws it `--ink` with
- *    a white label; dark draws it `--sur2` with an `--ink` label — a near-white
- *    slab is what `--ink` would give in dark, and no board has one.
- *  · `accent` — `border:1.5px solid var(--acc)`, label in `--acc` (Documents
- *    when something expires soon), with an 8px `--warn` dot at `top:7; right:7`.
- *  · `default` — `background:var(--sur); border:1px solid var(--brd)`.
- */
-export function ActionTile({
-  label,
-  icon,
-  emphasis = 'default',
-  dot = false,
-  onPress,
-  accessibilityLabel,
-  accessibilityHint,
-  testID,
-  style,
-}: {
-  label: string;
-  icon: IconName;
-  emphasis?: 'solid' | 'accent' | 'default';
-  /** The attention dot. `true` is the boards' amber; a tone picks another. */
-  dot?: boolean | 'warn' | 'bad' | 'good';
-  onPress: () => void;
-  accessibilityLabel?: string;
-  accessibilityHint?: string;
-  testID?: string;
-  style?: ViewStyle;
-}) {
-  const { c, dark } = useTheme();
-  const solid = emphasis === 'solid';
-  const accent = emphasis === 'accent';
-  const ink = solid ? (dark ? c.ink : '#FFFFFF') : accent ? c.acc : c.ink;
-  const surface = solid ? (dark ? c.sur2 : c.ink) : c.sur;
-  const dotColor = dot === 'bad' ? c.bad : dot === 'good' ? c.good : c.warn;
-
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? (dot ? `${label}, needs attention` : label)}
-      accessibilityHint={accessibilityHint}
-      onPress={onPress}
-      testID={testID}
-      style={({ pressed }) => [
-        {
-          flex: 1,
-          height: 68,
-          borderRadius: 16,
-          backgroundColor: surface,
-          borderWidth: solid ? 0 : accent ? 1.5 : 1,
-          borderColor: accent ? c.acc : c.brd,
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 4,
-          opacity: pressed ? 0.8 : 1,
-        },
-        style,
-      ]}
-    >
-      <Icon name={icon} size={18} color={ink} strokeWidth={1.8} />
-      <Txt numberOfLines={1} style={{ fontFamily: fontFamily[700], fontSize: 11.5, color: ink }}>
-        {label}
-      </Txt>
-      {dot ? (
-        <View
-          style={{
-            position: 'absolute',
-            top: 7,
-            right: 7,
-            width: 8,
-            height: 8,
-            borderRadius: 4,
-            backgroundColor: dotColor,
-          }}
-        />
-      ) : null}
-    </Pressable>
-  );
-}
-
-/** The three tiles side by side (`gap:8px`). */
-export function ActionTileRow({ children, style }: { children: React.ReactNode; style?: ViewStyle }) {
-  return <View style={[{ flexDirection: 'row', gap: 8 }, style]}>{children}</View>;
-}
 
 export type SearchBarProps = Omit<TextInputProps, 'style'> & {
   /**
-   * Resting (Dashboard): a 44px `--sur` field with a 1px `--brd` border that
-   * opens the search screen on tap. Pass `onPress` and no `onChangeText`.
-   * Active (Search screen): 48px, a 1.5px `--acc` border, editable, with a
-   * clear control once there is text.
+   * Resting: a 48px white pill with a hairline that opens the search screen on
+   * tap. Pass `onPress` and no `onChangeText`.
+   * Active (Figma `Search field`): the same pill with a `1.5px #14171B`
+   * border, editable, with a clear control once there is text.
    */
   onPress?: () => void;
   onClear?: () => void;
@@ -109,9 +19,9 @@ export type SearchBarProps = Omit<TextInputProps, 'style'> & {
 };
 
 /**
- * `height:44px; border-radius:14px; background:var(--sur); border:1px solid
- * var(--brd); gap:9px; padding:0 14px`, a 16px muted search glyph and a
- * `500 13px` muted placeholder — "Search records, documents, workshops…".
+ * `height:48px; border-radius:999px; background:#FFFFFF; gap:10px;
+ * padding:0 4px 0 16px`, a 20px muted search glyph and a `500 15px` value
+ * ("Search records, documents, workshops…" as the placeholder).
  */
 export const SearchBar = forwardRef<TextInput, SearchBarProps>(function SearchBar(
   { onPress, onClear, style, testID, value, placeholder = 'Search records, documents, workshops…', ...rest },
@@ -122,16 +32,16 @@ export const SearchBar = forwardRef<TextInput, SearchBarProps>(function SearchBa
   const hasText = typeof value === 'string' && value.length > 0;
 
   const frame: ViewStyle = {
-    height: active ? 48 : 44,
+    height: 48,
     borderRadius: radius.pill,
     backgroundColor: c.sur,
     borderWidth: active ? 1.5 : 1,
-    borderColor: active ? c.acc : c.brd,
+    borderColor: active ? c.ink : c.brd,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 9,
-    paddingLeft: 14,
-    paddingRight: active && hasText ? 4 : 14,
+    gap: 10,
+    paddingLeft: 16,
+    paddingRight: active && hasText ? 4 : 16,
   };
 
   if (!active) {
@@ -143,8 +53,8 @@ export const SearchBar = forwardRef<TextInput, SearchBarProps>(function SearchBa
         testID={testID}
         style={({ pressed }) => [frame, { opacity: pressed ? 0.75 : 1 }, style]}
       >
-        <Icon name="search" size={16} color={c.mut} strokeWidth={2} />
-        <Txt numberOfLines={1} style={{ fontFamily: fontFamily[500], fontSize: 13, color: c.mut, flex: 1 }}>
+        <Icon name="search" size={20} color={c.mut} />
+        <Txt numberOfLines={1} style={{ fontFamily: fontFamily[400], fontSize: 15, color: c.faint, flex: 1 }}>
           {placeholder}
         </Txt>
       </Pressable>
@@ -153,12 +63,12 @@ export const SearchBar = forwardRef<TextInput, SearchBarProps>(function SearchBa
 
   return (
     <View style={[frame, style]}>
-      <Icon name="search" size={16} color={c.mut} strokeWidth={2} />
+      <Icon name="search" size={20} color={c.mut} />
       <TextInput
         ref={ref}
         value={value}
         placeholder={placeholder}
-        placeholderTextColor={c.mut}
+        placeholderTextColor={c.faint}
         selectionColor={c.acc}
         cursorColor={c.acc}
         returnKeyType="search"
@@ -170,8 +80,8 @@ export const SearchBar = forwardRef<TextInput, SearchBarProps>(function SearchBa
           height: '100%',
           paddingVertical: 0,
           paddingHorizontal: 0,
-          fontFamily: fontFamily[hasText ? 700 : 500],
-          fontSize: 14,
+          fontFamily: fontFamily[hasText ? 500 : 400],
+          fontSize: 15,
           color: c.ink,
         }}
         {...rest}
@@ -190,7 +100,7 @@ export const SearchBar = forwardRef<TextInput, SearchBarProps>(function SearchBa
             opacity: pressed ? 0.6 : 1,
           })}
         >
-          <Icon name="cross" size={18} color={c.mut} strokeWidth={2} />
+          <Icon name="x" size={20} color={c.mut} />
         </Pressable>
       ) : null}
     </View>

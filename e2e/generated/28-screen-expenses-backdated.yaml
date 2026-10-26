@@ -51,9 +51,12 @@ appId: app.revora.android.dev
     id: "cta-save-expense"
 - assertVisible:
     id: "screen-expenses"
-# The month filter now has a record it excludes.
+# Two months back there is nothing, which is the month the card is for.
 - tapOn:
-    id: "segment-costs-range-month"
+    id: "cta-month-previous"
+    optional: true
+- tapOn:
+    id: "cta-month-previous"
     optional: true
 - assertVisible:
     id: "empty-expenses-month"

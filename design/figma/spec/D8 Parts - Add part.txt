@@ -1,0 +1,57 @@
+[D8 Parts — Add part] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Close] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon x|ink)
+[Add part] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer] width: 48px; height: 48px
+[Intro] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 14px; width: 358px; height: 56px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 56px; height: 56px; background: #FDEAE3; border-radius: 18px
+  (icon wrench|accent)
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 288px; height: 54px; flex-grow: 1
+[A part that wears out] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Give it an expected life and Revora tracks wear from the odometer.] font-weight: 400; font-size: 13px; color: #6B727C; align-self: stretch
+[Form card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 14px; width: 358px; height: 311px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Field Name] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 69px; align-self: stretch
+[Name] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 326px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[DID chain kit] font-weight: 400; font-size: 15px; color: #14171B; flex-grow: 1
+[Pair] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 10px; width: 326px; height: 69px; align-self: stretch
+[Field Odo] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 158px; height: 69px; flex-grow: 1
+[Installed odometer] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; gap: 6px; width: 158px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[26,700] font-weight: 400; font-size: 15px; color: #14171B; flex-grow: 1
+[km] font-weight: 400; font-size: 14px; color: #6B727C
+[Field Date] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 158px; height: 69px; flex-grow: 1
+[Installed date] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; gap: 8px; width: 158px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[4 Jan 2026] font-weight: 400; font-size: 15px; color: #14171B; flex-grow: 1
+  (icon calendar|mut)
+[Pair] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 10px; width: 326px; height: 69px; align-self: stretch
+[Field Life] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 158px; height: 69px; flex-grow: 1
+[LabelRow] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 4px; width: 158px; height: 15px; align-self: stretch
+[Expected life] font-weight: 500; font-size: 12px; color: #6B727C
+[· optional] font-weight: 400; font-size: 12px; color: #878E98
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; gap: 6px; width: 158px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[8,700] font-weight: 400; font-size: 15px; color: #14171B; flex-grow: 1
+[km] font-weight: 400; font-size: 14px; color: #6B727C
+[Field Cost] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 158px; height: 69px; flex-grow: 1
+[LabelRow] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 4px; width: 158px; height: 15px; align-self: stretch
+[Cost] font-weight: 500; font-size: 12px; color: #6B727C
+[· optional] font-weight: 400; font-size: 12px; color: #878E98
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; gap: 6px; width: 158px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[৳] font-weight: 400; font-size: 15px; color: #6B727C
+[6,800] font-weight: 400; font-size: 15px; color: #14171B; flex-grow: 1
+[No expected life? Leave it blank — the part is still logged, just without a wear bar.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Link to a service] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 72px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E8F0FE; border-radius: 12px
+  (icon link-2|blue)
+[link-2] width: 20px; height: 20px
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 242px; height: 36px; flex-grow: 1
+[Link to a service] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Chain & sprocket · 4 January 2026] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+  (icon chevron-right|mut)
+[Ledger note] display: flex; flex-direction: row; align-items: flex-start; padding: 14px; gap: 10px; width: 358px; height: 60px; background: #F1F2F5; border-radius: 16px; align-self: stretch
+  (icon info|mut)
+[Linked to a service, this part’s cost sits on that visit — it appears once in your ledger.] font-weight: 400; font-size: 13px; color: #6B727C; flex-grow: 1
+[Save part] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+[Save part] font-weight: 600; font-size: 16px; color: #FFFFFF

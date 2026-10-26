@@ -72,3 +72,25 @@ appId: app.revora.android.dev
     id: "screen-signin"
 - assertVisible:
     id: "cta-anonymous"
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "card-fields"
+    optional: true
+- assertVisible:
+    id: "toggle-password"
+    optional: true
+- assertVisible:
+    id: "cta-forgot"
+    optional: true
+- assertVisible:
+    id: "banner-credentials"
+    optional: true
+- assertVisible:
+    id: "cta-create-account"
+    optional: true
+- assertVisible:
+    id: "link-reset"
+    optional: true

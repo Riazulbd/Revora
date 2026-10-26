@@ -18,3 +18,31 @@ appId: app.revora.android.dev
     id: "empty-vault"
 - assertVisible:
     id: "cta-add-document"
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "hero-vault"
+    optional: true
+- assertVisible:
+    id: "stat-vault-valid"
+    optional: true
+- assertVisible:
+    id: "stat-vault-due"
+    optional: true
+- assertVisible:
+    id: "stat-vault-offline"
+    optional: true
+- assertVisible:
+    id: "list-vault"
+    optional: true
+- assertVisible:
+    id: "link-warranties"
+    optional: true
+- assertVisible:
+    id: "link-proof-pack"
+    optional: true
+- assertVisible:
+    id: "cta-add-document-primary"
+    optional: true

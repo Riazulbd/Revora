@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, TextInput, View } from 'react-native';
 
-import { Card, DateField, Eyebrow, Field, FieldRow, Icon, Input, Txt } from '@/components';
+import { Card, DateField, Eyebrow, Field, FieldRow, Icon, Input, InputRow, ListCard, Txt } from '@/components';
 import { currencySymbol } from '@/calculations/money';
 import { distanceUnitLabel, volumeUnitLabel } from '@/calculations/units';
-import { HIT_SLOP, fontFamily, useTheme } from '@/theme';
+import { HIT_SLOP, MAX_FONT_SCALE, fontFamily, useTheme } from '@/theme';
 import type { UnitPreferences } from '@/types';
 
 export type BikeFormState = {
@@ -37,9 +37,9 @@ export const emptyBikeForm: BikeFormState = {
 export type BikeFormErrors = Partial<Record<keyof BikeFormState, string>>;
 
 /**
- * The Add motorcycle form.
+ * The Add motorcycle form (Figma `A5 Onboarding — Add your bike`).
  *
- * The board asks for three things — manufacturer, model, and the reading on the
+ * It asks for three things — manufacturer, model, and the reading on the
  * dial — and puts the odometer in a tinted card of its own with the sentence
  * that explains why it matters. Everything else is folded away behind "More
  * details · all optional", so the screen a rider meets thirty seconds after
@@ -60,69 +60,104 @@ export function BikeFormFields({
   onChange: (next: BikeFormState) => void;
   errors: BikeFormErrors;
   units: UnitPreferences;
-  /** The saved-offline board drops the optional block entirely. */
+  /** The saved-offline state drops the optional block entirely. */
   showDetails?: boolean;
   /** …and the sentence under the odometer with it. */
   showOdometerNote?: boolean;
 }) {
-  const { c, radius } = useTheme();
+  const { c } = useTheme();
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   const set = <K extends keyof BikeFormState>(key: K, next: string) => onChange({ ...value, [key]: next });
 
   return (
     <View style={{ gap: 16 }}>
-      <Field label="Manufacturer" error={errors.manufacturer ?? null}>
-        <Input
+      <ListCard testID="card-bike-fields">
+        <InputRow
+          icon="factory"
+          label="Manufacturer"
           value={value.manufacturer}
           onChangeText={(t) => set('manufacturer', t)}
           placeholder="Bajaj, Yamaha, Honda…"
           autoCapitalize="words"
           autoCorrect={false}
           invalid={Boolean(errors.manufacturer)}
+          {...(errors.manufacturer ? { hint: errors.manufacturer, hintTone: 'bad' as const } : {})}
           testID="input-manufacturer"
         />
-      </Field>
-
-      <Field label="Model" error={errors.model ?? null}>
-        <Input
+        <InputRow
+          icon="bike"
+          label="Model"
           value={value.model}
           onChangeText={(t) => set('model', t)}
           placeholder="e.g. Pulsar NS200"
           autoCapitalize="words"
           invalid={Boolean(errors.model)}
+          {...(errors.model ? { hint: errors.model, hintTone: 'bad' as const } : {})}
           testID="input-model"
         />
-      </Field>
+      </ListCard>
 
-      <Card variant="tinted" tone="accent" style={{ gap: 10 }}>
-        <Eyebrow>Current odometer</Eyebrow>
-        <Input
-          value={value.odometer}
-          onChangeText={(t) => set('odometer', t)}
-          placeholder="12,500"
-          keyboardType="decimal-pad"
-          size="hero"
-          unit={distanceUnitLabel(units.distance)}
-          invalid={Boolean(errors.odometer)}
-          accessibilityLabel="Current odometer reading"
-          testID="input-odometer"
-        />
+      {/* Figma `Odometer card`: the soft-accent card with the big white field. */}
+      <Card variant="tinted" tone="accent" style={{ gap: 12 }} testID="card-odometer">
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Icon name="gauge" size={20} color={c.accBright} />
+          <Eyebrow tone="acc">Current odometer</Eyebrow>
+        </View>
+        <View
+          style={{
+            height: 72,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+            paddingHorizontal: 18,
+            borderRadius: 20,
+            backgroundColor: c.sur,
+            borderWidth: 1.5,
+            borderColor: errors.odometer ? c.badIcon : c.acc,
+          }}
+        >
+          <TextInput
+            value={value.odometer}
+            onChangeText={(t) => set('odometer', t)}
+            placeholder="12,500"
+            placeholderTextColor={c.faint}
+            keyboardType="decimal-pad"
+            selectionColor={c.acc}
+            cursorColor={c.acc}
+            maxFontSizeMultiplier={MAX_FONT_SCALE}
+            accessibilityLabel="Current odometer reading"
+            testID="input-odometer"
+            style={{
+              flex: 1,
+              minWidth: 0,
+              fontFamily: fontFamily[700],
+              fontSize: 36,
+              letterSpacing: -0.72,
+              color: c.ink,
+              paddingVertical: 0,
+              paddingHorizontal: 0,
+            }}
+          />
+          <Txt role="cardTitle" tone="mut">
+            {distanceUnitLabel(units.distance)}
+          </Txt>
+        </View>
         {errors.odometer ? (
-          <Txt role="helper" tone="bad">
+          <Txt role="micro" tone="bad">
             {errors.odometer}
           </Txt>
         ) : null}
         {showOdometerNote ? (
-          <Txt style={{ fontFamily: fontFamily[500], fontSize: 11.5, lineHeight: 17.25, color: c.ink }}>
-            Read it off the dial now. Revora never assumes a bike starts at 0 — every distance, mileage and
-            cost figure is measured from this number.
+          <Txt role="helper">
+            Read it off the dial now. Revora never assumes a bike starts at 0 — every distance, mileage and cost figure
+            is measured from this number.
           </Txt>
         ) : null}
       </Card>
 
       {!showDetails ? null : detailsOpen ? (
-        <Card style={{ borderRadius: radius.listCard, gap: 14 }}>
+        <Card style={{ gap: 14 }}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="More details, all optional"
@@ -130,14 +165,11 @@ export function BikeFormFields({
             onPress={() => setDetailsOpen(false)}
             hitSlop={HIT_SLOP}
             testID="toggle-details"
-            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}
           >
-            <Txt style={{ fontFamily: fontFamily[600], fontSize: 13, color: c.ink }}>
-              More details{' '}
-              <Txt style={{ fontFamily: fontFamily[500], fontSize: 11.5, color: c.mut }}>· all optional</Txt>
-            </Txt>
+            <DetailsLabel />
             <View style={{ transform: [{ rotate: '180deg' }] }}>
-              <Icon name="chevronDown" size={18} color={c.mut} strokeWidth={2} />
+              <Icon name="chevronDown" size={20} color={c.faint} />
             </View>
           </Pressable>
 
@@ -147,8 +179,6 @@ export function BikeFormFields({
               onChangeText={(t) => set('nickname', t)}
               placeholder="The Red One"
               autoCapitalize="words"
-              size="compact"
-              inset="bg"
               invalid={Boolean(errors.nickname)}
               testID="input-nickname"
             />
@@ -162,8 +192,6 @@ export function BikeFormFields({
                 placeholder="2022"
                 keyboardType="number-pad"
                 maxLength={4}
-                size="compact"
-                inset="bg"
                 invalid={Boolean(errors.year)}
                 testID="input-year"
               />
@@ -174,8 +202,6 @@ export function BikeFormFields({
                 onChangeText={(t) => set('tankCapacity', t)}
                 placeholder="12"
                 keyboardType="decimal-pad"
-                size="compact"
-                inset="bg"
                 unit={volumeUnitLabel(units.volume)}
                 invalid={Boolean(errors.tankCapacity)}
                 testID="input-tank"
@@ -190,8 +216,6 @@ export function BikeFormFields({
                 onChangeText={(t) => set('purchasePrice', t)}
                 placeholder="0"
                 keyboardType="decimal-pad"
-                size="compact"
-                inset="bg"
                 prefix={currencySymbol(units.currency)}
                 invalid={Boolean(errors.purchasePrice)}
                 testID="input-price"
@@ -202,9 +226,7 @@ export function BikeFormFields({
                 value={value.purchaseDate === undefined || value.purchaseDate === '' ? null : value.purchaseDate}
                 onChange={(next) => set('purchaseDate', next)}
                 placeholder="Pick a date"
-                size="compact"
                 weight="regular"
-                inset="bg"
                 trailingIcon="calendar"
                 maximumDate={new Date()}
                 accessibilityLabel="Purchase date"
@@ -221,31 +243,30 @@ export function BikeFormFields({
           onPress={() => setDetailsOpen(true)}
           testID="toggle-details"
           style={({ pressed }) => ({
-            height: 52,
-            borderRadius: radius.input,
+            height: 56,
+            borderRadius: 20,
             backgroundColor: c.sur,
-            borderWidth: 1,
-            borderColor: c.brd,
             paddingHorizontal: 16,
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: 10,
+            gap: 8,
             opacity: pressed ? 0.85 : 1,
           })}
         >
-          <View>
-            <Txt style={{ fontFamily: fontFamily[700], fontSize: 14, color: c.ink }}>
-              More details{' '}
-              <Txt style={{ fontFamily: fontFamily[500], fontSize: 11.5, color: c.mut }}>· all optional</Txt>
-            </Txt>
-            <Txt style={{ fontFamily: fontFamily[500], fontSize: 11.5, color: c.mut, marginTop: 2 }}>
-              Nickname, year, tank, purchase
-            </Txt>
-          </View>
-          <Icon name="chevronDown" size={18} color={c.mut} strokeWidth={2} />
+          <DetailsLabel />
+          <Icon name="chevronDown" size={20} color={c.faint} />
         </Pressable>
       )}
     </View>
+  );
+}
+
+/** Figma `More details` — the heading with its muted trailer. */
+function DetailsLabel() {
+  return (
+    <Txt role="rowTitle">
+      More details <Txt role="meta" tone="mut">· all optional</Txt>
+    </Txt>
   );
 }

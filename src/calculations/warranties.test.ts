@@ -1,5 +1,14 @@
 import type { Warranty } from '@/types';
-import { warrantySourceLine, warrantyState, warrantyTitle } from './warranties';
+import {
+  activeWarranties,
+  nextWarrantyToEnd,
+  warrantyChip,
+  warrantyProgress,
+  warrantyRemainingLabel,
+  warrantySourceLine,
+  warrantyState,
+  warrantyTitle,
+} from './warranties';
 
 const TODAY = '2026-09-16';
 
@@ -80,5 +89,40 @@ describe('what a warranty row says', () => {
   it('leaves the line out entirely rather than asserting a term nobody entered', () => {
     expect(warrantySourceLine(warranty({ purchasedFrom: null, validUntil: null }), TODAY)).toBeNull();
     expect(warrantySourceLine(warranty({ purchasedFrom: null }), TODAY)).toBe('valid until 28 Apr 2027');
+  });
+});
+
+describe('the Figma warranty card', () => {
+  it('says how much cover is left in the largest honest unit', () => {
+    expect(warrantyRemainingLabel(warranty({ validUntil: '2028-01-20' }), TODAY)).toBe('1 yr 4 mo');
+    expect(warrantyRemainingLabel(warranty({ validUntil: '2026-12-20' }), TODAY)).toBe('3 mo');
+    expect(warrantyRemainingLabel(warranty({ validUntil: '2026-09-26' }), TODAY)).toBe('10 days');
+    expect(warrantyRemainingLabel(warranty({ validUntil: '2026-09-01' }), TODAY)).toBeNull();
+    expect(warrantyRemainingLabel(warranty({ validUntil: null }), TODAY)).toBeNull();
+  });
+
+  it('chips an open claim first, then the countdown, then Valid or Expired', () => {
+    expect(warrantyChip(warranty({ claimStatus: 'open' }), TODAY)).toEqual({ label: 'Claim open', tone: 'warn' });
+    expect(warrantyChip(warranty({ validUntil: '2026-09-26' }), TODAY)).toEqual({ label: '10 days', tone: 'warn' });
+    expect(warrantyChip(warranty(), TODAY)).toEqual({ label: 'Valid', tone: 'good' });
+    expect(warrantyChip(warranty({ validUntil: '2026-08-02' }), TODAY)).toEqual({ label: 'Expired', tone: 'neutral' });
+  });
+
+  it('measures the term from the day the warranty was recorded', () => {
+    const recorded = Date.UTC(2026, 8, 6, 12);
+    expect(warrantyProgress(warranty({ createdAt: recorded, validUntil: '2026-09-26' }), TODAY)).toBeCloseTo(0.5);
+    expect(warrantyProgress(warranty({ validUntil: null }), TODAY)).toBeNull();
+  });
+
+  it('finds the active warranty ending soonest', () => {
+    const list = [
+      warranty({ id: 'a', validUntil: '2027-03-12' }),
+      warranty({ id: 'b', validUntil: '2026-09-26' }),
+      warranty({ id: 'c', validUntil: '2026-08-02' }),
+    ];
+    expect(activeWarranties(list, TODAY).map((w) => w.id)).toEqual(['a', 'b']);
+    expect(nextWarrantyToEnd(list, TODAY)?.warranty.id).toBe('b');
+    expect(nextWarrantyToEnd(list, TODAY)?.days).toBe(10);
+    expect(nextWarrantyToEnd([], TODAY)).toBeNull();
   });
 });

@@ -1,0 +1,65 @@
+[R6 Records — Add safety check] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Close] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon x)
+[Walk-around check] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer] width: 48px; height: 48px
+[Kind] display: flex; flex-direction: row; align-items: flex-start; padding: 4px; gap: 4px; width: 358px; height: 54px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px; align-self: stretch
+[Seg on] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 172px; height: 44px; background: #14171B; border-radius: 999px; flex-grow: 1
+[Walk-around] font-weight: 600; font-size: 14px; color: #FFFFFF
+[Seg] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 172px; height: 44px; border-radius: 999px; flex-grow: 1
+[Condition] font-weight: 600; font-size: 14px; color: #6B727C
+[Areas] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 10px; width: 358px; height: 158px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Head] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 326px; height: 18px; align-self: stretch
+[What did you check] font-weight: 600; font-size: 14px; color: #14171B
+[Today, 26 Oct] font-weight: 500; font-size: 12px; color: #C93D0E
+[Row1] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 326px; height: 44px; align-self: stretch
+[Chip on] display: flex; flex-direction: row; align-items: center; padding: 0px 14px 0px 12px; gap: 6px; width: 86px; height: 44px; background: #14171B; border-radius: 999px
+  (icon check-white)
+[Tyres] font-weight: 600; font-size: 14px; color: #FFFFFF
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 71px; height: 44px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Chain] font-weight: 600; font-size: 14px; color: #14171B
+[Chip on] display: flex; flex-direction: row; align-items: center; padding: 0px 14px 0px 12px; gap: 6px; width: 95px; height: 44px; background: #14171B; border-radius: 999px
+  (icon check-white)
+[Brakes] font-weight: 600; font-size: 14px; color: #FFFFFF
+[Row2] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 326px; height: 44px; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 82px; height: 44px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Battery] font-weight: 600; font-size: 14px; color: #14171B
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 0px 14px; width: 73px; height: 44px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+[Lights] font-weight: 600; font-size: 14px; color: #14171B
+[Status] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 10px; width: 358px; height: 132px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[How is it] font-weight: 600; font-size: 14px; color: #14171B; align-self: stretch
+[Options] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px; width: 326px; height: 72px; align-self: stretch
+[Good] display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0px; gap: 4px; width: 103px; height: 72px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 18px; flex-grow: 1
+  (icon circle-check-good)
+[Good] font-weight: 600; font-size: 14px; color: #14171B
+[Watch on] display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0px; gap: 4px; width: 104px; height: 72px; background: #FBF0DA; border: 1.5px solid #B7791F; border-radius: 18px; flex-grow: 1
+  (icon eye-warn)
+[Watch] font-weight: 600; font-size: 14px; color: #93611A
+[Bad] display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0px; gap: 4px; width: 103px; height: 72px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 18px; flex-grow: 1
+  (icon alert-bad)
+[triangle-alert] width: 20px; height: 20px
+[Bad] font-weight: 600; font-size: 14px; color: #14171B
+[Details] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 14px; width: 358px; height: 353px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Pressure] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 10px; width: 326px; height: 69px; align-self: stretch
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 158px; height: 69px; flex-grow: 1
+[Front (psi)] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 158px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[29] font-weight: 400; font-size: 15px; color: #14171B
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 158px; height: 69px; flex-grow: 1
+[Rear (psi)] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 158px; height: 48px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[33] font-weight: 400; font-size: 15px; color: #14171B
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 69px; align-self: stretch
+[Summary] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: center; padding: 0px 0px 0px 14px; width: 326px; height: 48px; background: #FFF7F3; border: 1.5px solid #D2400F; border-radius: 14px; align-self: stretch
+[Front lever spongy] font-weight: 400; font-size: 15px; color: #14171B
+[Input] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 6px; width: 326px; height: 93px; align-self: stretch
+[Note (optional)] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Box] display: flex; flex-direction: row; align-items: flex-start; padding: 14px 0px 0px 14px; width: 326px; height: 72px; background: #F5F6F8; border: 1px solid #E9EBEF; border-radius: 14px; align-self: stretch
+[Tread depth, visible wear…] font-weight: 400; font-size: 15px; color: #878E98; align-self: stretch
+[Attach] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 326px; height: 48px; background: #FFFFFF; border: 1px solid #C9CED4; border-radius: 14px; align-self: stretch
+  (icon camera-acc)
+[Attach photo] font-weight: 600; font-size: 14px; color: #C93D0E
+[Save — primary] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+[Save check] font-weight: 600; font-size: 16px; color: #FFFFFF

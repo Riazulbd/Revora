@@ -129,14 +129,21 @@ export function formatMoney(
  * Compact form used by the Garage tile (`BDT 285k`). Falls back to the full
  * figure below 100,000 major units so nothing important is abbreviated away.
  */
-export function formatMoneyCompact(minor: number, currency: CurrencyCode): string {
+export function formatMoneyCompact(
+  minor: number,
+  currency: CurrencyCode,
+  options: { symbol?: boolean } = {},
+): string {
   const major = Math.abs(minor) / pow10(currencyDecimals(currency));
-  if (major < 100_000) return formatMoney(minor, currency);
+  if (major < 100_000) return formatMoney(minor, currency, { symbol: options.symbol ?? false });
   const negative = minor < 0;
+  // The Garage hero writes `৳285K`; the code form keeps its lower-case `k`.
+  const prefix = options.symbol ? currencySymbol(currency) : `${currency} `;
+  const thousands = options.symbol ? 'K' : 'k';
   if (major >= 10_000_000) {
-    return `${negative ? '-' : ''}${currency} ${Math.round(major / 100_000) / 10}m`;
+    return `${negative ? '-' : ''}${prefix}${Math.round(major / 100_000) / 10}${options.symbol ? 'M' : 'm'}`;
   }
-  return `${negative ? '-' : ''}${currency} ${Math.round(major / 1000)}k`;
+  return `${negative ? '-' : ''}${prefix}${Math.round(major / 1000)}${thousands}`;
 }
 
 /** Multiplies a per-unit rate by a quantity, staying exact. */

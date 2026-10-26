@@ -1,135 +1,75 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 
-import { Card, Eyebrow, Txt } from '@/components';
-import { IconSquareButton } from '@/components/IconButton';
-import { HIT_SIZE, fontFamily, useTheme } from '@/theme';
+import { Card, Eyebrow, Icon, Txt } from '@/components';
+import { fontFamily, useTheme } from '@/theme';
+import type { IsoDate } from '@/types';
+import { formatLongDate } from '@/utils/date';
 
 /**
- * The chrome the two legal boards share (account--05, account--06).
+ * The chrome the two legal boards share (Figma `E6 Legal — Privacy`,
+ * `E7 Legal — Terms`).
  *
- * Both open on a two-line `700 20px / 1.25` title beside the 44px back
- * chevron — a sentence, not a document name — then a bordered summary card
- * whose eyebrow says out loud that it is a summary, then the sections.
+ * Both open on a two-line `700 24px` title — a sentence, not a document name —
+ * with a "Last updated" chip under it, then a white summary card whose accent
+ * eyebrow says out loud that it is a summary, then the sections in `700 16px`
+ * over `400 14px` prose.
  */
 
-export function AccountDocHeader({
-  title,
-  onBack,
-  testID,
-}: {
-  /** Drawn verbatim, including the board's line break. */
-  title: string;
-  onBack?: () => void;
-  testID?: string;
-}) {
+export function AccountDocTitle({ title, updatedOn }: { title: string; updatedOn: IsoDate }) {
+  const { c } = useTheme();
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: -10, minHeight: HIT_SIZE }}>
-      <IconSquareButton
-        icon="chevronLeft"
-        variant="plain"
-        accessibilityLabel="Back"
-        onPress={onBack ?? (() => undefined)}
-        {...(testID === undefined ? {} : { testID })}
-      />
-      <Txt role="screenTitle" numberOfLines={2} style={{ flexShrink: 1, lineHeight: 25 }}>
-        {title}
-      </Txt>
+    <View style={{ gap: 12, paddingHorizontal: 4 }}>
+      <Txt role="greeting">{title}</Txt>
+      <View
+        style={{
+          alignSelf: 'flex-start',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 6,
+          paddingLeft: 10,
+          paddingRight: 12,
+          paddingVertical: 6,
+          borderRadius: 999,
+          backgroundColor: c.sur,
+          borderWidth: 1,
+          borderColor: c.brd,
+        }}
+      >
+        <Icon name="clock" size={16} color={c.mut} />
+        <Txt role="smallStrong" tone="mut">{`Last updated ${formatLongDate(updatedOn)}`}</Txt>
+      </View>
     </View>
   );
 }
 
-/**
- * `border-radius:18px; padding:16px`, the accent eyebrow, and a `500 13px / 1.7`
- * ink paragraph 8px under it. The body is ink, not muted: the board gives the
- * summary the same weight as the sections it summarises.
- */
+/** Figma `Summary card`: the accent eyebrow and a `500 14px` ink paragraph 8px under it. */
 export function AccountDocSummary({ children, testID }: { children: React.ReactNode; testID?: string }) {
   const { c } = useTheme();
-
   return (
-    <Card style={{ marginTop: 14 }} testID={testID}>
-      <Eyebrow>In short — a summary, not the contract</Eyebrow>
-      <Txt style={{ fontFamily: fontFamily[500], fontSize: 13, lineHeight: 22.1, color: c.ink, marginTop: 8 }}>
-        {children}
-      </Txt>
+    <Card style={{ gap: 8 }} testID={testID}>
+      <Eyebrow tone="acc">In short — a summary, not the contract</Eyebrow>
+      <Txt style={{ fontFamily: fontFamily[500], fontSize: 14, lineHeight: 21, color: c.ink }}>{children}</Txt>
     </Card>
   );
 }
 
-/** `700 15px` heading, `500 13px / 1.65` ink body 6px under it, 18px between sections. */
+/** Figma `Section`: `700 16px` heading, `400 14px` prose 6px under it, `padding:0 4px`. */
 export function AccountDocSection({ title, body }: { title: string; body: string }) {
   const { c } = useTheme();
-
   return (
-    <View>
-      <Txt style={{ fontFamily: fontFamily[700], fontSize: 15, color: c.ink }}>{title}</Txt>
-      <Txt style={{ fontFamily: fontFamily[500], fontSize: 13, lineHeight: 21.45, color: c.ink, marginTop: 6 }}>
+    <View style={{ gap: 6, paddingHorizontal: 4 }}>
+      <Txt role="cardTitle" style={{ fontFamily: fontFamily[700] }}>
+        {title}
+      </Txt>
+      <Txt role="body" color={c.prose}>
         {body}
       </Txt>
     </View>
   );
 }
 
-/**
- * The Terms board's anchor row: `height:32px; border-radius:7px; padding:0 11px`,
- * the current one on `--accS` with a `700 11.5px` accent label, the rest on
- * `--sur` with a hairline and a `600 11.5px` ink label. Tapping one jumps to
- * its section — the sections all stay on screen, exactly as the board draws
- * them.
- */
-export function AccountDocTabs<T extends string>({
-  options,
-  value,
-  onChange,
-  testID,
-}: {
-  options: readonly { value: T; label: string }[];
-  value: T;
-  onChange: (value: T) => void;
-  testID?: string;
-}) {
-  const { c } = useTheme();
-  const slop = (HIT_SIZE - 32) / 2;
-
-  return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 }} testID={testID}>
-      {options.map((option) => {
-        const active = option.value === value;
-        return (
-          <Pressable
-            key={option.value}
-            accessibilityRole="button"
-            accessibilityState={{ selected: active }}
-            accessibilityLabel={`Jump to ${option.label}`}
-            onPress={() => onChange(option.value)}
-            hitSlop={{ top: slop, bottom: slop }}
-            testID={testID === undefined ? undefined : `${testID}-${option.value}`}
-            style={({ pressed }) => ({
-              height: 32,
-              borderRadius: 7,
-              paddingHorizontal: 11,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: active ? c.accS : c.sur,
-              borderWidth: active ? 0 : 1,
-              borderColor: c.brd,
-              opacity: pressed ? 0.7 : 1,
-            })}
-          >
-            <Txt
-              numberOfLines={1}
-              style={{
-                fontFamily: fontFamily[active ? 700 : 600],
-                fontSize: 11.5,
-                color: active ? c.acc : c.ink,
-              }}
-            >
-              {option.label}
-            </Txt>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
+/** The 20px rhythm between sections, 4px under whatever precedes them. */
+export function AccountDocSections({ children }: { children: React.ReactNode }) {
+  return <View style={{ gap: 20, paddingTop: 4 }}>{children}</View>;
 }

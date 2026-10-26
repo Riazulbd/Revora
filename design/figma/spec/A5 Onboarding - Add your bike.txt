@@ -1,0 +1,49 @@
+[A5 Onboarding — Add your bike] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: #F5F6F8; border-radius: 36px
+[Top bar] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 48px; align-self: stretch
+[Back] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 48px; height: 48px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 24px
+  (icon chevron-left)
+[Step 2 of 3] font-weight: 600; font-size: 16px; color: #14171B
+[Spacer 48] width: 48px; height: 48px
+[Step indicator] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 8px; width: 358px; height: 29px; align-self: stretch
+[Bars] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 6px; width: 358px; height: 6px; align-self: stretch
+[Step 1 done] width: 115.33px; height: 6px; background: #D2400F; border-radius: 999px; flex-grow: 1
+[Step 2 active] width: 115.33px; height: 6px; background: #D2400F; border-radius: 999px; flex-grow: 1
+[Step 3] width: 115.33px; height: 6px; background: #E9EBEF; border-radius: 999px; flex-grow: 1
+[Step labels] display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start; padding: 0px; width: 358px; height: 15px; align-self: stretch
+[Account] font-weight: 500; font-size: 12px; color: #6B727C
+[Your bike] font-weight: 600; font-size: 12px; color: #C93D0E
+[Start tracking] font-weight: 500; font-size: 12px; color: #878E98
+[Intro] display: flex; flex-direction: column; align-items: flex-start; padding: 4px 0px 0px; gap: 6px; width: 358px; height: 63px; align-self: stretch
+[Add your motorcycle] font-weight: 700; font-size: 28px; letter-spacing: -0.01em; color: #14171B; align-self: stretch
+[Three things to start. Everything else can wait.] font-weight: 400; font-size: 14px; color: #6B727C; align-self: stretch
+[Fields] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; width: 358px; height: 128px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Field — Manufacturer] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; align-self: stretch
+  (icon factory)
+[factory] width: 20px; height: 20px
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 262px; height: 37px; flex-grow: 1
+[Manufacturer] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Bajaj] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+  (icon chevron-right)
+[Field — Model] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 12px; width: 358px; height: 64px; border-top: 1px solid #EEF0F3; align-self: stretch
+  (icon bike)
+[LV] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 294px; height: 37px; flex-grow: 1
+[Model] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+[Pulsar NS200] font-weight: 600; font-size: 16px; color: #14171B; align-self: stretch
+[Odometer card] display: flex; flex-direction: column; align-items: flex-start; padding: 16px; gap: 12px; width: 358px; height: 193px; background: #FDEAE3; border-radius: 24px; align-self: stretch
+[Head] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 326px; height: 20px; align-self: stretch
+  (icon gauge-accent)
+[CURRENT ODOMETER] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #C93D0E
+[Hero input] display: flex; flex-direction: row; align-items: center; padding: 0px 18px; gap: 8px; width: 326px; height: 72px; background: #FFFFFF; border: 1.5px solid #D2400F; border-radius: 18px; align-self: stretch
+[34,712] font-weight: 700; font-size: 36px; letter-spacing: -0.02em; color: #14171B; flex-grow: 1
+[km] font-weight: 600; font-size: 16px; color: #6B727C
+[Read it off the dial now. Revora never assumes a bike starts at 0 — every distance, mileage and cost figure is measured from this number.] font-weight: 400; font-size: 12px; color: #14171B; align-self: stretch
+[More details] display: flex; flex-direction: row; align-items: center; padding: 0px 16px; gap: 8px; width: 358px; height: 56px; background: #FFFFFF; border-radius: 20px; align-self: stretch
+[Text] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 6px; width: 298px; height: 18px; flex-grow: 1
+[More details] font-weight: 600; font-size: 14px; color: #14171B
+[· all optional] font-weight: 400; font-size: 12px; color: #6B727C
+  (icon chevron-down)
+[Spacer] width: 358px; height: 40px; align-self: stretch
+[Start tracking — primary] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; gap: 8px; width: 358px; height: 56px; background: #D2400F; border-radius: 999px; align-self: stretch
+[Start tracking] font-weight: 600; font-size: 16px; color: #FFFFFF
+  (icon arrow-right-white)
+[Nickname, year, tank and purchase details can be added any time from Garage.] font-weight: 400; font-size: 12px; text-align: center; color: #6B727C; align-self: stretch

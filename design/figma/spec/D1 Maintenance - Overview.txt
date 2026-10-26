@@ -1,0 +1,109 @@
+[D1 Maintenance — Overview] display: flex; flex-direction: column; align-items: flex-start; padding: 24px 16px 28px; gap: 16px; width: 390px; height: 788.29px; background: linear-gradient(180deg, #FFE6DA 0%, #F8F3F1 30%, #F5F6F8 100%); border-radius: 36px
+[Header] display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 0px; width: 358px; height: 55px; align-self: stretch
+[Titles] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 180px; height: 55px
+[Maintenance] font-weight: 700; font-size: 28px; color: #14171B
+[The Red One · 34,712 km] font-weight: 400; font-size: 14px; color: #6B727C
+[Add rule] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px 18px 0px 16px; gap: 6px; width: 121px; height: 48px; background: #D2400F; border-radius: 999px
+  (icon plus|white)
+[Add rule] font-weight: 600; font-size: 15px; color: #FFFFFF
+[Status summary] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; gap: 8px 6px; width: 358px; height: 64px; align-self: stretch
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 6px 8px; gap: 4px; width: 93px; height: 27px; background: #FBE9E7; border-radius: 999px
+  (icon alert-circle|bad)
+[1 overdue] font-weight: 600; font-size: 12px; color: #B42318
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 6px 8px; gap: 4px; width: 101px; height: 27px; background: #FBF0DA; border-radius: 999px
+  (icon clock|warn)
+[2 due soon] font-weight: 600; font-size: 12px; color: #93611A
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 6px 8px; gap: 4px; width: 107px; height: 29px; background: #FFFFFF; border: 1px solid #E9EBEF; border-radius: 999px
+  (icon calendar|mut)
+[1 upcoming] font-weight: 600; font-size: 12px; color: #6B727C
+[Chip] display: flex; flex-direction: row; align-items: center; padding: 6px 8px; gap: 4px; width: 75px; height: 27px; background: #E5F6EE; border-radius: 999px
+  (icon check|good)
+[1 good] font-weight: 600; font-size: 12px; color: #0B7F4E
+[Rules card] display: flex; flex-direction: column; align-items: flex-start; padding: 2px 16px; width: 358px; height: 493px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Rule row] display: flex; flex-direction: row; align-items: flex-start; padding: 14px 0px; gap: 12px; width: 326px; height: 97px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBE9E7; border-radius: 12px
+  (icon droplet|bad)
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 242px; height: 69px; flex-grow: 1
+[Title line] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 242px; height: 21px; align-self: stretch
+[Engine oil & filter] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+[Badge] display: flex; flex-direction: row; align-items: center; padding: 3px 8px; gap: 4px; width: 87px; height: 21px; background: #FBE9E7; border-radius: 999px
+  (icon alert-circle|bad)
+[Overdue] font-weight: 600; font-size: 12px; color: #B42318
+[Every 3,000 km or 180 days] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Track] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; width: 242px; height: 6px; background: #EEF0F3; border-radius: 999px; align-self: stretch
+[Fill] width: 242px; height: 6px; background: #D92D20; border-radius: 999px
+[310 km overdue · last done 18 Mar] font-weight: 500; font-size: 12px; color: #B42318; align-self: stretch
+  (icon chevron-right|mut)
+[Rule row] display: flex; flex-direction: row; align-items: flex-start; padding: 14px 0px; gap: 12px; width: 326px; height: 98px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBF0DA; border-radius: 12px
+  (icon link|warn)
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 242px; height: 69px; flex-grow: 1
+[Title line] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 242px; height: 21px; align-self: stretch
+[Chain clean & lube] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+[Badge] display: flex; flex-direction: row; align-items: center; padding: 3px 8px; gap: 4px; width: 92px; height: 21px; background: #FBF0DA; border-radius: 999px
+  (icon clock|warn)
+[Due soon] font-weight: 600; font-size: 12px; color: #93611A
+[Every 500 km] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Track] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; width: 242px; height: 6px; background: #EEF0F3; border-radius: 999px; align-self: stretch
+[Fill] width: 184px; height: 6px; background: #B7791F; border-radius: 999px
+[120 km left] font-weight: 500; font-size: 12px; color: #93611A; align-self: stretch
+  (icon chevron-right|mut)
+[Rule row] display: flex; flex-direction: row; align-items: flex-start; padding: 14px 0px; gap: 12px; width: 326px; height: 98px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #FBF0DA; border-radius: 12px
+  (icon disc|warn)
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 242px; height: 69px; flex-grow: 1
+[Title line] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 242px; height: 21px; align-self: stretch
+[Brake fluid] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+[Badge] display: flex; flex-direction: row; align-items: center; padding: 3px 8px; gap: 4px; width: 92px; height: 21px; background: #FBF0DA; border-radius: 999px
+  (icon clock|warn)
+[Due soon] font-weight: 600; font-size: 12px; color: #93611A
+[Every 12 months] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Track] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; width: 242px; height: 6px; background: #EEF0F3; border-radius: 999px; align-self: stretch
+[Fill] width: 212px; height: 6px; background: #B7791F; border-radius: 999px
+[12 days left · due 7 Nov] font-weight: 500; font-size: 12px; color: #93611A; align-self: stretch
+  (icon chevron-right|mut)
+[Rule row] display: flex; flex-direction: row; align-items: flex-start; padding: 14px 0px; gap: 12px; width: 326px; height: 98px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon wind|mut)
+[wind] width: 20px; height: 20px
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 242px; height: 69px; flex-grow: 1
+[Title line] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 242px; height: 21px; align-self: stretch
+[Air filter] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+[Badge] display: flex; flex-direction: row; align-items: center; padding: 3px 8px; gap: 4px; width: 97px; height: 21px; background: #F1F2F5; border-radius: 999px
+  (icon calendar|mut)
+[Upcoming] font-weight: 600; font-size: 12px; color: #6B727C
+[Every 6,000 km] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Track] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; width: 242px; height: 6px; background: #EEF0F3; border-radius: 999px; align-self: stretch
+[Fill] width: 145px; height: 6px; background: #878E98; border-radius: 999px
+[2,400 km left] font-weight: 500; font-size: 12px; color: #6B727C; align-self: stretch
+  (icon chevron-right|mut)
+[Rule row] display: flex; flex-direction: row; align-items: flex-start; padding: 14px 0px; gap: 12px; width: 326px; height: 98px; border-top: 1px solid #EEF0F3; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E5F6EE; border-radius: 12px
+  (icon thermometer|good)
+[thermometer] width: 20px; height: 20px
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 4px; width: 242px; height: 69px; flex-grow: 1
+[Title line] display: flex; flex-direction: row; align-items: center; padding: 0px; gap: 8px; width: 242px; height: 21px; align-self: stretch
+[Coolant] font-weight: 600; font-size: 15px; color: #14171B; flex-grow: 1
+[Badge] display: flex; flex-direction: row; align-items: center; padding: 3px 8px; gap: 4px; width: 68px; height: 21px; background: #E5F6EE; border-radius: 999px
+  (icon check|good)
+[Good] font-weight: 600; font-size: 12px; color: #0B7F4E
+[Every 12,000 km or 24 months] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Track] display: flex; flex-direction: row; align-items: flex-start; padding: 0px; width: 242px; height: 6px; background: #EEF0F3; border-radius: 999px; align-self: stretch
+[Fill] width: 72px; height: 6px; background: #0B7F4E; border-radius: 999px
+[8,400 km or 17 months left] font-weight: 500; font-size: 12px; color: #0B7F4E; align-self: stretch
+  (icon chevron-right|mut)
+[Status is recomputed from the current odometer — a fuel log can change it.] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+[Plan link] display: flex; flex-direction: row; align-items: center; padding: 16px; gap: 12px; width: 358px; height: 83px; background: #FFFFFF; border-radius: 24px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #E8F0FE; border-radius: 12px
+  (icon calendar-range|blue)
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 242px; height: 51px; flex-grow: 1
+[Service plan] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[The year ahead, projected from your riding] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch
+  (icon chevron-right|mut)
+[TURNED OFF] font-weight: 600; font-size: 12px; letter-spacing: 0.06em; color: #6B727C; align-self: stretch
+[Off card] display: flex; flex-direction: row; align-items: center; padding: 16px; gap: 12px; width: 358px; height: 83px; background: #FFFFFF; opacity: 0.75; border-radius: 24px; align-self: stretch
+[Tile] display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0px; width: 40px; height: 40px; background: #F1F2F5; border-radius: 12px
+  (icon bell-off|mut)
+[Col] display: flex; flex-direction: column; align-items: flex-start; padding: 0px; gap: 2px; width: 274px; height: 51px; flex-grow: 1
+[Fork oil] font-weight: 600; font-size: 15px; color: #14171B; align-self: stretch
+[Reminders off · history kept · tap to turn back on] font-weight: 400; font-size: 12px; color: #6B727C; align-self: stretch

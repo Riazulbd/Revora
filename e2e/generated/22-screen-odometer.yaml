@@ -19,12 +19,16 @@ appId: app.revora.android.dev
     id: "screen-dashboard"
 - tapOn:
     id: "tab-garage"
+- scrollUntilVisible:
+    element:
+      id: "link-odometer"
+    direction: DOWN
 - tapOn:
-    id: "cta-odometer"
+    id: "link-odometer"
 - assertVisible:
     id: "screen-odometer"
 - assertVisible:
-    id: "card-current-odometer"
+    id: "hero-odometer"
 # --- a derived reading explains itself rather than opening an editor ---
 - tapOn:
     id: "odometer-row-bike:initial"
@@ -78,3 +82,10 @@ appId: app.revora.android.dev
 - hideKeyboard
 - tapOn:
     id: "cta-save-correction"
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "card-new-reading"
+    optional: true

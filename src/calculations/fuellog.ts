@@ -1,7 +1,8 @@
 import type { FuelAdjustment, FuelEntry, IsoDate } from '@/types';
-import { compareIso } from '@/utils/date';
-import { ADJUSTMENT_REASON_LABEL } from './fuel';
+import { addMonths, compareIso } from '@/utils/date';
+import { ADJUSTMENT_REASON_LABEL, averagePricePerLitre, fuelTotals, type FuelTotals } from './fuel';
 import type { MileageInterval } from './mileage';
+import { efficiencyFrom, type Efficiency } from './units';
 
 /**
  * The fuel log as the redesign draws it: one timeline that carries fills *and*
@@ -104,4 +105,65 @@ export function adjustmentReasonPhrase(adjustment: FuelAdjustment): string {
 export function adjustmentReasonLabel(adjustment: FuelAdjustment): string {
   const note = adjustment.note?.trim();
   return note !== undefined && note !== '' ? note : ADJUSTMENT_REASON_LABEL[adjustment.reason];
+}
+
+/** The Fuel tab's range switch: `3 months · Year · All time`. */
+export type FuelRange = '3m' | 'year' | 'all';
+
+export const FUEL_RANGE_LABEL: Record<FuelRange, string> = {
+  '3m': 'Last 3 months',
+  year: 'Last 12 months',
+  all: 'All time',
+};
+
+/** The first day inside a range, or null for all time. */
+export function fuelRangeStart(range: FuelRange, today: IsoDate): IsoDate | null {
+  if (range === 'all') return null;
+  return addMonths(today, range === '3m' ? -3 : -12);
+}
+
+const inRange = (date: IsoDate, start: IsoDate | null) => start === null || compareIso(date, start) >= 0;
+
+/** The log items dated inside the range. */
+export function filterFuelLogByRange(items: readonly FuelLogItem[], range: FuelRange, today: IsoDate): FuelLogItem[] {
+  const start = fuelRangeStart(range, today);
+  return items.filter((item) => inRange(item.date, start));
+}
+
+export type FuelRangeSummary = {
+  totals: FuelTotals;
+  averagePricePerLitreMinor: number | null;
+  /**
+   * Distance-weighted across the intervals that closed inside the range —
+   * total distance over total fuel, the only correct way to average consumption.
+   */
+  average: Efficiency | null;
+  /** The intervals that closed inside the range, oldest first. */
+  intervals: MileageInterval[];
+};
+
+/** What the Fuel tab's hero shows for a range: spend, fills, price and mileage. */
+export function fuelRangeSummary(
+  entries: readonly FuelEntry[],
+  intervals: readonly MileageInterval[],
+  range: FuelRange,
+  today: IsoDate,
+): FuelRangeSummary {
+  const start = fuelRangeStart(range, today);
+  const fills = entries.filter((entry) => inRange(entry.date, start));
+  const closed = intervals.filter((interval) => inRange(interval.date, start));
+
+  let metres = 0;
+  let ml = 0;
+  for (const interval of closed) {
+    metres += interval.distanceMetres;
+    ml += interval.fuelMl;
+  }
+
+  return {
+    totals: fuelTotals(fills),
+    averagePricePerLitreMinor: averagePricePerLitre(fills),
+    average: efficiencyFrom(metres, ml),
+    intervals: closed,
+  };
 }

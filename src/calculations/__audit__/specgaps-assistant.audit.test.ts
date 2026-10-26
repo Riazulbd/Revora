@@ -316,7 +316,7 @@ describe('rule 11: on-device answerer', () => {
   it('spent this month: only f3 (Sep 2026) = BDT 1,200', () => {
     const a = answerQuestion('How much have I spent this month?', rich);
     expect(a.matched).toBe(true);
-    expect(a.text).toBe('You have spent BDT 1,200 in Sep 2026, of which BDT 1,200 was fuel across 1 fill.');
+    expect(a.text).toBe('You have spent ৳1,200 in Sep 2026, of which ৳1,200 was fuel across 1 fill.');
   });
 
   it('cost per km: 4,050.00 over 400 km = BDT 10.1 per km', () => {
@@ -325,7 +325,7 @@ describe('rule 11: on-device answerer', () => {
     const a = answerQuestion('What does this bike cost me per km?', rich);
     expect(a.matched).toBe(true);
     expect(a.text).toBe(
-      'Running cost is BDT 10.1 per km, from BDT 4,050 over 400 km. Purchase price is kept out of that figure.',
+      'Running cost is ৳10.13 per km, from ৳4,050 over 400 km. Purchase price is kept out of that figure.',
     );
   });
 

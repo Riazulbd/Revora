@@ -60,7 +60,7 @@ appId: app.revora.android.dev
 - assertVisible:
     id: "screen-safety"
 - assertVisible:
-    id: "safety-action-alert"
+    id: "hero-safety"
 - scrollUntilVisible:
     element:
       id: "safety-[A-Za-z0-9]{8,}"

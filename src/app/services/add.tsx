@@ -3,16 +3,18 @@ import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import {
+  AmountHero,
   Button,
+  Card,
   DateField,
   Dialog,
-  Field,
-  FieldRow,
+  IconSquareButton,
   Input,
+  InputRow,
+  ListCard,
   Screen,
   ScreenHeader,
   SkeletonList,
-  Stack,
   TextArea,
   Txt,
 } from '@/components';
@@ -21,8 +23,9 @@ import { distanceUnitLabel } from '@/calculations/units';
 import { estimateSeverity } from '@/calculations/estimateGuard';
 import { serviceMoney } from '@/calculations/serviceMoney';
 import { matchingWorkshops } from '@/calculations/workshops';
-import { ServiceItemRows, type ItemDraft } from '@/features/services/ServiceItemRows';
-import { ServiceChip, ServiceChipRow } from '@/features/services/ui/ServiceChips';
+import { describeTickLine } from '@/features/maintenance/describeRule';
+import { ServiceItemRows, type ItemDraft, type ItemRule } from '@/features/services/ServiceItemRows';
+import { WorkshopChip } from '@/features/services/ui/ServiceChips';
 import {
   ServiceDisclosureCard,
   ServiceDisclosureList,
@@ -36,25 +39,29 @@ import { useDeleteService, useNewServiceId, useSaveService } from '@/features/se
 import { PhotoField } from '@/features/shared/PhotoField';
 import { fromMetres, fromMinor, toMetres, toMinor, toTrimmed } from '@/features/shared/formValues';
 import { useGarageContext } from '@/features/shared/useGarageContext';
+import { useImagePicker } from '@/features/shared/useImagePicker';
 import { useStableId } from '@/features/shared/useStableId';
 import { uploadImageOrKeepLocal } from '@/services/storage';
 import type { BikeAnalytics } from '@/calculations/analytics';
 import type { ServiceRecord, UnitPreferences } from '@/types';
 import { serviceSchema } from '@/validation/schemas';
 import { formatCurrencySymbol } from '@/utils/format';
-import { todayIso } from '@/utils/date';
+import { formatShortDate, todayIso } from '@/utils/date';
 
 /**
- * Log a service.
+ * Log a service (Figma `D5 Services — Log a service`).
  *
- * The board draws the form twice — minimal, with both optional sections closed,
- * and with both open — and both are real states here. Closed, the estimate
- * guard and the maintenance items are two rows in one card; opened, each becomes
- * a card of its own.
+ * The total sits at the top as the amount hero. Once the parts are itemised —
+ * a maintenance item carries a price, or the estimate guard recorded an
+ * invoice — the hero turns into a derived figure with a chip saying what it is
+ * made of, and the fields card asks for labour instead; there is no second
+ * "total" box to disagree with its own breakdown.
  *
- * Ticking a maintenance item resets that rule and records a completion linked to
- * this service — so the work shows in the rule's history while the money stays on
- * the service alone and is counted exactly once (requirement 24 / 28).
+ * The optional sections are two rows in one card while closed and a card of
+ * their own while open — both shapes are on the board. Ticking a maintenance
+ * item resets that rule and records a completion linked to this service, so
+ * the work shows in the rule's history while the money stays on the service
+ * alone and is counted exactly once (requirement 24 / 28).
  */
 export default function ServiceEditorRoute() {
   const { id: editingId } = useLocalSearchParams<{ id?: string }>();
@@ -63,8 +70,8 @@ export default function ServiceEditorRoute() {
 
   if (analytics === null) {
     return (
-      <Screen testID="screen-service-add">
-        <ScreenHeader title={editingId ? 'Service record' : 'Log a service'} />
+      <Screen testID="screen-service-add" contentStyle={{ gap: 16 }}>
+        <ScreenHeader title={editingId ? 'Service record' : 'Log a service'} icon="x" style={{ marginBottom: 0 }} />
         <SkeletonList count={4} height={64} />
       </Screen>
     );
@@ -88,6 +95,7 @@ function ServiceForm({
 }) {
   const router = useRouter();
   const garage = useGarageContext();
+  const picker = useImagePicker();
 
   const newServiceId = useNewServiceId();
   const generatedId = useStableId(newServiceId);
@@ -122,7 +130,15 @@ function ServiceForm({
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [open, setOpen] = useState<readonly OpenSection[]>([]);
+  // The board opens with the maintenance items showing; a rider with no rules
+  // has nothing to tick, so the section is simply absent.
+  const [open, setOpen] = useState<readonly OpenSection[]>(() => {
+    const sections: OpenSection[] = [];
+    if (analytics.maintenance.rules.length > 0) sections.push('items');
+    if (existing?.estimate?.quoteMinor != null) sections.push('estimate');
+    if (existing?.notes || existing?.receiptPaths.length) sections.push('notes');
+    return sections;
+  });
 
   const isOpen = (section: OpenSection) => open.includes(section);
   const openSection = (section: OpenSection) =>
@@ -130,14 +146,23 @@ function ServiceForm({
   const closeSection = (section: OpenSection) =>
     setOpen((prev) => prev.filter((entry) => entry !== section));
 
-  // Offered from the rider's own service history, narrowing as they type. The
-  // exact match is dropped: once it is typed there is nothing left to suggest.
-  const workshopSuggestions = matchingWorkshops(analytics.workshops, workshop).slice(0, 4);
+  // Offered from the rider's own service history. While they type something
+  // new the chips narrow to what still matches; once a chip is chosen the
+  // whole short list stays, with that one lit.
   const fromHistory =
     workshop.trim() !== '' &&
     analytics.workshops.some((name) => name.trim().toLowerCase() === workshop.trim().toLowerCase());
+  const workshopChips = (fromHistory || workshop.trim() === ''
+    ? analytics.workshops
+    : matchingWorkshops(analytics.workshops, workshop)
+  ).slice(0, 4);
 
-  const rules = analytics.maintenance.rules.map(({ rule }) => ({ id: rule.id, name: rule.name }));
+  const itemRules: ItemRule[] = analytics.maintenance.rules.map(({ rule, status }) => ({
+    id: rule.id,
+    name: rule.name,
+    standing: describeTickLine(rule, status, units, false),
+    resets: describeTickLine(rule, status, units, true).label,
+  }));
 
   /**
    * Every figure on this screen is recomputed here on each render — there is no
@@ -146,12 +171,14 @@ function ServiceForm({
   const labourMinor = toMinor(labour, currency) ?? 0;
   const quoteMinor = quote.trim() === '' ? null : toMinor(quote, currency);
   const invoiceMinor = invoice.trim() === '' ? null : toMinor(invoice, currency);
+  const pricedItems = completedRuleIds.map((id) => toMinor(itemDrafts[id]?.cost ?? '', currency));
   const money = serviceMoney({
     labourMinor,
-    itemCostsMinor: completedRuleIds.map((id) => toMinor(itemDrafts[id]?.cost ?? '', currency)),
+    itemCostsMinor: pricedItems,
     invoiceMinor,
     typedTotalMinor: toMinor(total, currency),
   });
+  const pricedCount = pricedItems.filter((cost) => cost !== null && cost > 0).length;
 
   const overrun =
     quoteMinor === null || invoiceMinor === null ? 'neutral' : estimateSeverity(quoteMinor, invoiceMinor);
@@ -169,6 +196,13 @@ function ServiceForm({
     setCompletedRuleIds((prev) =>
       prev.includes(ruleId) ? prev.filter((id) => id !== ruleId) : [...prev, ruleId],
     );
+  };
+
+  const scanReceipt = async () => {
+    const uri = await picker.choose('Receipt');
+    if (!uri) return;
+    setReceiptUri(uri);
+    openSection('notes');
   };
 
   const submit = async () => {
@@ -269,267 +303,281 @@ function ServiceForm({
     });
   };
 
-  const saveLabel =
-    money.knownTotalMinor === null
-      ? existing
-        ? 'Save changes'
-        : 'Save service'
-      : `${existing ? 'Save changes' : 'Save service'} · ${formatCurrencySymbol(money.knownTotalMinor, currency)}`;
+  // Figma `Calc chip`: what the derived total is made of.
+  const calcChip =
+    invoiceMinor !== null
+      ? `Invoice ${formatCurrencySymbol(invoiceMinor, currency)}${quoteMinor === null ? '' : ` · quoted ${formatCurrencySymbol(quoteMinor, currency)}`}`
+      : money.itemised
+        ? `Labour ${formatCurrencySymbol(labourMinor, currency)} + ${pricedCount} item${pricedCount === 1 ? '' : 's'} ${formatCurrencySymbol(money.partsMinor, currency)}`
+        : null;
+
+  const totalError = errors.totalCostMinor;
 
   return (
-    <Screen testID="screen-service-add">
-      <ScreenHeader title={existing ? 'Service record' : 'Log a service'} backTestID="back-service-add" />
+    <Screen testID="screen-service-add" contentStyle={{ gap: 16 }}>
+      <ScreenHeader
+        title={existing ? 'Service record' : 'Log a service'}
+        icon="x"
+        backTestID="back-service-add"
+        action={
+          <IconSquareButton icon="camera" accessibilityLabel="Scan receipt" onPress={() => void scanReceipt()} testID="cta-scan-receipt" />
+        }
+        style={{ marginBottom: 0 }}
+      />
 
-      <Stack gap={14}>
-        <FieldRow>
-          <Field label="Date" flex={1}>
-            <DateField
-              value={date}
-              onChange={setDate}
-              maximumDate={new Date()}
-              padX={14}
-              testID="field-service-date"
-            />
-          </Field>
-          <Field label="Odometer" flex={1} error={errors.odometer ?? null}>
-            <Input
-              value={odometer}
-              onChangeText={setOdometer}
-              keyboardType="decimal-pad"
-              unit={distanceUnitLabel(units.distance)}
-              padX={14}
-              invalid={Boolean(errors.odometer)}
-              testID="input-service-odometer"
-            />
-          </Field>
-        </FieldRow>
+      {/* Figma `Amount hero`: typed while nothing is itemised, derived once it is. */}
+      <AmountHero
+        label="Total cost"
+        symbol={symbol}
+        size="medium"
+        value={money.itemised ? fromMinor(money.totalMinor, decimals) : total}
+        onChangeText={setTotal}
+        editable={!money.itemised}
+        {...(calcChip === null ? {} : { chip: { label: calcChip, testID: 'chip-service-calc' } })}
+        {...(totalError === undefined ? {} : { error: totalError })}
+        accessibilityLabel="Total cost"
+        testID="input-service-total"
+      />
 
-        <Field label="Workshop" error={errors.workshop ?? null}>
-          <Input
-            value={selfService ? 'Self-service' : workshop}
-            onChangeText={setWorkshop}
-            placeholder="Rahim Motors"
-            autoCapitalize="words"
-            editable={!selfService}
-            padX={14}
-            {...(fromHistory && !selfService
-              ? {
-                  trailing: (
-                    <Txt role="metaSmall" tone="mut" style={{ marginRight: 14 }}>
-                      from your history
-                    </Txt>
-                  ),
-                }
-              : {})}
-            testID="input-workshop"
-          />
-          <ServiceChipRow style={{ marginTop: 2 }}>
-            {workshopSuggestions.map((name) => (
-              <ServiceChip
-                key={name}
-                label={name}
-                onPress={() => {
-                  setSelfService(false);
-                  setWorkshop(name);
-                }}
-                testID={`chip-workshop-${name}`}
-              />
-            ))}
-            {/* Work the rider did themselves is a workshop choice, not a
-                separate switch — the board draws it as one more chip. */}
-            <ServiceChip
-              label="Self-service"
-              kind={selfService ? 'selected' : 'suggestion'}
-              accessibilityLabel="Self-service — work you did yourself"
-              onPress={() => {
-                setSelfService(!selfService);
-                if (!selfService) {
-                  setWorkshop('');
-                  closeSection('estimate');
-                }
-              }}
-              testID="toggle-self-service"
-            />
-          </ServiceChipRow>
-        </Field>
-
-        <FieldRow>
-          <Field label="What was done" flex={1.5} error={errors.title ?? null}>
-            <Input
-              value={title}
-              onChangeText={setTitle}
-              placeholder="Oil change"
-              autoCapitalize="sentences"
-              padX={14}
-              invalid={Boolean(errors.title)}
-              testID="input-service-title"
-            />
-          </Field>
-          {/* Priced items and a recorded invoice both answer "what did it come
-              to", so the box stops asking for the total and asks for labour. */}
-          {money.itemised ? (
-            <Field label="Labour" flex={1}>
-              <Input
-                value={labour}
-                onChangeText={setLabour}
-                placeholder="0"
-                keyboardType="decimal-pad"
-                prefix={symbol}
-                padX={14}
-                testID="input-labour"
-              />
-            </Field>
-          ) : (
-            <Field label="Total cost" flex={1} error={errors.totalCostMinor ?? null}>
-              <Input
-                value={total}
-                onChangeText={setTotal}
-                placeholder="0"
-                keyboardType="decimal-pad"
-                prefix={symbol}
-                padX={14}
-                testID="input-service-total"
-              />
-            </Field>
-          )}
-        </FieldRow>
-
-        {/* Closed, the optional sections are rows in one card; opened, each is a
-            card of its own. Both shapes are on the boards. */}
-        <ServiceDisclosureList testID="service-sections">
-          {!selfService && !isOpen('estimate') ? (
-            <ServiceDisclosureRow
-              title="Estimate guard"
-              subtitle="Record the quote, compare the invoice"
-              onPress={() => openSection('estimate')}
-              testID="open-estimate-guard"
-            />
-          ) : null}
-          {rules.length > 0 && !isOpen('items') ? (
-            <ServiceDisclosureRow
-              title="Maintenance items completed"
-              subtitle="Ticks reset the rules"
-              onPress={() => openSection('items')}
-              testID="open-maintenance-items"
-            />
-          ) : null}
-          {!isOpen('notes') ? (
-            <ServiceDisclosureRow
-              title="Notes and receipt"
-              subtitle="Kept with this service"
-              onPress={() => openSection('notes')}
-              testID="open-service-notes"
-            />
-          ) : null}
-        </ServiceDisclosureList>
-
-        {!selfService && isOpen('estimate') ? (
-          <ServiceDisclosureCard
-            eyebrow="ESTIMATE GUARD"
-            onClose={() => closeSection('estimate')}
-            testID="card-estimate-guard"
-          >
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <ServiceMoneyField
-                label="Quoted"
-                value={quote}
-                onChangeText={setQuote}
-                prefix={symbol}
-                size="compact"
-                inset
-                testID="input-quote"
-              />
-              <ServiceMoneyField
-                label="Invoice"
-                value={invoice}
-                onChangeText={setInvoice}
-                prefix={symbol}
-                size="compact"
-                inset
-                tone={overrun === 'neutral' ? 'ink' : overrun}
-                testID="input-invoice"
-              />
-            </View>
-            <ServiceTick
-              label="Ask before replacing parts"
-              checked={askBeforeReplacing}
-              onChange={setAskBeforeReplacing}
-              testID="toggle-ask-parts"
-            />
-            {overrun === 'bad' || overrun === 'warn' ? (
-              <Txt role="helper" tone={overrun}>
-                {overrun === 'bad'
-                  ? 'The invoice is well over the quote — worth asking what changed.'
-                  : 'The invoice is a little over the quote.'}
-              </Txt>
-            ) : null}
-          </ServiceDisclosureCard>
-        ) : null}
-
-        {rules.length > 0 && isOpen('items') ? (
-          <ServiceDisclosureCard
-            eyebrow="MAINTENANCE ITEMS COMPLETED"
-            onClose={() => closeSection('items')}
-            gap={12}
-            testID="card-maintenance-items"
-          >
-            <ServiceItemRows
-              rules={rules}
-              completedRuleIds={completedRuleIds}
-              onToggle={toggleRule}
-              drafts={itemDrafts}
-              onChange={(ruleId, draft) => setItemDrafts((prev) => ({ ...prev, [ruleId]: draft }))}
-              products={analytics.products}
-              currencySymbol={symbol}
-            />
-            <Txt role="helper" tone="mut">
-              Each tick resets that rule&rsquo;s next due point from today&rsquo;s odometer.
-            </Txt>
-          </ServiceDisclosureCard>
-        ) : null}
-
-        {isOpen('notes') ? (
-          <ServiceDisclosureCard
-            eyebrow="NOTES AND RECEIPT"
-            onClose={() => closeSection('notes')}
-            gap={12}
-            testID="card-service-notes"
-          >
-            <TextArea
-              value={notes}
-              onChangeText={setNotes}
-              placeholder="Pads bedded in, front rotor OK…"
-              rows={3}
-              testID="input-service-notes"
-            />
-            <PhotoField
-              label="Attach receipt"
-              uri={receiptUri}
-              onChange={setReceiptUri}
-              testID="field-service-receipt"
-            />
-          </ServiceDisclosureCard>
-        ) : null}
-
-        <Button
-          label={saveLabel}
-          size="xlarge"
-          onPress={submit}
-          loading={saveService.isPending}
-          style={{ marginTop: 4 }}
-          testID="cta-save-service"
+      {/* Figma `Fields`. */}
+      <ListCard testID="card-service-fields">
+        <DateField
+          variant="row"
+          icon="calendar"
+          label="Date"
+          value={date}
+          onChange={setDate}
+          maximumDate={new Date()}
+          todayLabel="Today, "
+          format={formatShortDate}
+          testID="field-service-date"
         />
-
-        {existing ? (
-          <Button
-            label="Delete service"
-            variant="dangerSubtle"
-            size="medium"
-            onPress={() => setDeleteOpen(true)}
-            testID="cta-delete-service"
+        <InputRow
+          icon="gauge"
+          label="Odometer"
+          value={odometer}
+          onChangeText={setOdometer}
+          keyboardType="decimal-pad"
+          unit={distanceUnitLabel(units.distance)}
+          invalid={Boolean(errors.odometer)}
+          {...(errors.odometer === undefined ? {} : { hint: errors.odometer, hintTone: 'bad' as const })}
+          testID="input-service-odometer"
+        />
+        <InputRow
+          icon="wrench"
+          label="What was done"
+          value={title}
+          onChangeText={setTitle}
+          placeholder="Brake pads"
+          autoCapitalize="sentences"
+          invalid={Boolean(errors.title)}
+          {...(errors.title === undefined ? {} : { hint: errors.title, hintTone: 'bad' as const })}
+          testID="input-service-title"
+        />
+        {/* Priced items and a recorded invoice both answer "what did it come
+            to", so the card stops asking for the total and asks for labour. */}
+        {money.itemised ? (
+          <InputRow
+            icon="banknote"
+            label="Labour"
+            value={labour}
+            onChangeText={setLabour}
+            placeholder="0"
+            keyboardType="decimal-pad"
+            prefix={symbol}
+            testID="input-labour"
           />
         ) : null}
-      </Stack>
+      </ListCard>
+
+      {/* Figma `Workshop card`. */}
+      <Card style={{ gap: 10 }} testID="card-workshop">
+        <Txt role="fieldLabel" tone="mut">
+          Workshop
+        </Txt>
+        <Input
+          value={selfService ? 'Self-service' : workshop}
+          onChangeText={(next) => {
+            setSelfService(false);
+            setWorkshop(next);
+          }}
+          placeholder="Rahim Motors"
+          autoCapitalize="words"
+          leadingIcon="building"
+          editable={!selfService}
+          invalid={Boolean(errors.workshop)}
+          {...(fromHistory && !selfService
+            ? {
+                trailing: (
+                  <Txt role="meta" tone="mut" style={{ marginRight: 14 }}>
+                    from your history
+                  </Txt>
+                ),
+              }
+            : {})}
+          testID="input-workshop"
+        />
+        {errors.workshop ? (
+          <Txt role="micro" tone="bad">
+            {errors.workshop}
+          </Txt>
+        ) : null}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+          {workshopChips.map((name) => (
+            <WorkshopChip
+              key={name}
+              label={name}
+              selected={!selfService && workshop.trim().toLowerCase() === name.trim().toLowerCase()}
+              onPress={() => {
+                setSelfService(false);
+                setWorkshop(name);
+              }}
+              testID={`chip-workshop-${name}`}
+            />
+          ))}
+          {/* Work the rider did themselves is a workshop choice, not a
+              separate switch — the board draws it as one more chip. */}
+          <WorkshopChip
+            label="Self-service"
+            icon="user"
+            selected={selfService}
+            accessibilityLabel="Self-service — work you did yourself"
+            onPress={() => {
+              setSelfService(!selfService);
+              if (!selfService) {
+                setWorkshop('');
+                closeSection('estimate');
+              }
+            }}
+            testID="toggle-self-service"
+          />
+        </View>
+      </Card>
+
+      {/* Figma `Items card`: open, the ticks with the rule's standing under each. */}
+      {itemRules.length > 0 && isOpen('items') ? (
+        <ServiceDisclosureCard
+          eyebrow="Maintenance items completed"
+          onClose={() => closeSection('items')}
+          gap={4}
+          testID="card-maintenance-items"
+        >
+          <ServiceItemRows
+            rules={itemRules}
+            completedRuleIds={completedRuleIds}
+            onToggle={toggleRule}
+            drafts={itemDrafts}
+            onChange={(ruleId, draft) => setItemDrafts((prev) => ({ ...prev, [ruleId]: draft }))}
+            products={analytics.products}
+            currencySymbol={symbol}
+          />
+          <Txt role="helper" tone="mut" style={{ marginTop: 8 }}>
+            Each tick resets that rule&rsquo;s next due point from today&rsquo;s odometer.
+          </Txt>
+        </ServiceDisclosureCard>
+      ) : null}
+
+      {!selfService && isOpen('estimate') ? (
+        <ServiceDisclosureCard eyebrow="Estimate guard" onClose={() => closeSection('estimate')} testID="card-estimate-guard">
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <ServiceMoneyField
+              label="Quoted"
+              value={quote}
+              onChangeText={setQuote}
+              prefix={symbol}
+              size="compact"
+              inset
+              testID="input-quote"
+            />
+            <ServiceMoneyField
+              label="Invoice"
+              value={invoice}
+              onChangeText={setInvoice}
+              prefix={symbol}
+              size="compact"
+              inset
+              tone={overrun === 'neutral' ? 'ink' : overrun}
+              testID="input-invoice"
+            />
+          </View>
+          <ServiceTick
+            label="Ask before replacing parts"
+            checked={askBeforeReplacing}
+            onChange={setAskBeforeReplacing}
+            testID="toggle-ask-parts"
+          />
+          {overrun === 'bad' || overrun === 'warn' ? (
+            <Txt role="helper" tone={overrun}>
+              {overrun === 'bad'
+                ? 'The invoice is well over the quote — worth asking what changed.'
+                : 'The invoice is a little over the quote.'}
+            </Txt>
+          ) : null}
+        </ServiceDisclosureCard>
+      ) : null}
+
+      {isOpen('notes') ? (
+        <ServiceDisclosureCard eyebrow="Notes and receipt" onClose={() => closeSection('notes')} gap={12} testID="card-service-notes">
+          <TextArea
+            value={notes}
+            onChangeText={setNotes}
+            placeholder="Pads bedded in, front rotor OK…"
+            rows={3}
+            testID="input-service-notes"
+          />
+          <PhotoField label="Attach receipt" uri={receiptUri} onChange={setReceiptUri} testID="field-service-receipt" />
+        </ServiceDisclosureCard>
+      ) : null}
+
+      {/* Figma `Sections`: whatever is still closed, as rows in one card. */}
+      <ServiceDisclosureList testID="service-sections">
+        {!selfService && !isOpen('estimate') ? (
+          <ServiceDisclosureRow
+            icon="shieldCheck"
+            title="Estimate guard"
+            subtitle="Record the quote, compare the invoice"
+            onPress={() => openSection('estimate')}
+            testID="open-estimate-guard"
+          />
+        ) : null}
+        {itemRules.length > 0 && !isOpen('items') ? (
+          <ServiceDisclosureRow
+            icon="check"
+            title="Maintenance items completed"
+            subtitle="Ticks reset the rules"
+            onPress={() => openSection('items')}
+            testID="open-maintenance-items"
+          />
+        ) : null}
+        {!isOpen('notes') ? (
+          <ServiceDisclosureRow
+            icon="receipt"
+            title="Notes and receipt"
+            subtitle="Kept with this service"
+            onPress={() => openSection('notes')}
+            testID="open-service-notes"
+          />
+        ) : null}
+      </ServiceDisclosureList>
+
+      <Button
+        label={existing ? 'Save changes' : 'Save service'}
+        size="xlarge"
+        onPress={submit}
+        loading={saveService.isPending}
+        testID="cta-save-service"
+      />
+
+      {existing ? (
+        <Button
+          label="Delete service"
+          icon="trash"
+          variant="dangerSubtle"
+          size="large"
+          onPress={() => setDeleteOpen(true)}
+          testID="cta-delete-service"
+        />
+      ) : null}
 
       <Dialog
         visible={deleteOpen}

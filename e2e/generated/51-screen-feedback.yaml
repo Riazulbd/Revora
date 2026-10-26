@@ -13,9 +13,9 @@ appId: app.revora.android.dev
 - assertVisible:
     id: "screen-dashboard"
 - tapOn:
-    id: "cta-overflow"
+    id: "tab-more"
 - tapOn:
-    id: "overflow-feedback"
+    id: "row-feedback"
 - assertVisible:
     id: "screen-feedback"
 # --- the three kinds ---
@@ -54,3 +54,10 @@ appId: app.revora.android.dev
     id: "cta-send-feedback"
 - assertVisible:
     id: "banner-feedback-sent"
+
+# --- ids this recipe does not claim yet: on screen, but not driven ---
+# A rename from the redesign lands here. Give each one a real step in
+# e2e/tools/generate.mjs and it moves up into the flow above.
+- assertVisible:
+    id: "note-feedback-sent-with"
+    optional: true

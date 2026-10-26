@@ -3,45 +3,116 @@ import { View, type ViewStyle } from 'react-native';
 
 import { useTheme } from '@/theme';
 import { NO_VALUE } from '@/utils/format';
+import { Icon, type IconName } from './Icon';
 import { Txt } from './Text';
 
 /**
- * The inset statistic tile from the boards:
- * `border-radius:11px; background:var(--sur2); padding:10px 12px`
- * with a `700 9.5px / 0.57px` tracked label above a `700 15px` figure (`margin-top:4px`).
+ * The statistic tile. Figma draws it two ways:
  *
- * `centered` — text-align centre (the three under the mileage gauge).
- * `accent` — `background:var(--accS)`, label and figure in `--acc` (Fuel detail "Mileage").
- * `outlined` — `background:var(--sur); border:1px solid var(--brd)` (a tile on the page, not in a card).
+ * `hero` — inside the dark-accent hero (Figma `Stat`): `background:#23272C;
+ *   border-radius:16px; padding:12px; gap:4px`, a `500 12px #9AA1AA` label, a
+ *   `700 20px` white figure and an optional `12px` line under it
+ *   ("▲ 1.4 km/L" in green, "all costs" muted).
+ * `default` — the same shape on a white card: `background:#F1F2F5`, muted
+ *   label, `700 18px` ink figure.
  *
- * A figure that is `NO_VALUE` renders muted, as every board draws its em dashes.
+ * `centered` centres the text; `accent` is the soft-accent tile; `outlined`
+ * is a tile standing on the page rather than in a card (`border-radius:20px`,
+ * a hairline); `good` / `warn` / `bad` are the tone-tinted tiles ("You pay",
+ * the Delta on Workshop records, a part's Used reading), which take the tone's
+ * hairline when `bordered`.
+ *
+ * `eyebrow` sets the label in the tracked uppercase eyebrow, with an optional
+ * 14px `icon` before it (Figma `L` on Workshop records).
+ *
+ * A figure that is `NO_VALUE` renders muted, so an em dash never reads as data.
  */
 export function StatTile({
   label,
   value,
   suffix,
+  sub,
+  subTone = 'mut',
   tone = 'ink',
   variant = 'default',
+  valueSize,
+  eyebrow = false,
+  icon,
+  bordered = false,
   badge,
   style,
   testID,
 }: {
   label: string;
   value?: string;
-  /** Small muted trailer, e.g. the `/km` in `BDT 5/km`. */
+  /** Small muted trailer, e.g. the `/L` in `৳122/L`. */
   suffix?: string;
+  /** The line under the figure ("all costs", "▲ 1.4 km/L"). */
+  sub?: string;
+  subTone?: 'mut' | 'good' | 'bad' | 'warn';
   tone?: 'ink' | 'mut' | 'good' | 'warn' | 'bad' | 'acc';
-  variant?: 'default' | 'centered' | 'accent' | 'outlined';
-  /** Replaces the figure with a pill — CONFIDENCE → `<Badge variant="outlined" tone="good" label="HIGH" />`. */
+  variant?: 'default' | 'hero' | 'centered' | 'accent' | 'outlined' | 'good' | 'warn' | 'bad';
+  /** `700 22px` (`xl`), `700 20px` (`lg`, the Dashboard hero), `700 18px` (`md`), `700 16px` (`sm`). Hero tiles default to `lg`, others to `md`. */
+  valueSize?: 'xl' | 'lg' | 'md' | 'sm';
+  /** The label as the tracked uppercase eyebrow (`INSTALLED`, `QUOTED`). */
+  eyebrow?: boolean;
+  /** A 14px glyph before the label. */
+  icon?: IconName;
+  /** A 1px hairline: `#E9EBEF` on white, the tone's own on a tinted tile. */
+  bordered?: boolean;
+  /** Replaces the figure with a pill — confidence → `<Badge tone="good" label="High" />`. */
   badge?: React.ReactNode;
   style?: ViewStyle;
   testID?: string;
 }) {
   const { c, radius, text } = useTheme();
+  const hero = variant === 'hero';
   const accent = variant === 'accent';
+  const good = variant === 'good';
+  const warnTile = variant === 'warn';
+  const badTile = variant === 'bad';
+  const outlined = variant === 'outlined';
   const centered = variant === 'centered';
   const printed = value ?? NO_VALUE;
-  const valueTone = accent ? 'acc' : printed === NO_VALUE ? 'mut' : tone;
+  const empty = printed === NO_VALUE;
+  const size = valueSize ?? (hero ? 'lg' : 'md');
+
+  const labelColor = hero ? c.heroMut : accent ? c.accText : good ? c.good : warnTile ? c.warn : badTile ? c.bad : c.mut;
+  const valueColor = hero
+    ? empty
+      ? c.heroMut
+      : c.heroInk
+    : accent
+      ? c.accText
+      : good
+        ? c.good
+        : warnTile
+          ? c.warn
+          : badTile
+            ? c.bad
+        : empty
+        ? c.mut
+        : tone === 'mut'
+          ? c.mut
+          : tone === 'good'
+            ? c.good
+            : tone === 'warn'
+              ? c.warn
+              : tone === 'bad'
+                ? c.bad
+                : tone === 'acc'
+                  ? c.accText
+                  : c.ink;
+  const subColor =
+    subTone === 'good'
+      ? hero
+        ? c.heroGood
+        : c.good
+      : subTone === 'bad'
+        ? c.bad
+        : subTone === 'warn'
+          ? c.warn
+          : labelColor;
 
   return (
     <View
@@ -49,52 +120,72 @@ export function StatTile({
       style={[
         {
           flex: 1,
-          backgroundColor: accent ? c.accS : variant === 'outlined' ? c.sur : c.sur2,
-          borderWidth: variant === 'outlined' ? 1 : 0,
-          borderColor: c.brd,
-          borderRadius: radius.tile,
-          paddingHorizontal: 12,
-          paddingVertical: 10,
+          backgroundColor: hero
+            ? c.heroTile
+            : accent
+              ? c.accS
+              : good
+                ? c.goodS
+                : warnTile
+                  ? c.warnS
+                  : badTile
+                    ? c.badS
+                    : outlined
+                      ? c.sur
+                      : c.sur2,
+          borderWidth: outlined || bordered ? 1 : 0,
+          borderColor: good ? c.goodBrd : warnTile ? c.warnBrd : badTile ? c.badBrd : c.brd,
+          borderRadius: outlined || bordered ? radius.smallCard : radius.tile,
+          padding: outlined || bordered ? 14 : 12,
+          gap: 4,
           alignItems: centered ? 'center' : 'flex-start',
         },
         style,
       ]}
     >
-      {/* Labels are tracked uppercase in a third-width tile, so a two-word one
-          clips to "RUNNING TOT…". Shrinking beats truncating: a smaller label
-          still reads, a clipped one leaves the rider guessing what it counted. */}
-      <Txt
-        role="tileLabel"
-        tone={accent ? 'acc' : 'mut'}
-        uppercase
-        numberOfLines={1}
-        adjustsFontSizeToFit
-        minimumFontScale={0.8}
-        align={centered ? 'center' : 'left'}
-      >
-        {label}
-      </Txt>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: centered ? 'center' : 'stretch' }}>
+        {icon ? <Icon name={icon} size={14} color={labelColor} /> : null}
+        <Txt
+          role={eyebrow ? 'eyebrow' : 'tileLabel'}
+          color={labelColor}
+          uppercase={eyebrow}
+          numberOfLines={1}
+          align={centered ? 'center' : 'left'}
+          style={{ flexShrink: 1 }}
+        >
+          {label}
+        </Txt>
+      </View>
       {badge ? (
-        <View style={{ marginTop: 3, alignItems: centered ? 'center' : 'flex-start' }}>{badge}</View>
+        <View style={{ alignItems: centered ? 'center' : 'flex-start' }}>{badge}</View>
       ) : (
         <Txt
-          role="tileValue"
-          tone={valueTone}
+          role={size === 'xl' ? 'headline' : size === 'lg' ? 'tileValueLarge' : 'tileValue'}
+          color={valueColor}
           numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={0.75}
+          ellipsizeMode="tail"
           align={centered ? 'center' : 'left'}
-          style={{ marginTop: 4 }}
+          style={size === 'sm' ? { fontSize: 16, lineHeight: 20 } : undefined}
         >
           {printed}
-          {suffix ? <Txt style={text('micro', c.mut)}>{suffix}</Txt> : null}
+          {suffix ? <Txt style={text('micro', labelColor)}>{suffix}</Txt> : null}
         </Txt>
       )}
+      {sub ? (
+        <Txt
+          role={subTone === 'mut' ? 'micro' : 'smallStrong'}
+          color={subColor}
+          numberOfLines={1}
+          align={centered ? 'center' : 'left'}
+        >
+          {sub}
+        </Txt>
+      ) : null}
     </View>
   );
 }
 
-/** The three-across tile row used on the odometer, fuel and detail cards (`gap:8px`). */
+/** The three-across tile row (`gap:8px`). */
 export function StatRow({ children, gap = 8, style }: { children: React.ReactNode; gap?: number; style?: ViewStyle }) {
   return <View style={[{ flexDirection: 'row', gap }, style]}>{children}</View>;
 }

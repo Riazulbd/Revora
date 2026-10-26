@@ -25,12 +25,12 @@ import { Txt } from './Text';
 type Action = { label: string; onPress: () => void; testID?: string };
 
 /**
- * The boards' empty state: a card (`padding:24px 20px`, centred, `gap:12px`),
- * a 52px tinted disc with a 24px accent glyph, a `700 17px` title, a
- * `500 13px / 1.55` muted body capped at 290px, and a 48px primary button.
+ * The empty state (Figma `Empty state`): centred, `gap:12px`, a 64px tinted
+ * disc with a 28px accent glyph, a `600 16px` title, a `400 14px / 1.5` muted
+ * body capped at 290px, and a 48px primary pill.
  *
  * `size="compact"` is the filtered-to-empty shape ("No partial fills"): no
- * disc, a `700 15px` title, and the secondary action as an accent link.
+ * disc, a `600 15px` title, and the secondary action as an accent link.
  *
  * `badge` replaces the disc with a pill — the Analytics upsell opens on a PRO
  * marker where the other empty states open on a glyph.
@@ -64,33 +64,30 @@ export function EmptyState({
   const { c } = useTheme();
   const compact = size === 'compact';
   const tint = iconTone === 'neutral' ? c.sur2 : iconTone === 'good' ? c.goodS : c.accS;
-  const ink = iconTone === 'neutral' ? c.mut : iconTone === 'good' ? c.good : c.acc;
+  const ink = iconTone === 'neutral' ? c.mut : iconTone === 'good' ? c.good : c.accBright;
 
   const body = (
     <View style={{ alignItems: 'center', gap: compact ? 10 : 12 }} testID={testID}>
       {badge ?? (compact ? (
-        icon ? <Icon name={icon} size={24} color={ink} strokeWidth={2} /> : null
+        icon ? <Icon name={icon} size={24} color={ink} /> : null
       ) : (
         <View
           style={{
-            width: 52,
-            height: 52,
-            borderRadius: 26,
+            width: 64,
+            height: 64,
+            borderRadius: 32,
             backgroundColor: tint,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Icon name={icon ?? 'fuelPump'} size={24} color={ink} strokeWidth={2} />
+          <Icon name={icon ?? 'fuel'} size={28} color={ink} />
         </View>
       ))}
-      <Txt align="center" style={{ fontFamily: fontFamily[700], fontSize: compact ? 15 : 17, color: c.ink }}>
+      <Txt align="center" style={{ fontFamily: fontFamily[600], fontSize: compact ? 15 : 16, lineHeight: 20, color: c.ink }}>
         {title}
       </Txt>
-      <Txt
-        align="center"
-        style={{ fontFamily: fontFamily[500], fontSize: 13, lineHeight: compact ? 19.5 : 20.15, color: c.mut, maxWidth: 290 }}
-      >
+      <Txt align="center" style={{ fontFamily: fontFamily[400], fontSize: 14, lineHeight: 21, color: c.mut, maxWidth: 290 }}>
         {message}
       </Txt>
       {primaryAction ? (
@@ -125,9 +122,8 @@ export function EmptyState({
 }
 
 /**
- * The load-error card (Dashboard board 04): a neutral 52px disc with the red
- * alert glyph, "Couldn't load your records", the reassurance line, and a
- * 48px "Try again" (`padding:0 28px`).
+ * The load-error card: a neutral 64px disc with the red alert glyph,
+ * "Couldn't load your records", the reassurance line, and a 48px "Try again".
  */
 export function ErrorState({
   title = "Couldn't load this",
@@ -150,20 +146,20 @@ export function ErrorState({
     <View style={{ alignItems: 'center', gap: 12 }} testID={testID}>
       <View
         style={{
-          width: 52,
-          height: 52,
-          borderRadius: 26,
+          width: 64,
+          height: 64,
+          borderRadius: 32,
           backgroundColor: c.sur2,
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        <Icon name="alertCircle" size={24} color={c.bad} strokeWidth={2} />
+        <Icon name="circleAlert" size={28} color={c.badIcon} />
       </View>
       <Txt role="cardTitle" align="center">
         {title}
       </Txt>
-      <Txt align="center" style={{ fontFamily: fontFamily[500], fontSize: 13, lineHeight: 20.15, color: c.mut, maxWidth: 280 }}>
+      <Txt role="body" tone="mut" align="center" style={{ maxWidth: 290 }}>
         {message}
       </Txt>
       {onRetry ? (
@@ -190,8 +186,8 @@ export function ErrorState({
 }
 
 /**
- * The in-progress state from the Proof Pack board: a 44px accent ring over a
- * `700 15px` title and a `500 12px` muted line, centred on the page.
+ * The in-progress state: an accent ring over a `600 15px` title and a
+ * `400 12px` muted line, centred on the page.
  */
 export function LoadingState({
   title,
@@ -213,7 +209,7 @@ export function LoadingState({
       accessibilityLabel={message ? `${title} ${message}` : title}
     >
       <ActivityIndicator size="large" color={c.acc} />
-      <Txt align="center" style={{ fontFamily: fontFamily[700], fontSize: 15, color: c.ink }}>
+      <Txt role="rowTitleLarge" align="center">
         {title}
       </Txt>
       {message ? (
@@ -246,7 +242,7 @@ export function Skeleton({ height = 72, radius: r, style }: { height?: number; r
     <Animated.View
       accessibilityRole="progressbar"
       accessibilityLabel="Loading"
-      style={[{ height, borderRadius: r ?? radius.listCard, backgroundColor: c.sur2 }, animated, style]}
+      style={[{ height, borderRadius: r ?? radius.card, backgroundColor: c.sur2 }, animated, style]}
     />
   );
 }
@@ -254,7 +250,7 @@ export function Skeleton({ height = 72, radius: r, style }: { height?: number; r
 /** Three stacked skeleton rows — the list loading state. */
 export function SkeletonList({ count = 3, height = 72 }: { count?: number; height?: number }) {
   return (
-    <View style={{ gap: 12 }}>
+    <View style={{ gap: 16 }}>
       {Array.from({ length: count }, (_, index) => (
         <Skeleton key={index} height={height} />
       ))}
@@ -281,10 +277,10 @@ export function InsufficientData({
     <View
       style={[
         {
-          borderWidth: 1.5,
+          borderWidth: 1,
           borderStyle: 'dashed',
-          borderColor: c.brd,
-          borderRadius: 13,
+          borderColor: c.brdStrong,
+          borderRadius: 14,
           paddingVertical: 22,
           paddingHorizontal: 18,
           alignItems: 'center',

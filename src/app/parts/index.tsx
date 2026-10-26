@@ -8,15 +8,18 @@ import {
   EmptyState,
   ErrorState,
   Footnote,
+  Icon,
+  IconSquareButton,
   ListCard,
   MenuRow,
   ProgressBar,
+  RecordRow,
   RowIcon,
   Screen,
   SectionEyebrow,
   SkeletonList,
-  TabHeader,
   Txt,
+  type IconName,
   type RowTone,
 } from '@/components';
 import { partHealth, type PartLife } from '@/calculations/parts';
@@ -24,13 +27,13 @@ import { partUsedFraction, partUsedPercent } from '@/calculations/partWear';
 import { partGlyph } from '@/features/parts/ui/PartsGlyph';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
-import { fontFamily } from '@/theme';
+import { HIT_SIZE, fontFamily, useTheme } from '@/theme';
 import { formatDistance, NO_VALUE } from '@/utils/format';
 import { formatShortDate } from '@/utils/date';
 import type { Part, UnitPreferences } from '@/types';
 
 /**
- * Parts — active, and the removed history under it.
+ * Parts — active, and the removed history under it (Figma `D7 Parts — List`).
  *
  * Every figure on this screen is recomputed from the current odometer on read.
  * A part fitted at 33,010 km shows what it has run *now*, which is why editing
@@ -38,31 +41,39 @@ import type { Part, UnitPreferences } from '@/types';
  */
 export default function PartsList() {
   const router = useRouter();
-  const { units } = useGarage();
+  const { activeBike, units } = useGarage();
   const { analytics, isPending, error, refetch } = useGarageData();
 
   const active = analytics?.parts.active ?? [];
   const removed = analytics?.parts.removed ?? [];
   const accessoryCount = analytics?.accessories.all.length ?? 0;
+  const current = analytics?.odometer.currentMetres ?? null;
 
+  const back = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)/garage');
+  };
+
+  // Figma `Top bar` + `Titles`: the back button and the primary action on one
+  // row, the tab-sized title under them.
   const header = (
-    <TabHeader
-      title="Parts"
-      action={
-        <Button
-          label="Add part"
-          icon="plus"
-          size="compact"
-          onPress={() => router.push('/parts/add')}
-          testID="cta-add-part"
-        />
-      }
-    />
+    <View style={{ gap: 16 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <IconSquareButton icon="chevronLeft" accessibilityLabel="Back" onPress={back} testID="back-parts" />
+        <Button label="Add part" icon="plus" size="action" onPress={() => router.push('/parts/add')} testID="cta-add-part" />
+      </View>
+      <View style={{ gap: 2 }}>
+        <Txt role="tabTitle">Parts</Txt>
+        <Txt role="body" tone="mut" numberOfLines={1}>
+          {`${activeBike?.nickname ?? 'Your bike'}${current === null ? '' : ` · odometer ${formatDistance(current, units.distance)}`}`}
+        </Txt>
+      </View>
+    </View>
   );
 
   if (error) {
     return (
-      <Screen testID="screen-parts" contentStyle={{ paddingHorizontal: 20 }}>
+      <Screen wash testID="screen-parts" contentStyle={{ gap: 16 }}>
         {header}
         <ErrorState message={error.message} onRetry={() => void refetch()} variant="page" />
       </Screen>
@@ -71,7 +82,7 @@ export default function PartsList() {
 
   if (isPending && analytics === null) {
     return (
-      <Screen testID="screen-parts" contentStyle={{ paddingHorizontal: 20 }}>
+      <Screen wash testID="screen-parts" contentStyle={{ gap: 16 }}>
         {header}
         <SkeletonList count={3} height={96} />
       </Screen>
@@ -81,7 +92,7 @@ export default function PartsList() {
   const empty = active.length === 0 && removed.length === 0;
 
   return (
-    <Screen onRefresh={refetch} testID="screen-parts" contentStyle={{ paddingHorizontal: 20 }}>
+    <Screen wash onRefresh={refetch} testID="screen-parts" contentStyle={{ gap: 16 }}>
       {header}
 
       {empty ? (
@@ -104,22 +115,15 @@ export default function PartsList() {
         />
       ) : (
         <>
-          {active.length > 0 ? (
-            <>
-              <SectionEyebrow top={0}>Active</SectionEyebrow>
-              <ListCard testID="list-parts-active">
+          <View>
+            <SectionEyebrow first>Active</SectionEyebrow>
+            {active.length > 0 ? (
+              <ListCard style={{ paddingVertical: 2 }} testID="list-parts-active">
                 {active.map(({ part, life }) => (
                   <ActivePartRow key={part.id} part={part} life={life} units={units} />
                 ))}
               </ListCard>
-              <Footnote style={{ marginTop: 8 }} testID="note-parts-wear">
-                Wear updates whenever the odometer moves. No bar where no life was recorded — nothing is
-                invented.
-              </Footnote>
-            </>
-          ) : (
-            <>
-              <SectionEyebrow top={0}>Active</SectionEyebrow>
+            ) : (
               <EmptyState
                 icon="wrench"
                 iconTone="neutral"
@@ -133,28 +137,35 @@ export default function PartsList() {
                 }}
                 testID="empty-parts-active"
               />
-            </>
-          )}
+            )}
+          </View>
+
+          {active.length > 0 ? (
+            <Footnote style={{ marginTop: 0 }} testID="note-parts-wear">
+              Wear updates whenever the odometer moves. No bar where no life was recorded — nothing is invented.
+            </Footnote>
+          ) : null}
 
           {removed.length > 0 ? (
-            <>
-              <SectionEyebrow>Removed · history</SectionEyebrow>
-              <ListCard style={{ opacity: 0.65 }} testID="list-parts-removed">
+            <View>
+              <SectionEyebrow first>Removed · history</SectionEyebrow>
+              <ListCard style={{ opacity: 0.65, paddingVertical: 2 }} testID="list-parts-removed">
                 {removed.map(({ part, life }) => (
                   <RemovedPartRow key={part.id} part={part} life={life} units={units} />
                 ))}
               </ListCard>
-            </>
+            </View>
           ) : null}
 
-          {/* The boards give the accessories list no entrance of its own, and
-              this screen is "Parts & accessories" everywhere it is linked from. */}
-          <Card variant="list" style={{ marginTop: 18 }}>
+          {/* Figma `Accessories`: the way through to the list, with its count. */}
+          <Card variant="list" style={{ paddingVertical: 2 }}>
             <MenuRow
+              icon="package"
+              iconTone="accent"
               label="Accessories"
               onPress={() => router.push('/accessories')}
               right={
-                <Txt role="metaSmall" tone="mut">
+                <Txt role="meta" tone="mut">
                   {accessoryCount === 0 ? 'None yet' : `${accessoryCount} fitted`}
                 </Txt>
               }
@@ -168,73 +179,61 @@ export default function PartsList() {
 }
 
 /**
- * `Chain & sprocket set · 85% used`, the reading it was fitted at, and the bar.
+ * Figma `Part row`: the name with its standing on the right (`⊘ over by 412
+ * km`, `◷ 92% used`, `✓ 25% used`, or `No life recorded`), the fitting line,
+ * and a 6px bar filled to the used share.
  *
  * A part with no expected life carries neither a percentage nor a bar: there is
  * nothing to measure it against, and 0% would be a claim nobody made.
  */
 function ActivePartRow({ part, life, units }: { part: Part; life: PartLife; units: UnitPreferences }) {
   const router = useRouter();
+  const { c } = useTheme();
   const health = partHealth(life);
   const tone: RowTone = health === 'bad' ? 'bad' : health === 'warn' ? 'warn' : health === 'good' ? 'good' : 'neutral';
   const usedPercent = partUsedPercent(life);
   const usedFraction = partUsedFraction(life);
 
-  const usedLabel = life.isOverdue
+  const statusColor = tone === 'bad' ? c.bad : tone === 'warn' ? c.warn : tone === 'good' ? c.good : c.mut;
+  const statusIcon: IconName | null = tone === 'bad' ? 'circleAlert' : tone === 'warn' ? 'clock' : tone === 'good' ? 'check' : null;
+  const statusLabel = life.isOverdue
     ? `over by ${formatDistance(life.overdueMetres, units.distance)}`
     : usedPercent === null
-      ? 'no expected life'
+      ? 'No life recorded'
       : `${usedPercent}% used`;
 
   const meta = `Fitted at ${formatDistance(part.installedOdometerMetres, units.distance)} · ${formatDistance(
     life.usedMetres,
     units.distance,
-  )} run · ${
-    part.expectedLifeMetres === null
-      ? 'no expected life'
-      : `expected ${formatDistance(part.expectedLifeMetres, units.distance)}`
-  }`;
+  )} run${part.expectedLifeMetres === null ? '' : ` · expected ${formatDistance(part.expectedLifeMetres, units.distance)}`}`;
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${part.name}. ${usedLabel}. ${meta}`}
+      accessibilityLabel={`${part.name}. ${statusLabel}. ${meta}`}
       onPress={() => router.push({ pathname: '/parts/[id]', params: { id: part.id } })}
       testID={`part-${part.id}`}
       style={({ pressed }) => ({ opacity: pressed ? 0.75 : 1 })}
     >
-      <View style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start', paddingVertical: 14 }}>
-        <RowIcon icon={partGlyph(part.name)} tone={tone} size={40} />
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 10 }}>
-            <Txt role="rowTitle" numberOfLines={2} style={{ flexShrink: 1 }}>
+      <View style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start', paddingVertical: 14, minHeight: HIT_SIZE }}>
+        <RowIcon icon={partGlyph(part.name)} tone={tone} />
+        <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+            <Txt role="rowTitleLarge" numberOfLines={1} style={{ flexShrink: 1 }}>
               {part.name}
             </Txt>
-            {usedPercent === null ? (
-              <Txt role="meta" tone="mut" numberOfLines={1}>
-                no expected life
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+              {statusIcon ? <Icon name={statusIcon} size={14} color={statusColor} /> : null}
+              <Txt role="chip" color={statusColor} numberOfLines={1}>
+                {statusLabel}
               </Txt>
-            ) : (
-              <Txt
-                role="smallStrong"
-                tone={tone === 'neutral' ? 'mut' : tone === 'bad' ? 'bad' : tone === 'warn' ? 'warn' : 'good'}
-                numberOfLines={1}
-                style={{ fontFamily: fontFamily[700] }}
-              >
-                {usedLabel}
-              </Txt>
-            )}
+            </View>
           </View>
-          <Txt role="meta" tone="mut" numberOfLines={2} style={{ marginTop: 2 }}>
+          <Txt role="meta" tone="mut" numberOfLines={2}>
             {meta}
           </Txt>
           {usedFraction === null ? null : (
-            <ProgressBar
-              fraction={usedFraction}
-              tone={tone === 'neutral' ? 'accent' : tone}
-              height={6}
-              style={{ marginTop: 8 }}
-            />
+            <ProgressBar fraction={usedFraction} tone={tone === 'neutral' ? 'accent' : tone} height={6} style={{ marginTop: 2 }} />
           )}
         </View>
       </View>
@@ -242,7 +241,7 @@ function ActivePartRow({ part, life, units }: { part: Part; life: PartLife; unit
   );
 }
 
-/** `Old chain set · Ran 30,900 → 33,010 km · removed 2 Jul`, and what it lasted. */
+/** Figma `Row` under REMOVED · HISTORY: `Ran 12,500 → 26,700 km · removed 4 Jan`, and what it lasted. */
 function RemovedPartRow({ part, life, units }: { part: Part; life: PartLife; units: UnitPreferences }) {
   const router = useRouter();
 
@@ -261,27 +260,20 @@ function RemovedPartRow({ part, life, units }: { part: Part; life: PartLife; uni
     life.actualLifeMetres === null ? NO_VALUE : formatDistance(life.actualLifeMetres, units.distance);
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`${part.name}. ${meta}. Lasted ${lasted}`}
-      onPress={() => router.push({ pathname: '/parts/[id]', params: { id: part.id } })}
-      testID={`part-${part.id}`}
-      style={({ pressed }) => ({ opacity: pressed ? 0.75 : 1 })}
-    >
-      <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', paddingVertical: 13 }}>
-        <RowIcon icon="clock" tone="neutral" size={40} />
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <Txt role="rowTitle" numberOfLines={2}>
-            {part.name}
-          </Txt>
-          <Txt role="meta" tone="mut" numberOfLines={2}>
-            {meta}
-          </Txt>
-        </View>
-        <Txt role="smallStrong" tone="mut" numberOfLines={1} style={{ fontFamily: fontFamily[700] }}>
+    <RecordRow
+      variant="flush"
+      titleSize="large"
+      icon="clock"
+      iconTone="neutral"
+      title={part.name}
+      subtitle={meta}
+      trailing={
+        <Txt role="mediumStrong" tone="mut" numberOfLines={1} style={{ fontFamily: fontFamily[700] }}>
           {lasted}
         </Txt>
-      </View>
-    </Pressable>
+      }
+      onPress={() => router.push({ pathname: '/parts/[id]', params: { id: part.id } })}
+      testID={`part-${part.id}`}
+    />
   );
 }

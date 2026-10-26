@@ -1,8 +1,8 @@
 import type { MaintenanceStatus } from '@/calculations/maintenance';
-import type { BadgeTone } from '@/components';
+import type { BadgeTone, IconName } from '@/components';
 import type { MaintenanceRule, UnitPreferences } from '@/types';
 import { formatDistance } from '@/utils/format';
-import { formatLongDate } from '@/utils/date';
+import { formatLongDate, formatShortDate } from '@/utils/date';
 
 /**
  * The supporting line under a rule name, e.g. "in 500 km · every 1,000 km".
@@ -162,4 +162,148 @@ export function describeStatusPill(
       : 'Due';
 
   return { label, tone: status.kind === 'due_soon' ? 'warn' : 'neutral' };
+}
+
+/**
+ * The pill beside a rule name on the Figma Maintenance list: one word for the
+ * status, the tone it is drawn in and the glyph before it — `⊘ Overdue`,
+ * `◷ Due soon`, `▦ Upcoming`, `✓ Good`. The count chips above the list use the
+ * same three facts, so the two can never disagree.
+ */
+export function describeStatusBadge(status: MaintenanceStatus): { label: string; tone: BadgeTone; icon: IconName } {
+  if (status.kind === 'unknown' || status.neverCompleted) return { label: 'Not set', tone: 'neutral', icon: 'circle' };
+  if (status.kind === 'overdue') return { label: 'Overdue', tone: 'bad', icon: 'circleAlert' };
+  if (status.kind === 'due_soon') return { label: 'Due soon', tone: 'warn', icon: 'clock' };
+  if (status.kind === 'upcoming') return { label: 'Upcoming', tone: 'neutral', icon: 'calendar' };
+  return { label: 'Good', tone: 'good', icon: 'check' };
+}
+
+/** `17 months`, `45 days`, `1 day` — the time side of a remaining figure. */
+function describeDays(days: number): string {
+  const abs = Math.abs(days);
+  if (abs >= 60) {
+    const months = Math.round(abs / 30.44);
+    return `${months} month${months === 1 ? '' : 's'}`;
+  }
+  return `${abs} day${abs === 1 ? '' : 's'}`;
+}
+
+/**
+ * How often a rule comes round, as the list's second line: `Every 3,000 km or
+ * 180 days`, `Every 500 km`, `Every 12 months`.
+ */
+export function describeInterval(rule: MaintenanceRule, units: UnitPreferences): string {
+  if (rule.intervalMetres !== null && rule.intervalDays !== null) {
+    return `Every ${formatDistance(rule.intervalMetres, units.distance)} or ${describePeriod(rule.intervalDays)}`;
+  }
+  if (rule.intervalMetres !== null) return `Every ${formatDistance(rule.intervalMetres, units.distance)}`;
+  if (rule.intervalDays !== null) return `Every ${describePeriod(rule.intervalDays)}`;
+  return 'No interval set';
+}
+
+/**
+ * The line under a rule's track, in the status colour: what is left, or how
+ * far past due it is — `310 km overdue · last done 18 Mar`, `120 km left`,
+ * `12 days left · due 7 Nov`, `8,400 km or 17 months left`.
+ *
+ * Every figure is a `MaintenanceStatus` field; nothing here is re-derived from
+ * the rule, so the line cannot drift from the pill beside the name.
+ */
+export function describeRemaining(rule: MaintenanceRule, status: MaintenanceStatus, units: UnitPreferences): string {
+  if (status.neverCompleted) return 'Never completed · mark it done to start the clock';
+
+  const metres = status.remainingMetres;
+  const days = status.remainingDays;
+
+  if (status.kind === 'overdue') {
+    const distanceUrgency = metres !== null && rule.intervalMetres !== null ? metres / rule.intervalMetres : Number.POSITIVE_INFINITY;
+    const timeUrgency = days !== null && rule.intervalDays !== null ? days / rule.intervalDays : Number.POSITIVE_INFINITY;
+    const lead =
+      distanceUrgency <= timeUrgency && metres !== null
+        ? `${formatDistance(Math.abs(metres), units.distance)} overdue`
+        : `${describeDays(days ?? 0)} overdue`;
+    const last =
+      rule.lastCompletedDate !== null
+        ? ` · last done ${formatShortDate(rule.lastCompletedDate)}`
+        : rule.lastCompletedMetres !== null
+          ? ` · last at ${formatDistance(rule.lastCompletedMetres, units.distance)}`
+          : '';
+    return `${lead}${last}`;
+  }
+
+  const distanceLeft = metres === null ? null : formatDistance(Math.max(0, metres), units.distance);
+  const timeLeft = days === null ? null : describeDays(Math.max(0, days));
+
+  if (distanceLeft !== null && timeLeft !== null) return `${distanceLeft} or ${timeLeft} left`;
+  if (distanceLeft !== null) return `${distanceLeft} left`;
+  if (timeLeft !== null) {
+    return status.dueOnDate ? `${timeLeft} left · due ${formatShortDate(status.dueOnDate)}` : `${timeLeft} left`;
+  }
+  return 'Nothing to measure yet';
+}
+
+/**
+ * The line under a maintenance item on the Log-a-service form. Unticked it
+ * says where the rule stands (`Overdue by 310 km`, `Due soon · 12 days left`);
+ * ticked it says what the tick does (`Resets the 3,000 km rule`).
+ */
+export function describeTickLine(
+  rule: MaintenanceRule,
+  status: MaintenanceStatus,
+  units: UnitPreferences,
+  ticked: boolean,
+): { label: string; tone: 'mut' | 'warn' | 'bad' } {
+  if (ticked) {
+    const interval =
+      rule.intervalMetres !== null
+        ? formatDistance(rule.intervalMetres, units.distance)
+        : rule.intervalDays !== null
+          ? describePeriod(rule.intervalDays)
+          : null;
+    return { label: interval === null ? 'Marks the rule done today' : `Resets the ${interval} rule`, tone: 'mut' };
+  }
+  if (status.neverCompleted || status.kind === 'unknown') return { label: 'Never completed', tone: 'mut' };
+  const remaining = describeRemaining(rule, status, units);
+  if (status.kind === 'overdue') {
+    const [lead] = remaining.split(' · ');
+    return { label: `Overdue by ${(lead ?? remaining).replace(' overdue', '')}`, tone: 'bad' };
+  }
+  if (status.kind === 'due_soon') return { label: `Due soon · ${remaining}`, tone: 'warn' };
+  if (status.kind === 'upcoming') return { label: `Upcoming · ${remaining}`, tone: 'mut' };
+  return { label: `Good · ${remaining}`, tone: 'mut' };
+}
+
+/**
+ * The tinted banner at the top of the rule editor (Figma `Status banner`):
+ * `Overdue by 310 km` over `Was due at 34,402 km · now 34,712 km`. Null for a
+ * rule with nothing to say yet — a new rule, or one never completed.
+ */
+export function describeStatusBanner(
+  rule: MaintenanceRule,
+  status: MaintenanceStatus,
+  units: UnitPreferences,
+  currentMetres: number | null,
+): { title: string; body: string; tone: 'bad' | 'warn' | 'neutral' | 'good' } | null {
+  if (status.neverCompleted || status.kind === 'unknown') return null;
+
+  const metres = status.remainingMetres;
+  const days = status.remainingDays;
+  const distanceUrgency = metres !== null && rule.intervalMetres !== null ? metres / rule.intervalMetres : Number.POSITIVE_INFINITY;
+  const timeUrgency = days !== null && rule.intervalDays !== null ? days / rule.intervalDays : Number.POSITIVE_INFINITY;
+  const byDistance = distanceUrgency <= timeUrgency && metres !== null && status.dueAtMetres !== null;
+
+  const body = byDistance
+    ? `${status.kind === 'overdue' ? 'Was due' : 'Due'} at ${formatDistance(status.dueAtMetres, units.distance)}${
+        currentMetres === null ? '' : ` · now ${formatDistance(currentMetres, units.distance)}`
+      }`
+    : status.dueOnDate !== null
+      ? `${status.kind === 'overdue' ? 'Was due' : 'Due'} ${formatShortDate(status.dueOnDate)}`
+      : '';
+
+  const amount = byDistance ? formatDistance(Math.abs(metres ?? 0), units.distance) : describeDays(days ?? 0);
+
+  if (status.kind === 'overdue') return { title: `Overdue by ${amount}`, body, tone: 'bad' };
+  if (status.kind === 'due_soon') return { title: `Due in ${amount}`, body, tone: 'warn' };
+  if (status.kind === 'upcoming') return { title: `Coming up in ${amount}`, body, tone: 'neutral' };
+  return { title: `Good for another ${amount}`, body, tone: 'good' };
 }

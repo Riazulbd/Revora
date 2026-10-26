@@ -398,6 +398,8 @@ export type LedgerEntry = {
   sourceId: string;
   source: LedgerSource;
   label: string;
+  /** The rider's category, on a manual expense line. */
+  category?: ExpenseCategory;
   date: IsoDate;
   amountMinor: number;
   currency: CurrencyCode;

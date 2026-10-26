@@ -9,9 +9,13 @@ import {
   daysAgoLabel,
   NEVER_CHECKED,
   observedSummary,
+  areaRowLine,
   odometerMetresOn,
+  readiness,
   safetySessions,
   safetyStatusLabel,
+  sessionLine,
+  sessionTitle,
 } from './safetySessions';
 
 const check = (
@@ -193,5 +197,46 @@ describe('a summary that only echoes the status', () => {
 
   it('keeps it out of a session row detail', () => {
     expect(safetySessions([battery])[0]?.rows[0]?.detail).toBeNull();
+  });
+});
+
+describe('the Figma Safety hero', () => {
+  const checks = [
+    check('tyres', 'ok', '2026-09-14', { measurements: { frontPsi: 29, rearPsi: 33 } }),
+    check('chain', 'ok', '2026-09-14', { summary: 'Clean and lubed' }),
+    check('brakes', 'watch', '2026-09-14', { summary: 'Front lever spongy' }),
+    check('battery', 'ok', '2026-09-03', { summary: 'Starts first try' }),
+    check('lights', 'action', '2026-09-14', { summary: 'Rear left indicator out' }),
+  ];
+
+  it('counts the good areas and colours one segment per area in walk order', () => {
+    const ready = readiness(checks, '2026-09-16');
+    expect(ready.good).toBe(3);
+    expect(ready.total).toBe(5);
+    expect(ready.segments).toEqual(['ok', 'ok', 'watch', 'ok', 'action']);
+    expect(ready.checkedLabel).toBe('Checked 2 days ago');
+    expect(ready.sentence).toBe('Brakes need a look, and rear left indicator out.');
+  });
+
+  it('says nothing when everything is fine, and leaves unchecked areas blank', () => {
+    const ready = readiness([check('tyres', 'ok', '2026-09-14')], '2026-09-16');
+    expect(ready.sentence).toBeNull();
+    expect(ready.segments).toEqual(['ok', null, null, null, null]);
+    expect(readiness([], '2026-09-16').checkedLabel).toBeNull();
+  });
+
+  it('puts tyre pressures on the row when both were measured', () => {
+    const [tyres, chain] = currentCondition(checks).filter((s) => s.area === 'tyres' || s.area === 'chain');
+    expect(areaRowLine(tyres!)).toBe('29 / 33 psi · 14 Sep');
+    expect(areaRowLine(chain!)).toBe('Clean and lubed · 14 Sep');
+  });
+
+  it('titles a day by how many areas it covered', () => {
+    const [walk, single] = safetySessions(checks);
+    expect(sessionTitle(walk!)).toBe('Walk-around check');
+    expect(sessionLine(walk!)).toBe('Rear left indicator out, Front lever spongy · 4 areas');
+    expect(sessionTitle(single!)).toBe('Condition check');
+    expect(sessionLine(single!)).toBe('Starts first try · all good');
+    expect(sessionTitle({ date: '2026-09-01', areaCount: 2, rows: [] })).toBe('Condition check');
   });
 });

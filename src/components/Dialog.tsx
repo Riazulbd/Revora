@@ -6,12 +6,12 @@ import { Button, ButtonRow } from './Button';
 import { Txt } from './Text';
 
 /**
- * The centred confirmation dialog from the Parts boards ("Remove tail box?",
- * "Move to accessories?"): `left:20; right:20; border-radius:20px; padding:20px`
- * over the scrim, a `700 17px` title, a `500 13px / 1.55` muted message 8px
- * under it, then two 48px buttons 16px below — the confirming action first
- * (`--bad` for a destructive one, `--acc` otherwise) and the keep/cancel
- * action beside it on `--sur2`.
+ * The centred confirmation dialog ("Remove tail box?", "Move to
+ * accessories?"): `left:16; right:16; border-radius:28px; padding:20px` over
+ * the scrim, a `700 20px` title, a `400 14px / 1.5` muted message 8px under
+ * it, then two 48px pills 16px below — the confirming action first (the
+ * danger fill for a destructive one, the accent otherwise) and the keep/cancel
+ * action beside it on the inset surface.
  *
  * Android back closes the dialog and goes no further, so a confirm step can
  * never bounce the rider out of a nested flow (requirement 41).
@@ -72,10 +72,8 @@ export function Dialog({
         <View
           accessibilityViewIsModal
           style={{
-            marginHorizontal: 20,
+            marginHorizontal: 16,
             backgroundColor: c.sur,
-            borderWidth: 1,
-            borderColor: c.brd,
             borderRadius: radius.dialog,
             padding: 20,
             shadowColor: '#000',
@@ -85,8 +83,8 @@ export function Dialog({
             elevation: 24,
           }}
         >
-          <Txt role="cardTitle">{title}</Txt>
-          <Txt role="body" tone="mut" style={{ marginTop: 8, lineHeight: 20 }}>
+          <Txt role="dialogTitle">{title}</Txt>
+          <Txt role="body" tone="mut" style={{ marginTop: 8 }}>
             {message}
           </Txt>
           {children ? <View style={{ marginTop: 12 }}>{children}</View> : null}

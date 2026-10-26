@@ -119,6 +119,13 @@ export function formatCurrencyCompact(minor: number | null | undefined, currency
   return formatMoneyCompact(v, currency);
 }
 
+/** `'৳285K'` — the Garage hero's purchase tile. */
+export function formatCurrencyCompactSymbol(minor: number | null | undefined, currency: CurrencyCode): string {
+  const v = safe(minor);
+  if (v === null) return NO_VALUE;
+  return formatMoneyCompact(v, currency, { symbol: true });
+}
+
 /**
  * `'BDT 4.8'` — a rate stored scaled by `RATE_SCALE`, shown to one decimal.
  *
@@ -132,6 +139,14 @@ export function formatRate(scaledMinor: number | null | undefined, currency: Cur
   return `${currency} ${formatNumber(major, major >= 100 ? 0 : 1)}`;
 }
 
+/** `'৳4.12'` — the same rate with the symbol and two decimals, as every frame prints cost / km. */
+export function formatRateSymbol(scaledMinor: number | null | undefined, currency: CurrencyCode): string {
+  const v = safe(scaledMinor);
+  if (v === null) return NO_VALUE;
+  const major = v / (RATE_SCALE * 10 ** currencyDecimals(currency));
+  return `${currencySymbol(currency)}${formatNumber(major, major >= 100 ? 0 : 2)}`;
+}
+
 /** `'BDT 145'` for a per-litre price. */
 export function formatPricePerVolume(
   minorPerLitre: number | null | undefined,
@@ -140,6 +155,16 @@ export function formatPricePerVolume(
   const v = safe(minorPerLitre);
   if (v === null) return NO_VALUE;
   return formatMoney(v, currency, { decimals: v % 100 === 0 ? 0 : 2 });
+}
+
+/** `'৳145'` — the per-litre price with the symbol, as the Fuel frames print it. */
+export function formatPricePerVolumeSymbol(
+  minorPerLitre: number | null | undefined,
+  currency: CurrencyCode,
+): string {
+  const v = safe(minorPerLitre);
+  if (v === null) return NO_VALUE;
+  return formatMoney(v, currency, { symbol: true, decimals: v % 100 === 0 ? 0 : 2 });
 }
 
 // --- percentages ------------------------------------------------------------

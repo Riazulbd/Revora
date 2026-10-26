@@ -18,6 +18,8 @@ export type FieldProps = {
   /** Helper text under the field, or the validation message when invalid. */
   helper?: string;
   error?: string | null;
+  /** Appends the boards' `· optional` trailer to the label (`400 12px #878E98`). */
+  optional?: boolean;
   children: React.ReactNode;
   flex?: number;
   style?: ViewStyle;
@@ -25,25 +27,29 @@ export type FieldProps = {
 };
 
 /**
- * The field label from the boards: `font:600 12px; color:var(--mut)` with an
- * optional 13px glyph (`gap:6px`), 7px above the control; a `500 11.5px`
- * helper 8px under it.
+ * The field label (Figma `Input` → label): `500 12px #6B727C` with an optional
+ * 14px glyph (`gap:6px`), 6px above the control; a `400 12px` helper under it.
  */
-export function Field({ label, icon, helper, error, children, flex, style, testID }: FieldProps) {
+export function Field({ label, icon, helper, error, optional = false, children, flex, style, testID }: FieldProps) {
   const { c } = useTheme();
   return (
-    <View style={[{ gap: 7 }, flex !== undefined ? { flex } : null, style]} testID={testID}>
+    <View style={[{ gap: 6 }, flex !== undefined ? { flex } : null, style]} testID={testID}>
       {label ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          {icon ? <Icon name={icon} size={13} color={c.mut} strokeWidth={2} /> : null}
-          <Txt role="smallStrong" tone="mut">
+          {icon ? <Icon name={icon} size={14} color={c.mut} /> : null}
+          <Txt role="fieldLabel" tone="mut">
             {label}
           </Txt>
+          {optional ? (
+            <Txt role="meta" tone="faint">
+              · optional
+            </Txt>
+          ) : null}
         </View>
       ) : null}
       {children}
       {error ? (
-        <Txt role="helper" tone="bad" style={{ marginTop: 1 }}>
+        <Txt role="micro" tone="bad">
           {error}
         </Txt>
       ) : helper ? (
@@ -56,17 +62,14 @@ export function Field({ label, icon, helper, error, children, flex, style, testI
 }
 
 /**
- * `standard` — `height:52px; font:500 15px; padding:0 16px` (Sign in, Add motorcycle).
- * `compact` — `height:48px`, same type (the optional details card).
- * `numeric` — `height:56px; font:700 17px`, centred (Litres, ৳ / litre, Total).
- * `hero` — `height:60px; font:700 24px` with a `700 15px` unit (the first odometer).
- * `mini` — `height:44px; border-radius:11px; font:700 15px` (the odometer
- *   correction field on the history board, the two-up rows on Records).
- * `micro` — `height:40px; border-radius:11px; font:700 13px` (the Services
- *   board's odometer / cost pair).
+ * Figma's field (`Box`): `height:48px; background:#F5F6F8; border:1px solid
+ * #E9EBEF; border-radius:14px; padding-left:14px`, `400 15px` text.
  *
- * `mini` and `micro` keep the 11px radius the boards give every 40–44px field;
- * everything taller keeps the 13px input radius.
+ * `standard` / `compact` — that field.
+ * `numeric` — 56px, `600 17px`, centred when it has no unit or prefix.
+ * `hero` — 60px, `700 24px` with a `600 15px` unit (the first odometer).
+ * `mini` — 44px, `600 15px`; `micro` — 40px, `600 13px`. Both take the 12px
+ *   tile radius.
  */
 export type InputSize = 'standard' | 'numeric' | 'compact' | 'hero' | 'mini' | 'micro';
 
@@ -76,24 +79,27 @@ export type InputProps = Omit<TextInputProps, 'style'> & {
   /** `warn` draws the amber 1.5px border (below-last-reading odometer); `bad` the red one. */
   tone?: 'default' | 'warn' | 'bad';
   /**
-   * `true` / `'sur2'` — the inset `--sur2` surface (a derived total box).
-   * `'bg'` — the page background, as fields inside a card are drawn.
+   * The field fill. Default — `#F5F6F8`, as a field inside a card is drawn.
+   * `'sur'` — white, for a field standing on the page.
+   * `true` / `'sur2'` — the deeper `#F1F2F5` (a derived total box).
+   * `'bg'` — the page colour (same as the default in light).
    */
-  inset?: boolean | 'bg' | 'sur2';
-  /** A unit on the right: `km`, `L` (`600 12px` muted; `700 15px` on the hero size). */
+  inset?: boolean | 'bg' | 'sur' | 'sur2';
+  /** A unit on the right: `km`, `L` (`500 14px` muted; `600 15px` on the hero size). */
   unit?: string;
   /** A prefix on the left, e.g. the currency symbol. */
   prefix?: string;
+  /** A 20px muted glyph before the text (the envelope on Reset password). */
+  leadingIcon?: IconName;
+  /** `bold` sets a 48px field in `600` (the rule editor's interval boxes). */
+  weight?: 'regular' | 'bold';
   align?: 'left' | 'center';
-  /** A `600 10px` line under the value inside the field — "last fill", "⟳ derived". */
+  /** A `500 11px` line under the value inside the field — "last fill", "⟳ derived". */
   hint?: string;
   hintTone?: 'acc' | 'mut';
   /** A control inside the field's right edge (the password eye, 44×44). */
   trailing?: React.ReactNode;
-  /**
-   * Horizontal padding. The boards draw a field inside a card at 14 and a
-   * field on the page at 16; the size's own default is the commoner of the two.
-   */
+  /** Horizontal padding; Figma insets every field 14px. */
   padX?: number;
   /** Applied to the field's frame (flex, margins). */
   style?: ViewStyle;
@@ -102,7 +108,7 @@ export type InputProps = Omit<TextInputProps, 'style'> & {
 };
 
 const INPUT_HEIGHT: Record<InputSize, number> = {
-  standard: 52,
+  standard: 48,
   compact: 48,
   numeric: 56,
   hero: 60,
@@ -110,7 +116,7 @@ const INPUT_HEIGHT: Record<InputSize, number> = {
   micro: 40,
 };
 
-/** Fields at 44px and under take the 11px tile radius on every board. */
+/** Fields at 44px and under take the 12px tile radius. */
 const SMALL_SIZES: readonly InputSize[] = ['mini', 'micro'];
 
 const INPUT_FONT: Record<InputSize, number> = {
@@ -122,18 +128,17 @@ const INPUT_FONT: Record<InputSize, number> = {
   micro: 13,
 };
 
-/**
- * The text field: `border-radius:13px; border:1px solid var(--brd);
- * background:var(--sur)`, a 1.5px accent border while focused.
- */
+/** The text field, with a 1.5px accent border while focused. */
 export const Input = forwardRef<TextInput, InputProps>(function Input(
   {
     size = 'standard',
     invalid = false,
     tone = 'default',
     inset = false,
+    weight: weightOverride,
     unit,
     prefix,
+    leadingIcon,
     align,
     hint,
     hintTone = 'mut',
@@ -155,15 +160,17 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
   const numeric = size === 'numeric' || size === 'hero' || small;
   const height = INPUT_HEIGHT[size];
   const fontSize = INPUT_FONT[size];
-  const weight = numeric ? 700 : 500;
-  const frameRadius = small ? radius.tile : radius.input;
-  const insetX = padX ?? (numeric && !prefix ? 14 : 16);
+  const weight = size === 'hero' ? 700 : numeric || weightOverride === 'bold' ? 600 : weightOverride === 'regular' ? 400 : 400;
+  const frameRadius = small ? radius.iconTile : radius.input;
+  const insetX = padX ?? 14;
   const centered = align === 'center' || (align === undefined && size === 'numeric' && unit === undefined && prefix === undefined);
 
+  // Figma `Input — error`: the field lifts to white inside a 1.5px red border
+  // and grows an alert glyph on the right.
   const alert = invalid || tone === 'bad';
-  const borderColor = alert ? c.bad : tone === 'warn' ? c.warn : focused ? c.acc : c.brd;
+  const borderColor = alert ? c.badIcon : tone === 'warn' ? c.warnIcon : focused ? c.acc : c.brd;
   const borderWidth = alert || tone === 'warn' || focused ? 1.5 : 1;
-  const background = inset === 'bg' ? c.bg : inset ? c.sur2 : c.sur;
+  const background = alert || inset === 'sur' ? c.sur : inset === true || inset === 'sur2' ? c.sur2 : c.field;
   const disabled = editable === false;
 
   return (
@@ -180,19 +187,20 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
           paddingRight: trailing ? 4 : insetX,
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 8,
+          gap: leadingIcon ? 10 : 8,
           width: '100%',
         },
         style,
       ]}
     >
+      {leadingIcon ? <Icon name={leadingIcon} size={20} color={c.mut} /> : null}
       {prefix ? (
         <Txt style={{ fontFamily: fontFamily[weight], fontSize, color: c.mut }}>{prefix}</Txt>
       ) : null}
       <View style={{ flex: 1, alignItems: centered ? 'center' : 'stretch', justifyContent: 'center' }}>
         <TextInput
           ref={ref}
-          placeholderTextColor={c.mut}
+          placeholderTextColor={c.faint}
           selectionColor={c.acc}
           cursorColor={c.acc}
           maxFontSizeMultiplier={MAX_FONT_SCALE}
@@ -221,7 +229,7 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
         {hint ? (
           <Txt
             numberOfLines={1}
-            style={{ fontFamily: fontFamily[600], fontSize: 10, color: hintTone === 'acc' ? c.acc : c.mut, marginTop: -1 }}
+            style={{ fontFamily: fontFamily[500], fontSize: 11, color: hintTone === 'acc' ? c.accText : c.mut, marginTop: -1 }}
           >
             {hint}
           </Txt>
@@ -230,8 +238,8 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
       {unit ? (
         <Txt
           style={{
-            fontFamily: fontFamily[size === 'hero' ? 700 : 600],
-            fontSize: size === 'hero' ? 15 : 12,
+            fontFamily: fontFamily[size === 'hero' ? 600 : 500],
+            fontSize: size === 'hero' ? 15 : 14,
             color: c.mut,
           }}
         >
@@ -239,14 +247,14 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
         </Txt>
       ) : null}
       {trailing}
+      {alert && !trailing && !unit ? <Icon name="circleAlert" size={20} color={c.badIcon} /> : null}
     </View>
   );
 });
 
 /**
- * The read-only third field on Add fuel — the one the other two work out:
- * `height:56px; background:var(--sur2); border:1px solid var(--brd)`, a
- * centred `700 17px` muted figure over a `600 10px` "⟳ derived" note.
+ * A read-only field showing a value the others work out: `height:56px;
+ * background:#F1F2F5`, a centred `600 17px` figure over a `500 11px` note.
  */
 export function DerivedField({
   value,
@@ -271,18 +279,16 @@ export function DerivedField({
           height: 56,
           borderRadius: radius.input,
           backgroundColor: c.sur2,
-          borderWidth: 1,
-          borderColor: c.brd,
           alignItems: 'center',
           justifyContent: 'center',
         },
         style,
       ]}
     >
-      <Txt numberOfLines={1} style={{ fontFamily: fontFamily[700], fontSize: 17, color: tone === 'ink' ? c.ink : c.mut }}>
+      <Txt numberOfLines={1} style={{ fontFamily: fontFamily[600], fontSize: 17, color: tone === 'ink' ? c.ink : c.mut }}>
         {value}
       </Txt>
-      <Txt numberOfLines={1} style={{ fontFamily: fontFamily[600], fontSize: 10, color: c.mut }}>
+      <Txt numberOfLines={1} style={{ fontFamily: fontFamily[500], fontSize: 11, color: c.mut }}>
         {note}
       </Txt>
     </View>
@@ -291,7 +297,7 @@ export function DerivedField({
 
 export type TextAreaProps = Omit<InputProps, 'size' | 'unit' | 'prefix' | 'hint' | 'trailing' | 'align'> & { rows?: number };
 
-/** The design's `<textarea rows="3">`: `border-radius:13px; padding:14px 16px`. */
+/** A multi-line field: the input's fill, border and radius, `padding:12px 14px`. */
 export const TextArea = forwardRef<TextInput, TextAreaProps>(function TextArea(
   { rows = 3, invalid = false, tone = 'default', inset = false, style, frameTestID, onFocus, onBlur, ...rest },
   ref,
@@ -306,7 +312,7 @@ export const TextArea = forwardRef<TextInput, TextAreaProps>(function TextArea(
         ref={ref}
         multiline
         textAlignVertical="top"
-        placeholderTextColor={c.mut}
+        placeholderTextColor={c.faint}
         selectionColor={c.acc}
         cursorColor={c.acc}
         maxFontSizeMultiplier={MAX_FONT_SCALE}
@@ -319,17 +325,17 @@ export const TextArea = forwardRef<TextInput, TextAreaProps>(function TextArea(
           onBlur?.(e);
         }}
         style={{
-          fontFamily: fontFamily[500],
+          fontFamily: fontFamily[400],
           fontSize: 15,
           color: c.ink,
-          minHeight: 24 * rows + 28,
+          minHeight: 22 * rows + 24,
           borderWidth: alert || tone === 'warn' || focused ? 1.5 : 1,
           borderColor: alert ? c.bad : tone === 'warn' ? c.warn : focused ? c.acc : c.brd,
           borderRadius: radius.input,
-          backgroundColor: inset === 'bg' ? c.bg : inset ? c.sur2 : c.sur,
-          paddingHorizontal: 16,
-          paddingTop: 14,
-          paddingBottom: 14,
+          backgroundColor: inset === true || inset === 'sur2' ? c.sur2 : inset === 'sur' ? c.sur : c.field,
+          paddingHorizontal: 14,
+          paddingTop: 12,
+          paddingBottom: 12,
         }}
         {...rest}
       />
@@ -340,7 +346,7 @@ export const TextArea = forwardRef<TextInput, TextAreaProps>(function TextArea(
 /**
  * A field that opens a picker rather than the keyboard — dates, manufacturers.
  * Looks identical to `Input` so the form reads as one system; `trailingIcon`
- * is the 16px muted chevron the boards draw on "Pick a date" and "Bajaj".
+ * is the 20px chevron.
  */
 export function PickerField({
   value,
@@ -362,12 +368,12 @@ export function PickerField({
   placeholder: string;
   onPress: () => void;
   size?: InputSize;
-  /** `bold` is the boards' `700 15px` date field ("Today", "13 Sep"). */
+  /** `bold` is the `600 15px` date field ("Today", "13 Sep"). */
   weight?: 'regular' | 'bold';
-  inset?: boolean | 'bg' | 'sur2';
+  inset?: boolean | 'bg' | 'sur' | 'sur2';
   leading?: React.ReactNode;
   trailingIcon?: IconName;
-  /** `500 11.5px` muted trailer after the value — "· from your history". */
+  /** `400 12px` muted trailer after the value — "· from your history". */
   suffix?: string;
   /** Matches `Input`'s `padX`. */
   padX?: number;
@@ -395,9 +401,9 @@ export function PickerField({
           height,
           borderWidth: 1,
           borderColor: c.brd,
-          borderRadius: small ? radius.tile : radius.input,
-          backgroundColor: inset === 'bg' ? c.bg : inset ? c.sur2 : c.sur,
-          paddingHorizontal: padX ?? (size === 'numeric' || small ? 14 : 16),
+          borderRadius: small ? radius.iconTile : radius.input,
+          backgroundColor: inset === 'sur' ? c.sur : inset === true || inset === 'sur2' ? c.sur2 : c.field,
+          paddingHorizontal: padX ?? 14,
           flexDirection: 'row',
           alignItems: 'center',
           gap: 10,
@@ -411,17 +417,17 @@ export function PickerField({
         numberOfLines={1}
         style={{
           flex: 1,
-          fontFamily: fontFamily[bold ? 700 : 500],
+          fontFamily: fontFamily[bold ? 600 : 400],
           fontSize: INPUT_FONT[size],
-          color: value === null ? c.mut : c.ink,
+          color: value === null ? c.faint : c.ink,
         }}
       >
         {value ?? placeholder}
         {suffix && value !== null ? (
-          <Txt style={{ fontFamily: fontFamily[500], fontSize: 11.5, color: c.mut }}> {suffix}</Txt>
+          <Txt style={{ fontFamily: fontFamily[400], fontSize: 12, color: c.mut }}> {suffix}</Txt>
         ) : null}
       </Txt>
-      {trailingIcon ? <Icon name={trailingIcon} size={16} color={c.mut} strokeWidth={2} /> : null}
+      {trailingIcon ? <Icon name={trailingIcon} size={20} color={c.faint} /> : null}
     </Pressable>
   );
 }

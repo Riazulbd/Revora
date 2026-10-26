@@ -11,15 +11,15 @@ import { currencyDecimals } from '@/calculations/money';
 import { useConnectivity } from '@/services/connectivity';
 
 /**
- * Editing a saved motorcycle.
+ * Editing a saved motorcycle (Figma `C3 Garage — Edit bike`).
  *
  * The opening odometer is not a field here — readings are history, and editing
  * the first one retroactively would silently rewrite every distance since. The
- * board says so in the card above Save, and links to where a wrong reading is
- * actually corrected.
+ * note above Save says so, and links to where a wrong reading is actually
+ * corrected.
  *
  * Deleting the bike lives on the Motorcycle profile, beside the rest of the
- * facts about it, exactly where the board puts it.
+ * facts about it.
  */
 export default function EditBike() {
   const router = useRouter();
@@ -45,8 +45,8 @@ export default function EditBike() {
     units,
   );
 
-  // Offline the write is queued rather than lost, and the board says so on this
-  // screen — so the screen has to still be here to say it.
+  // Offline the write is queued rather than lost, and the screen says so — so
+  // it has to still be here to say it.
   const updateBike = useUpdateBike({
     stayOnScreen: !isOnline,
     onSaved: () => setSavedOffline(!isOnline),
@@ -70,41 +70,22 @@ export default function EditBike() {
   };
 
   return (
-    <Screen testID="screen-edit-bike">
-      <ScreenHeader title="Edit motorcycle" />
+    <Screen testID="screen-edit-bike" contentStyle={{ gap: 16 }}>
+      <ScreenHeader title="Edit motorcycle" icon="x" style={{ marginBottom: 0 }} />
 
       <EditBikeFields value={form.value} onChange={form.setValue} errors={form.errors} units={units} />
 
       <Banner
-        variant="plain"
-        compact
+        tone="neutral"
         message="The current odometer isn't edited here — it's derived from readings."
-        link={{
-          label: 'Correct a reading in Odometer history',
-          onPress: () => router.push('/garage/odometer'),
-          testID: 'cta-odometer-history',
-        }}
-        action="instead."
-        style={{ marginTop: 14 }}
+        link={{ label: 'Correct a reading in Odometer history instead →', onPress: () => router.push('/garage/odometer'), testID: 'cta-odometer-history' }}
         testID="banner-odometer-derived"
       />
 
-      <Button
-        label="Save changes"
-        onPress={submit}
-        loading={updateBike.isPending}
-        style={{ marginTop: 16 }}
-        testID="cta-save-bike"
-      />
+      <Button label="Save changes" size="xlarge" onPress={submit} loading={updateBike.isPending} testID="cta-save-bike" />
 
       {savedOffline ? (
-        <Banner
-          tone="good"
-          compact
-          message="Saved on this phone — offline, syncs when you're back."
-          style={{ marginTop: 10 }}
-          testID="banner-saved-offline"
-        />
+        <Banner tone="good" compact message="Saved on this phone — offline, syncs when you're back." testID="banner-saved-offline" />
       ) : null}
     </Screen>
   );

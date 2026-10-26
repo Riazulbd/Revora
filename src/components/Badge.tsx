@@ -1,44 +1,34 @@
 import React from 'react';
 import { View, type ViewStyle } from 'react-native';
 
-import { fontFamily, useTheme } from '@/theme';
+import { useTheme } from '@/theme';
+import { Icon, type IconName } from './Icon';
 import { Txt } from './Text';
 
-export type BadgeTone = 'good' | 'warn' | 'bad' | 'neutral' | 'accent';
+export type BadgeTone = 'good' | 'warn' | 'bad' | 'neutral' | 'accent' | 'info' | 'ink';
 export type BadgeVariant = 'filled' | 'outlined';
 /**
- * `default` — `font:700 11px; border-radius:8px; padding:2px 8px` (the km/L pill
- *   on a fuel row, the status pills on the maintenance list).
- * `chip` — kept as an alias of `default` for existing callers.
- * `tag` — `font:700 9.5px; letter-spacing:0.57px; uppercase; border-radius:7px;
- *   padding:2px 7px` (the category tag under a Costs row).
- * `wide` — `font:700 11px; letter-spacing:0.4px; border-radius:8px;
- *   padding:3px 10px` (the Pro board's FREE marker, and the roomier PRO pill
- *   the Analytics upsell draws).
+ * Every badge is a pill (`border-radius:999px`) set in `600 12px`:
+ * `default` — `padding:3px 8px` (Figma `Badge`, `Tag`: "2 DUE", "1 EXPIRING").
+ * `chip` — `padding:2px 8px`, the tighter tag beside a row title ("Full").
+ * `tag` — the `chip` shape, kept for existing callers.
+ * `wide` — `padding:4px 10px` (`4px 10px 4px 8px` once it carries a glyph).
+ * `status` — `padding:6px 8px`, the count chips over the Maintenance list.
  */
-export type BadgeSize = 'default' | 'chip' | 'tag' | 'wide';
-
-const TONE_ROLES: Record<BadgeTone, { fg: 'good' | 'warn' | 'bad' | 'mut' | 'acc'; bg: 'goodS' | 'warnS' | 'badS' | 'sur2' | 'accS' }> = {
-  good: { fg: 'good', bg: 'goodS' },
-  warn: { fg: 'warn', bg: 'warnS' },
-  bad: { fg: 'bad', bg: 'badS' },
-  neutral: { fg: 'mut', bg: 'sur2' },
-  accent: { fg: 'acc', bg: 'accS' },
-};
+export type BadgeSize = 'default' | 'chip' | 'tag' | 'wide' | 'status';
 
 /**
- * The status pill.
- *
- * Filled: the tone's foreground on its soft background. Outlined (the boards'
- * CONFIDENCE HIGH, 310 KM OVER, EXPIRING · 12 DAYS): `background:var(--sur);
- * border:1px solid <tone>; letter-spacing:0.4px; text-transform:uppercase`.
- * Text carries the status as well as colour, so a tone is never the only signal.
+ * The status pill: the tone's text colour on its soft fill. `outlined` puts
+ * the same text on the card colour inside a 1px tone border. Text carries the
+ * status as well as colour, so a tone is never the only signal.
  */
 export function Badge({
   label,
   tone = 'neutral',
   variant = 'filled',
   size = 'default',
+  icon,
+  bordered = false,
   uppercase,
   style,
   testID,
@@ -47,40 +37,56 @@ export function Badge({
   tone?: BadgeTone;
   variant?: BadgeVariant;
   size?: BadgeSize;
-  /** Outlined and tag badges are uppercase on every board; filled ones are not. */
+  /** A 1px hairline in the tone's border colour (Figma `Badge bad` on Workshop records). */
+  bordered?: boolean;
+  /** A 14px glyph before the label ("✓ Valid", the clock on "1 EXPIRING"). */
+  icon?: IconName;
   uppercase?: boolean;
   style?: ViewStyle;
   testID?: string;
 }) {
-  const { c, radius } = useTheme();
-  const { fg, bg } = TONE_ROLES[tone];
+  const { c } = useTheme();
+  const [fg, bg] =
+    tone === 'good'
+      ? [c.good, c.goodS]
+      : tone === 'warn'
+        ? [c.warn, c.warnS]
+        : tone === 'bad'
+          ? [c.bad, c.badS]
+          : tone === 'accent'
+            ? [c.accText, c.accS]
+            : tone === 'info'
+              ? [c.info, c.infoS]
+              : tone === 'ink'
+                ? [c.ink, c.sur]
+                : [c.mut, c.sur2];
+  const hairline =
+    tone === 'good' ? c.goodBrd : tone === 'warn' ? c.warnBrd : tone === 'bad' ? c.badBrd : tone === 'accent' ? c.accBrd : c.brd;
   const outlined = variant === 'outlined';
-  const tag = size === 'tag';
-  const wide = size === 'wide';
+  const tight = size === 'chip' || size === 'tag';
 
   return (
     <View
       testID={testID}
       style={[
         {
-          backgroundColor: outlined ? c.sur : c[bg],
-          borderWidth: outlined ? 1 : 0,
-          borderColor: outlined ? c[fg] : 'transparent',
-          borderRadius: tag ? radius.chip : radius.badge,
-          paddingHorizontal: tag ? 7 : wide ? 10 : 8,
-          paddingVertical: wide ? 3 : 2,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 4,
+          backgroundColor: outlined ? c.sur : bg,
+          borderWidth: outlined || bordered ? 1 : 0,
+          borderColor: outlined ? fg : bordered ? hairline : 'transparent',
+          borderRadius: 999,
+          paddingLeft: size === 'wide' ? (icon ? 8 : 10) : 8,
+          paddingRight: size === 'wide' ? 10 : 8,
+          paddingVertical: size === 'wide' ? 4 : size === 'status' ? 6 : tight ? 2 : 3,
           alignSelf: 'flex-start',
         },
         style,
       ]}
     >
-      <Txt
-        role={tag ? 'tileLabel' : 'chip'}
-        color={c[fg]}
-        uppercase={uppercase ?? (outlined || tag || wide)}
-        numberOfLines={1}
-        style={(outlined || wide) && !tag ? { letterSpacing: 0.4 } : undefined}
-      >
+      {icon ? <Icon name={icon} size={14} color={fg} /> : null}
+      <Txt role="badge" color={fg} uppercase={uppercase ?? false} numberOfLines={1}>
         {label}
       </Txt>
     </View>
@@ -88,10 +94,8 @@ export function Badge({
 }
 
 /**
- * The PRO marker: `font:700 10.5px; letter-spacing:0.95px; color:var(--acc);
- * background:var(--accS); border-radius:8px; padding:3px 8px` (Garage "Add
- * another motorcycle", the Analytics title). `small` is the overflow menu's
- * `9.5px / 0.57px / padding:2px 7px`; `wide` is the Analytics upsell's
+ * The PRO marker (Figma `PRO chip`): `background:#FF6B3D; border-radius:999px;
+ * padding:2px 8px`, `700 12px #14171B`. `small` keeps that size; `wide` is
  * `padding:3px 10px`.
  */
 export function ProBadge({
@@ -103,28 +107,21 @@ export function ProBadge({
   wide?: boolean;
   style?: ViewStyle;
 }) {
-  const { c, radius } = useTheme();
+  const { c } = useTheme();
   return (
     <View
       style={[
         {
-          backgroundColor: c.accS,
-          borderRadius: radius.badge,
-          paddingHorizontal: small ? 7 : wide ? 10 : 8,
+          backgroundColor: c.heroAcc,
+          borderRadius: 999,
+          paddingHorizontal: wide ? 10 : 8,
           paddingVertical: small ? 2 : 3,
           alignSelf: 'center',
         },
         style,
       ]}
     >
-      <Txt
-        color={c.acc}
-        style={{
-          fontFamily: fontFamily[700],
-          fontSize: small ? 9.5 : 10.5,
-          letterSpacing: small ? 0.57 : 0.95,
-        }}
-      >
+      <Txt role="pro" color="#14171B">
         PRO
       </Txt>
     </View>

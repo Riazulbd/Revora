@@ -10,9 +10,9 @@ import { documentRepository, notificationRepository } from '@/repositories';
 import { useLiveQuery } from '@/services/liveQuery';
 import { useConnectivity } from '@/services/connectivity';
 import { useSyncState } from '@/services/syncStatus';
-import type { AppNotification, VaultDocument } from '@/types';
+import type { AppNotification, AppNotificationKind, VaultDocument } from '@/types';
 import { formatDistance } from '@/utils/format';
-import { daysBetween, todayIso } from '@/utils/date';
+import { daysBetween, formatRelativeDay, formatShortDate, todayIso } from '@/utils/date';
 
 /**
  * The notifications list.
@@ -25,10 +25,21 @@ import { daysBetween, todayIso } from '@/utils/date';
 
 export type NotificationRow = {
   id: string;
+  /** What produced the row — it picks the glyph and the actions. */
+  kind: 'rule' | 'document' | 'sync' | 'stored';
   title: string;
   body: string;
+  /** `Now`, `Yesterday`, `18 Oct` — the board's right-hand stamp. */
   when: string;
   tone: 'warn' | 'bad' | 'neutral' | 'good';
+  /** A derived row is unread while it stands; a stored one until it is opened. */
+  unread: boolean;
+  /** `today` for whatever is true right now, `earlier` for what was pushed before. */
+  group: 'today' | 'earlier';
+  /** The rule behind a maintenance row, so "Mark done" can open its completion. */
+  ruleId: string | null;
+  /** What a stored notification was about, for its glyph. */
+  storedKind: AppNotificationKind | null;
   href: string | null;
 };
 
@@ -77,12 +88,19 @@ export function useNotificationRows(): { rows: NotificationRow[]; unreadCount: n
             : status.remainingDays !== null
               ? `${status.remainingDays < 0 ? 'Overdue by' : 'In'} ${Math.abs(status.remainingDays)} days`
               : 'Check when convenient';
+        const last =
+          rule.lastCompletedMetres === null ? null : `last at ${formatDistance(rule.lastCompletedMetres, units.distance)}`;
         out.push({
           id: `rule:${rule.id}`,
-          title: `${rule.name} ${status.kind === 'overdue' ? 'is overdue' : 'due soon'}`,
-          body: `${remaining} — ${STATUS_LABEL[status.kind].toLowerCase()}`,
-          when: 'Today',
+          kind: 'rule',
+          title: `${rule.name} ${status.kind === 'overdue' ? 'is overdue' : 'is due soon'}`,
+          body: `${remaining} — ${status.kind === 'overdue' && last ? last : STATUS_LABEL[status.kind].toLowerCase()}`,
+          when: 'Now',
           tone: status.kind === 'overdue' ? 'bad' : 'warn',
+          unread: true,
+          group: 'today',
+          ruleId: rule.id,
+          storedKind: null,
           href: '/maintenance',
         });
       }
@@ -94,10 +112,15 @@ export function useNotificationRows(): { rows: NotificationRow[]; unreadCount: n
       if (days > DOCUMENT_WARNING_DAYS) continue;
       out.push({
         id: `doc:${doc.id}`,
-        title: days < 0 ? `${doc.title} has expired` : `${doc.title} expiring in ${days} days`,
-        body: 'Document vault',
-        when: 'Today',
+        kind: 'document',
+        title: days < 0 ? `${doc.title} has expired` : `${doc.title} expiring in ${days} day${days === 1 ? '' : 's'}`,
+        body: `Document vault · ${days < 0 ? 'expired' : 'expires'} ${formatShortDate(doc.expiresOn)}`,
+        when: 'Now',
         tone: days < 0 ? 'bad' : 'warn',
+        unread: true,
+        group: 'today',
+        ruleId: null,
+        storedKind: null,
         href: '/records/vault',
       });
     }
@@ -105,30 +128,46 @@ export function useNotificationRows(): { rows: NotificationRow[]; unreadCount: n
     if (!connectivity.isOnline) {
       out.push({
         id: 'sync:offline',
+        kind: 'sync',
         title: "You're offline",
         body: 'Everything you log is saved on this device and syncs when a connection returns.',
         when: 'Now',
         tone: 'neutral',
+        unread: false,
+        group: 'today',
+        ruleId: null,
+        storedKind: null,
         href: null,
       });
     } else if (syncState === 'pending') {
       out.push({
         id: 'sync:pending',
+        kind: 'sync',
         title: 'Syncing your latest changes',
         body: 'Recent records are on their way to your account.',
         when: 'Now',
         tone: 'neutral',
+        unread: false,
+        group: 'today',
+        ruleId: null,
+        storedKind: null,
         href: null,
       });
     }
 
     for (const note of stored.data ?? []) {
+      const when = formatRelativeDay(note.date, today);
       out.push({
         id: note.id,
+        kind: 'stored',
         title: note.title,
         body: note.body,
-        when: note.date,
+        when,
         tone: note.kind === 'maintenance' ? 'warn' : 'neutral',
+        unread: note.readAt === null,
+        group: when === 'Today' ? 'today' : 'earlier',
+        ruleId: null,
+        storedKind: note.kind,
         href: note.href,
       });
     }
@@ -136,7 +175,7 @@ export function useNotificationRows(): { rows: NotificationRow[]; unreadCount: n
     return out;
   }, [analytics, documents.data, stored.data, connectivity.isOnline, syncState, today, units.distance]);
 
-  const unreadCount = rows.filter((r) => r.tone === 'warn' || r.tone === 'bad').length;
+  const unreadCount = rows.filter((r) => r.unread).length;
 
   return { rows, unreadCount };
 }

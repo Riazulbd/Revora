@@ -4,11 +4,17 @@ import { Image, Pressable, View } from 'react-native';
 import { useTheme } from '@/theme';
 import { Txt } from './Text';
 
-/** The circular profile button in the dashboard header and Settings. */
+/**
+ * The circular profile mark (Figma `Avatar`): a 48px disc with the rider's
+ * initial in `700 18px`. On a light surface the disc is the soft accent with
+ * the accent text; `onDark` is the More tab's plan card — `#23272C` with the
+ * initial in `#FF6B3D`.
+ */
 export function Avatar({
   name,
   uri,
-  size = 44,
+  size = 48,
+  onDark = false,
   onPress,
   accessibilityLabel = 'Profile',
   testID,
@@ -16,6 +22,7 @@ export function Avatar({
   name: string;
   uri?: string | null;
   size?: number;
+  onDark?: boolean;
   onPress?: () => void;
   accessibilityLabel?: string;
   testID?: string;
@@ -29,7 +36,7 @@ export function Avatar({
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: c.acc,
+        backgroundColor: onDark ? c.heroTile : c.accS,
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
@@ -43,7 +50,7 @@ export function Avatar({
           resizeMode="cover"
         />
       ) : (
-        <Txt style={text('cardTitle', '#FFFFFF')}>{initial}</Txt>
+        <Txt style={text('tileValue', onDark ? c.heroAcc : c.accText)}>{initial}</Txt>
       )}
     </View>
   );
@@ -63,7 +70,7 @@ export function Avatar({
   );
 }
 
-/** The 44px circular icon button beside it (notifications). */
+/** The 48px circular icon button beside it. */
 export function CircleButton({
   children,
   onPress,
@@ -86,9 +93,9 @@ export function CircleButton({
       onPress={onPress}
       testID={testID}
       style={({ pressed }) => ({
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 48,
+        height: 48,
+        borderRadius: 24,
         borderWidth: 1,
         borderColor: c.brd,
         backgroundColor: c.sur,
@@ -102,12 +109,12 @@ export function CircleButton({
         <View
           style={{
             position: 'absolute',
-            top: 9,
-            right: 10,
-            width: 8,
-            height: 8,
-            borderRadius: 4,
-            backgroundColor: c.bad,
+            top: 10,
+            left: 25,
+            width: 10,
+            height: 10,
+            borderRadius: 5,
+            backgroundColor: c.badIcon,
             borderWidth: 2,
             borderColor: c.sur,
           }}

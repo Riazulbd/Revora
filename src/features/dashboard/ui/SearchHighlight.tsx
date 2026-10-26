@@ -21,7 +21,7 @@ export function Highlighted({
 }: {
   text: string;
   query: string;
-  role?: 'rowTitle' | 'meta';
+  role?: 'rowTitle' | 'rowTitleLarge' | 'meta';
   tone?: 'ink' | 'mut';
   numberOfLines?: number;
 }) {

@@ -5,13 +5,12 @@ import { useRouter } from 'expo-router';
 import {
   Badge,
   Button,
+  Card,
   EmptyState,
   ErrorState,
   Footnote,
   ListCard,
-  RecordRow,
-  RowIcon,
-  SCREEN_GUTTER,
+  MenuRow,
   Screen,
   SectionEyebrow,
   SkeletonList,
@@ -20,21 +19,18 @@ import {
 import { compareByUrgency } from '@/calculations/maintenance';
 import { useGarage } from '@/features/bikes/GarageProvider';
 import { useGarageData } from '@/features/bikes/useGarageData';
-import { describeSchedule, describeStatusPill } from '@/features/maintenance/describeRule';
-import { MaintenanceGlyph, glyphForRule } from '@/features/maintenance/ui/MaintenanceGlyph';
-import type { RuleWithStatus } from '@/calculations/analytics';
-import type { UnitPreferences } from '@/types';
-import { useTheme } from '@/theme';
+import { MaintenanceOffRow, MaintenanceRuleRow } from '@/features/maintenance/ui/MaintenanceRuleRow';
+import { formatDistance } from '@/utils/format';
 
 /**
- * The maintenance list.
+ * The maintenance list (Figma `D1 Maintenance — Overview`).
  *
  * Three things the board is precise about, and each of them is a decision
  * rather than a style:
  *
- *  · The row's supporting line states the *schedule* ("Every 3,000 km or
- *    3 months · last at 31,402 km") and the pill states the *urgency*
- *    ("310 KM OVER"). One fact each, so they cannot contradict one another.
+ *  · A row carries one status three ways — the pill beside the name, the fill
+ *    of the track and the line under it — and all three read the same
+ *    `MaintenanceStatus`, so they cannot contradict one another.
  *  · A rule with reminders off keeps its own card under a TURNED OFF eyebrow
  *    and still opens, because a rule you cannot re-open is a rule you have to
  *    delete and retype.
@@ -44,19 +40,37 @@ import { useTheme } from '@/theme';
  */
 export default function MaintenanceRules() {
   const router = useRouter();
-  const { units } = useGarage();
+  const { activeBike, units } = useGarage();
   const { analytics, isPending, error, refetch } = useGarageData();
 
   const rules = [...(analytics?.maintenance.rules ?? [])].sort(compareByUrgency);
   const disabled = analytics?.maintenance.disabled ?? [];
   const counts = analytics?.maintenance.counts ?? null;
+  const current = analytics?.odometer.currentMetres ?? null;
 
   const openRule = (id: string) => router.push({ pathname: '/maintenance/rule', params: { id } });
 
+  const header = (
+    <TabHeader
+      title="Maintenance"
+      subtitle={`${activeBike?.nickname ?? 'Your bike'}${current === null ? '' : ` · ${formatDistance(current, units.distance)}`}`}
+      action={
+        <Button
+          label="Add rule"
+          icon="plus"
+          size="action"
+          onPress={() => router.push('/maintenance/rule')}
+          testID="cta-add-rule"
+        />
+      }
+      style={{ marginBottom: 0 }}
+    />
+  );
+
   if (error) {
     return (
-      <Screen testID="screen-maintenance" contentStyle={{ paddingHorizontal: SCREEN_GUTTER.tab }}>
-        <TabHeader title="Maintenance" />
+      <Screen wash testID="screen-maintenance" contentStyle={{ gap: 16 }}>
+        {header}
         <ErrorState message={error.message} onRetry={() => void refetch()} variant="page" testID="error-maintenance" />
       </Screen>
     );
@@ -64,39 +78,25 @@ export default function MaintenanceRules() {
 
   if (isPending && analytics === null) {
     return (
-      <Screen testID="screen-maintenance" contentStyle={{ paddingHorizontal: SCREEN_GUTTER.tab }}>
-        <TabHeader title="Maintenance" />
+      <Screen wash testID="screen-maintenance" contentStyle={{ gap: 16 }}>
+        {header}
         <SkeletonList count={4} />
       </Screen>
     );
   }
 
   return (
-    <Screen
-      onRefresh={refetch}
-      testID="screen-maintenance"
-      contentStyle={{ paddingHorizontal: SCREEN_GUTTER.tab }}
-    >
-      <TabHeader
-        title="Maintenance"
-        action={
-          <Button
-            label="Add rule"
-            icon="plus"
-            size="compact"
-            onPress={() => router.push('/maintenance/rule')}
-            testID="cta-add-rule"
-          />
-        }
-      />
+    <Screen wash onRefresh={refetch} testID="screen-maintenance" contentStyle={{ gap: 16 }}>
+      {header}
 
+      {/* Figma `Status summary`: one chip per standing, in the list's order. */}
       {counts !== null && rules.length > 0 ? (
-        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 14, marginHorizontal: 4 }}>
-          {counts.overdue > 0 ? <Badge label={`${counts.overdue} overdue`} tone="bad" /> : null}
-          {counts.due_soon > 0 ? <Badge label={`${counts.due_soon} due soon`} tone="warn" /> : null}
-          {counts.upcoming > 0 ? <Badge label={`${counts.upcoming} upcoming`} tone="neutral" /> : null}
-          {counts.good > 0 ? <Badge label={`${counts.good} good`} tone="good" /> : null}
-          {counts.unknown > 0 ? <Badge label={`${counts.unknown} not set`} tone="neutral" /> : null}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, rowGap: 8 }} testID="status-summary">
+          {counts.overdue > 0 ? <Badge size="status" tone="bad" icon="circleAlert" label={`${counts.overdue} overdue`} /> : null}
+          {counts.due_soon > 0 ? <Badge size="status" tone="warn" icon="clock" label={`${counts.due_soon} due soon`} /> : null}
+          {counts.upcoming > 0 ? <Badge size="status" tone="neutral" icon="calendar" label={`${counts.upcoming} upcoming`} bordered style={{ backgroundColor: 'transparent' }} /> : null}
+          {counts.good > 0 ? <Badge size="status" tone="good" icon="check" label={`${counts.good} good`} /> : null}
+          {counts.unknown > 0 ? <Badge size="status" tone="neutral" icon="circle" label={`${counts.unknown} not set`} /> : null}
         </View>
       ) : null}
 
@@ -110,80 +110,47 @@ export default function MaintenanceRules() {
           testID="empty-maintenance"
         />
       ) : (
-        <>
-          <ListCard testID="card-rules">
+        <View style={{ gap: 16 }}>
+          <ListCard style={{ paddingVertical: 2 }} testID="card-rules">
             {rules.map((entry) => (
-              <RuleRow key={entry.rule.id} entry={entry} units={units} onPress={() => openRule(entry.rule.id)} />
+              <MaintenanceRuleRow
+                key={entry.rule.id}
+                entry={entry}
+                units={units}
+                onPress={() => openRule(entry.rule.id)}
+                testID={`rule-${entry.rule.id}`}
+              />
             ))}
           </ListCard>
 
-          <Footnote testID="hint-status-live">
+          <Footnote style={{ marginTop: 0 }} testID="hint-status-live">
             Status is recomputed from the current odometer — a fuel log can change it.
           </Footnote>
-        </>
+        </View>
       )}
 
+      {/* Figma `Plan link`. */}
+      <Card variant="list" style={{ paddingVertical: 6 }}>
+        <MenuRow
+          icon="calendarRange"
+          iconTone="info"
+          label="Service plan"
+          subtitle="The year ahead, projected from your riding"
+          onPress={() => router.push('/maintenance/plan')}
+          testID="row-service-plan"
+        />
+      </Card>
+
       {disabled.length > 0 ? (
-        <>
-          <SectionEyebrow>Turned off</SectionEyebrow>
-          <ListCard style={{ opacity: 0.65 }} testID="card-rules-off">
+        <View>
+          <SectionEyebrow first>Turned off</SectionEyebrow>
+          <ListCard style={{ opacity: 0.75 }} testID="card-rules-off">
             {disabled.map(({ rule }) => (
-              <DisabledRuleRow key={rule.id} id={rule.id} name={rule.name} onPress={() => openRule(rule.id)} />
+              <MaintenanceOffRow key={rule.id} name={rule.name} onPress={() => openRule(rule.id)} testID={`rule-disabled-${rule.id}`} />
             ))}
           </ListCard>
-        </>
+        </View>
       ) : null}
     </Screen>
-  );
-}
-
-/** `width:40px; height:40px; border-radius:11px` — the board's row mark. */
-function RuleRow({
-  entry,
-  units,
-  onPress,
-}: {
-  entry: RuleWithStatus;
-  units: UnitPreferences;
-  onPress: () => void;
-}) {
-  const { c } = useTheme();
-  const pill = describeStatusPill(entry.rule, entry.status, units);
-  const ink =
-    pill.tone === 'bad' ? c.bad : pill.tone === 'warn' ? c.warn : pill.tone === 'good' ? c.good : c.mut;
-
-  return (
-    <RecordRow
-      variant="flush"
-      leading={
-        <RowIcon size={40} tone={pill.tone}>
-          <MaintenanceGlyph name={glyphForRule(entry.rule.name)} size={18} color={ink} />
-        </RowIcon>
-      }
-      title={entry.rule.name}
-      subtitle={describeSchedule(entry.rule, units)}
-      badge={<Badge label={pill.label} tone={pill.tone} variant="outlined" />}
-      onPress={onPress}
-      testID={`rule-${entry.rule.id}`}
-    />
-  );
-}
-
-function DisabledRuleRow({ id, name, onPress }: { id: string; name: string; onPress: () => void }) {
-  const { c } = useTheme();
-  return (
-    <RecordRow
-      variant="flush"
-      leading={
-        <RowIcon size={40} tone="neutral">
-          <MaintenanceGlyph name="off" size={18} color={c.mut} />
-        </RowIcon>
-      }
-      title={name}
-      subtitle="Reminders off · history kept · tap to turn back on"
-      chevron={false}
-      onPress={onPress}
-      testID={`rule-disabled-${id}`}
-    />
   );
 }

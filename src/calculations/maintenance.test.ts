@@ -1,5 +1,5 @@
 import type { MaintenanceRule } from '@/types';
-import { calculateMaintenanceStatus, compareByUrgency, countByStatus } from './maintenance';
+import { calculateMaintenanceStatus, compareByUrgency, countByStatus, maintenanceProgress } from './maintenance';
 
 const rule = (over: Partial<MaintenanceRule> = {}): MaintenanceRule => ({
   id: 'r1',
@@ -193,5 +193,25 @@ describe('a rule with no interval', () => {
     );
     expect(after.kind).toBe('good');
     expect(after.dueAtMetres).toBe(17_588_000);
+  });
+});
+
+describe('maintenanceProgress', () => {
+  it('is the share of the interval already used', () => {
+    const r = rule();
+    expect(maintenanceProgress(r, calculateMaintenanceStatus(r, 6_500_000, '2026-09-01'))).toBeCloseTo(0.5);
+  });
+
+  it('clamps to one once overdue and follows the closer of distance and time', () => {
+    const r = rule({ intervalDays: 100 });
+    expect(maintenanceProgress(r, calculateMaintenanceStatus(r, 8_400_000, '2026-08-11'))).toBe(1);
+    // 10 of 100 days gone, 500 of 3,000 km gone — time is further along? No: distance 1/6, time 1/10, the closer is distance.
+    expect(maintenanceProgress(r, calculateMaintenanceStatus(r, 5_500_000, '2026-08-11'))).toBeCloseTo(1 / 6);
+  });
+
+  it('is null when nothing can be measured', () => {
+    const never = rule({ lastCompletedMetres: null, lastCompletedDate: null });
+    expect(maintenanceProgress(never, calculateMaintenanceStatus(never, 5_000_000, '2026-09-01'))).toBeNull();
+    expect(maintenanceProgress(rule(), calculateMaintenanceStatus(rule(), null, '2026-09-01'))).toBeNull();
   });
 });

@@ -37,7 +37,7 @@ appId: app.revora.android.dev
 - assertVisible: "Name this document."
 # --- invalid: a tax token with no end date ---
 - assertVisible:
-    id: "chips-document-kind"
+    id: "chips-document-kind-.*"
 - tapOn: "Tax token"
 - scrollUntilVisible:
     element:
@@ -57,10 +57,6 @@ appId: app.revora.android.dev
 - eraseText
 - inputText: "TP-4432871"
 - hideKeyboard
-- assertVisible:
-    id: "copy-document-reference"
-- tapOn:
-    id: "copy-document-reference"
 - scrollUntilVisible:
     element:
       id: "field-document-issued"

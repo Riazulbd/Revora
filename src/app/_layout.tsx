@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View , Platform } from 'react-native';
+import { View, Platform } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
@@ -16,7 +16,7 @@ import {
   GoogleSansFlex_800ExtraBold,
 } from '@expo-google-fonts/google-sans-flex';
 
-import { ToastProvider } from '@/components';
+import { ToastProvider, TransitioningProvider, useTransitionListeners } from '@/components';
 import { AuthProvider } from '@/features/auth/AuthProvider';
 import { GarageProvider } from '@/features/bikes/GarageProvider';
 import { BillingProvider } from '@/features/billing/BillingProvider';
@@ -79,23 +79,30 @@ export default function RootLayout() {
  */
 function AppChrome() {
   const { c, dark } = useTheme();
+  const transition = useTransitionListeners();
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <StatusBar style={dark ? 'light' : 'dark'} />
       {Platform.OS === 'android' ? <NavigationBar style={dark ? 'light' : 'dark'} /> : null}
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: 'slide_from_right',
-          contentStyle: { backgroundColor: c.bg },
-        }}
-      >
-        <Stack.Screen name="index" options={{ animation: 'none' }} />
-        <Stack.Screen name="(auth)" options={{ animation: 'fade' }} />
-        <Stack.Screen name="(onboarding)" options={{ animation: 'fade' }} />
-        <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
-      </Stack>
+      <TransitioningProvider active={transition.active}>
+        <Stack
+          screenListeners={transition.listeners}
+          screenOptions={{
+            headerShown: false,
+            animation: 'slide_from_right',
+            // A screen under another one stops rendering while it is covered, so
+            // the push animation is not sharing frames with a list it cannot see.
+            freezeOnBlur: true,
+            contentStyle: { backgroundColor: c.bg },
+          }}
+        >
+          <Stack.Screen name="index" options={{ animation: 'none' }} />
+          <Stack.Screen name="(auth)" options={{ animation: 'fade' }} />
+          <Stack.Screen name="(onboarding)" options={{ animation: 'fade' }} />
+          <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+        </Stack>
+      </TransitioningProvider>
     </View>
   );
 }

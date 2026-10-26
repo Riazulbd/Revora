@@ -12,9 +12,23 @@ appId: app.revora.android.dev
 - assertVisible:
     id: "screen-dashboard"
 - tapOn:
-    id: "cta-overflow"
+    id: "tab-more"
 - tapOn:
-    id: "overflow-legal"
+    id: "row-plan"
+- scrollUntilVisible:
+    element:
+      id: "link-terms"
+    direction: DOWN
+- tapOn:
+    id: "link-terms"
+- assertVisible:
+    id: "screen-terms"
+- scrollUntilVisible:
+    element:
+      id: "link-privacy"
+    direction: DOWN
+- tapOn:
+    id: "link-privacy"
 - assertVisible:
     id: "screen-privacy"
 - assertVisible:
@@ -22,4 +36,4 @@ appId: app.revora.android.dev
 - tapOn:
     id: "cta-privacy-back"
 - assertVisible:
-    id: "screen-dashboard"
+    id: "screen-terms"

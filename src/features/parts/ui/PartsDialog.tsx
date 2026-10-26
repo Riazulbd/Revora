@@ -7,9 +7,9 @@ import { useTheme } from '@/theme';
 /**
  * The two conversion dialogs on the Parts boards.
  *
- * They share the shared `Dialog`'s chrome exactly — `left:20; right:20;
- * border-radius:20px; padding:20px` over the scrim, a `700 17px` title, two
- * 48px buttons 16–18px under the body — but their body is not one muted
+ * They share the shared `Dialog`'s chrome exactly — `left:16; right:16;
+ * border-radius:28px; padding:20px` over the scrim, a `700 20px` title, two
+ * 48px pills 16px under the body — but their body is not one muted
  * sentence. "Move to accessories?" lists, in the rider's words and with their
  * own figures, each thing the move throws away; "Make this a part?" asks for
  * the one reading a part cannot exist without. Neither fits a `message`
@@ -78,10 +78,8 @@ export function PartsDialog({
             <View
               accessibilityViewIsModal
               style={{
-                marginHorizontal: 20,
+                marginHorizontal: 16,
                 backgroundColor: c.sur,
-                borderWidth: 1,
-                borderColor: c.brd,
                 borderRadius: radius.dialog,
                 padding: 20,
                 shadowColor: '#000',
@@ -91,7 +89,7 @@ export function PartsDialog({
                 elevation: 24,
               }}
             >
-              <Txt role="cardTitle">{title}</Txt>
+              <Txt role="dialogTitle">{title}</Txt>
               {children}
               <ButtonRow style={{ marginTop: 16 }}>
                 <Button

@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Button, Field, Input, Screen, ScreenHeader, Txt, useToast } from '@/components';
+import { Button, Card, Field, Input, Screen, ScreenHeader, Txt, useToast } from '@/components';
 import { passwordMeetsRules } from '@/calculations/passwordRules';
 import { useAuth } from '@/features/auth/AuthProvider';
-import { AuthLegalLine, AuthOrDivider, AuthSwitchLine } from '@/features/auth/ui/AuthChrome';
+import { AuthLegalLine, AuthSwitchLine } from '@/features/auth/ui/AuthChrome';
 import { AuthGoogleButton } from '@/features/auth/ui/AuthGoogleButton';
 import { AuthNotice } from '@/features/auth/ui/AuthNotice';
 import { AuthPasswordField, AuthPasswordRules } from '@/features/auth/ui/AuthPasswordField';
@@ -14,11 +14,11 @@ import { messageFor } from '@/services/errors';
 import { signUpSchema } from '@/validation/schemas';
 
 /**
- * Create account.
+ * Create account (Figma `A3 Auth — Sign up`).
  *
- * The board puts the password rules up front rather than saving them for a
- * rejection, so the three chips are always on screen and only turn red once a
- * submit has actually been refused.
+ * The password rules sit up front rather than waiting for a rejection, so the
+ * three chips are always on screen and only turn red once a submit has
+ * actually been refused.
  *
  * A rider who chose "Continue offline" already owns records under an anonymous
  * uid. Creating a fresh account here would orphan every one of them; linking
@@ -47,8 +47,8 @@ export default function SignUp() {
     // auth layer until every one of them is met.
     const rulesMet = passwordMeetsRules(password);
 
-    // The board marks display name Optional. A rider who leaves it blank still
-    // needs a name on the account, so the address they just typed supplies one.
+    // Display name is optional. A rider who leaves it blank still needs a name
+    // on the account, so the address they just typed supplies one.
     const named = displayName.trim() !== '' ? displayName.trim() : (email.split('@')[0] ?? '').trim();
     const parsed = signUpSchema.safeParse({ displayName: named, email, password });
 
@@ -95,7 +95,7 @@ export default function SignUp() {
   };
 
   return (
-    <Screen contentStyle={{ flexGrow: 1, paddingTop: 12 }} testID="screen-signup">
+    <Screen contentStyle={{ flexGrow: 1, gap: 16 }} testID="screen-signup">
       <ScreenHeader title="Create account" style={{ marginBottom: 0 }} />
 
       {offline ? (
@@ -105,26 +105,28 @@ export default function SignUp() {
           message="Creating an account needs a connection — "
           link={{ label: 'try again', onPress: retryAfterOffline, testID: 'link-retry' }}
           tail=" when you’re back."
-          style={{ marginTop: 8 }}
           testID="banner-offline"
         />
       ) : (
-        <Txt role="body" tone="mut" style={{ marginTop: 8, lineHeight: 19.5 }}>
-          {claiming
-            ? 'Keep your records: your bikes and logs stay exactly as they are — this just adds an email so they follow you to another phone.'
-            : 'An account keeps your logbook safe if this phone is ever lost or replaced.'}
-        </Txt>
+        <View style={{ paddingTop: 8, gap: 8 }}>
+          <Txt role="tabTitle" style={{ letterSpacing: -0.28 }}>
+            {claiming ? 'Keep your records' : 'Start your logbook'}
+          </Txt>
+          <Txt role="body" tone="mut">
+            {claiming
+              ? 'Your bikes and logs stay exactly as they are — this just adds an email so they follow you to another phone.'
+              : 'An account keeps your logbook safe if this phone is ever lost or replaced.'}
+          </Txt>
+        </View>
       )}
 
-      <View style={{ gap: 16, marginTop: offline ? 20 : 24 }}>
+      <Card style={{ gap: 16 }} testID="card-fields">
         <Field>
-          <View
-            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}
-          >
-            <Txt role="smallStrong" tone="mut">
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+            <Txt role="fieldLabel" tone="mut">
               Display name
             </Txt>
-            <Txt role="metaSmall" tone="mut">
+            <Txt role="meta" tone="faint">
               Optional
             </Txt>
           </View>
@@ -158,7 +160,7 @@ export default function SignUp() {
           />
         </Field>
 
-        <Field label="Password" style={{ gap: 8 }}>
+        <Field label="Password">
           <AuthPasswordField
             value={password}
             onChangeText={setPassword}
@@ -174,20 +176,15 @@ export default function SignUp() {
           />
           <AuthPasswordRules password={password} attempted={attempted} disabled={offline} />
         </Field>
-      </View>
+      </Card>
 
       {failure === 'email-in-use' ? (
         <AuthNotice
           tone="bad"
           lead="That email already has a Revora account."
           message=""
-          link={{
-            label: 'Sign in',
-            onPress: () => router.replace('/(auth)/signin'),
-            testID: 'link-signin',
-          }}
+          link={{ label: 'Sign in', onPress: () => router.replace('/(auth)/signin'), testID: 'link-signin' }}
           tail=" instead — your logbook will be there."
-          style={{ marginTop: 16 }}
           testID="banner-email-in-use"
         />
       ) : null}
@@ -195,32 +192,24 @@ export default function SignUp() {
       <Button
         label="Create account"
         loadingLabel="Creating account…"
+        size="xlarge"
         onPress={submit}
         loading={busy}
         disabled={offline}
-        style={{ marginTop: failure === 'email-in-use' ? 12 : 20 }}
         testID="cta-submit"
       />
-
-      <AuthOrDivider style={{ marginVertical: 20 }} />
-
-      <AuthGoogleButton onPress={withGoogle} disabled={offline || busy} testID="cta-google" />
 
       <AuthLegalLine
         prompt="By creating an account you agree to the"
         onTerms={() => router.push('/legal/terms')}
         onPrivacy={() => router.push('/legal/privacy')}
-        style={{ marginTop: 16 }}
       />
+
+      <AuthGoogleButton onPress={withGoogle} disabled={offline || busy} testID="cta-google" />
 
       <View style={{ flex: 1, minHeight: 24 }} />
 
-      <AuthSwitchLine
-        prompt="Already have an account?"
-        action="Sign in"
-        onPress={() => router.replace('/(auth)/signin')}
-        testID="cta-signin-link"
-      />
+      <AuthSwitchLine prompt="Already have an account?" action="Sign in" onPress={() => router.replace('/(auth)/signin')} testID="cta-signin-link" />
     </Screen>
   );
 }
